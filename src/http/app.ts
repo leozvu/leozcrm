@@ -3,7 +3,21 @@ import { clientsRouter } from './routes/clients';
 import { campaignsRouter } from './routes/campaigns';
 import { leadsRouter } from './routes/leads';
 import { funnelStagesRouter } from './routes/funnelStages';
+import { createMetricsRouter, metricsRouter } from './routes/metrics';
+import { MetricsRepository } from '../repositories/metricsRepository';
+import { ClientRepository } from '../repositories/clientRepository';
 import { ValidationError } from '../errors';
+import type { Knex } from '../db/knex';
+
+export interface CreateAppOptions {
+  /**
+   * Optional Knex connection for the read-only KPI layer. When provided, the
+   * `/metrics` routes are bound to repositories on this connection — used by the
+   * HTTP route tests to point the endpoints at a seeded in-memory database.
+   * Omitted in production, where the routes use the process-wide singletons.
+   */
+  knex?: Knex;
+}
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
 function isConstraintViolation(err: any): boolean {
@@ -16,7 +30,7 @@ function isConstraintViolation(err: any): boolean {
  * stateless — auth, validation middleware, and rate limiting are deliberately
  * out of scope for this data-layer foundation (see Codex review list).
  */
-export function createApp() {
+export function createApp(options: CreateAppOptions = {}) {
   const app = express();
   app.use(express.json());
 
@@ -26,6 +40,15 @@ export function createApp() {
   app.use('/clients', clientsRouter);
   app.use('/campaigns', campaignsRouter);
   app.use('/leads', leadsRouter);
+  app.use(
+    '/metrics',
+    options.knex
+      ? createMetricsRouter({
+          metrics: new MetricsRepository(options.knex),
+          clients: new ClientRepository(options.knex),
+        })
+      : metricsRouter,
+  );
 
   // Centralized error handler. Bad input (unknown/conflicting references) is a
   // client error, not a server fault — so it must never become a 500.

@@ -17,7 +17,7 @@ One end-to-end growth funnel: Traffic -> Attention -> Lead -> Qualification -> N
 - Repeat and improve recommendations weekly.
 
 3. WHAT CLAUDE CODE SHOULD BUILD FIRST
----------------------------------------
+--------------------------------------
 - Custom CRM foundation (database + schema).
 - Client and campaign models/tables.
 - Lead tracking with stage changes.
@@ -42,3 +42,25 @@ One end-to-end growth funnel: Traffic -> Attention -> Lead -> Qualification -> N
 - Decide what "good enough" looks like for the MVP launch date.
 - Choose whether recommendations are advisory only or can trigger automated actions.
 - Set the threshold for moving from placeholder integrations to real publishing.
+
+6. MILESTONE #2: KPI READ LAYER (NEXT)
+----------------------------------------
+Goal: Build the read-only metrics API that converts live CRM data into funnel KPIs.
+Why now: CRM foundation passed QA; this layer unblocks both the CEO Brief Agent and any future dashboard.
+Deliverables:
+- Repository query methods for funnel KPIs (stage counts, conversion rates, lead volumes by source/channel, campaign attribution, trends)
+- Typed API routes returning those KPIs scoped to a single client
+- One contract/integration test per route against known seed data
+Success criteria:
+- All new KPI route tests pass
+- No schema changes required
+- CEO Brief Agent can be implemented next by consuming these endpoints
+
+7. REMAINING HIGH-PRIORITY ITEMS (POST-M2)
+-------------------------------------------
+- HTTP route-level contract tests for bad IDs, cross-client conflicts, and no accidental 500s.
+- Repository update hardening: disallow ownership reassignment or add full validation.
+- Stricter request validation: email/UUID shapes, numeric bounds, allowed enum values.
+- Request validation depth for status/channel/score.
+- Postgres production smoke: migrate/seed/rollback on PostgreSQL before exposing externally.
+- Production auth and tenant access control before real users/agents can mutate CRM data.

@@ -37,14 +37,33 @@ npm start          # CRUD API on http://localhost:3000
 src/
   domain/        funnel definition (source of truth) + row types
   db/            knex connection, migrations, migrate runner, seed/verify
-  repositories/  model layer: BaseRepository + Client/Campaign/Lead/FunnelStage
-  http/          Express app + CRUD routes
+  repositories/  model layer: BaseRepository + Client/Campaign/Lead/FunnelStage + Metrics
+  http/          Express app + CRUD routes + read-only KPI routes
 knexfile.ts      dev=SQLite, test=SQLite(:memory:), production=PostgreSQL
 docs/DATA_MODEL.md   full setup plan, schema, indexes, and funnel notes
 ```
 
 **Read `docs/DATA_MODEL.md`** for the database setup plan, schema, index
 rationale, rollback-safety notes, and how the data model supports the funnel.
+
+## KPI read layer (read-only)
+
+The read-only metrics API converts live CRM data into funnel KPIs. Every
+endpoint is **scoped to a single client** via a required `?clientId=` query
+parameter (`400` if missing, `404` if the client is unknown) and only ever
+reads — it never mutates. This is the layer the KPI dashboard and the Daily CEO
+Brief Agent build on top of.
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /metrics/funnel?clientId=` | Per-stage lead counts, cumulative reach, step + overall conversion rates |
+| `GET /metrics/sources?clientId=` | Lead volume grouped by `source` |
+| `GET /metrics/channels?clientId=` | Lead volume grouped by campaign `channel` (no campaign → `unattributed`) |
+| `GET /metrics/campaigns?clientId=` | Per-campaign attribution (lead count, won count, budget) + unattributed count |
+| `GET /metrics/trends?clientId=` | Lead-creation volume bucketed by day (UTC) |
+
+Aggregation logic lives in `repositories/metricsRepository.ts`; the typed result
+shapes are in `domain/metrics.ts`.
 
 ## Stack
 
