@@ -7,6 +7,7 @@ import { createMetricsRouter, metricsRouter } from './routes/metrics';
 import { createBriefRouter, briefRouter } from './routes/brief';
 import { createRecommendationsRouter, recommendationsRouter } from './routes/recommendations';
 import { createDashboardRouter, dashboardRouter } from './routes/dashboard';
+import { integrationsRouter } from './routes/integrations';
 import { MetricsRepository } from '../repositories/metricsRepository';
 import { ClientRepository } from '../repositories/clientRepository';
 import { LeadRepository } from '../repositories/leadRepository';
@@ -49,6 +50,11 @@ export function createApp(options: CreateAppOptions = {}) {
   app.use('/clients', clientsRouter);
   app.use('/campaigns', campaignsRouter);
   app.use('/leads', leadsRouter);
+
+  // Placeholder integration registry (Milestone #6). Read-only metadata only —
+  // a pure in-memory registry with no DB dependency, so it mounts unconditionally
+  // and exposes no action/publish surface.
+  app.use('/integrations', integrationsRouter);
 
   // Read-only KPI / brief / recommendation / dashboard layers. When a connection
   // is injected (route tests), bind them to repositories on it; otherwise use the

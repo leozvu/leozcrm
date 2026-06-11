@@ -34,6 +34,31 @@ Owner: Hermes (PM)
 
 ---
 
+2026-06-11 — Milestone #6 scope: Integration Adapters — Placeholder
+Decision: Next milestone is a safe no-op integration adapter layer, not production publishing or hardening.
+Context: Milestone #5 passed QA.
+Rationale: A defined integration surface is required before later milestones can legally publish or automate external actions. Keeping these adapters placeholder-only preserves safety while establishing the extension points for real integrations.
+Alternatives considered:
+  - Skip placeholders and build live integrations directly (higher external risk and harder to review cleanly).
+  - Advance to production hardening first (delays visible product integration surface).
+Owner: Hermes (PM)
+
+---
+
+2026-06-11 — Milestone #6 implementation: placeholder adapter architecture
+Decision: Add a new `src/integrations/` module — an `IntegrationAdapter` contract in `domain/integration.ts`, a `PlaceholderAdapter` base, five concrete channel adapters (Facebook, TikTok, Instagram, Email, AI Media), and an in-memory `IntegrationRegistry` singleton — surfaced through a read-only `GET /integrations` route. No execute/publish HTTP endpoint is exposed.
+Context: M6 requires a connector surface that mounts in the system but performs no external action. The existing layers (domain/repositories/services/http) had no home for outbound-channel concerns.
+Rationale:
+  - The no-op guarantee is pinned at the type level (`mode: 'placeholder'`, result `performed: false` / `no_op: true`), mirroring how M4 pins `advisory_only: true`. Adapters import nothing that can reach the network or DB, so "no external calls / no side effects" is structural, not just convention — and is proven by a test that arms every egress primitive (fetch/http/https/net) to throw.
+  - The registry plays the read-model role a repository plays for CRUD routes, so the route stays thin and needs no service or DB connection (it mounts unconditionally in `createApp`).
+  - The HTTP surface is metadata-only (list + per-channel info). Deliberately no action endpoint, so the API cannot trigger even a no-op publish; no-op `execute` is exercised in unit tests only.
+  - No schema change, no migration, no credentials/OAuth, no background jobs.
+Alternatives considered:
+  - Put adapters under `services/` (they are not orchestration over repositories; a dedicated module reads cleaner and isolates the future-external concern).
+  - Expose a no-op `execute`/dry-run endpoint (rejected: reads like a publish surface and invites misuse before M7 safety rails exist).
+  - One file per adapter (rejected: the five are trivial specialisations of one base; a single `channels.ts` keeps them cohesive with the registry as the single source of truth).
+Owner: Claude Code (Senior Dev), within the M6 scope approved above.
+
 2026-06-10 — Milestone #4 scope: Recommendation System v0
 Decision: Build Recommendation System v0 before Dashboard UI, Integrations, and Production Hardening.
 Context: Milestone #3 (Daily CEO Brief Engine) passed QA. Product now has stable data, KPI, and brief contracts.

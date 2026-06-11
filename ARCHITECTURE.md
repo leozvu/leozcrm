@@ -119,13 +119,20 @@ Key patterns actually in use:
     │   └── metricsRepository.ts
     ├── services/              business/orchestration layer (see §5)
     │   ├── briefService.ts    daily CEO brief engine (+ text renderer)
-    │   └── recommendationService.ts  advisory recommendations from the brief
+    │   ├── recommendationService.ts  advisory recommendations from the brief
+    │   └── dashboardService.ts  composes KPI/brief/recommendation/leads into a view
+    ├── integrations/          placeholder connector layer (see §5.1) — no-op only
+    │   ├── placeholderAdapter.ts  abstract no-op adapter base
+    │   ├── channels.ts        five concrete channel adapters (FB/TikTok/IG/Email/AI media)
+    │   └── registry.ts        in-memory IntegrationRegistry (+ singleton)
     ├── http/
     │   ├── app.ts             createApp({ knex? }): wiring + error handler
     │   ├── asyncHandler.ts    forwards async errors to Express
     │   └── routes/            one file per resource
     │       ├── clients.ts  campaigns.ts  leads.ts
     │       ├── funnelStages.ts  metrics.ts  brief.ts  recommendations.ts
+    │       ├── dashboard.ts   read-only HTML dashboard surface
+    │       └── integrations.ts  read-only placeholder integration registry
     ├── server.ts              process entry point
     └── __tests__/
         ├── *.test.ts          node:test suites (in-memory SQLite)
@@ -253,6 +260,34 @@ Bad input is a **client error, never a 500**. The flow:
 
 Async handlers are wrapped with `asyncHandler` so thrown/rejected errors reach
 this handler. Status-code map is tabulated in `docs/DATA_MODEL.md`.
+
+### 5.1 Integration adapter layer (placeholder, M6)
+
+`src/integrations/` is the seam where future outbound channels (Facebook,
+TikTok, Instagram, email, AI media) will plug in. In M6 it is **no-op by
+construction** and must stay that way until production safety rails (M7) and the
+real publishing milestone (M8) land:
+
+- **The no-op guarantee is in the type system.** `domain/integration.ts` pins
+  `mode: 'placeholder'` and an action result's `performed: false` / `no_op: true`
+  the same way the recommendation layer pins `advisory_only: true`. `execute`
+  acknowledges a request and returns synchronously without doing anything.
+- **No reach to the outside.** Adapters import nothing that can touch the
+  network (`http`/`https`/`fetch`/`net`) or the DB (`knex`/repositories), so "no
+  external calls, no side effects" is structural, not just convention. A test
+  arms every egress primitive to throw and proves `execute` stays silent.
+- **No credentials, no secrets.** A request payload is never transmitted or
+  stored; only its key names are echoed back for traceability.
+- **The registry is a read model.** `IntegrationRegistry` holds the adapter
+  instances and looks them up by channel — the role a repository plays for CRUD
+  routes — so the `/integrations` route stays thin and needs no DB connection.
+- **No action surface over HTTP.** `/integrations` exposes adapter *metadata*
+  only (list + per-channel info). There is deliberately no execute/publish
+  endpoint, so the API cannot trigger even a no-op channel action. The no-op
+  `execute` path is exercised in unit tests, not over the wire.
+
+When real integrations arrive they will define their own contract behind auth
+and spend guards; nothing in this layer publishes, schedules, or mutates today.
 
 ---
 

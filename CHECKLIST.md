@@ -86,10 +86,10 @@ Success criteria:
 - All recommendation tests are green
 - QA sign-off: PASS
 
-9. MILESTONE #5: EXECUTIVE DASHBOARD & TEAM WORKSPACE (IN PROGRESS)
+9. MILESTONE #5: EXECUTIVE DASHBOARD & TEAM WORKSPACE — PASS
 -----------------------------------------------------------------
 Goal: Provide a visual, single-pane surface for the CEO and team to monitor funnel health, daily briefs, and recommendations.
-Why now: M2, M3, and M4 APIs are complete; a UI layer is the next product-value increment before heavier integration and production exposure.
+Why now: M2, M3, and M4 APIs are complete; a dashboard validates all prior API contracts visually before heavier integration and production exposure.
 Deliverables:
 - Dashboard UI shell consuming KPI, Brief, and Recommendation APIs
 - Funnel visualization (stage counts, conversion trends)
@@ -99,67 +99,68 @@ Success criteria:
 - Dashboard reflects live CRM state without schema changes
 - CEO Brief and Recommendations render correctly from their APIs
 - Suitable for internal pilot use before external exposure
-110|
-111|11. MILESTONE #6: INTEGRATION ADAPTERS — PLACEHOLDER (PLANNED)
-112|---------------------------------------------------------------
-113|Goal: Establish safe, no-op connector architecture for social, email, and AI tools.
-114|Why now: A defined integration surface is needed before real publishing and before the Agent Workforce can trigger external actions.
-115|Deliverables:
-116|- Placeholder adapters for Facebook, TikTok, Instagram, email, and AI video/image stubs
-117|- Explicit no-op behavior and clear documentation separating placeholder from production path
-118|- Route/service tests proving adapters do not mutate external state
-119|Success criteria:
-120|- Adapters mount in the system but perform no external writes
-121|- No dashboard, integration, or autonomous execution layer was added
-123|
-124|12. MILESTONE #7: PRODUCTION HARDENING (PLANNED)
-125|-----------------------------------------------------------------
-126|Goal: Add authorization, validation, and database safety required before external exposure.
-127|Why now: M5 and M6 expose surfaces that must be protected before real users or agents interact with CRM data.
-128|Deliverables:
-129|- Auth + tenant access control
-130|- HTTP route contract tests (bad IDs, cross-client conflicts, 500 prevention)
-131|- Stricter request validation (email/UUID shapes, numeric bounds, enums)
-132|- Repository update hardening (ownership reassignment rules)
-133|- Postgres migrate/seed/rollback smoke test
-134|Success criteria:
-135|- All hardened routes handle invalid input without crashing
-136|- Tenant data is fully isolated
-137|- Production database lifecycle scripts pass on PostgreSQL
-138|
-139|13. MILESTONE #8: REAL INTEGRATION PUBLISHING (PLANNED)
-140|-----------------------------------------------------------------
-141|Goal: Replace placeholder adapters with live connections and enable recommendation-driven publishing.
-142|Why now: M6 placeholders and M7 safety rails are complete; real publishing closes the recommendation → action → data loop.
-143|Deliverables:
-144|- Live social, email, and CRM sync integrations
-145|- Autonomous publishing paths gated by authorization and spend guards
-146|- End-to-end publishing tests against sandbox targets
-147|Success criteria:
-148|- Recommendations can trigger real external actions safely
-149|- Failure modes are logged and visible, not silent
-150|
-151|14. MILESTONE #9: AGENT WORKFORCE & AUTOMATED ACTIONS (PLANNED)
-152|----------------------------------------------------------------
-153|Goal: Execute validated recommendations as automated workflows: lead qualification, campaign launches, nurture sequences.
-154|Why now: M4 recommendations, M8 integrations, and M7 safety are complete.
-155|Deliverables:
-156|- Agent-driven pipelines that consume recommendation triggers
-157|- Spend caps and safety stop-criteria
-158|- Observability for autonomous actions (logs, failure alerts)
-159|Success criteria:
-160|- Autonomous workflows run within defined safety boundaries
-161|- Recommendations can be auto-executed without schema changes
-162|
-163|15. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING (PLANNED)
-164|----------------------------------------------------------------
-165|Goal: First paying client or internal pilot goes live.
-166|Why now: M5 through M9 form a stable, production-ready platform with dashboard, integrations, automation, and safety.
-167|Deliverables:
-168|- Client onboarding workflow
-169|- Pilot/support runbook
-170|- Production scaling and monitoring readiness
-171|Success criteria:
-172|- First client can self-serve or be onboarded within defined SLA
-173|- Product metrics and retention feedback loop is visible
-174|- Support and escalation paths are documented and staffed
+- QA sign-off: PASS
+
+10. MILESTONE #6: INTEGRATION ADAPTERS — PLACEHOLDER (CURRENT)
+----------------------------------------------------------------
+Goal: Establish safe, no-op connector architecture for social, email, and AI tools.
+Why now: A defined integration surface is needed before real publishing and before the Agent Workforce can trigger external actions.
+Deliverables:
+- Placeholder adapters for Facebook, TikTok, Instagram, email, and AI video/image stubs
+- Explicit no-op behavior and clear documentation separating placeholder from production path
+- Route/service tests proving adapters do not mutate external state
+Success criteria:
+- Adapters mount in the system but perform no external writes
+- No dashboard, integration, or autonomous execution layer was added
+
+11. MILESTONE #7: PRODUCTION HARDENING (PLANNED)
+-----------------------------------------------------------------
+Goal: Add authorization, validation, and database safety required before external exposure.
+Why now: M5 and M6 expose surfaces that must be protected before real users or agents interact with CRM data.
+Deliverables:
+- Auth + tenant access control
+- HTTP route contract tests (bad IDs, cross-client, 500 prevention)
+- Stricter request validation (email/UUID shapes, numeric bounds, enums)
+- Repository update hardening (ownership reassignment rules)
+- Postgres migrate/seed/rollback smoke test
+Success criteria:
+- All hardened routes handle invalid input without crashing
+- Tenant data is fully isolated
+- Production database lifecycle scripts pass on PostgreSQL
+
+12. MILESTONE #8: REAL INTEGRATION PUBLISHING (PLANNED)
+-----------------------------------------------------------------
+Goal: Replace placeholder adapters with live connections and enable recommendation-driven publishing.
+Why now: M6 placeholders and M7 safety rails are complete; real publishing closes the recommendation -> action -> data loop.
+Deliverables:
+- Live social, email, and CRM sync integrations
+- Autonomous publishing paths gated by authorization and spend guards
+- End-to-end publishing tests against sandbox targets
+Success criteria:
+- Recommendations can trigger real external actions safely
+- Failure modes are logged and visible, not silent
+
+13. MILESTONE #9: AGENT WORKFORCE & AUTOMATED ACTIONS (PLANNED)
+----------------------------------------------------------------
+Goal: Execute validated recommendations as automated workflows: lead qualification, campaign launches, nurture sequences.
+Why now: M4 recommendations, M8 integrations, and M7 safety are complete.
+Deliverables:
+- Agent-driven pipelines that consume recommendation triggers
+- Spend caps and safety stop-criteria
+- Observability for autonomous actions (logs, failure alerts)
+Success criteria:
+- Autonomous workflows run within defined safety boundaries
+- Recommendations can be auto-executed without schema changes
+
+14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING (PLANNED)
+----------------------------------------------------------------
+Goal: First paying client or internal pilot goes live.
+Why now: M5 through M9 form a stable, production-ready platform with dashboard, integrations, automation, and safety.
+Deliverables:
+- Client onboarding workflow
+- Pilot/support runbook
+- Production scaling and monitoring readiness
+Success criteria:
+- First client can self-serve or be onboarded within defined SLA
+- Product metrics and retention feedback loop is visible
+- Support and escalation paths are documented and staffed

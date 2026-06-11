@@ -30,12 +30,13 @@ M4 — Recommendation System .............. ✅ Completed
   - Advisory-only mode (no automated actions)
   - QA sign-off: PASS
 
-M5 — Executive Dashboard & Team Workspace .. 🚧 In Progress
+M5 — Executive Dashboard & Team Workspace .. ✅ Completed
   - Single-pane funnel dashboard consuming KPI API
   - CEO Brief viewer and recommendation panels
   - Lead list and stage movement interfaces
+  - QA sign-off: PASS
 
-M6 — Integration Adapters (Placeholder) .... ⏳ Planned
+M6 — Integration Adapters (Placeholder) .... 🚧 In Progress
   - Facebook, TikTok, Instagram, email, AI video/image stubs
   - Safe no-op adapters; extend to real publishing later
 
