@@ -102,8 +102,13 @@ export class RecommendationService {
       });
     }
 
-    // Healthy funnel: fall back to the brief's maintain-momentum action.
-    if (recommendations.length === 0) {
+    // No anomaly-derived recommendations. Distinguish two cases:
+    //   - Empty client (no leads at all): there is no funnel to advise on and no
+    //     momentum to maintain, so return an empty list (per the output contract,
+    //     recommendations are "empty only for an empty client").
+    //   - Healthy funnel (has leads, no anomalies): fall back to the brief's
+    //     maintain-momentum action.
+    if (recommendations.length === 0 && brief.headline.total_leads > 0) {
       const action = actionsByCode.get(BASELINE.action_code);
       if (action) {
         recommendations.push({

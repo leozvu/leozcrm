@@ -78,16 +78,14 @@ test('reports are sorted by priority, high first', async () => {
   }
 });
 
-test('a healthy client (no leads) gets a single maintain-momentum recommendation', async () => {
+test('an empty client (no leads) gets no recommendations', async () => {
   const empty = await new ClientRepository(db).create({ name: 'Empty Co', email: 'rec-empty@example.com' });
   const report = await service.generate(empty.id, { asOf });
 
+  // No leads means no funnel to advise on and no momentum to maintain, so the
+  // report is empty rather than a fabricated maintain-momentum recommendation.
   assert.equal(report.advisory_only, true);
-  assert.deepEqual(
-    report.recommendations.map((r) => ({ code: r.code, category: r.category, priority: r.priority })),
-    [{ code: 'maintain_momentum', category: 'retention', priority: 'low' }],
-  );
-  assert.equal(report.recommendations[0].advisory_only, true);
+  assert.deepEqual(report.recommendations, []);
 });
 
 test('generate rejects a date-shaped but invalid asOf with a 400 ValidationError', async () => {
