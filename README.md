@@ -38,7 +38,8 @@ src/
   domain/        funnel definition (source of truth) + row types
   db/            knex connection, migrations, migrate runner, seed/verify
   repositories/  model layer: BaseRepository + Client/Campaign/Lead/FunnelStage + Metrics
-  http/          Express app + CRUD routes + read-only KPI routes
+  services/      business layer: BriefService (daily CEO brief engine)
+  http/          Express app + CRUD routes + read-only KPI + brief routes
 knexfile.ts      dev=SQLite, test=SQLite(:memory:), production=PostgreSQL
 docs/DATA_MODEL.md   full setup plan, schema, indexes, and funnel notes
 ```
@@ -64,6 +65,24 @@ Brief Agent build on top of.
 
 Aggregation logic lives in `repositories/metricsRepository.ts`; the typed result
 shapes are in `domain/metrics.ts`.
+
+## Daily CEO Brief (read-only)
+
+The brief engine turns the KPI layer into a deterministic executive summary for
+one client: a funnel snapshot, an acquisition delta, anomalies, and advisory
+recommended actions. It consumes only the KPI repository (no new queries, no
+schema change) and recommendations are **advisory only** — nothing is automated.
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /brief?clientId=` | Today's brief as JSON |
+| `GET /brief?clientId=&asOf=YYYY-MM-DD` | Brief for a specific day |
+| `GET /brief?clientId=&format=text` | Brief rendered as plain text |
+
+Same client scoping as the KPI routes (`400` missing/blank `clientId` or
+malformed `asOf`, `404` unknown client). The engine lives in
+`services/briefService.ts`; the output contract is in `domain/brief.ts`. Given
+the same CRM state and `asOf`, it always produces the same brief.
 
 ## Stack
 

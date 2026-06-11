@@ -13,16 +13,16 @@ M1 — CRM Foundation .................... ✅ Completed
   - Seed data and verification
   - QA sign-off: PASS
 
-M2 — KPI Read Layer .................... ⏳ Next
+M2 — KPI Read Layer .................... ✅ Completed
   - Repository methods: stage counts, conversion rates, lead volumes, campaign attribution, trends
   - Typed metrics API routes scoped per client
   - Integration tests against seed data
   - Outcome: unblocks CEO Brief Agent and dashboard UI
 
-M3 — CEO Brief Agent ................... ⏳ After M2
-  - Daily brief generation from KPI endpoints
-  - Brief output contract (JSON/text)
-  - Brief accuracy tests vs expected CRM state
+M3 — CEO Brief Agent ................... 🚧 In Progress
+  - Brief domain model and output contract (JSON/text)
+  - Agent/service consuming KPI endpoints
+  - Deterministic brief accuracy tests
 
 M4 — Recommendation System .............. ⏳ After M3
   - Rules/heuristics based on funnel KPIs

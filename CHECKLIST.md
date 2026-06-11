@@ -43,7 +43,7 @@ One end-to-end growth funnel: Traffic -> Attention -> Lead -> Qualification -> N
 - Choose whether recommendations are advisory only or can trigger automated actions.
 - Set the threshold for moving from placeholder integrations to real publishing.
 
-6. MILESTONE #2: KPI READ LAYER (NEXT)
+6. MILESTONE #2: KPI READ LAYER — PASS
 ----------------------------------------
 Goal: Build the read-only metrics API that converts live CRM data into funnel KPIs.
 Why now: CRM foundation passed QA; this layer unblocks both the CEO Brief Agent and any future dashboard.
@@ -56,8 +56,22 @@ Success criteria:
 - No schema changes required
 - CEO Brief Agent can be implemented next by consuming these endpoints
 
-7. REMAINING HIGH-PRIORITY ITEMS (POST-M2)
--------------------------------------------
+7. MILESTONE #3: DAILY CEO BRIEF ENGINE V0 (CURRENT)
+-----------------------------------------------------
+Goal: Generate an accurate, deterministic daily CEO brief from live CRM KPIs.
+Why now: KPI read layer is complete and QA-passed; the brief is the first AI/agent deliverable that turns data into executive action.
+Deliverables:
+- Brief domain model and output contract (JSON/text with funnel snapshot, deltas, anomalies, recommended actions)
+- Agent/service that consumes the KPI endpoints and assembles the brief
+- Deterministic tests proving brief output matches expected CRM state
+Success criteria:
+- Brief generation succeeds from seed data without schema changes
+- Key funnel metrics in the brief exactly match KPI API output
+- Anomaly detection and recommended actions are relevant and understandable
+- All brief tests are green
+
+8. PRODUCTION HARDENING ITEMS (POST-M3)
+----------------------------------------
 - HTTP route-level contract tests for bad IDs, cross-client conflicts, and no accidental 500s.
 - Repository update hardening: disallow ownership reassignment or add full validation.
 - Stricter request validation: email/UUID shapes, numeric bounds, allowed enum values.

@@ -46,7 +46,9 @@ db/            knex connection, migrations, migrate runner, seed/fixtures
    │
 repositories/  data-access layer over Knex (CRUD + domain queries + read/KPI)
    │
-http/          Express app: thin routes -> repositories, central error handler
+services/      business/orchestration over repositories (e.g. brief engine)
+   │
+http/          Express app: thin routes -> service/repository, central error handler
    │
 server.ts      process entry: createApp(), listen, graceful shutdown
 ```
@@ -60,8 +62,12 @@ Key patterns actually in use:
 - **Dependency-injectable connection.** Every repository constructor accepts an
   optional `Knex` instance and defaults to the shared `db` singleton. App code
   uses the exported singleton; tests pass an in-memory connection.
-- **Thin routes.** HTTP handlers parse input, call one repository method, and
-  shape the response/status. Business logic lives below the route.
+- **Thin routes.** HTTP handlers parse input, call one repository or service
+  method, and shape the response/status. Business logic lives below the route.
+- **Service layer for orchestration.** Logic beyond single-table data access
+  (the brief engine, future agent/recommendation logic) lives in `services/`,
+  between routes and repositories (see §5). CRUD/KPI routes that only need one
+  repository call skip it.
 - **Centralized error contract.** Repositories throw `ValidationError` (carrying
   an HTTP status); the single Express error handler maps it. Bad input is never
   a 500 (see §5).
@@ -94,7 +100,8 @@ Key patterns actually in use:
     ├── domain/                pure, I/O-free definitions
     │   ├── funnel.ts          canonical funnel stages (source of truth)
     │   ├── types.ts           row interfaces + TABLES name constants
-    │   └── metrics.ts         typed KPI result shapes
+    │   ├── metrics.ts         typed KPI result shapes
+    │   └── brief.ts           CEO brief output contract
     ├── db/
     │   ├── knex.ts            builds the shared `db` connection from NODE_ENV
     │   ├── migrate.ts         tiny CLI wrapper over knex.migrate (latest/rollback/status)
@@ -108,12 +115,14 @@ Key patterns actually in use:
     │   ├── leadRepository.ts
     │   ├── funnelStageRepository.ts
     │   └── metricsRepository.ts
+    ├── services/              business/orchestration layer (see §5)
+    │   └── briefService.ts    daily CEO brief engine (+ text renderer)
     ├── http/
     │   ├── app.ts             createApp({ knex? }): wiring + error handler
     │   ├── asyncHandler.ts    forwards async errors to Express
     │   └── routes/            one file per resource
     │       ├── clients.ts  campaigns.ts  leads.ts
-    │       ├── funnelStages.ts            metrics.ts (createMetricsRouter factory)
+    │       ├── funnelStages.ts  metrics.ts  brief.ts  (router factories)
     ├── server.ts              process entry point
     └── __tests__/
         ├── *.test.ts          node:test suites (in-memory SQLite)
@@ -181,25 +190,37 @@ Rules:
 
 ## 5. Service conventions
 
-**There is no `services/` layer in the codebase today.** This is intentional for
-the current scope, and the convention is:
+The `services/` layer holds **business logic and orchestration that is more than
+data access** — it sits between the HTTP routes and the repositories. It was
+introduced in M3 with `BriefService` (the Daily CEO Brief engine) and is the
+home for future agent/recommendation logic.
 
-- **Routes call repositories directly.** For the current CRUD + KPI surface there
-  is no business orchestration between the HTTP layer and the data layer, so a
-  service tier would be empty indirection. Handlers in `http/routes/` invoke a
-  single repository method.
-- **The service seam is explicitly reserved, not built.** Logic that is *more
-  than data access* — e.g. which funnel transitions are legal, multi-step
-  workflows, recommendation rules, agent orchestration — belongs in a future
-  service layer that sits **between routes and repositories**. The code already
-  draws this line: `LeadRepository.moveToStage` records a move but leaves
-  transition *rules* to "a later service layer" (see its doc comment and
-  `docs/DATA_MODEL.md` §7).
+Rules a service follows:
 
-When a service layer is introduced, follow the patterns already established
-below it: dependency-injected repositories, `ValidationError` for client-facing
-failures, typed inputs/outputs, and no direct `knex` use. Do not push business
-rules up into routes or down into repositories to avoid creating it.
+- **Route → service → repository.** A route stays thin (parse/validate input,
+  pick a format, set status); it calls a service, which orchestrates one or more
+  repositories. Routes do not contain business rules; repositories do not reach
+  up into them. `briefRouter → BriefService → MetricsRepository` is the
+  reference shape.
+- **Inject, then default.** Like repositories, a service constructor takes its
+  dependencies (repositories) and defaults them to the process-wide singletons;
+  the module exports a ready singleton. `createApp({ knex })` builds a service on
+  an injected connection for route tests (see `BriefService` wiring in `app.ts`).
+- **Typed inputs/outputs, no direct `knex`.** Services consume and return the
+  typed domain shapes (`domain/brief.ts`, `domain/metrics.ts`) and never touch
+  the query builder — all DB access is delegated to repositories.
+- **Pure and deterministic where it can be.** `BriefService.generate` takes an
+  explicit `asOf` (and optional `now`) so the same CRM state always yields the
+  same brief; no hidden `Date.now()`/random in the assembly path. This is what
+  makes the brief testable against known seed data.
+- **Read-only stays read-only.** The brief engine only reads the KPI layer; it
+  performs no writes and adds no new queries or schema. Recommendations are
+  **advisory only** (per PRODUCT.md) — a service must not trigger automated
+  actions.
+- **Business rules live here, not in the data layer.** E.g. which funnel
+  transitions are legal, anomaly thresholds, and recommendation mapping belong in
+  a service. `LeadRepository.moveToStage` deliberately records a move without
+  judging its legality — that rule, when added, goes in a service.
 
 ### Error / validation contract (applies to every layer above the DB)
 
@@ -271,9 +292,11 @@ framework.
 
 - **Location & registration.** Suites live in `src/__tests__/*.test.ts` and are
   listed explicitly in the `test` script (cross-platform, no globbing):
-  `contract.test.ts`, `metrics.test.ts`, `metricsRoutes.test.ts`. Add new suites
-  to that list. Shared, non-suite test helpers live under `src/__tests__/support/`
-  (e.g. `metricsScenario.ts`) — not named `*.test.ts`, so they never auto-run.
+  `contract.test.ts`, `metrics.test.ts`, `metricsRoutes.test.ts`,
+  `brief.test.ts`, `briefRoutes.test.ts`. Add new suites to that list. Shared,
+  non-suite test helpers live under `src/__tests__/support/` (e.g.
+  `metricsScenario.ts`, `briefScenario.ts`) — not named `*.test.ts`, so they
+  never auto-run.
 - **In-memory SQLite, isolated per suite.** Each suite creates its own
   connection with `knexFactory(config.test)` (`:memory:`), migrates + seeds in
   `before`, and `db.destroy()`s in `after`. Suites do not share state.
@@ -285,16 +308,19 @@ framework.
   prove per-client scoping/isolation. When two suites assert the same numbers,
   share one fixture builder (see `support/metricsScenario.ts`).
 - **Two test altitudes, kept distinct:**
-  - **Repository / integration** (`contract.test.ts`, `metrics.test.ts`) — call
-    repository methods against a real (in-memory) DB, including DB-level
-    guarantees; a few tests deliberately bypass the repository with raw
-    `knex(...)` inserts to prove schema constraints (e.g. the composite FK) hold
-    on their own. Test names are prefixed with the method under test.
-  - **HTTP route-level** (`metricsRoutes.test.ts`) — boot the real app with
-    `createApp({ knex })`, `listen(0)` on an ephemeral port, and `fetch` each
-    endpoint to assert status codes, `clientId` validation, and the serialized
-    JSON contract. `createApp` takes an optional `knex` precisely so routes can
-    be pointed at the seeded in-memory DB without global process setup.
+  - **Repository / service / integration** (`contract.test.ts`, `metrics.test.ts`,
+    `brief.test.ts`) — call repository or service methods against a real
+    (in-memory) DB, including DB-level guarantees; a few tests deliberately
+    bypass the repository with raw `knex(...)` inserts to prove schema
+    constraints (e.g. the composite FK) hold on their own. The brief suite
+    asserts the engine output exactly matches the KPI layer and is deterministic
+    for a fixed `asOf`.
+  - **HTTP route-level** (`metricsRoutes.test.ts`, `briefRoutes.test.ts`) — boot
+    the real app with `createApp({ knex })`, `listen(0)` on an ephemeral port,
+    and `fetch` each endpoint to assert status codes, input validation, and the
+    serialized JSON/text contract. `createApp` takes an optional `knex` precisely
+    so routes can be pointed at the seeded in-memory DB without global process
+    setup.
 - **HTTP route-level coverage exists for the `/metrics` routes.** Equivalent
   route-level tests for the M1 CRUD routes (bad IDs, cross-client conflicts,
   no-accidental-500s) are still tracked in `CHECKLIST.md` / `ROADMAP.md` M7.
@@ -322,12 +348,14 @@ HTTP request
   → Express (express.json)
   → route handler (http/routes/*)        validate presence/shape; 400/404 early
       wrapped by asyncHandler             so async errors reach the error handler
+  → service (services/*)                  orchestration/business logic — OPTIONAL
+      (e.g. BriefService)                 present for the brief; CRUD/KPI skip it
   → repository method                     UUIDs, timestamps, reference validation
       (BaseRepository or MetricsRepository)
   → Knex query                            portable schema/queries
   → SQLite (dev/test) | PostgreSQL (prod) FK + composite-FK integrity enforced
-  ← typed row(s) / KPI shape
-  ← JSON response (or ValidationError → central handler → 400/409)
+  ← typed row(s) / KPI shape / brief
+  ← JSON or text response (or ValidationError → central handler → 400/409)
 ```
 
 This is the whole shape of the system today. Keep new code inside these layers

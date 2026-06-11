@@ -21,3 +21,13 @@ Alternatives considered:
 Owner: Hermes (PM)
 
 ---
+
+2026-06-10 — Milestone #3 scope: Daily CEO Brief Engine v0
+Decision: Build the Daily CEO Brief Engine before dashboard UI, integrations, and the recommendation system.
+Context: Milestone #2 (KPI Read Layer) passed QA. Multiple next steps were valid.
+Rationale: The CEO Brief is the first product value that converts data into executive action. Building it next validates the KPI API in real business logic before heavier UI/integration work. Dashboard and integrations depend on a stable brief contract; the recommendation system should follow after brief output is validated.
+Alternatives considered:
+  - Start with Recommendation System (needs validated brief output to be useful)
+  - Start with Dashboard UI (visual layer before stable agent contract invites rework)
+  - Start with Integrations (stubs are lower value without a driver like the brief)
+Owner: Hermes (PM)
