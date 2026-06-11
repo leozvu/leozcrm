@@ -4,6 +4,7 @@ import { DashboardService, dashboardService } from '../../services/dashboardServ
 import { ClientRepository, clientRepository } from '../../repositories/clientRepository';
 import { isValidIsoDate } from '../../domain/date';
 import { renderDashboardHtml, renderClientPicker, renderNotFound } from '../dashboardView';
+import { scopeAllows } from '../auth';
 
 /**
  * Executive Dashboard v0 (Milestone #5). A single read-only HTML surface that
@@ -40,8 +41,16 @@ export function createDashboardRouter(
     asyncHandler(async (req, res) => {
       const raw = req.query.clientId;
 
-      // No client chosen → landing page that lists clients to pick from.
+      // No client chosen → landing page that lists clients to pick from. Listing
+      // every client crosses tenants, so the picker is admin-only; a client-
+      // scoped caller must address its own dashboard via ?clientId=.
       if (raw === undefined || (typeof raw === 'string' && raw.trim() === '')) {
+        if (!req.auth?.admin) {
+          return res
+            .status(403)
+            .type('html')
+            .send(renderNotFound('Specify ?clientId= for your client dashboard.'));
+        }
         const all = await clients.list();
         return res.type('html').send(renderClientPicker(all));
       }
@@ -49,6 +58,14 @@ export function createDashboardRouter(
         return res.status(400).type('html').send(renderNotFound('Invalid clientId.'));
       }
       const clientId = raw.trim();
+
+      // Tenant scope: a caller may only view its own client's dashboard.
+      if (!scopeAllows(req, clientId)) {
+        return res
+          .status(403)
+          .type('html')
+          .send(renderNotFound('Forbidden: client scope mismatch.'));
+      }
 
       // Resolve the analysis date — default today, reject date-shaped-but-invalid.
       const asOfRaw = req.query.asOf;

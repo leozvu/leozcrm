@@ -8,12 +8,13 @@
     "dev": "tsx watch src/server.ts",
     "start": "tsx src/server.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/__tests__/contract.test.ts src/__tests__/metrics.test.ts src/__tests__/metricsRoutes.test.ts src/__tests__/brief.test.ts src/__tests__/briefRoutes.test.ts src/__tests__/recommendations.test.ts src/__tests__/recommendationsRoutes.test.ts src/__tests__/dashboard.test.ts src/__tests__/dashboardRoutes.test.ts src/__tests__/integrations.test.ts src/__tests__/integrationsRoutes.test.ts",
+    "test": "tsx --test src/__tests__/contract.test.ts src/__tests__/metrics.test.ts src/__tests__/metricsRoutes.test.ts src/__tests__/brief.test.ts src/__tests__/briefRoutes.test.ts src/__tests__/recommendations.test.ts src/__tests__/recommendationsRoutes.test.ts src/__tests__/dashboard.test.ts src/__tests__/dashboardRoutes.test.ts src/__tests__/integrations.test.ts src/__tests__/integrationsRoutes.test.ts src/__tests__/auth.test.ts src/__tests__/tenantIsolation.test.ts src/__tests__/hardening.test.ts",
     "migrate": "tsx src/db/migrate.ts latest",
     "migrate:rollback": "tsx src/db/migrate.ts rollback",
     "migrate:status": "tsx src/db/migrate.ts status",
     "seed": "tsx src/db/seed.ts",
-    "db:reset": "tsx src/db/migrate.ts rollback && tsx src/db/migrate.ts latest && tsx src/db/seed.ts"
+    "db:reset": "tsx src/db/migrate.ts rollback && tsx src/db/migrate.ts latest && tsx src/db/seed.ts",
+    "db:smoke:pg": "tsx src/db/pgSmoke.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

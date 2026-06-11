@@ -15,6 +15,7 @@ import type { AddressInfo } from 'node:net';
 import config from '../../knexfile';
 import { createApp } from '../http/app';
 import { seedBriefScenario } from './support/briefScenario';
+import { TEST_AUTH, adminHeaders } from './support/authHarness';
 
 const db = knexFactory(config.test);
 let server: Server;
@@ -24,7 +25,7 @@ let asOf: string;
 
 before(async () => {
   ({ clientId, asOf } = await seedBriefScenario(db));
-  const app = createApp({ knex: db });
+  const app = createApp({ knex: db, auth: TEST_AUTH });
   await new Promise<void>((resolve) => {
     server = app.listen(0, () => {
       const { port } = server.address() as AddressInfo;
@@ -42,7 +43,7 @@ after(async () => {
 });
 
 async function get(path: string): Promise<{ status: number; contentType: string; text: string }> {
-  const res = await fetch(`${baseUrl}${path}`);
+  const res = await fetch(`${baseUrl}${path}`, { headers: adminHeaders() });
   return {
     status: res.status,
     contentType: res.headers.get('content-type') ?? '',

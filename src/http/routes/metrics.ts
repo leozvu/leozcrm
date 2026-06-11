@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 import { asyncHandler } from '../asyncHandler';
 import { MetricsRepository, metricsRepository } from '../../repositories/metricsRepository';
 import { ClientRepository, clientRepository } from '../../repositories/clientRepository';
+import { enforceClientScope } from '../auth';
 
 /**
  * Read-only KPI endpoints (Milestone #2). Every metric is scoped to a single
@@ -45,6 +46,9 @@ export function createMetricsRouter(
     // Trim once and use the trimmed value for both the lookup and the result so
     // a whitespace-padded but otherwise valid id resolves instead of 404-ing.
     const clientId = raw.trim();
+    // Enforce tenant scope before existence so a caller cannot probe other
+    // clients' existence (403 on mismatch, before any 404).
+    if (!enforceClientScope(req, res, clientId)) return null;
     const client = await clients.findById(clientId);
     if (!client) {
       res.status(404).json({ error: 'client not found' });

@@ -36,16 +36,17 @@ M5 — Executive Dashboard & Team Workspace .. ✅ Completed
   - Lead list and stage movement interfaces
   - QA sign-off: PASS
 
-M6 — Integration Adapters (Placeholder) .... 🚧 In Progress
+M6 — Integration Adapters (Placeholder) .... ✅ Completed
   - Facebook, TikTok, Instagram, email, AI video/image stubs
   - Safe no-op adapters; extend to real publishing later
+  - QA sign-off: PASS
 
-M7 — Production Hardening .................. ⏳ Planned
+M7 — Production Hardening .................. ✅ Completed (conditional)
   - Auth + tenant access control
   - HTTP contract tests (bad IDs, cross-client, 500 prevention)
   - Request validation (email/UUID shapes, numeric bounds, enums)
   - Repository update hardening (ownership reassignment rules)
-  - Postgres migrate/seed/rollback smoke test
+  - Postgres verification pending as deployment gate
 
 M8 — Real Integration Publishing ............ ⏳ Planned
   - Replace placeholders with live connections
@@ -65,7 +66,7 @@ M10 — MVP Launch & Client Onboarding ....... ⏳ Planned
 ---
 Sequence notes:
 - M2 is the critical path: it unlocks M3, M4, M5, and M6.
-- M7 is intentionally staged; data integrity is sound, but external exposure needs guardrails.
+- M7 is intentionally staged into A/B/C so safety work surfaces incrementally.
 - M5 provides the operational surface that validates all prior API contracts visually.
 - M8 depends on M6 architecture and M7 safety rails.
 - M9 requires M7 authorization and M8 live integrations.

@@ -10,6 +10,28 @@ Format:
 
 ---
 
+2026-06-11 — Milestone #7 outcome: treat as complete (conditional)
+Decision: M7 feature work is complete and QA-passed; blocked only by inability to obtain a PostgreSQL target in this environment.
+Context: Codex returned PASS WITH BLOCKER; blocker is missing PostgreSQL runtime, not code quality or test failure.
+Rationale: The PostgreSQL smoke was an environment-validation item, not a completed feature. Blocking product/value progress on infrastructure outside our control would stall M8/M9 unnecessarily. It is safer to convert this into a deployment gate: M7 is complete, and any environment with PostgreSQL must run migrate/seed/rollback before production exposure.
+Alternatives considered:
+  - Keep M7 blocked until a PostgreSQL instance is acquired (delays all later milestones).
+  - Downgrade M7 and revert features (removes safety work already verified).
+Owner: Hermes (PM)
+Decision: Add bearer-token auth + per-client tenant isolation, repository-level input validation and ownership-reassignment guards, route contract tests, and an env-gated Postgres lifecycle smoke — all without a schema change.
+Context: M7 (Production Hardening) must protect the surfaces M5/M6 exposed before external users/agents touch CRM data. There is no users/tenants table and the milestone forbids a schema redesign.
+Rationale:
+  - Auth without a schema change: a per-client token is `"<clientId>.<hmac(secret, clientId)>"`, so the authenticated "tenant" is the client itself; a separate admin key grants cross-tenant/internal access. The middleware mounts after `/health` and fails closed (missing/invalid token → 401), so there is no unauthenticated bypass.
+  - Tenant isolation is enforced per route: explicit client ids (query `?clientId=`, `/clients/:id`, create-body `client_id`) → 403 on mismatch; resource lookups (`/campaigns/:id`, `/leads/:id`) → 404 on cross-tenant so existence is not leaked; list routes auto-scope to the caller's client. Listing all clients and the dashboard picker are admin-only.
+  - Validation lives in the repositories (the one choke point both HTTP and programmatic callers share), so malformed input is a clean 400 and never reaches the DB as a 500. Ownership reassignment (changing a campaign/lead `client_id` on update) is blocked with a 409.
+  - To drive CRUD route contract tests against a seeded DB, the clients/campaigns/leads/funnel-stages routers were converted to the same injectable factory pattern already used by metrics/brief/recommendations/dashboard. This was necessary: previously those routers always used the process-wide singletons, so route tests could not bind them to an in-memory DB.
+  - Postgres parity is proven by an env-gated `db:smoke:pg` (migrate → seed+verify → rollback+verify-dropped). It skips cleanly when no PG is configured; it was not executed end-to-end here (no PostgreSQL/Docker available in this environment) and is run by QA against a real instance.
+Alternatives considered:
+  - A full users/sessions/roles schema (rejected: explicit "no schema redesign unless required"; per-client tokens meet the isolation requirement now).
+  - A single shared API key with no per-tenant scoping (rejected: does not satisfy "tenant data fully isolated per client_id").
+  - Validation in routes only (rejected: leaves programmatic/composed callers unguarded; repositories are the shared boundary).
+Owner: Claude Code (Senior Dev), within the M7 scope.
+
 2026-06-10 — Milestone #2 scope
 Decision: Next milestone is the KPI read layer (metrics API), not dashboard UI, CEO Brief Agent, or QA hardening.
 Context: CRM foundation passed final QA (Codex review). Multiple valid next steps existed.

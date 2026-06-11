@@ -3,6 +3,7 @@ import { asyncHandler } from '../asyncHandler';
 import { RecommendationService, recommendationService } from '../../services/recommendationService';
 import { ClientRepository, clientRepository } from '../../repositories/clientRepository';
 import { isValidIsoDate } from '../../domain/date';
+import { enforceClientScope } from '../auth';
 
 /**
  * Advisory recommendation endpoint (Milestone #4). Scoped to a single client via
@@ -44,6 +45,7 @@ export function createRecommendationsRouter(
       return null;
     }
     const clientId = raw.trim();
+    if (!enforceClientScope(req, res, clientId)) return null;
     const client = await clients.findById(clientId);
     if (!client) {
       res.status(404).json({ error: 'client not found' });

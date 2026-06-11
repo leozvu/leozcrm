@@ -101,10 +101,10 @@ Success criteria:
 - Suitable for internal pilot use before external exposure
 - QA sign-off: PASS
 
-10. MILESTONE #6: INTEGRATION ADAPTERS — PLACEHOLDER (CURRENT)
+10. MILESTONE #6: INTEGRATION ADAPTERS — PLACEHOLDER — PASS
 ----------------------------------------------------------------
 Goal: Establish safe, no-op connector architecture for social, email, and AI tools.
-Why now: A defined integration surface is needed before real publishing and before the Agent Workforce can trigger external actions.
+Why now: A defined integration surface is required before later milestones can legally publish or automate external actions.
 Deliverables:
 - Placeholder adapters for Facebook, TikTok, Instagram, email, and AI video/image stubs
 - Explicit no-op behavior and clear documentation separating placeholder from production path
@@ -112,21 +112,46 @@ Deliverables:
 Success criteria:
 - Adapters mount in the system but perform no external writes
 - No dashboard, integration, or autonomous execution layer was added
+- QA sign-off: PASS
 
-11. MILESTONE #7: PRODUCTION HARDENING (PLANNED)
+11. MILESTONE #7: PRODUCTION HARDENING (IN PROGRESS)
 -----------------------------------------------------------------
 Goal: Add authorization, validation, and database safety required before external exposure.
 Why now: M5 and M6 expose surfaces that must be protected before real users or agents interact with CRM data.
+
+Phase A — Auth + Tenant Isolation
 Deliverables:
-- Auth + tenant access control
-- HTTP route contract tests (bad IDs, cross-client, 500 prevention)
+- Auth middleware for protected routes
+- Tenant access control enforcement
+Route/test coverage for authenticated access paths
+Success criteria:
+- Auth enforced on protected routes
+- Tenant data fully isolated per client_id
+- No unauthenticated bypass paths remain
+Risks:
+Auth UX/adoption mismatch, staging config drift, missing edge-case routes
+
+Phase B — Validation Hardening
+Deliverables:
+- HTTP route contract tests for bad IDs, cross-client conflicts, no accidental 500s
 - Stricter request validation (email/UUID shapes, numeric bounds, enums)
 - Repository update hardening (ownership reassignment rules)
-- Postgres migrate/seed/rollback smoke test
 Success criteria:
-- All hardened routes handle invalid input without crashing
-- Tenant data is fully isolated
-- Production database lifecycle scripts pass on PostgreSQL
+- Bad input never produces 500
+- Invalid IDs, enums, numeric bounds are rejected cleanly
+- Ownership reassignment is blocked or fully validated
+Risks:
+Scope expansion, validation rules breaking internal workflows
+
+Phase C — Postgres Verification
+Deliverables:
+- Postgres migrate/seed/rollback smoke test
+- Documentation/script for running lifecycle on PostgreSQL
+Success criteria:
+- migrate/seed/rollback passes cleanly on PostgreSQL
+- No dialect-specific schema/query assumptions broken
+Risks:
+Environment setup, flaky database lifecycle, hidden SQLite-only assumptions
 
 12. MILESTONE #8: REAL INTEGRATION PUBLISHING (PLANNED)
 -----------------------------------------------------------------

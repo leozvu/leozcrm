@@ -13,12 +13,13 @@ import assert from 'node:assert/strict';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { createApp } from '../http/app';
+import { TEST_AUTH, adminHeaders } from './support/authHarness';
 
 let server: Server;
 let baseUrl: string;
 
 before(async () => {
-  const app = createApp();
+  const app = createApp({ auth: TEST_AUTH });
   await new Promise<void>((resolve) => {
     server = app.listen(0, () => {
       const { port } = server.address() as AddressInfo;
@@ -38,7 +39,7 @@ async function req(
   path: string,
   method = 'GET',
 ): Promise<{ status: number; contentType: string; body: any }> {
-  const res = await fetch(`${baseUrl}${path}`, { method });
+  const res = await fetch(`${baseUrl}${path}`, { method, headers: adminHeaders() });
   const text = await res.text();
   return {
     status: res.status,
@@ -87,4 +88,19 @@ test('there is no action/publish endpoint — POST to an integration is not rout
   // default 404. The HTTP surface cannot trigger any (even no-op) channel action.
   const { status } = await req('/integrations/facebook/publish', 'POST');
   assert.equal(status, 404);
+});
+
+test('GET /integrations — 401 without authentication (no unauthenticated bypass)', async () => {
+  const res = await fetch(`${baseUrl}/integrations`); // no Authorization header
+  assert.equal(res.status, 401);
+  const body = JSON.parse(await res.text());
+  assert.equal(body.code, 'unauthenticated');
+});
+
+test('GET /integrations — metadata contract exposes no credential-like fields', async () => {
+  const { body } = await req('/integrations');
+  const serialised = JSON.stringify(body).toLowerCase();
+  for (const forbidden of ['token', 'secret', 'client_secret', 'password', 'api_key']) {
+    assert.ok(!serialised.includes(forbidden), `integration metadata must not expose "${forbidden}"`);
+  }
 });

@@ -17,6 +17,7 @@ import type { AddressInfo } from 'node:net';
 import config from '../../knexfile';
 import { createApp } from '../http/app';
 import { seedMetricsScenario } from './support/metricsScenario';
+import { TEST_AUTH, adminHeaders } from './support/authHarness';
 
 const db = knexFactory(config.test);
 let server: Server;
@@ -28,7 +29,7 @@ let campaignEmailId: string;
 before(async () => {
   ({ clientAId, campaignFbId, campaignEmailId } = await seedMetricsScenario(db));
   // Bind the /metrics routes to the same seeded in-memory connection.
-  const app = createApp({ knex: db });
+  const app = createApp({ knex: db, auth: TEST_AUTH });
   await new Promise<void>((resolve) => {
     server = app.listen(0, () => {
       const { port } = server.address() as AddressInfo;
@@ -47,7 +48,7 @@ after(async () => {
 
 /** GET helper returning the HTTP status and parsed JSON body. */
 async function getJson(path: string): Promise<{ status: number; body: any }> {
-  const res = await fetch(`${baseUrl}${path}`);
+  const res = await fetch(`${baseUrl}${path}`, { headers: adminHeaders() });
   const text = await res.text();
   return { status: res.status, body: text.length ? JSON.parse(text) : undefined };
 }

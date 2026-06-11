@@ -1,8 +1,8 @@
 import express, { NextFunction, Request, Response } from 'express';
-import { clientsRouter } from './routes/clients';
-import { campaignsRouter } from './routes/campaigns';
-import { leadsRouter } from './routes/leads';
-import { funnelStagesRouter } from './routes/funnelStages';
+import { createClientsRouter, clientsRouter } from './routes/clients';
+import { createCampaignsRouter, campaignsRouter } from './routes/campaigns';
+import { createLeadsRouter, leadsRouter } from './routes/leads';
+import { createFunnelStagesRouter, funnelStagesRouter } from './routes/funnelStages';
 import { createMetricsRouter, metricsRouter } from './routes/metrics';
 import { createBriefRouter, briefRouter } from './routes/brief';
 import { createRecommendationsRouter, recommendationsRouter } from './routes/recommendations';
@@ -10,12 +10,14 @@ import { createDashboardRouter, dashboardRouter } from './routes/dashboard';
 import { integrationsRouter } from './routes/integrations';
 import { MetricsRepository } from '../repositories/metricsRepository';
 import { ClientRepository } from '../repositories/clientRepository';
+import { CampaignRepository } from '../repositories/campaignRepository';
 import { LeadRepository } from '../repositories/leadRepository';
 import { FunnelStageRepository } from '../repositories/funnelStageRepository';
 import { BriefService } from '../services/briefService';
 import { RecommendationService } from '../services/recommendationService';
 import { DashboardService } from '../services/dashboardService';
 import { ValidationError } from '../errors';
+import { authenticate, resolveAuthConfig, AuthConfig } from './auth';
 import type { Knex } from '../db/knex';
 
 export interface CreateAppOptions {
@@ -27,6 +29,12 @@ export interface CreateAppOptions {
    * process-wide singletons.
    */
   knex?: Knex;
+  /**
+   * Authentication config (signing secret + optional admin key). Defaults to the
+   * environment (`AUTH_SECRET` / `ADMIN_API_KEY`). With neither configured the
+   * app fails closed — every protected request is 401 — rather than allowing all.
+   */
+  auth?: AuthConfig;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -44,21 +52,21 @@ export function createApp(options: CreateAppOptions = {}) {
   const app = express();
   app.use(express.json());
 
+  // Liveness probe is the only public route — everything below requires auth.
   app.get('/health', (_req, res) => res.json({ ok: true }));
 
-  app.use('/funnel-stages', funnelStagesRouter);
-  app.use('/clients', clientsRouter);
-  app.use('/campaigns', campaignsRouter);
-  app.use('/leads', leadsRouter);
+  // Auth + tenant isolation (M7). Mounted before every data route so there is no
+  // unauthenticated bypass path; each route then enforces its own client scope.
+  app.use(authenticate(resolveAuthConfig(options.auth)));
 
   // Placeholder integration registry (Milestone #6). Read-only metadata only —
   // a pure in-memory registry with no DB dependency, so it mounts unconditionally
-  // and exposes no action/publish surface.
+  // and exposes no action/publish surface. Still behind auth (above).
   app.use('/integrations', integrationsRouter);
 
-  // Read-only KPI / brief / recommendation / dashboard layers. When a connection
-  // is injected (route tests), bind them to repositories on it; otherwise use the
-  // process-wide singletons. The chain is built once: brief reads the KPI repo,
+  // All DB-backed routes. When a connection is injected (route tests), every
+  // router is bound to repositories/services on it; otherwise the process-wide
+  // singletons are used. The chain is built once: brief reads the KPI repo,
   // recommendations read the brief, and the dashboard composes all of them plus
   // the lead/stage repositories into a single read-only HTML surface.
   if (options.knex) {
@@ -66,14 +74,23 @@ export function createApp(options: CreateAppOptions = {}) {
     const clients = new ClientRepository(options.knex);
     const leads = new LeadRepository(options.knex);
     const stages = new FunnelStageRepository(options.knex);
+    const campaigns = new CampaignRepository(options.knex);
     const brief = new BriefService(metrics);
     const recommendations = new RecommendationService(brief);
     const dashboard = new DashboardService({ metrics, brief, recommendations, leads, stages, clients });
+    app.use('/funnel-stages', createFunnelStagesRouter({ stages }));
+    app.use('/clients', createClientsRouter({ clients }));
+    app.use('/campaigns', createCampaignsRouter({ campaigns }));
+    app.use('/leads', createLeadsRouter({ leads }));
     app.use('/metrics', createMetricsRouter({ metrics, clients }));
     app.use('/brief', createBriefRouter({ brief, clients }));
     app.use('/recommendations', createRecommendationsRouter({ recommendations, clients }));
     app.use('/dashboard', createDashboardRouter({ dashboard, clients }));
   } else {
+    app.use('/funnel-stages', funnelStagesRouter);
+    app.use('/clients', clientsRouter);
+    app.use('/campaigns', campaignsRouter);
+    app.use('/leads', leadsRouter);
     app.use('/metrics', metricsRouter);
     app.use('/brief', briefRouter);
     app.use('/recommendations', recommendationsRouter);

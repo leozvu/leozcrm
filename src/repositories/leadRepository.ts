@@ -1,6 +1,7 @@
 import { BaseRepository } from './baseRepository';
 import { Campaign, Lead, TABLES } from '../domain/types';
 import { ValidationError } from '../errors';
+import { isEmail, isOneOf, isIntInRange, LEAD_STATUSES, SCORE_MIN, SCORE_MAX } from '../domain/validate';
 import type { Knex } from '../db/knex';
 
 type LeadWrite = Omit<Partial<Lead>, 'id' | 'created_at' | 'updated_at'>;
@@ -54,12 +55,32 @@ export class LeadRepository extends BaseRepository<Lead> {
     }
   }
 
+  /** Reject malformed field values cleanly (400) before they reach the DB. */
+  private validateFields(data: LeadWrite): void {
+    // email/phone are nullable (anonymous leads); validate email shape only when a value is given.
+    if (data.email !== undefined && data.email !== null && !isEmail(data.email)) {
+      throw new ValidationError(400, 'email is not a valid email address', 'invalid_email');
+    }
+    if (data.status !== undefined && !isOneOf(LEAD_STATUSES, data.status)) {
+      throw new ValidationError(400, `status must be one of: ${LEAD_STATUSES.join(', ')}`, 'invalid_status');
+    }
+    if (data.score !== undefined && !isIntInRange(data.score, SCORE_MIN, SCORE_MAX)) {
+      throw new ValidationError(400, `score must be an integer between ${SCORE_MIN} and ${SCORE_MAX}`, 'invalid_score');
+    }
+  }
+
   async create(data: LeadWrite): Promise<Lead> {
+    this.validateFields(data);
     await this.validateRelations(data);
     return super.create(data);
   }
 
   async update(id: string, data: LeadWrite): Promise<Lead | undefined> {
+    // A lead cannot be re-parented to another client (tenant reassignment).
+    if (data.client_id !== undefined) {
+      throw new ValidationError(409, 'lead client ownership cannot be reassigned', 'ownership_reassignment');
+    }
+    this.validateFields(data);
     // A campaign change must be checked against the lead's existing client.
     if (data.campaign_id || data.funnel_stage_id) {
       const existing = await this.findById(id);

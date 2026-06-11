@@ -389,6 +389,7 @@ framework.
 | `npm run migrate` / `:rollback` / `:status` | Apply / revert / inspect migrations |
 | `npm run seed` | Seed + self-verify |
 | `npm run db:reset` | rollback → migrate → seed |
+| `npm run db:smoke:pg` | PostgreSQL migrate/seed/rollback smoke (env-gated; see `docs/POSTGRES_SMOKE.md`) |
 | `npm start` / `npm run dev` | Run the API (`dev` = watch) |
 
 ---
@@ -413,3 +414,49 @@ HTTP request
 
 This is the whole shape of the system today. Keep new code inside these layers
 and conventions; record any deviation in `DECISIONS.md`.
+
+---
+
+## 9. Auth + tenant isolation (M7)
+
+Production hardening added authentication and per-tenant access control **without
+a schema change** (`src/http/auth.ts`):
+
+- **Bearer tokens, no users table.** A per-client token is
+  `"<clientId>.<hmac_sha256(secret, clientId)>"`, so the authenticated *tenant*
+  is the client itself. A separate **admin key** grants cross-tenant access for
+  internal/operator use (listing all clients, the dashboard picker). Tokens
+  arrive as `Authorization: Bearer <t>` or `x-api-key`.
+- **Fail closed.** `authenticate()` is mounted right after the public `/health`
+  probe and before every data route; a missing/invalid token is `401`. With no
+  `AUTH_SECRET`/`ADMIN_API_KEY` configured, nothing validates — so the app
+  denies rather than allows. `server.ts` supplies an explicit dev fallback
+  (and *requires* `AUTH_SECRET` in production).
+- **Tenant enforcement, per route.** Helpers in `auth.ts`:
+  `enforceClientScope` (explicit client id — query `?clientId=`, `/clients/:id`,
+  create-body `client_id` — → `403` on mismatch) and `scopeAllows` (resource
+  lookups `/campaigns/:id`, `/leads/:id` — → `404` on cross-tenant, so existence
+  is not leaked). List routes auto-scope to the caller's client; listing all
+  clients and the dashboard picker are admin-only.
+- **Injectable routers.** To test the protected CRUD routes against a seeded DB,
+  the clients/campaigns/leads/funnel-stages routers use the same
+  `createXRouter({ repo })` factory pattern as the KPI/brief/dashboard routers
+  (default-bound to the singletons; `createApp({ knex })` binds them to the
+  injected connection).
+
+### Validation hardening (Phase B)
+
+`src/domain/validate.ts` holds pure validators (UUID, email, enum membership,
+integer bounds). They run **in the repositories** — the single boundary both
+HTTP and programmatic callers pass through — so malformed input is a clean `400`
+and never reaches the DB as a `500`. Updates additionally **block ownership
+reassignment**: changing a campaign's or lead's `client_id` is a `409`
+(`ownership_reassignment`). This complements the same-client composite FK already
+enforced at the DB level.
+
+### PostgreSQL parity (Phase C)
+
+`npm run db:smoke:pg` (`src/db/pgSmoke.ts`) runs migrate → seed+verify →
+rollback+verify-dropped against a configured PostgreSQL instance, proving the
+dialect-portable migrations are reversible on Postgres. It is env-gated (skips
+cleanly when no PG is configured). See `docs/POSTGRES_SMOKE.md`.
