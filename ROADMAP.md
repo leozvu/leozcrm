@@ -19,12 +19,12 @@ M2 — KPI Read Layer .................... ✅ Completed
   - Integration tests against seed data
   - Outcome: unblocks CEO Brief Agent and dashboard UI
 
-M3 — CEO Brief Agent ................... 🚧 In Progress
+M3 — CEO Brief Engine ................... ✅ Completed
   - Brief domain model and output contract (JSON/text)
-  - Agent/service consuming KPI endpoints
+  - BriefService consuming KPI endpoints
   - Deterministic brief accuracy tests
 
-M4 — Recommendation System .............. ⏳ After M3
+M4 — Recommendation System .............. 🚧 In Progress
   - Rules/heuristics based on funnel KPIs
   - Recommendation API
   - Advisory-only mode (no automated actions)

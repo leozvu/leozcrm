@@ -31,3 +31,15 @@ Alternatives considered:
   - Start with Dashboard UI (visual layer before stable agent contract invites rework)
   - Start with Integrations (stubs are lower value without a driver like the brief)
 Owner: Hermes (PM)
+
+---
+
+2026-06-10 — Milestone #4 scope: Recommendation System v0
+Decision: Build Recommendation System v0 before Dashboard UI, Integrations, and Production Hardening.
+Context: Milestone #3 (Daily CEO Brief Engine) passed QA. Product now has stable data, KPI, and brief contracts.
+Rationale: Recommendations are the first true AI Brain behavior: moving from reporting to action guidance. This closes the MVP loop described in PRODUCT.md and CHECKLIST.md. Keeping it advisory-only preserves safety while delivering value. Doing it before Dashboard/Integrations ensures later consumers build around a stable recommendation contract instead of forcing rework.
+Alternatives considered:
+  - Start with Dashboard UI (visual layer before stable agent contract invites rework)
+  - Start with Integrations (stubs are low value without a driver triggering them)
+  - Start with Production Hardening (necessary, but different from next product value milestone)
+Owner: Hermes (PM)

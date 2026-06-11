@@ -5,17 +5,19 @@ import { leadsRouter } from './routes/leads';
 import { funnelStagesRouter } from './routes/funnelStages';
 import { createMetricsRouter, metricsRouter } from './routes/metrics';
 import { createBriefRouter, briefRouter } from './routes/brief';
+import { createRecommendationsRouter, recommendationsRouter } from './routes/recommendations';
 import { MetricsRepository } from '../repositories/metricsRepository';
 import { ClientRepository } from '../repositories/clientRepository';
 import { BriefService } from '../services/briefService';
+import { RecommendationService } from '../services/recommendationService';
 import { ValidationError } from '../errors';
 import type { Knex } from '../db/knex';
 
 export interface CreateAppOptions {
   /**
-   * Optional Knex connection for the read-only KPI + brief layers. When
-   * provided, the `/metrics` and `/brief` routes are bound to repositories on
-   * this connection — used by the HTTP route tests to point the endpoints at a
+   * Optional Knex connection for the read-only KPI / brief / recommendation
+   * layers. When provided, those routes are bound to repositories on this
+   * connection — used by the HTTP route tests to point the endpoints at a
    * seeded in-memory database. Omitted in production, where the routes use the
    * process-wide singletons.
    */
@@ -44,16 +46,22 @@ export function createApp(options: CreateAppOptions = {}) {
   app.use('/campaigns', campaignsRouter);
   app.use('/leads', leadsRouter);
 
-  // Read-only KPI + brief layers. When a connection is injected (route tests),
-  // bind both to repositories on it; otherwise use the process-wide singletons.
+  // Read-only KPI / brief / recommendation layers. When a connection is injected
+  // (route tests), bind them to repositories on it; otherwise use the
+  // process-wide singletons. The chain is built once: brief reads the KPI repo,
+  // recommendations read the brief.
   if (options.knex) {
     const metrics = new MetricsRepository(options.knex);
     const clients = new ClientRepository(options.knex);
+    const brief = new BriefService(metrics);
+    const recommendations = new RecommendationService(brief);
     app.use('/metrics', createMetricsRouter({ metrics, clients }));
-    app.use('/brief', createBriefRouter({ brief: new BriefService(metrics), clients }));
+    app.use('/brief', createBriefRouter({ brief, clients }));
+    app.use('/recommendations', createRecommendationsRouter({ recommendations, clients }));
   } else {
     app.use('/metrics', metricsRouter);
     app.use('/brief', briefRouter);
+    app.use('/recommendations', recommendationsRouter);
   }
 
   // Centralized error handler. Bad input (unknown/conflicting references) is a

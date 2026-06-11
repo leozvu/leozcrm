@@ -101,7 +101,9 @@ Key patterns actually in use:
     │   ├── funnel.ts          canonical funnel stages (source of truth)
     │   ├── types.ts           row interfaces + TABLES name constants
     │   ├── metrics.ts         typed KPI result shapes
-    │   └── brief.ts           CEO brief output contract
+    │   ├── brief.ts           CEO brief output contract
+    │   ├── recommendation.ts  advisory recommendation contract
+    │   └── date.ts            pure date helpers (e.g. isValidIsoDate)
     ├── db/
     │   ├── knex.ts            builds the shared `db` connection from NODE_ENV
     │   ├── migrate.ts         tiny CLI wrapper over knex.migrate (latest/rollback/status)
@@ -116,13 +118,14 @@ Key patterns actually in use:
     │   ├── funnelStageRepository.ts
     │   └── metricsRepository.ts
     ├── services/              business/orchestration layer (see §5)
-    │   └── briefService.ts    daily CEO brief engine (+ text renderer)
+    │   ├── briefService.ts    daily CEO brief engine (+ text renderer)
+    │   └── recommendationService.ts  advisory recommendations from the brief
     ├── http/
     │   ├── app.ts             createApp({ knex? }): wiring + error handler
     │   ├── asyncHandler.ts    forwards async errors to Express
     │   └── routes/            one file per resource
     │       ├── clients.ts  campaigns.ts  leads.ts
-    │       ├── funnelStages.ts  metrics.ts  brief.ts  (router factories)
+    │       ├── funnelStages.ts  metrics.ts  brief.ts  recommendations.ts
     ├── server.ts              process entry point
     └── __tests__/
         ├── *.test.ts          node:test suites (in-memory SQLite)
@@ -192,8 +195,8 @@ Rules:
 
 The `services/` layer holds **business logic and orchestration that is more than
 data access** — it sits between the HTTP routes and the repositories. It was
-introduced in M3 with `BriefService` (the Daily CEO Brief engine) and is the
-home for future agent/recommendation logic.
+introduced in M3 with `BriefService` (the Daily CEO Brief engine); M4 added
+`RecommendationService` (advisory recommendations) on top of it.
 
 Rules a service follows:
 
@@ -202,25 +205,37 @@ Rules a service follows:
   repositories. Routes do not contain business rules; repositories do not reach
   up into them. `briefRouter → BriefService → MetricsRepository` is the
   reference shape.
+- **Services may compose services.** A higher-level service can depend on a
+  lower one instead of re-deriving its work: `RecommendationService → BriefService
+  → MetricsRepository`. Inject the dependency the same way (constructor arg with a
+  singleton default) and reuse its logic rather than duplicating it.
 - **Inject, then default.** Like repositories, a service constructor takes its
-  dependencies (repositories) and defaults them to the process-wide singletons;
-  the module exports a ready singleton. `createApp({ knex })` builds a service on
-  an injected connection for route tests (see `BriefService` wiring in `app.ts`).
+  dependencies (a repository or another service) and defaults them to the
+  process-wide singletons; the module exports a ready singleton. `createApp({ knex })`
+  builds the chain on an injected connection for route tests (see the
+  `MetricsRepository → BriefService → RecommendationService` wiring in `app.ts`).
 - **Typed inputs/outputs, no direct `knex`.** Services consume and return the
-  typed domain shapes (`domain/brief.ts`, `domain/metrics.ts`) and never touch
-  the query builder — all DB access is delegated to repositories.
-- **Pure and deterministic where it can be.** `BriefService.generate` takes an
-  explicit `asOf` (and optional `now`) so the same CRM state always yields the
-  same brief; no hidden `Date.now()`/random in the assembly path. This is what
-  makes the brief testable against known seed data.
-- **Read-only stays read-only.** The brief engine only reads the KPI layer; it
-  performs no writes and adds no new queries or schema. Recommendations are
-  **advisory only** (per PRODUCT.md) — a service must not trigger automated
-  actions.
+  typed domain shapes (`domain/brief.ts`, `domain/recommendation.ts`,
+  `domain/metrics.ts`) and never touch the query builder — all DB access is
+  delegated to repositories.
+- **Pure and deterministic where it can be.** `generate` takes an explicit
+  `asOf` (and optional `now`) so the same CRM state always yields the same
+  output; no hidden `Date.now()`/random in the assembly path. This is what makes
+  the brief and recommendations testable against known seed data.
+- **Validate client-facing input at the boundary.** A service guards its inputs
+  and throws `ValidationError(400, …)` for bad ones — e.g. `BriefService` rejects
+  a date-shaped but invalid `asOf` (`isValidIsoDate` in `domain/date.ts`) before
+  any date math, so it can never surface as a 500. The route does the same check
+  up front; the service guard is the backstop for direct/composed callers.
+- **Read-only stays read-only; advisory stays advisory.** The brief and
+  recommendation engines only read the KPI layer — no writes, no new queries, no
+  schema. Recommendations are **advisory only** (per PRODUCT.md): the contract
+  pins `advisory_only: true` at the type level and the service never schedules or
+  executes anything.
 - **Business rules live here, not in the data layer.** E.g. which funnel
-  transitions are legal, anomaly thresholds, and recommendation mapping belong in
-  a service. `LeadRepository.moveToStage` deliberately records a move without
-  judging its legality — that rule, when added, goes in a service.
+  transitions are legal, anomaly thresholds, and recommendation priority/category
+  mapping belong in a service. `LeadRepository.moveToStage` deliberately records a
+  move without judging its legality — that rule, when added, goes in a service.
 
 ### Error / validation contract (applies to every layer above the DB)
 
@@ -293,7 +308,8 @@ framework.
 - **Location & registration.** Suites live in `src/__tests__/*.test.ts` and are
   listed explicitly in the `test` script (cross-platform, no globbing):
   `contract.test.ts`, `metrics.test.ts`, `metricsRoutes.test.ts`,
-  `brief.test.ts`, `briefRoutes.test.ts`. Add new suites to that list. Shared,
+  `brief.test.ts`, `briefRoutes.test.ts`, `recommendations.test.ts`,
+  `recommendationsRoutes.test.ts`. Add new suites to that list. Shared,
   non-suite test helpers live under `src/__tests__/support/` (e.g.
   `metricsScenario.ts`, `briefScenario.ts`) — not named `*.test.ts`, so they
   never auto-run.
@@ -309,18 +325,19 @@ framework.
   share one fixture builder (see `support/metricsScenario.ts`).
 - **Two test altitudes, kept distinct:**
   - **Repository / service / integration** (`contract.test.ts`, `metrics.test.ts`,
-    `brief.test.ts`) — call repository or service methods against a real
-    (in-memory) DB, including DB-level guarantees; a few tests deliberately
-    bypass the repository with raw `knex(...)` inserts to prove schema
-    constraints (e.g. the composite FK) hold on their own. The brief suite
-    asserts the engine output exactly matches the KPI layer and is deterministic
-    for a fixed `asOf`.
-  - **HTTP route-level** (`metricsRoutes.test.ts`, `briefRoutes.test.ts`) — boot
-    the real app with `createApp({ knex })`, `listen(0)` on an ephemeral port,
-    and `fetch` each endpoint to assert status codes, input validation, and the
-    serialized JSON/text contract. `createApp` takes an optional `knex` precisely
-    so routes can be pointed at the seeded in-memory DB without global process
-    setup.
+    `brief.test.ts`, `recommendations.test.ts`) — call repository or service
+    methods against a real (in-memory) DB, including DB-level guarantees; a few
+    tests deliberately bypass the repository with raw `knex(...)` inserts to prove
+    schema constraints (e.g. the composite FK) hold on their own. The brief and
+    recommendation suites assert deterministic output for a fixed `asOf` and that
+    it matches the underlying KPI/brief state.
+  - **HTTP route-level** (`metricsRoutes.test.ts`, `briefRoutes.test.ts`,
+    `recommendationsRoutes.test.ts`) — boot the real app with `createApp({ knex })`,
+    `listen(0)` on an ephemeral port, and `fetch` each endpoint to assert status
+    codes, input validation (including date-shaped-but-invalid `asOf` → 400), and
+    the serialized JSON/text contract. `createApp` takes an optional `knex`
+    precisely so routes can be pointed at the seeded in-memory DB without global
+    process setup.
 - **HTTP route-level coverage exists for the `/metrics` routes.** Equivalent
   route-level tests for the M1 CRUD routes (bad IDs, cross-client conflicts,
   no-accidental-500s) are still tracked in `CHECKLIST.md` / `ROADMAP.md` M7.
@@ -349,12 +366,13 @@ HTTP request
   → route handler (http/routes/*)        validate presence/shape; 400/404 early
       wrapped by asyncHandler             so async errors reach the error handler
   → service (services/*)                  orchestration/business logic — OPTIONAL
-      (e.g. BriefService)                 present for the brief; CRUD/KPI skip it
+      (Brief/Recommendation; may compose) present for brief/recommendations;
+                                          CRUD/KPI skip it
   → repository method                     UUIDs, timestamps, reference validation
       (BaseRepository or MetricsRepository)
   → Knex query                            portable schema/queries
   → SQLite (dev/test) | PostgreSQL (prod) FK + composite-FK integrity enforced
-  ← typed row(s) / KPI shape / brief
+  ← typed row(s) / KPI shape / brief / recommendations
   ← JSON or text response (or ValidationError → central handler → 400/409)
 ```
 

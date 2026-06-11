@@ -15,6 +15,7 @@ import config from '../../knexfile';
 import { MetricsRepository } from '../repositories/metricsRepository';
 import { ClientRepository } from '../repositories/clientRepository';
 import { BriefService, renderBriefText } from '../services/briefService';
+import { ValidationError } from '../errors';
 import { seedBriefScenario } from './support/briefScenario';
 
 const db = knexFactory(config.test);
@@ -30,6 +31,14 @@ before(async () => {
 
 after(async () => {
   await db.destroy();
+});
+
+test('generate rejects a date-shaped but invalid asOf with a 400 ValidationError', async () => {
+  // M3 Codex regression: guard before date math so an invalid asOf never 500s.
+  await assert.rejects(
+    service.generate(clientId, { asOf: '2026-99-99' }),
+    (err: unknown) => err instanceof ValidationError && err.status === 400 && err.code === 'invalid_as_of',
+  );
 });
 
 test('brief headline and funnel exactly match the KPI API output', async () => {

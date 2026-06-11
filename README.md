@@ -38,8 +38,8 @@ src/
   domain/        funnel definition (source of truth) + row types
   db/            knex connection, migrations, migrate runner, seed/verify
   repositories/  model layer: BaseRepository + Client/Campaign/Lead/FunnelStage + Metrics
-  services/      business layer: BriefService (daily CEO brief engine)
-  http/          Express app + CRUD routes + read-only KPI + brief routes
+  services/      business layer: BriefService + RecommendationService
+  http/          Express app + CRUD routes + read-only KPI + brief + recommendation routes
 knexfile.ts      dev=SQLite, test=SQLite(:memory:), production=PostgreSQL
 docs/DATA_MODEL.md   full setup plan, schema, indexes, and funnel notes
 ```
@@ -80,9 +80,28 @@ schema change) and recommendations are **advisory only** — nothing is automate
 | `GET /brief?clientId=&format=text` | Brief rendered as plain text |
 
 Same client scoping as the KPI routes (`400` missing/blank `clientId` or
-malformed `asOf`, `404` unknown client). The engine lives in
+invalid `asOf`, `404` unknown client). The engine lives in
 `services/briefService.ts`; the output contract is in `domain/brief.ts`. Given
 the same CRM state and `asOf`, it always produces the same brief.
+
+## Recommendations (advisory-only)
+
+The Recommendation System turns the brief's funnel analysis into prioritised,
+categorised advice — the first "AI Brain" behaviour. It is **advisory only**:
+read-only, no scheduling or execution, and every recommendation (and the report)
+carries `advisory_only: true`.
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /recommendations?clientId=` | Advisory report for today |
+| `GET /recommendations?clientId=&asOf=YYYY-MM-DD` | Advisory report for a specific day |
+
+Each recommendation has a stable `code`, `title`, `rationale`, `category`
+(`acquisition`/`conversion`/`attribution`/`spend`/`retention`), `priority`
+(`high`/`medium`/`low`), and an optional `related_stage`; reports are sorted
+high → low. Same client/`asOf` scoping as `/brief`. The engine lives in
+`services/recommendationService.ts` (derived from `BriefService`); the contract
+is in `domain/recommendation.ts`.
 
 ## Stack
 

@@ -107,6 +107,17 @@ test('GET /brief — 400 when asOf is malformed', async () => {
   assert.match(JSON.parse(text).error, /asOf/);
 });
 
+test('GET /brief — 400 (not 500) for a date-shaped but invalid asOf', async () => {
+  // M3 Codex regression: "2026-99-99" matches the YYYY-MM-DD shape but is not a
+  // real calendar date; it must be rejected at the route, never reaching the
+  // service date math.
+  for (const bad of ['2026-99-99', '2026-13-01', '2026-02-30']) {
+    const { status, text } = await get(`/brief?clientId=${clientId}&asOf=${bad}`);
+    assert.equal(status, 400, `expected 400 for asOf=${bad}`);
+    assert.match(JSON.parse(text).error, /asOf/);
+  }
+});
+
 test('GET /brief — 404 when the client does not exist', async () => {
   const { status, text } = await get('/brief?clientId=does-not-exist');
   assert.equal(status, 404);

@@ -12,6 +12,8 @@ import {
   BriefHeadline,
   CeoBrief,
 } from '../domain/brief';
+import { isValidIsoDate } from '../domain/date';
+import { ValidationError } from '../errors';
 
 /**
  * Daily CEO Brief engine (Milestone #3).
@@ -65,6 +67,11 @@ export class BriefService {
 
   async generate(clientId: string, options: BriefOptions): Promise<CeoBrief> {
     const { asOf } = options;
+    // Guard before any date math: a date-shaped but invalid asOf (e.g.
+    // "2026-99-99") would otherwise make addDays throw and surface as a 500.
+    if (!isValidIsoDate(asOf)) {
+      throw new ValidationError(400, 'asOf must be a valid YYYY-MM-DD date', 'invalid_as_of');
+    }
     const generated_at = options.now ?? `${asOf}T00:00:00.000Z`;
 
     // Consume the KPI layer. funnel/trends/campaigns cover every brief section.

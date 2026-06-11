@@ -56,8 +56,8 @@ Success criteria:
 - No schema changes required
 - CEO Brief Agent can be implemented next by consuming these endpoints
 
-7. MILESTONE #3: DAILY CEO BRIEF ENGINE V0 (CURRENT)
------------------------------------------------------
+7. MILESTONE #3: DAILY CEO BRIEF ENGINE V0 — PASS
+--------------------------------------------------
 Goal: Generate an accurate, deterministic daily CEO brief from live CRM KPIs.
 Why now: KPI read layer is complete and QA-passed; the brief is the first AI/agent deliverable that turns data into executive action.
 Deliverables:
@@ -70,7 +70,22 @@ Success criteria:
 - Anomaly detection and recommended actions are relevant and understandable
 - All brief tests are green
 
-8. PRODUCTION HARDENING ITEMS (POST-M3)
+8. MILESTONE #4: RECOMMENDATION SYSTEM V0 (CURRENT)
+----------------------------------------------------
+Goal: Add advisory-only recommendations based on funnel KPIs and brief output.
+Why now: The brief gives the CEO what happened; recommendations provide the first AI Brain behavior. This closes the MVP value loop before heavier UI/integration work.
+Deliverables:
+- Recommendation rules/heuristics based on funnel state
+- Recommendation API endpoint with stable output contract
+- Advisory-only enforcement in code
+- Deterministic tests for rule mapping, empty cases, unknown client handling
+Success criteria:
+- Recommendations are derived from existing KPI/brief data; no schema changes
+- Output contract is stable and advisory-only behavior is enforced
+- Rules produce relevant recommendations against the seeded dataset
+- All recommendation tests are green
+
+9. PRODUCTION HARDENING ITEMS (POST-M4)
 ----------------------------------------
 - HTTP route-level contract tests for bad IDs, cross-client conflicts, and no accidental 500s.
 - Repository update hardening: disallow ownership reassignment or add full validation.

@@ -1,36 +1,39 @@
 import { Request, Response, Router } from 'express';
 import { asyncHandler } from '../asyncHandler';
-import { BriefService, briefService, renderBriefText } from '../../services/briefService';
+import { RecommendationService, recommendationService } from '../../services/recommendationService';
 import { ClientRepository, clientRepository } from '../../repositories/clientRepository';
 import { isValidIsoDate } from '../../domain/date';
 
 /**
- * Daily CEO Brief endpoint (Milestone #3). Scoped to a single client via a
- * required `?clientId=` — same contract as the `/metrics/*` routes. Read-only:
- * it assembles a brief from the KPI layer and never mutates CRM data.
+ * Advisory recommendation endpoint (Milestone #4). Scoped to a single client via
+ * a required `?clientId=` — same contract as the `/brief` and `/metrics/*`
+ * routes. Read-only and advisory-only: it returns prioritised guidance derived
+ * from the brief/KPI layer and never mutates or triggers anything.
  *
- *   GET /brief?clientId=            today's brief as JSON
- *   GET /brief?clientId=&asOf=YYYY-MM-DD   brief for a specific day
- *   GET /brief?clientId=&format=text       brief rendered as plain text
+ *   GET /recommendations?clientId=                advisory report for today
+ *   GET /recommendations?clientId=&asOf=YYYY-MM-DD  report for a specific day
  *
  * Built by a factory so its service/repository can be injected — the default
  * binds to the process-wide singletons, while tests pass instances bound to a
  * seeded in-memory connection (see createApp's `knex` option).
  */
-export interface BriefRouterDeps {
-  brief: BriefService;
+export interface RecommendationsRouterDeps {
+  recommendations: RecommendationService;
   clients: ClientRepository;
 }
 
-/** Today's date as `YYYY-MM-DD` (UTC) — the default brief window. */
+/** Today's date as `YYYY-MM-DD` (UTC) — the default analysis window. */
 function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function createBriefRouter(
-  deps: BriefRouterDeps = { brief: briefService, clients: clientRepository },
+export function createRecommendationsRouter(
+  deps: RecommendationsRouterDeps = {
+    recommendations: recommendationService,
+    clients: clientRepository,
+  },
 ): Router {
-  const { brief, clients } = deps;
+  const { recommendations, clients } = deps;
   const router = Router();
 
   /** Resolve the required, trimmed client scope (400 missing/blank, 404 unknown). */
@@ -65,12 +68,8 @@ export function createBriefRouter(
         return res.status(400).json({ error: 'asOf must be a valid YYYY-MM-DD date' });
       }
 
-      const result = await brief.generate(clientId, { asOf, now: new Date().toISOString() });
-
-      if (req.query.format === 'text') {
-        return res.type('text/plain').send(renderBriefText(result));
-      }
-      res.json(result);
+      const report = await recommendations.generate(clientId, { asOf, now: new Date().toISOString() });
+      res.json(report);
     }),
   );
 
@@ -78,4 +77,4 @@ export function createBriefRouter(
 }
 
 /** Default router bound to the process-wide singletons. */
-export const briefRouter = createBriefRouter();
+export const recommendationsRouter = createRecommendationsRouter();
