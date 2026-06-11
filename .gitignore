@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.log
+
+# Local environment
+.env
+
+# Local SQLite databases (dev/test verification)
+*.sqlite
+*.sqlite3
+data/

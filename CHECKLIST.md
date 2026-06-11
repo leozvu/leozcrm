@@ -1,0 +1,44 @@
+LEOZOPS AI — PROJECT CHECKLIST
+===============================
+
+1. WHAT WE ARE BUILDING
+-----------------------
+An AI Operating Partner for agencies and business owners.
+Three core pieces: CRM + AI Brain + Agent Workforce.
+One end-to-end growth funnel: Traffic -> Attention -> Lead -> Qualification -> Nurture -> Conversion -> Activation -> Upsell -> Retention.
+
+2. WHAT THE MVP LOOP SHOULD BE
+-------------------------------
+- Store leads and campaign data in a working CRM.
+- Track movement through the funnel stages.
+- Give the CEO a daily brief and recommendations.
+- Let the team act on the brief inside the same system.
+- Measure whether actions move the funnel metrics.
+- Repeat and improve recommendations weekly.
+
+3. WHAT CLAUDE CODE SHOULD BUILD FIRST
+---------------------------------------
+- Custom CRM foundation (database + schema).
+- Client and campaign models/tables.
+- Lead tracking with stage changes.
+- KPI dashboard using real CRM data.
+- Daily CEO Brief Agent that reads the dashboard.
+- Recommendation system based on funnel data.
+- Placeholder integration stubs for social/email/AI tools (no real posting).
+
+4. WHAT CODEX SHOULD REVIEW FIRST
+---------------------------------
+- The CRM data model and migrations.
+- Lead stage transition logic and edge cases.
+- CEO Brief Agent output accuracy.
+- Dashboard metrics and calculation correctness.
+- Integration stub architecture (safe to extend later).
+- Security basics: auth, input validation, access control.
+
+5. WHAT DECISION LEOZ MUST MAKE AS CEO
+---------------------------------------
+- Pick the first paying client or internal test account to pilot the CRM.
+- Define which funnel stages matter most in the first 30 days.
+- Decide what "good enough" looks like for the MVP launch date.
+- Choose whether recommendations are advisory only or can trigger automated actions.
+- Set the threshold for moving from placeholder integrations to real publishing.

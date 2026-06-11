@@ -1,0 +1,35 @@
+{
+  "name": "leozops-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "LeozOps AI — CRM data layer foundation (Client, Campaign, Lead, FunnelStage)",
+  "license": "UNLICENSED",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/__tests__/contract.test.ts",
+    "migrate": "tsx src/db/migrate.ts latest",
+    "migrate:rollback": "tsx src/db/migrate.ts rollback",
+    "migrate:status": "tsx src/db/migrate.ts status",
+    "seed": "tsx src/db/seed.ts",
+    "db:reset": "tsx src/db/migrate.ts rollback && tsx src/db/migrate.ts latest && tsx src/db/seed.ts"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "knex": "^3.1.0",
+    "uuid": "^9.0.1"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.3.0",
+    "pg": "^8.12.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.5.0",
+    "@types/uuid": "^9.0.8",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.4"
+  }
+}
