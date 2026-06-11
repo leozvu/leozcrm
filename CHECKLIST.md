@@ -70,7 +70,7 @@ Success criteria:
 - Anomaly detection and recommended actions are relevant and understandable
 - All brief tests are green
 
-8. MILESTONE #4: RECOMMENDATION SYSTEM V0 (CURRENT)
+8. MILESTONE #4: RECOMMENDATION SYSTEM V0 — PASS
 ----------------------------------------------------
 Goal: Add advisory-only recommendations based on funnel KPIs and brief output.
 Why now: The brief gives the CEO what happened; recommendations provide the first AI Brain behavior. This closes the MVP value loop before heavier UI/integration work.
@@ -84,29 +84,21 @@ Success criteria:
 - Output contract is stable and advisory-only behavior is enforced
 - Rules produce relevant recommendations against the seeded dataset
 - All recommendation tests are green
+- QA sign-off: PASS
 
-88|9. PRODUCTION HARDENING ITEMS (POST-M4)
-89|----------------------------------------
-90|- HTTP route-level contract tests for bad IDs, cross-client conflicts, and no accidental 500s.
-91|- Repository update hardening: disallow ownership reassignment or add full validation.
-92|- Stricter request validation: email/UUID shapes, numeric bounds, allowed enum values.
-93|- Request validation depth for status/channel/score.
-94|- Postgres production smoke: migrate/seed/rollback on PostgreSQL before exposing externally.
-95|- Production auth and tenant access control before real users/agents can mutate CRM data.
-96|
-97|10. MILESTONE #5: EXECUTIVE DASHBOARD & TEAM WORKSPACE (PLANNED)
-98|-----------------------------------------------------------------
-99|Goal: Provide a visual, single-pane surface for the CEO and team to monitor funnel health, daily briefs, and recommendations.
-100|Why now: M2, M3, and M4 APIs are complete; a UI layer is the next product-value increment before heavier integration and production exposure.
-101|Deliverables:
-102|- Dashboard UI shell consuming KPI, Brief, and Recommendation APIs
-103|- Funnel visualization (stage counts, conversion trends)
-104|- Lead list with stage movement views
-105|- CEO Brief and Recommendation panels
-106|Success criteria:
-107|- Dashboard reflects live CRM state without schema changes
-108|- CEO Brief and Recommendations render correctly from their APIs
-109|- Suitable for internal pilot use before external exposure
+9. MILESTONE #5: EXECUTIVE DASHBOARD & TEAM WORKSPACE (IN PROGRESS)
+-----------------------------------------------------------------
+Goal: Provide a visual, single-pane surface for the CEO and team to monitor funnel health, daily briefs, and recommendations.
+Why now: M2, M3, and M4 APIs are complete; a UI layer is the next product-value increment before heavier integration and production exposure.
+Deliverables:
+- Dashboard UI shell consuming KPI, Brief, and Recommendation APIs
+- Funnel visualization (stage counts, conversion trends)
+- Lead list with stage movement views
+- CEO Brief and Recommendation panels
+Success criteria:
+- Dashboard reflects live CRM state without schema changes
+- CEO Brief and Recommendations render correctly from their APIs
+- Suitable for internal pilot use before external exposure
 110|
 111|11. MILESTONE #6: INTEGRATION ADAPTERS — PLACEHOLDER (PLANNED)
 112|---------------------------------------------------------------

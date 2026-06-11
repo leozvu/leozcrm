@@ -24,12 +24,13 @@ M3 — CEO Brief Engine ................... ✅ Completed
   - BriefService consuming KPI endpoints
   - Deterministic brief accuracy tests
 
-M4 — Recommendation System .............. 🚧 In Progress
+M4 — Recommendation System .............. ✅ Completed
   - Rules/heuristics based on funnel KPIs
   - Recommendation API
   - Advisory-only mode (no automated actions)
+  - QA sign-off: PASS
 
-M5 — Executive Dashboard & Team Workspace .. ⏳ Planned
+M5 — Executive Dashboard & Team Workspace .. 🚧 In Progress
   - Single-pane funnel dashboard consuming KPI API
   - CEO Brief viewer and recommendation panels
   - Lead list and stage movement interfaces

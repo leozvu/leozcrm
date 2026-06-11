@@ -6,10 +6,14 @@ import { funnelStagesRouter } from './routes/funnelStages';
 import { createMetricsRouter, metricsRouter } from './routes/metrics';
 import { createBriefRouter, briefRouter } from './routes/brief';
 import { createRecommendationsRouter, recommendationsRouter } from './routes/recommendations';
+import { createDashboardRouter, dashboardRouter } from './routes/dashboard';
 import { MetricsRepository } from '../repositories/metricsRepository';
 import { ClientRepository } from '../repositories/clientRepository';
+import { LeadRepository } from '../repositories/leadRepository';
+import { FunnelStageRepository } from '../repositories/funnelStageRepository';
 import { BriefService } from '../services/briefService';
 import { RecommendationService } from '../services/recommendationService';
+import { DashboardService } from '../services/dashboardService';
 import { ValidationError } from '../errors';
 import type { Knex } from '../db/knex';
 
@@ -46,22 +50,28 @@ export function createApp(options: CreateAppOptions = {}) {
   app.use('/campaigns', campaignsRouter);
   app.use('/leads', leadsRouter);
 
-  // Read-only KPI / brief / recommendation layers. When a connection is injected
-  // (route tests), bind them to repositories on it; otherwise use the
+  // Read-only KPI / brief / recommendation / dashboard layers. When a connection
+  // is injected (route tests), bind them to repositories on it; otherwise use the
   // process-wide singletons. The chain is built once: brief reads the KPI repo,
-  // recommendations read the brief.
+  // recommendations read the brief, and the dashboard composes all of them plus
+  // the lead/stage repositories into a single read-only HTML surface.
   if (options.knex) {
     const metrics = new MetricsRepository(options.knex);
     const clients = new ClientRepository(options.knex);
+    const leads = new LeadRepository(options.knex);
+    const stages = new FunnelStageRepository(options.knex);
     const brief = new BriefService(metrics);
     const recommendations = new RecommendationService(brief);
+    const dashboard = new DashboardService({ metrics, brief, recommendations, leads, stages, clients });
     app.use('/metrics', createMetricsRouter({ metrics, clients }));
     app.use('/brief', createBriefRouter({ brief, clients }));
     app.use('/recommendations', createRecommendationsRouter({ recommendations, clients }));
+    app.use('/dashboard', createDashboardRouter({ dashboard, clients }));
   } else {
     app.use('/metrics', metricsRouter);
     app.use('/brief', briefRouter);
     app.use('/recommendations', recommendationsRouter);
+    app.use('/dashboard', dashboardRouter);
   }
 
   // Centralized error handler. Bad input (unknown/conflicting references) is a
