@@ -48,10 +48,12 @@ M7 — Production Hardening .................. ✅ Completed (conditional)
   - Repository update hardening (ownership reassignment rules)
   - Postgres verification pending as deployment gate
 
-M8 — Real Integration Publishing ............ ⏳ Planned
-  - Replace placeholders with live connections
-  - Social, email, CRM sync adapters
-  - Recommendation → action → real funnel data loop
+M8 — Real Integration Publishing ............ 🚧 In Progress
+  M8A — Email Publishing (current)
+  M8B — Social + AI Publishing (later)
+  - Replace placeholder adapters with live connections
+  - Recommendations -> real external action -> real funnel data
+  - Authorization + spend guardrails for external actions
 
 M9 — Agent Workforce & Automated Actions ... ⏳ Planned
   - AI Brain executes validated recommendations

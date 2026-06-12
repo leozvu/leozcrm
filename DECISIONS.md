@@ -10,8 +10,43 @@ Format:
 
 ---
 
-2026-06-11 — Milestone #7 outcome: treat as complete (conditional)
-Decision: M7 feature work is complete and QA-passed; blocked only by inability to obtain a PostgreSQL target in this environment.
+2026-06-11 — Milestone #8 scope reduction: email-first publishing
+Decision: Implement live integration publishing in phases, starting with Email only.
+Context: To reduce risk and review complexity, full social/AI publishing is deferred.
+Rationale: Email is the lowest-risk live channel to validate auth + spend guardrails, failure handling, and end-to-end recommendations -> publish -> data loop before expanding to other providers.
+Alternatives considered:
+  - Build all channels at once (higher integration and review risk).
+  - Keep placeholders longer (delays product-value validation).
+Owner: Hermes (PM)
+
+2026-06-11 — Milestone #8 scope: Real Integration Publishing
+Decision: Build real external publishing only after placeholder architecture and safety rails exist.
+Context: M7 is complete with Postgres smoke left as a deployment gate.
+Rationale: M7 provides the required guardrails. M8 closes the end-to-end loop from recommendation to real action and makes the product value testable in actual environments.
+Alternatives considered:
+  - Defer M8 and add more hardening (delays validation of the recommendation-to-action loop).
+  - Skip placeholder layer and build live integrations directly (harder to review safely).
+Owner: Hermes (PM)
+
+---
+
+2026-06-11 — Milestone #8A implementation: live email publishing (Resend)
+Decision: Make the email channel a live Resend-backed adapter behind an explicitly-invoked, tenant-scoped, guardrailed publish endpoint; keep social/AI media as placeholders; no schema change.
+Context: M8A replaces the email placeholder with real sending while preserving the M6 integration boundary and M7 auth/tenant rules.
+Rationale:
+  - Boundary preserved: `execute()` stays a no-op acknowledgement for EVERY adapter (it never sends). The integration contract broadened minimally — `mode: 'placeholder' | 'live'` and `advisory_only: boolean` — so email reports `mode: 'live'`/`advisory_only: false` while social/AI stay placeholder/advisory. Real delivery is a separate path (`ResendEmailAdapter.sendOnce` → `EmailPublishService`), reachable only via `POST /integrations/email/send`.
+  - No autonomous sending: the recommendation engine is unchanged and never calls the publisher (proven by a test that hits `/recommendations` and asserts zero provider calls). A send may *reference* a recommendation (`recommendation_code`) for traceability, but only an operator/tenant call triggers it.
+  - Auth + tenant isolation reused: the publish route sits behind the M7 `authenticate` middleware and calls `enforceClientScope(clientId)`; spend guardrails are keyed per `client_id` so tenants cannot spend each other's budget.
+  - Spend guardrails (in-memory, no schema): per-tenant daily cap, rolling-60s rate limit, and a stop-on-failure circuit breaker (opens after N consecutive provider failures). The clock is injectable for deterministic tests.
+  - Provider edge: the Resend call goes through the built-in `fetch` (no new dependency, no SDK) via an injectable `EmailTransport`, with a per-attempt AbortController timeout. Retry/backoff (exponential) lives in the publish service; tests inject a sandbox transport + no-op sleep so no real network or delay occurs.
+  - Failures are explicit, not silent: each reason maps to a precise status (400/429/502/503/504), sets `Retry-After` for cap/rate/circuit, and is logged.
+Alternatives considered:
+  - Add the `resend` SDK (rejected: an injectable `fetch` transport is dependency-free and far easier to sandbox in tests).
+  - Persist sends / guard counters in a new table (rejected: "no schema redesign"; in-memory per-tenant counters meet the M8A guardrail requirement — durable accounting can come with M9/persistence later).
+  - Let recommendations trigger sends (rejected: violates "no autonomous sending"; publishing stays explicit).
+Owner: Claude Code (Senior Dev), within the M8A scope.
+
+Decision: Add bearer-token auth + per-client tenant isolation
 Context: Codex returned PASS WITH BLOCKER; blocker is missing PostgreSQL runtime, not code quality or test failure.
 Rationale: The PostgreSQL smoke was an environment-validation item, not a completed feature. Blocking product/value progress on infrastructure outside our control would stall M8/M9 unnecessarily. It is safer to convert this into a deployment gate: M7 is complete, and any environment with PostgreSQL must run migrate/seed/rollback before production exposure.
 Alternatives considered:

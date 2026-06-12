@@ -8,6 +8,8 @@ import { createBriefRouter, briefRouter } from './routes/brief';
 import { createRecommendationsRouter, recommendationsRouter } from './routes/recommendations';
 import { createDashboardRouter, dashboardRouter } from './routes/dashboard';
 import { integrationsRouter } from './routes/integrations';
+import { createEmailPublishRouter } from './routes/emailPublish';
+import { EmailPublishService, buildEmailPublisherFromEnv } from '../integrations/email/emailPublishService';
 import { MetricsRepository } from '../repositories/metricsRepository';
 import { ClientRepository } from '../repositories/clientRepository';
 import { CampaignRepository } from '../repositories/campaignRepository';
@@ -35,6 +37,12 @@ export interface CreateAppOptions {
    * app fails closed — every protected request is 401 — rather than allowing all.
    */
   auth?: AuthConfig;
+  /**
+   * Email publisher (Resend, M8A). Defaults to one built from the environment
+   * (`RESEND_API_KEY` / `EMAIL_*`). Tests inject one with a sandbox transport and
+   * deterministic clock so no real email is sent.
+   */
+  emailPublisher?: EmailPublishService;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -59,9 +67,15 @@ export function createApp(options: CreateAppOptions = {}) {
   // unauthenticated bypass path; each route then enforces its own client scope.
   app.use(authenticate(resolveAuthConfig(options.auth)));
 
-  // Placeholder integration registry (Milestone #6). Read-only metadata only —
-  // a pure in-memory registry with no DB dependency, so it mounts unconditionally
-  // and exposes no action/publish surface. Still behind auth (above).
+  // Integration registry (Milestone #6). Read-only adapter metadata. Mounted
+  // before the email publish route so the more specific path wins, and still
+  // behind auth (above).
+  //
+  // Live email publishing (Milestone #8A): an explicitly-invoked, tenant-scoped,
+  // guardrailed POST surface. Social/AI media remain metadata-only placeholders —
+  // there is no publish surface for them.
+  const emailPublisher = options.emailPublisher ?? buildEmailPublisherFromEnv();
+  app.use('/integrations/email', createEmailPublishRouter({ publisher: emailPublisher }));
   app.use('/integrations', integrationsRouter);
 
   // All DB-backed routes. When a connection is injected (route tests), every

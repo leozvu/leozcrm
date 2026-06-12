@@ -3,7 +3,7 @@ import {
   IntegrationAdapterInfo,
   IntegrationChannel,
 } from '../domain/integration';
-import { createPlaceholderAdapters } from './channels';
+import { createDefaultAdapters } from './channels';
 
 /**
  * In-memory registry of the placeholder integration adapters (Milestone #6).
@@ -19,7 +19,7 @@ import { createPlaceholderAdapters } from './channels';
 export class IntegrationRegistry {
   private readonly byChannel: Map<IntegrationChannel, IntegrationAdapter>;
 
-  constructor(adapters: IntegrationAdapter[] = createPlaceholderAdapters()) {
+  constructor(adapters: IntegrationAdapter[] = createDefaultAdapters()) {
     this.byChannel = new Map(adapters.map((a) => [a.channel, a]));
   }
 

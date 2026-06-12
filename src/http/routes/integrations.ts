@@ -31,7 +31,9 @@ export function createIntegrationsRouter(
   router.get(
     '/',
     asyncHandler(async (_req, res) => {
-      res.json({ mode: 'placeholder', advisory_only: true, integrations: registry.listInfo() });
+      // Per-adapter mode/advisory_only now varies (email is live); report the
+      // list and let each entry carry its own flags.
+      res.json({ integrations: registry.listInfo() });
     }),
   );
 

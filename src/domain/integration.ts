@@ -1,33 +1,34 @@
 /**
- * Integration adapter contracts for the placeholder connector layer (Milestone #6).
+ * Integration adapter contracts for the connector layer (Milestone #6, extended
+ * in #8A).
  *
- * This layer establishes the *shape* of future channel integrations — social
- * posting (Facebook / TikTok / Instagram), email, and AI media generation —
- * WITHOUT any real behaviour. Every adapter in this milestone is a safe no-op:
+ * The layer models channel integrations — social posting (Facebook / TikTok /
+ * Instagram), email, and AI media generation. Social and AI media remain safe
+ * **placeholders** (no-op, advisory-only). As of M8A the **email** channel is a
+ * real, `'live'` adapter (Resend-backed); its actual sending happens through a
+ * separate, explicitly-invoked, guardrailed publish path (see
+ * `src/integrations/email/`), NOT through `execute`.
  *
- *   - no real external API calls, no network I/O
- *   - no OAuth, no credentials, no secrets
- *   - no publishing, no writes, no CRM mutation
- *   - no background jobs, no autonomous execution
- *
- * The no-op nature is pinned at the type level the same way the recommendation
- * layer pins `advisory_only: true`: an action result always carries
- * `performed: false` and `no_op: true`, and an adapter's `mode` is always
- * `'placeholder'`. When real publishing arrives (M8) it will define its own
- * contract; nothing here executes in the meantime.
+ * `execute` is, for EVERY adapter, a safe no-op acknowledgement: it performs no
+ * network I/O, no publishing, and no writes, and always returns
+ * `performed: false` / `no_op: true`. Real email delivery is never triggered by
+ * `execute` — only by the dedicated email publish service when an operator
+ * explicitly invokes it. Placeholder adapters additionally report
+ * `advisory_only: true`; the live email adapter reports `advisory_only: false`
+ * because it *can* act (via that separate path).
  */
 
-/** Channels the placeholder layer models. Stable machine keys. */
+/** Channels the connector layer models. Stable machine keys. */
 export type IntegrationChannel = 'facebook' | 'tiktok' | 'instagram' | 'email' | 'ai_media';
 
-/** Capabilities a channel could perform once real (all inert in M6). */
+/** Capabilities a channel can perform. */
 export type IntegrationCapability = 'publish_post' | 'send_email' | 'generate_media';
 
 /**
- * Operating mode of an adapter. Always `'placeholder'` in M6 — the type has a
- * single member so the no-op guarantee is enforced by the compiler.
+ * Operating mode of an adapter: a no-op `'placeholder'` (social / AI media) or a
+ * real `'live'` connector (email, M8A).
  */
-export type IntegrationMode = 'placeholder';
+export type IntegrationMode = 'placeholder' | 'live';
 
 /** A request to perform a channel action. Inert: never sent anywhere in M6. */
 export interface IntegrationActionRequest {
@@ -48,9 +49,9 @@ export interface IntegrationActionRequest {
 export interface IntegrationActionResult {
   channel: IntegrationChannel;
   capability: IntegrationCapability;
-  /** Always `'placeholder'` in M6. */
+  /** The adapter's mode (`'placeholder'` or `'live'`). */
   mode: IntegrationMode;
-  /** Always `false` — nothing left the system. */
+  /** Always `false` — `execute` never sends; nothing left the system. */
   performed: false;
   /** Always `true` — the action was acknowledged but deliberately not executed. */
   no_op: true;
@@ -65,10 +66,14 @@ export interface IntegrationAdapterInfo {
   channel: IntegrationChannel;
   display_name: string;
   capabilities: IntegrationCapability[];
-  /** Always `'placeholder'`. */
+  /** `'placeholder'` (no-op) or `'live'` (email, M8A). */
   mode: IntegrationMode;
-  /** Always `true` — this layer never triggers an automated/real action. */
-  advisory_only: true;
+  /**
+   * `true` for placeholder adapters (never act). `false` for the live email
+   * adapter, which can act — but only via the separate, explicitly-invoked
+   * publish path, never autonomously and never through `execute`.
+   */
+  advisory_only: boolean;
 }
 
 /**
@@ -80,7 +85,7 @@ export interface IntegrationAdapter {
   readonly channel: IntegrationChannel;
   readonly displayName: string;
   readonly capabilities: readonly IntegrationCapability[];
-  /** Always `'placeholder'`. */
+  /** `'placeholder'` (no-op) or `'live'` (email, M8A). */
   readonly mode: IntegrationMode;
   /** Serialisable metadata for listing/inspection. */
   info(): IntegrationAdapterInfo;

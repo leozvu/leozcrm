@@ -121,10 +121,14 @@ Key patterns actually in use:
     │   ├── briefService.ts    daily CEO brief engine (+ text renderer)
     │   ├── recommendationService.ts  advisory recommendations from the brief
     │   └── dashboardService.ts  composes KPI/brief/recommendation/leads into a view
-    ├── integrations/          placeholder connector layer (see §5.1) — no-op only
-    │   ├── placeholderAdapter.ts  abstract no-op adapter base
-    │   ├── channels.ts        five concrete channel adapters (FB/TikTok/IG/Email/AI media)
-    │   └── registry.ts        in-memory IntegrationRegistry (+ singleton)
+    ├── integrations/          connector layer (see §5.1, §10)
+    │   ├── placeholderAdapter.ts  abstract no-op adapter base (social/AI media)
+    │   ├── channels.ts        concrete adapters (FB/TikTok/IG placeholder, email live, AI media)
+    │   ├── registry.ts        in-memory IntegrationRegistry (+ singleton)
+    │   └── email/             live email publishing (M8A)
+    │       ├── resendEmailAdapter.ts  Resend provider edge (fetch transport + timeout)
+    │       ├── spendGuard.ts          per-tenant daily cap / rate limit / circuit breaker
+    │       └── emailPublishService.ts orchestration: validate → guard → retry/backoff
     ├── http/
     │   ├── app.ts             createApp({ knex? }): wiring + error handler
     │   ├── asyncHandler.ts    forwards async errors to Express
@@ -132,7 +136,8 @@ Key patterns actually in use:
     │       ├── clients.ts  campaigns.ts  leads.ts
     │       ├── funnelStages.ts  metrics.ts  brief.ts  recommendations.ts
     │       ├── dashboard.ts   read-only HTML dashboard surface
-    │       └── integrations.ts  read-only placeholder integration registry
+    │       ├── integrations.ts  read-only integration registry metadata
+    │       └── emailPublish.ts  POST /integrations/email/send (live, guarded, M8A)
     ├── server.ts              process entry point
     └── __tests__/
         ├── *.test.ts          node:test suites (in-memory SQLite)
@@ -460,3 +465,39 @@ enforced at the DB level.
 rollback+verify-dropped against a configured PostgreSQL instance, proving the
 dialect-portable migrations are reversible on Postgres. It is env-gated (skips
 cleanly when no PG is configured). See `docs/POSTGRES_SMOKE.md`.
+
+---
+
+## 10. Live email publishing (M8A)
+
+The email channel is the first **`'live'`** integration (`src/integrations/email/`).
+Social and AI-media adapters remain metadata-only placeholders.
+
+- **The integration boundary is preserved.** `IntegrationAdapter.execute()` is a
+  no-op acknowledgement for *every* adapter — it never sends. The contract only
+  broadened from a pinned placeholder to `mode: 'placeholder' | 'live'` /
+  `advisory_only: boolean`. Real delivery is a separate method
+  (`ResendEmailAdapter.sendOnce`) reached only through the publish service.
+- **Explicit invocation, tenant-scoped.** `POST /integrations/email/send` is the
+  only send surface. It sits behind the M7 `authenticate` middleware and calls
+  `enforceClientScope(clientId)`; there is no autonomous path. The recommendation
+  engine is unchanged and never sends (a route test asserts zero provider calls
+  when generating recommendations). A request may carry `recommendation_code`
+  purely for traceability.
+- **Spend guardrails (`spendGuard.ts`), per `client_id`, in-memory (no schema).**
+  A daily send cap, a rolling-60s rate limit, and a stop-on-failure circuit
+  breaker (opens after N consecutive provider failures). The clock is injectable
+  for deterministic tests.
+- **Provider edge (`resendEmailAdapter.ts`).** The Resend HTTP call goes through
+  the built-in `fetch` (no new dependency, no SDK) via an injectable
+  `EmailTransport`, with a per-attempt `AbortController` timeout. One attempt is
+  classified success / retryable / fatal.
+- **Retry + backoff (`emailPublishService.ts`).** Transient (retryable) failures
+  retry with exponential backoff; fatal ones stop immediately. `sleep` is
+  injectable so tests don't wait. Each failure reason maps to a precise HTTP
+  status (`400/429/502/503/504`), sets `Retry-After` for cap/rate/circuit limits,
+  and is logged — failures are surfaced, not swallowed.
+- **Configuration.** `RESEND_API_KEY` / `EMAIL_FROM` / `EMAIL_*` (see
+  `.env.example`). Unconfigured, the endpoint returns `503 not_configured` rather
+  than failing silently. Tests inject a sandbox transport, so no real email is
+  ever sent.

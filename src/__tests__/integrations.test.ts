@@ -1,8 +1,8 @@
 /**
- * Integration adapter tests (Milestone #6). Prove the placeholder connector
- * layer is a safe no-op: adapters acknowledge actions without performing any
- * external network call or side effect, never echo payload values, and the
- * registry exposes the five future channels.
+ * Integration adapter tests (Milestone #6, updated for #8A). The connector layer
+ * still exposes five channels and `execute` is a no-op for ALL of them (it never
+ * sends). Social/AI media remain placeholder/advisory; email is now the live
+ * Resend adapter (its real sending is a separate, explicit path — not `execute`).
  *
  * Run: npm test
  */
@@ -12,40 +12,45 @@ import http from 'node:http';
 import https from 'node:https';
 import net from 'node:net';
 import { IntegrationRegistry } from '../integrations/registry';
-import { createPlaceholderAdapters } from '../integrations/channels';
+import { createDefaultAdapters } from '../integrations/channels';
 import { ValidationError } from '../errors';
 
 const registry = new IntegrationRegistry();
 
-test('registry exposes exactly the five placeholder channels, advisory-only', () => {
+test('registry exposes five channels: social/AI placeholder, email live', () => {
   const infos = registry.listInfo();
   assert.deepEqual(
     infos.map((i) => i.channel),
     ['facebook', 'tiktok', 'instagram', 'email', 'ai_media'],
   );
-  for (const info of infos) {
-    assert.equal(info.mode, 'placeholder');
-    assert.equal(info.advisory_only, true);
-    assert.ok(info.capabilities.length > 0);
+  const byChannel = Object.fromEntries(infos.map((i) => [i.channel, i]));
+  for (const ch of ['facebook', 'tiktok', 'instagram', 'ai_media']) {
+    assert.equal(byChannel[ch].mode, 'placeholder');
+    assert.equal(byChannel[ch].advisory_only, true);
+    assert.ok(byChannel[ch].capabilities.length > 0);
   }
+  // Email is the live channel — it can act, but only via the explicit publish path.
+  assert.equal(byChannel.email.mode, 'live');
+  assert.equal(byChannel.email.advisory_only, false);
+  assert.deepEqual(byChannel.email.capabilities, ['send_email']);
 });
 
-test('each adapter execute is a no-op: performed:false, no_op:true', () => {
+test('every adapter execute is a no-op: performed:false, no_op:true (email included)', () => {
   for (const adapter of registry.list()) {
     const capability = adapter.capabilities[0];
     const result = adapter.execute({ capability, payload: {} });
     assert.equal(result.channel, adapter.channel);
-    assert.equal(result.mode, 'placeholder');
+    assert.equal(result.mode, adapter.mode);
     assert.equal(result.performed, false);
     assert.equal(result.no_op, true);
-    assert.match(result.detail, /placeholder/i);
   }
 });
 
 test('execute echoes payload key names only — never payload values (no secret leakage)', () => {
-  const email = registry.get('email')!;
-  const result = email.execute({
-    capability: 'send_email',
+  // Facebook (placeholder) — same no-secret-echo guarantee as before.
+  const facebook = registry.get('facebook')!;
+  const result = facebook.execute({
+    capability: 'publish_post',
     payload: { to: 'lead@example.com', api_key: 'super-secret-token', body: 'hello' },
   });
   // Only key names are retained...
@@ -90,7 +95,9 @@ test('execute performs NO network I/O even when every egress path is armed to th
     (net as any).connect = boom;
     (net as any).createConnection = boom;
 
-    for (const adapter of createPlaceholderAdapters()) {
+    // execute() must touch no network for ANY adapter — including the live email
+    // adapter (it acknowledges but never sends; real sending is a separate path).
+    for (const adapter of createDefaultAdapters()) {
       const result = adapter.execute({
         capability: adapter.capabilities[0],
         payload: { caption: 'x', url: 'https://example.com/should-not-be-fetched' },

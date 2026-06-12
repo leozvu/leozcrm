@@ -50,31 +50,37 @@ async function req(
   };
 }
 
-test('GET /integrations — lists all placeholder adapters as advisory-only', async () => {
+test('GET /integrations — lists channels with per-adapter mode/advisory flags', async () => {
   const { status, contentType, body } = await req('/integrations');
   assert.equal(status, 200);
   assert.match(contentType, /application\/json/);
 
-  assert.equal(body.mode, 'placeholder');
-  assert.equal(body.advisory_only, true);
   assert.deepEqual(
     body.integrations.map((i: any) => i.channel),
     ['facebook', 'tiktok', 'instagram', 'email', 'ai_media'],
   );
-  for (const i of body.integrations) {
-    assert.equal(i.mode, 'placeholder');
-    assert.equal(i.advisory_only, true);
+  const byChannel = Object.fromEntries(body.integrations.map((i: any) => [i.channel, i]));
+  for (const ch of ['facebook', 'tiktok', 'instagram', 'ai_media']) {
+    assert.equal(byChannel[ch].mode, 'placeholder');
+    assert.equal(byChannel[ch].advisory_only, true);
   }
+  // Email is live as of M8A.
+  assert.equal(byChannel.email.mode, 'live');
+  assert.equal(byChannel.email.advisory_only, false);
 });
 
-test('GET /integrations/:channel — returns one adapter info', async () => {
-  const { status, body } = await req('/integrations/facebook');
-  assert.equal(status, 200);
-  assert.equal(body.channel, 'facebook');
-  assert.equal(body.display_name, 'Facebook');
-  assert.deepEqual(body.capabilities, ['publish_post']);
-  assert.equal(body.mode, 'placeholder');
-  assert.equal(body.advisory_only, true);
+test('GET /integrations/:channel — returns one adapter info (live email)', async () => {
+  const fb = await req('/integrations/facebook');
+  assert.equal(fb.status, 200);
+  assert.equal(fb.body.mode, 'placeholder');
+  assert.equal(fb.body.advisory_only, true);
+
+  const email = await req('/integrations/email');
+  assert.equal(email.status, 200);
+  assert.equal(email.body.channel, 'email');
+  assert.equal(email.body.mode, 'live');
+  assert.equal(email.body.advisory_only, false);
+  assert.deepEqual(email.body.capabilities, ['send_email']);
 });
 
 test('GET /integrations/:channel — 404 for an unknown channel', async () => {
@@ -83,11 +89,11 @@ test('GET /integrations/:channel — 404 for an unknown channel', async () => {
   assert.match(body.error, /integration not found/);
 });
 
-test('there is no action/publish endpoint — POST to an integration is not routed', async () => {
-  // No execute/publish route exists, so a POST falls through to Express's
-  // default 404. The HTTP surface cannot trigger any (even no-op) channel action.
-  const { status } = await req('/integrations/facebook/publish', 'POST');
-  assert.equal(status, 404);
+test('social/AI channels have no publish endpoint (only email is live)', async () => {
+  // Only email exposes an explicit publish surface (M8A). Social has none, so a
+  // POST falls through to Express's default 404 — no social/AI action is routed.
+  assert.equal((await req('/integrations/facebook/publish', 'POST')).status, 404);
+  assert.equal((await req('/integrations/ai_media/generate', 'POST')).status, 404);
 });
 
 test('GET /integrations — 401 without authentication (no unauthenticated bypass)', async () => {

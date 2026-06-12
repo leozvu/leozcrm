@@ -114,56 +114,51 @@ Success criteria:
 - No dashboard, integration, or autonomous execution layer was added
 - QA sign-off: PASS
 
-11. MILESTONE #7: PRODUCTION HARDENING (IN PROGRESS)
+11. MILESTONE #7: PRODUCTION HARDENING — COMPLETE (CONDITIONAL)
 -----------------------------------------------------------------
 Goal: Add authorization, validation, and database safety required before external exposure.
 Why now: M5 and M6 expose surfaces that must be protected before real users or agents interact with CRM data.
-
-Phase A — Auth + Tenant Isolation
 Deliverables:
-- Auth middleware for protected routes
-- Tenant access control enforcement
-Route/test coverage for authenticated access paths
-Success criteria:
-- Auth enforced on protected routes
-- Tenant data fully isolated per client_id
-- No unauthenticated bypass paths remain
-Risks:
-Auth UX/adoption mismatch, staging config drift, missing edge-case routes
-
-Phase B — Validation Hardening
-Deliverables:
-- HTTP route contract tests for bad IDs, cross-client conflicts, no accidental 500s
+- Auth + tenant access control
+- HTTP route contract tests (bad IDs, cross-client, 500 prevention)
 - Stricter request validation (email/UUID shapes, numeric bounds, enums)
 - Repository update hardening (ownership reassignment rules)
+- Postgres migrate/seed/rollback smoke path present and documented
 Success criteria:
+- Auth enforced on protected routes
+- Tenant data is fully isolated
 - Bad input never produces 500
-- Invalid IDs, enums, numeric bounds are rejected cleanly
 - Ownership reassignment is blocked or fully validated
-Risks:
-Scope expansion, validation rules breaking internal workflows
+- QA sign-off: PASS (PostgreSQL verification deferred to deployment gate)
 
-Phase C — Postgres Verification
-Deliverables:
-- Postgres migrate/seed/rollback smoke test
-- Documentation/script for running lifecycle on PostgreSQL
-Success criteria:
-- migrate/seed/rollback passes cleanly on PostgreSQL
-- No dialect-specific schema/query assumptions broken
-Risks:
-Environment setup, flaky database lifecycle, hidden SQLite-only assumptions
-
-12. MILESTONE #8: REAL INTEGRATION PUBLISHING (PLANNED)
+12. MILESTONE #8: REAL INTEGRATION PUBLISHING (CURRENT)
 -----------------------------------------------------------------
 Goal: Replace placeholder adapters with live connections and enable recommendation-driven publishing.
 Why now: M6 placeholders and M7 safety rails are complete; real publishing closes the recommendation -> action -> data loop.
+
+M8A — Email Publishing
 Deliverables:
-- Live social, email, and CRM sync integrations
-- Autonomous publishing paths gated by authorization and spend guards
-- End-to-end publishing tests against sandbox targets
+- Live email adapter replacing the email placeholder
+- Authorization + spend guardrails around publish actions
+- End-to-end publishing tests against email sandbox
 Success criteria:
-- Recommendations can trigger real external actions safely
+- Recommendations can trigger safe email publish actions
+- Auth enforced and tenant-isolated
+- Spend/budget checks prevent runaway sends
 - Failure modes are logged and visible, not silent
+- No schema changes
+
+M8B — Social + AI Publishing (PLANNED)
+Deliverables:
+- Live social adapters: Facebook, TikTok, Instagram
+- AI video/image adapter
+- Autonomous publishing paths gated by authorization and spend guards
+- End-to-end publishing tests against provider sandboxes
+Success criteria:
+- Social/AI recommendations can trigger real external actions safely
+- Tenant isolation and auth enforced across channels
+- Spend limits and connection limits are visible and adjustable
+- Failures are surfaced to the dashboard/logs, not swallowed
 
 13. MILESTONE #9: AGENT WORKFORCE & AUTOMATED ACTIONS (PLANNED)
 ----------------------------------------------------------------
