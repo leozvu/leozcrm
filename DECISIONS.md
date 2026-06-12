@@ -46,6 +46,19 @@ Alternatives considered:
   - Let recommendations trigger sends (rejected: violates "no autonomous sending"; publishing stays explicit).
 Owner: Claude Code (Senior Dev), within the M8A scope.
 
+---
+
+2026-06-11 — Milestone #8A remediation: per-attempt guard accounting, sender enforcement, bounded retries
+Decision: Resolve the Codex M8A FAIL by (a) checking the spend/rate/circuit guard and reserving one unit BEFORE every provider attempt (retries included), recording each failed attempt toward the circuit; (b) requiring a valid `EMAIL_FROM` for live sending and rejecting caller-provided `from` unless it is on an allowlist; (c) hard-bounding retries.
+Context: The first M8A pass guarded once per logical publish, so one publish with N retries could make N+1 provider calls under a single unit and count one circuit failure; the caller could also set an arbitrary `from`, and `EMAIL_MAX_RETRIES` was unbounded.
+Rationale:
+  - Per-attempt accounting: the retry loop now calls `guard.check` → `guard.reserve` before each `sendOnce` and `guard.recordFailure` after each failure. A logical publish therefore can never exceed the daily cap, rate limit, or circuit breaker; a mid-retry block stops further provider calls and reports the last provider failure.
+  - Sender identity: `isConfigured()` now also requires a syntactically valid `EMAIL_FROM` (so a missing/invalid sender returns `not_configured` before any call); the adapter refuses to send with an empty/invalid sender. Caller `from` is rejected by default and only honoured when it exactly matches `EMAIL_ALLOWED_FROM`.
+  - Bounded retries: `maxRetries` is clamped to `[0, MAX_RETRIES_CEILING=5]` (default 2) in the service constructor — env or injected config cannot multiply external calls without limit — and each backoff wait is capped at `DEFAULT_BACKOFF_MAX_MS`.
+  - Test realism: added tests proving per-attempt quota/rate/circuit consumption, that caps bound the number of provider calls under retries, sender rejection before any provider call, retry clamping at the ceiling, and the explicit Resend request/credential contract (adapter request shape + `fetchEmailTransport`'s HTTP call) without real network. The sandbox-double strategy is now documented in the test headers; real end-to-end remains a deployment gate.
+Scope: remediation only — no new channels, no social/AI publishing, no schema change, no autonomous sending, M8B not started.
+Owner: Claude Code (Senior Dev).
+
 Decision: Add bearer-token auth + per-client tenant isolation
 Context: Codex returned PASS WITH BLOCKER; blocker is missing PostgreSQL runtime, not code quality or test failure.
 Rationale: The PostgreSQL smoke was an environment-validation item, not a completed feature. Blocking product/value progress on infrastructure outside our control would stall M8/M9 unnecessarily. It is safer to convert this into a deployment gate: M7 is complete, and any environment with PostgreSQL must run migrate/seed/rollback before production exposure.

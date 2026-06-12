@@ -1,9 +1,16 @@
 /**
- * Email publish route tests (Milestone #8A). Boots the real app with an injected
- * SANDBOX publisher (no real network) and asserts the HTTP contract: auth +
- * tenant isolation on the publish endpoint, the success path, reason→status
- * mapping (400/429/502/503), Retry-After, and — critically — that generating
- * recommendations sends NO email (publishing is explicit, never autonomous).
+ * Email publish route tests (Milestone #8A + remediation).
+ *
+ * SANDBOX STRATEGY: the app is booted with an injected publisher whose transport
+ * is a deterministic double (no real network) — these tests assert the HTTP
+ * contract, not provider delivery. The real Resend request/credential contract
+ * is proven separately in emailPublish.test.ts; real end-to-end sending is a
+ * deployment-gate step gated on `RESEND_API_KEY`.
+ *
+ * Asserts: auth + tenant isolation, success path, reason→status mapping
+ * (400/429/502/503), Retry-After, caller-`from` rejection at the boundary, and —
+ * critically — that generating recommendations sends NO email (publishing is
+ * explicit, never autonomous).
  *
  * Run: npm test
  */
@@ -114,6 +121,17 @@ test('publish rejects missing fields and invalid messages with 400', async () =>
     assert.equal(bad.status, 400);
     assert.equal(bad.body.code, 'invalid_message');
   });
+});
+
+test('a caller-provided "from" is rejected at the boundary (no allowlist)', async () => {
+  const cap = { count: 0 };
+  const countingTransport: EmailTransport = async () => { cap.count++; return { status: 200, body: { id: 'x' } }; };
+  await withApp({ publisher: makePublisher({ transport: countingTransport }) }, async (base) => {
+    const r = await post(base, '/integrations/email/send', { clientId: CLIENT, ...GOOD, from: 'spoof@evil.com' }, clientHeaders(CLIENT));
+    assert.equal(r.status, 400);
+    assert.equal(r.body.code, 'invalid_message');
+  });
+  assert.equal(cap.count, 0, 'a disallowed sender must never reach the provider');
 });
 
 test('daily cap returns 429 with Retry-After', async () => {

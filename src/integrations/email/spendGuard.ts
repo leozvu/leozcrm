@@ -108,7 +108,11 @@ export class EmailSpendGuard {
     return { allowed: true };
   }
 
-  /** Consume one unit of daily + rate quota (call once per accepted logical send). */
+  /**
+   * Consume one unit of daily + rate quota. Called once per PROVIDER ATTEMPT
+   * (including retries) so a single logical publish can never exceed the caps by
+   * retrying. Must be preceded by an allowed `check`.
+   */
   reserve(clientId: string): void {
     const s = this.state(clientId);
     s.dayCount += 1;

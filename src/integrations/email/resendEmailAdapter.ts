@@ -8,7 +8,21 @@ import {
   IntegrationMode,
 } from '../../domain/integration';
 import { EmailMessage, EmailFailureReason } from '../../domain/email';
+import { isEmail } from '../../domain/validate';
 import { ValidationError } from '../../errors';
+
+/**
+ * Extract and validate the address from a sender string, accepting either a bare
+ * address (`a@b.com`) or a display form (`Name <a@b.com>`). Returns the address
+ * when valid, else `null`. Used to enforce that a real sender is configured
+ * before any provider call.
+ */
+export function senderEmail(from: string | undefined): string | null {
+  if (typeof from !== 'string') return null;
+  const match = from.match(/<([^>]+)>/);
+  const addr = (match ? match[1] : from).trim();
+  return isEmail(addr) ? addr : null;
+}
 
 /**
  * Live email adapter backed by Resend (Milestone #8A).
@@ -97,9 +111,13 @@ export class ResendEmailAdapter implements IntegrationAdapter {
     this.endpoint = config.endpoint ?? RESEND_ENDPOINT;
   }
 
-  /** Configured to actually send (has both an API key and a transport). */
+  /**
+   * Configured to actually send: requires an API key, a transport, AND a valid
+   * sender (`EMAIL_FROM`). A missing/invalid sender makes the adapter report
+   * "not configured" so the publish boundary refuses before any provider call.
+   */
   isConfigured(): boolean {
-    return Boolean(this.apiKey && this.transport);
+    return Boolean(this.apiKey && this.transport && senderEmail(this.from));
   }
 
   info(): IntegrationAdapterInfo {
@@ -151,6 +169,14 @@ export class ResendEmailAdapter implements IntegrationAdapter {
       return { kind: 'fatal', reason: 'not_configured', detail: 'Resend API key/transport not configured' };
     }
 
+    // Resolve the sender: a caller `from` (already allowlisted by the publish
+    // service when present) overrides the configured default. Never send with an
+    // empty/invalid sender.
+    const from = message.from ?? this.from;
+    if (!senderEmail(from)) {
+      return { kind: 'fatal', reason: 'not_configured', detail: 'no valid sender configured (set EMAIL_FROM)' };
+    }
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), this.timeoutMs);
     try {
@@ -158,7 +184,7 @@ export class ResendEmailAdapter implements IntegrationAdapter {
         url: this.endpoint,
         apiKey: this.apiKey,
         body: {
-          from: message.from ?? this.from ?? '',
+          from: from as string,
           to: [message.to],
           subject: message.subject,
           html: message.html,
