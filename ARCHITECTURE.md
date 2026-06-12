@@ -120,7 +120,8 @@ Key patterns actually in use:
     ├── services/              business/orchestration layer (see §5)
     │   ├── briefService.ts    daily CEO brief engine (+ text renderer)
     │   ├── recommendationService.ts  advisory recommendations from the brief
-    │   └── dashboardService.ts  composes KPI/brief/recommendation/leads into a view
+    │   ├── dashboardService.ts  composes KPI/brief/recommendation/leads into a view
+    │   └── taskService.ts     task lifecycle / state-transition validation (M9)
     ├── integrations/          connector layer (see §5.1, §10)
     │   ├── placeholderAdapter.ts  abstract no-op adapter base (social/AI media)
     │   ├── channels.ts        concrete adapters (FB/TikTok/IG placeholder, email live, AI media)
@@ -137,7 +138,8 @@ Key patterns actually in use:
     │       ├── funnelStages.ts  metrics.ts  brief.ts  recommendations.ts
     │       ├── dashboard.ts   read-only HTML dashboard surface
     │       ├── integrations.ts  read-only integration registry metadata
-    │       └── emailPublish.ts  POST /integrations/email/send (live, guarded, M8A)
+    │       ├── emailPublish.ts  POST /integrations/email/send (live, guarded, M8A)
+    │       └── tasks.ts       tenant-scoped task CRUD + audited status transitions (M9)
     ├── server.ts              process entry point
     └── __tests__/
         ├── *.test.ts          node:test suites (in-memory SQLite)
@@ -501,3 +503,30 @@ Social and AI-media adapters remain metadata-only placeholders.
   `.env.example`). Unconfigured, the endpoint returns `503 not_configured` rather
   than failing silently. Tests inject a sandbox transport, so no real email is
   ever sent.
+
+---
+
+## 11. Task Engine (M9)
+
+Tracked, tenant-scoped units of work that operationalize brief/recommendation
+outputs. Two tables (`src/db/migrations/*_create_tasks.ts`): `tasks` and an
+append-only `task_status_events` audit trail.
+
+- **Small, explicit state machine** (`domain/task.ts`): `open ⇄ in_progress`,
+  `open → cancelled`, `in_progress → done|cancelled`; `done`/`cancelled` are
+  terminal. Transition *legality* is a business rule and lives in `TaskService`,
+  not the repository (per §5).
+- **Status changes are audited; field edits are not.** `TaskRepository.create`
+  records the initial status as the first event; `changeStatus` writes the new
+  status and its event **atomically in a transaction**. PATCH edits non-status
+  fields only and rejects a `status` field, so every transition goes through the
+  audited path. There is no autonomous transition.
+- **Audit integrity via the composite-FK pattern.**
+  `task_status_events(client_id, task_id) → tasks(client_id, id)` (with
+  `tasks.unique(client_id, id)`) mirrors leads→campaigns, so an event can never
+  cross tenants; the `task_id` FK cascades the trail when a task is deleted.
+- **Auth/tenant + validation reuse M7 verbatim.** Routes are behind
+  `authenticate`; explicit client ids → `403` on mismatch, resource lookups →
+  `404` cross-tenant; lists auto-scope to the caller. Repository field validation
+  keeps malformed input a clean `400`/`409`, and ownership reassignment is
+  blocked. `assignee` is a free-text label — there is no users/team system.

@@ -1,27 +1,28 @@
-# Codex QA Review: Milestone M8A Email Publishing
+# Codex QA Review: Milestone #9 Task Engine
 
-Review target: current Milestone M8A implementation from `CHECKLIST.md`.
+Review target: current Milestone #9 implementation from `CHECKLIST.md`.
 
 ## Verdict: FAIL
 
 Verified locally:
 
 - `npm run typecheck` passed.
-- `npm test` passed: 113/113 tests.
+- `npm test` passed: 142/142 tests.
 
 ## Critical Issues
 
-1. **Spend, rate, and circuit guardrails are applied per logical publish, but retries can make multiple provider calls under one guarded unit.**  
-   Evidence: `src/integrations/email/emailPublishService.ts:78`-`src/integrations/email/emailPublishService.ts:84` checks the guard and reserves exactly one quota unit before retrying. The provider call happens inside the retry loop at `src/integrations/email/emailPublishService.ts:90`-`src/integrations/email/emailPublishService.ts:92`, so one accepted publish can perform `maxRetries + 1` Resend calls. The failure is only recorded once after the loop at `src/integrations/email/emailPublishService.ts:113`-`src/integrations/email/emailPublishService.ts:115`, so the circuit breaker also counts one logical failure rather than each failed provider attempt. `EMAIL_MAX_RETRIES` is read without bounds at `src/integrations/email/emailPublishService.ts:138` and `src/integrations/email/emailPublishService.ts:143`-`src/integrations/email/emailPublishService.ts:148`, allowing configuration to multiply external calls far beyond the daily/rate caps. The current test suite proves the behavior: `src/__tests__/emailPublish.test.ts:94`-`src/__tests__/emailPublish.test.ts:102` expects one publish with `maxRetries: 2` to make three attempts.
+None.
 
 ## High-Priority Issues
 
-1. **Sender identity and required Resend configuration are not enforced at the publish boundary.**  
-   Evidence: the route accepts a caller-controlled `from` field at `src/http/routes/emailPublish.ts:46` and forwards it directly to the publisher at `src/http/routes/emailPublish.ts:53`. Message validation only checks `to`, `subject`, and body at `src/integrations/email/emailPublishService.ts:53`-`src/integrations/email/emailPublishService.ts:60`; it does not reject, validate, or allowlist `from`. The adapter then prefers `message.from` over configured `EMAIL_FROM` at `src/integrations/email/resendEmailAdapter.ts:160`-`src/integrations/email/resendEmailAdapter.ts:162`. Separately, `isConfigured()` only requires an API key and transport at `src/integrations/email/resendEmailAdapter.ts:100`-`src/integrations/email/resendEmailAdapter.ts:103`, even though `buildEmailPublisherFromEnv()` reports `EMAIL_FROM` as required in the not-configured message at `src/integrations/email/emailPublishService.ts:73`-`src/integrations/email/emailPublishService.ts:75`; with `RESEND_API_KEY` set and `EMAIL_FROM` missing, the provider request can be attempted with an empty sender.
+1. **Malformed task input is not fully rejected at the HTTP/repository boundary before DB access.**  
+   Evidence: `src/http/routes/tasks.ts:73`-`src/http/routes/tasks.ts:77` only checks that `clientId` and `title` are truthy before calling `enforceClientScope`; for an admin caller, `enforceClientScope` allows any `clientId` value. `src/repositories/taskRepository.ts:81`-`src/repositories/taskRepository.ts:87` then checks only that `client_id` is truthy before passing it into `getRow(TABLES.clients, data.client_id)`, with no `typeof` or UUID-shape validation. That leaves malformed non-string `clientId` values to reach the DB layer instead of returning a clean task validation error. The status route has the same pattern for audit notes: `src/http/routes/tasks.ts:116`-`src/http/routes/tasks.ts:120` forwards `note` directly, and `src/repositories/taskRepository.ts:162`-`src/repositories/taskRepository.ts:170` inserts `meta.note` without type/length validation.
 
-2. **The M8A tests are sandbox doubles, not end-to-end email sandbox verification.**  
-   Evidence: `src/__tests__/emailPublish.test.ts:1`-`src/__tests__/emailPublish.test.ts:6` explicitly states the tests use a sandbox transport with no real network. The success transport is a local fake returning a static id at `src/__tests__/emailPublish.test.ts:53`. Route tests also inject a fake publisher/transport at `src/__tests__/emailPublishRoutes.test.ts:34`-`src/__tests__/emailPublishRoutes.test.ts:48`, and the fake success transport returns a static id at `src/__tests__/emailPublishRoutes.test.ts:51`-`src/__tests__/emailPublishRoutes.test.ts:53`. This does not prove the Resend request contract, credential behavior, or sandbox-provider response handling promised by M8A.
+2. **Status audit trail ordering is not guaranteed when events share the same timestamp.**  
+   Evidence: the migration defines only a UUID primary key and `created_at` timestamp for `task_status_events` at `src/db/migrations/20260611120000_create_tasks.ts:38`-`src/db/migrations/20260611120000_create_tasks.ts:48`; there is no monotonic sequence, revision number, or composite order key. `TaskRepository.listStatusEvents` orders only by `created_at` at `src/repositories/taskRepository.ts:176`-`src/repositories/taskRepository.ts:179`. Because timestamps are generated in app code via `BaseRepository.now()` at `src/repositories/baseRepository.ts:21`-`src/repositories/baseRepository.ts:22`, rapid create/transition events can share the same millisecond, making audit order dependent on database tie-breaking rather than an explicit rule.
 
 ## Nice-to-Have Improvements
 
-None.
+1. Add route tests for cross-tenant `PATCH /tasks/:id` and `POST /tasks/:id/status`, matching the read/events/delete isolation tests.
+
+2. Add a PostgreSQL smoke path that includes the new task migration and task repository lifecycle, so M9 parity is proven outside SQLite.

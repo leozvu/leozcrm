@@ -10,7 +10,7 @@
  * Like `domain/date.ts`, this module imports nothing and touches no I/O.
  */
 
-import { ClientStatus, CampaignStatus, CampaignChannel, LeadStatus } from './types';
+import { ClientStatus, CampaignStatus, CampaignChannel, LeadStatus, TaskStatus, TaskPriority } from './types';
 
 /** Canonical allowed values, mirroring the row-type unions in `types.ts`. */
 export const CLIENT_STATUSES: readonly ClientStatus[] = ['active', 'paused', 'churned'];
@@ -23,6 +23,8 @@ export const CAMPAIGN_CHANNELS: readonly CampaignChannel[] = [
   'other',
 ];
 export const LEAD_STATUSES: readonly LeadStatus[] = ['open', 'won', 'lost'];
+export const TASK_STATUSES: readonly TaskStatus[] = ['open', 'in_progress', 'done', 'cancelled'];
+export const TASK_PRIORITIES: readonly TaskPriority[] = ['low', 'medium', 'high'];
 
 /** Lead qualification score bounds (matches the schema comment "0..100"). */
 export const SCORE_MIN = 0;

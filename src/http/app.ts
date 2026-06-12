@@ -7,6 +7,7 @@ import { createMetricsRouter, metricsRouter } from './routes/metrics';
 import { createBriefRouter, briefRouter } from './routes/brief';
 import { createRecommendationsRouter, recommendationsRouter } from './routes/recommendations';
 import { createDashboardRouter, dashboardRouter } from './routes/dashboard';
+import { createTasksRouter, tasksRouter } from './routes/tasks';
 import { integrationsRouter } from './routes/integrations';
 import { createEmailPublishRouter } from './routes/emailPublish';
 import { EmailPublishService, buildEmailPublisherFromEnv } from '../integrations/email/emailPublishService';
@@ -15,9 +16,11 @@ import { ClientRepository } from '../repositories/clientRepository';
 import { CampaignRepository } from '../repositories/campaignRepository';
 import { LeadRepository } from '../repositories/leadRepository';
 import { FunnelStageRepository } from '../repositories/funnelStageRepository';
+import { TaskRepository } from '../repositories/taskRepository';
 import { BriefService } from '../services/briefService';
 import { RecommendationService } from '../services/recommendationService';
 import { DashboardService } from '../services/dashboardService';
+import { TaskService } from '../services/taskService';
 import { ValidationError } from '../errors';
 import { authenticate, resolveAuthConfig, AuthConfig } from './auth';
 import type { Knex } from '../db/knex';
@@ -92,6 +95,7 @@ export function createApp(options: CreateAppOptions = {}) {
     const brief = new BriefService(metrics);
     const recommendations = new RecommendationService(brief);
     const dashboard = new DashboardService({ metrics, brief, recommendations, leads, stages, clients });
+    const tasks = new TaskService(new TaskRepository(options.knex));
     app.use('/funnel-stages', createFunnelStagesRouter({ stages }));
     app.use('/clients', createClientsRouter({ clients }));
     app.use('/campaigns', createCampaignsRouter({ campaigns }));
@@ -100,6 +104,7 @@ export function createApp(options: CreateAppOptions = {}) {
     app.use('/brief', createBriefRouter({ brief, clients }));
     app.use('/recommendations', createRecommendationsRouter({ recommendations, clients }));
     app.use('/dashboard', createDashboardRouter({ dashboard, clients }));
+    app.use('/tasks', createTasksRouter({ tasks }));
   } else {
     app.use('/funnel-stages', funnelStagesRouter);
     app.use('/clients', clientsRouter);
@@ -109,6 +114,7 @@ export function createApp(options: CreateAppOptions = {}) {
     app.use('/brief', briefRouter);
     app.use('/recommendations', recommendationsRouter);
     app.use('/dashboard', dashboardRouter);
+    app.use('/tasks', tasksRouter);
   }
 
   // Centralized error handler. Bad input (unknown/conflicting references) is a

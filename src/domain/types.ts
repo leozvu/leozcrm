@@ -11,6 +11,14 @@ export type CampaignStatus = 'draft' | 'active' | 'paused' | 'completed';
 export type LeadStatus = 'open' | 'won' | 'lost';
 
 /**
+ * Task lifecycle states (Milestone #9). Small and explicit: `done` and
+ * `cancelled` are terminal. Legal transitions live in `domain/task.ts`.
+ */
+export type TaskStatus = 'open' | 'in_progress' | 'done' | 'cancelled';
+/** Task priority — small and explicit. */
+export type TaskPriority = 'low' | 'medium' | 'high';
+
+/**
  * Placeholder channel labels only — there are NO real integrations in this
  * foundation. These are plain strings used for grouping/reporting today and
  * the seam where real Facebook/TikTok/Instagram/email adapters plug in later.
@@ -72,10 +80,53 @@ export interface Lead {
   updated_at: string;
 }
 
+/**
+ * A tracked unit of work for one client/tenant (Milestone #9). Created from a
+ * recommendation/brief item or by hand; moved through its lifecycle by audited
+ * status transitions.
+ */
+export interface Task {
+  id: string;
+  /** Owning client/tenant (FK -> clients.id). */
+  client_id: string;
+  title: string;
+  description: string | null;
+  status: TaskStatus;
+  priority: TaskPriority;
+  /** Free-text assignee label (no users table — assignment is a plain string). */
+  assignee: string | null;
+  /** Optional traceability: the recommendation/brief code this task came from. */
+  source_recommendation_code: string | null;
+  /** Optional due date/time, ISO-8601. */
+  due_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/**
+ * Append-only audit record of a single task STATUS change (Milestone #9). Only
+ * status changes are audited — not other field edits. `from_status` is null for
+ * the initial create event.
+ */
+export interface TaskStatusEvent {
+  id: string;
+  task_id: string;
+  /** Denormalised tenant scope (composite FK guarantees it matches the task). */
+  client_id: string;
+  from_status: TaskStatus | null;
+  to_status: TaskStatus;
+  /** Who made the change ('admin' or the client/tenant id), or null. */
+  changed_by: string | null;
+  note: string | null;
+  created_at: string;
+}
+
 /** Table name constants — single source of truth for query builders. */
 export const TABLES = {
   funnelStages: 'funnel_stages',
   clients: 'clients',
   campaigns: 'campaigns',
   leads: 'leads',
+  tasks: 'tasks',
+  taskStatusEvents: 'task_status_events',
 } as const;

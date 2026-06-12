@@ -136,7 +136,7 @@ Success criteria:
 Goal: Replace placeholder adapters with live connections and enable recommendation-driven publishing.
 Why now: M6 placeholders and M7 safety rails are complete; real publishing closes the recommendation -> action -> data loop.
 
-M8A — Email Publishing
+M8A — Email Publishing — Completed
 Deliverables:
 - Live email adapter replacing the email placeholder
 - Authorization + spend guardrails around publish actions
@@ -148,29 +148,54 @@ Success criteria:
 - Failure modes are logged and visible, not silent
 - No schema changes
 
-M8B — Social + AI Publishing (PLANNED)
+M8B — Facebook + Instagram Publishing — Deferred
 Deliverables:
-- Live social adapters: Facebook, TikTok, Instagram
-- AI video/image adapter
-- Autonomous publishing paths gated by authorization and spend guards
+- Live Facebook adapter and live Instagram adapter
+- Shared publish guardrails reuse (auth, tenant isolation, spend/rate, circuit breaker)
 - End-to-end publishing tests against provider sandboxes
 Success criteria:
-- Social/AI recommendations can trigger real external actions safely
-- Tenant isolation and auth enforced across channels
-- Spend limits and connection limits are visible and adjustable
-- Failures are surfaced to the dashboard/logs, not swallowed
+- Facebook/Instagram publish actions safely execute from tenant-scoped requests
+- Auth and tenant isolation enforced identically to email
+- Spend guardrails cap per-tenant usage and block runaway sends
+- Failure behavior explicit and observable per provider
+- No regression in gateway/route contract coverage
 
-13. MILESTONE #9: AGENT WORKFORCE & AUTOMATED ACTIONS (PLANNED)
-----------------------------------------------------------------
-Goal: Execute validated recommendations as automated workflows: lead qualification, campaign launches, nurture sequences.
-Why now: M4 recommendations, M8 integrations, and M7 safety are complete.
+M8C — TikTok Publishing — Deferred
 Deliverables:
-- Agent-driven pipelines that consume recommendation triggers
-- Spend caps and safety stop-criteria
-- Observability for autonomous actions (logs, failure alerts)
+- Live TikTok adapter
+- Shared guardrail reuse and end-to-end sandbox tests
 Success criteria:
-- Autonomous workflows run within defined safety boundaries
-- Recommendations can be auto-executed without schema changes
+- TikTok actions publish safely from tenant-scoped requests
+- Auth/tenant isolation and spend guardrails enforced
+
+M8D — AI Media Generation — Deferred
+Deliverables:
+- AI video/image adapter
+- Auth + spend guardrails around generation requests
+- Sandbox-backed end-to-end generation tests
+Success criteria:
+- Media generation requests are tenant-isolated and spend-bounded
+- Failures are explicit and visible
+
+13. MILESTONE #9: TASK ENGINE (CURRENT)
+----------------------------------------------------------------
+Goal: Convert recommendations and brief items into tracked, tenant-scoped tasks with lifecycle management.
+Why now: M8A live publishing is complete; agencies need execution tracking to operationalize outputs from the AI Brain. Tasks are the highest-value next workflow object.
+
+Deliverables:
+- New Task table + migration
+- TaskRepository and TaskService
+- Tenant-scoped task CRUD and state transitions
+- Auth + validation hardening for task workflows
+- Audit trail of task status changes
+- In-memory + Postgres parity tests
+Success criteria:
+- Recommendations/brief outputs can be converted into tenant-scoped tasks
+- Tasks are assignable, trackable, and completable
+- Auth and tenant isolation enforced on all task operations
+- Invalid transitions/input rejected cleanly
+- All task tests are green
+- QA sign-off: pending
 
 14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING (PLANNED)
 ----------------------------------------------------------------

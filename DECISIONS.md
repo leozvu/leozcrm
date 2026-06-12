@@ -10,6 +10,57 @@ Format:
 
 ---
 
+2026-06-11 — Task persistence decision: dedicated Task table
+Decision: Persist tasks using a new Task table and migration.
+Context: Task is a first-class workflow object for Egoric and AIM.
+Rationale: A dedicated table preserves clean domain semantics, supports richer fields naturally, and avoids overloading existing entities.
+Alternatives considered:
+  - Co-opt an existing table (leads/campaigns): rejected because it collapses distinct workflows and adds rework later.
+Owner: Hermes (PM)
+
+2026-06-12 — Milestone #9 implementation: Task Engine
+Decision: Add `tasks` + `task_status_events` tables (Knex migration), a `TaskRepository`, a `TaskService` that owns lifecycle/state-transition validation, and tenant-scoped task routes — reusing the M7 auth/tenant and repository-validation patterns; audit STATUS changes only.
+Context: M9 operationalizes brief/recommendation outputs into tracked, tenant-scoped work without expanding into a full PM system, chat, or approval workflow.
+Rationale:
+  - State machine kept small/explicit in `domain/task.ts`: `open ⇄ in_progress`, `open → cancelled`, `in_progress → done|cancelled`; `done`/`cancelled` terminal. Legality lives in the service (workflow rules stay out of the data layer); the repository only records facts.
+  - Status changes and their audit event are written atomically in a transaction inside the repository (`create` records the initial status; `changeStatus` records each transition). Only status changes are audited — field edits (PATCH) append no event, and PATCH rejects a `status` field so transitions always go through the audited endpoint.
+  - Audit integrity reuses the existing composite-FK pattern: `task_status_events(client_id, task_id) → tasks(client_id, id)` (with `tasks.unique(client_id, id)`), mirroring leads→campaigns, so an event can never cross tenants; `task_id` FK cascades the trail on task delete.
+  - Auth/tenant isolation reuses M7 verbatim: routes sit behind `authenticate`, explicit client ids → 403 on mismatch, resource lookups → 404 cross-tenant; lists auto-scope to the caller; per-field validation in the repository keeps bad input a clean 400/409, never a 500.
+  - No users table: `assignee` is a free-text label (no team/identity system), honoring the "no full PM system / no approval workflow" scope limits. No autonomous execution — nothing transitions a task on its own.
+Alternatives considered:
+  - Store the audit trail as a JSON column on the task (rejected: a queryable append-only table is cleaner and tenant-safe via the composite FK).
+  - Put transition validation in the repository (rejected: workflow legality is a business rule and belongs in the service, per ARCHITECTURE §5).
+  - A users/assignment table for assignee (rejected: out of scope — would be a team system).
+Owner: Claude Code (Senior Dev), within the M9 scope.
+
+2026-06-11 — Milestone sequencing after M8A
+Decision: Continue Social Publishing path (M8B/C/D) before Task Engine or Approval Workflow.
+Context: Gains from M8A already show an end-to-end publish path; social/AI publishing is the next critical path to validate the recommendations->action->data loop across providers.
+Rationale: Publishing has higher current leverage because it proves the system can execute and measure external actions, which Task/Approval layers will later govern.
+Alternatives considered:
+  - Switch to Task Engine/Approval Workflow first (delays validating live-publishing behavior).
+  - Client/Team Workspace now (valuable but secondary to actionable publish flow).
+  - CRM Sync (reduces long-term manual import cost but is not the current highest-value blocker).
+Owner: Hermes (PM)
+
+2026-06-11 — Milestone sequencing revision: defer social/AI publishing
+Decision: Defer M8B/M8C/M8D and make M9 Task Engine the current highest-value milestone.
+Context: Business-value reassessment ranks Task Engine above additional live social channels for Egoric and AIM.
+Rationale: Operationalizing recommendation outputs into tracked tasks creates more immediate agency workflow value than expanding publisher surface area.
+Alternatives considered:
+  - Continue M8B immediately (higher external integration risk with lower current workflow leverage).
+  - Approval Workflow or Client/Team Workspace now (valuable, but dependent on task records).
+Owner: Hermes (PM)
+
+2026-06-11 — Milestone #8 phase split: social/AI publishing split into separate phases
+Decision: Split remaining live integration publishing into separate milestones by provider ecosystem.
+Context: Different social platforms have different auth, sandbox, and compliance requirements.
+Rationale: Isolating channels reduces QA blast radius, review complexity, and integration risk.
+Alternatives considered:
+  - Build all remaining channels in one milestone (larger QA surface).
+  - Keep remainder as a single planned phase (harder to sequence risk).
+Owner: Hermes (PM)
+
 2026-06-11 — Milestone #8 scope reduction: email-first publishing
 Decision: Implement live integration publishing in phases, starting with Email only.
 Context: To reduce risk and review complexity, full social/AI publishing is deferred.

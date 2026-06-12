@@ -49,16 +49,19 @@ M7 — Production Hardening .................. ✅ Completed (conditional)
   - Postgres verification pending as deployment gate
 
 M8 — Real Integration Publishing ............ 🚧 In Progress
-  M8A — Email Publishing (current)
-  M8B — Social + AI Publishing (later)
+  M8A — Email Publishing (completed)
+  M8B — Facebook + Instagram Publishing (deferred)
+  M8C — TikTok Publishing (deferred)
+  M8D — AI Media Generation (deferred)
   - Replace placeholder adapters with live connections
   - Recommendations -> real external action -> real funnel data
   - Authorization + spend guardrails for external actions
 
-M9 — Agent Workforce & Automated Actions ... ⏳ Planned
-  - AI Brain executes validated recommendations
-  - Lead qualification, campaign launchers, nurture sequences
-  - Spend and safety guards around autonomous actions
+M9 — Task Engine .......................... 🚧 In Progress
+  - Task persistence via Task table + migration
+  - Tenant-scoped task create/update/complete
+  - Auth + validation hardening for task workflows
+  - Testability: in-memory + Postgres parity
 
 M10 — MVP Launch & Client Onboarding ....... ⏳ Planned
   - First paying client or pilot goes live
@@ -71,6 +74,6 @@ Sequence notes:
 - M7 is intentionally staged into A/B/C so safety work surfaces incrementally.
 - M5 provides the operational surface that validates all prior API contracts visually.
 - M8 depends on M6 architecture and M7 safety rails.
-- M9 requires M7 authorization and M8 live integrations.
-- M10 gates on M5 through M9 being stable in a production-like environment.
+M9 depends on Task Engine workflows being stable before adding autonomous execution.
+M10 still gates on M5 through M9 being production-like stable; M9 now scopes to Task Engine completion rather than full automated actions.
 - Recommendation system can build on top of M3 or run parallel to M5 once M2 is done.
