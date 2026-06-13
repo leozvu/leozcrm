@@ -172,17 +172,37 @@ Success criteria:
 - All task tests are green
 - QA sign-off: PASS
 
-14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING — CURRENT
-------------------------------------------------------------
-Goal: First paying client or internal pilot goes live.
-Why now: M5 through M9 form a stable, production-ready platform with dashboard, integrations, task engine, and safety. This milestone converts internal maturity into real agency usage.
-Deliverables:
-- Client onboarding workflow
-- Pilot/support runbook
-- First live pilot client or internal tenant created and verified on the deployed system
-- Production scaling and monitoring readiness confirmed for the pilot surface
+14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING — LOCAL CODE PASS / DEPLOYMENT BLOCKED
+----------------------------------------------------------------------------------------
+Goal: Ship the first pilot tenant on a live PostgreSQL-backed deployment.
+Status:
+- Local verification: PASS (159/159 tests green, typecheck clean)
+- Deployment readiness: BLOCKED
+Why now: All prior milestone code is QA’d; M10 adds onboarding, `/ready`, and pilot runbook. Shipping a live instance is the next product-value unlock.
+Deliverables present:
+- Client onboarding workflow (`POST /onboarding`, `npm run onboard` CLI) creating tenant + issuing token
+- `GET /ready` readiness probe
+- Pilot/support runbook (`docs/PILOT_RUNBOOK.md`)
+Remaining deployment-gate tasks:
+1. Provision PostgreSQL environment.
+2. Execute `npm run db:smoke:pg` against a real PostgreSQL instance and record PASS/BLOCKER.
+3. Execute live pilot verification end-to-end:
+   - Deploy app with real DB.
+   - Call `/ready` and confirm PASS.
+   - Run `npm run onboard` to create the first pilot tenant.
+   - Verify pilot tenant can create campaigns, leads, tasks, and receive briefs/recommendations on the live instance.
+   - Record base URL, pilot client_id, and verification results in the runbook or deployment evidence file.
 Success criteria:
-- First client can self-serve or be onboarded within defined SLA
-- Product metrics and retention feedback loop is visible
-- Support and escalation paths are documented and staffed
-- Pilot tenant successfully creates campaigns, leads, tasks, and receives briefs/recommendations on the live instance
+- PostgreSQL smoke passes.
+- Live pilot tenant is created and succeeds through the Core MVP loop on a real URL.
+- Support/escalation paths documented.
+Risks:
+- No PostgreSQL instance provisioned yet.
+- Hosting/monitoring/monitoring not yet live.
+
+15. MILESTONE #10.1: PENDING — Post-P10 Candidate
+-------------------------------------------------
+Reserved. Do not start until M10 deployment gate is closed. Options under review:
+- M8B: Facebook + Instagram Publishing
+- Operational monitoring/alerting expansion
+- Any scope requested by Leoz after pilot feedback (per GOVERNANCE change-control)
