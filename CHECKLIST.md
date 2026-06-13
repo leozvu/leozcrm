@@ -44,7 +44,7 @@ One end-to-end growth funnel: Traffic -> Attention -> Lead -> Qualification -> N
 - Set the threshold for moving from placeholder integrations to real publishing.
 
 6. MILESTONE #2: KPI READ LAYER — PASS
-----------------------------------------
+---------------------------------------
 Goal: Build the read-only metrics API that converts live CRM data into funnel KPIs.
 Why now: CRM foundation passed QA; this layer unblocks both the CEO Brief Agent and any future dashboard.
 Deliverables:
@@ -71,7 +71,7 @@ Success criteria:
 - All brief tests are green
 
 8. MILESTONE #4: RECOMMENDATION SYSTEM V0 — PASS
-----------------------------------------------------
+--------------------------------------------------
 Goal: Add advisory-only recommendations based on funnel KPIs and brief output.
 Why now: The brief gives the CEO what happened; recommendations provide the first AI Brain behavior. This closes the MVP value loop before heavier UI/integration work.
 Deliverables:
@@ -87,7 +87,7 @@ Success criteria:
 - QA sign-off: PASS
 
 9. MILESTONE #5: EXECUTIVE DASHBOARD & TEAM WORKSPACE — PASS
------------------------------------------------------------------
+-------------------------------------------------------------
 Goal: Provide a visual, single-pane surface for the CEO and team to monitor funnel health, daily briefs, and recommendations.
 Why now: M2, M3, and M4 APIs are complete; a dashboard validates all prior API contracts visually before heavier integration and production exposure.
 Deliverables:
@@ -102,7 +102,7 @@ Success criteria:
 - QA sign-off: PASS
 
 10. MILESTONE #6: INTEGRATION ADAPTERS — PLACEHOLDER — PASS
-----------------------------------------------------------------
+------------------------------------------------------------
 Goal: Establish safe, no-op connector architecture for social, email, and AI tools.
 Why now: A defined integration surface is required before later milestones can legally publish or automate external actions.
 Deliverables:
@@ -114,8 +114,8 @@ Success criteria:
 - No dashboard, integration, or autonomous execution layer was added
 - QA sign-off: PASS
 
-11. MILESTONE #7: PRODUCTION HARDENING — COMPLETE (CONDITIONAL)
------------------------------------------------------------------
+11. MILESTONE #7: PRODUCTION HARDENING — PASS
+---------------------------------------------
 Goal: Add authorization, validation, and database safety required before external exposure.
 Why now: M5 and M6 expose surfaces that must be protected before real users or agents interact with CRM data.
 Deliverables:
@@ -131,8 +131,8 @@ Success criteria:
 - Ownership reassignment is blocked or fully validated
 - QA sign-off: PASS (PostgreSQL verification deferred to deployment gate)
 
-12. MILESTONE #8: REAL INTEGRATION PUBLISHING (CURRENT)
------------------------------------------------------------------
+12. MILESTONE #8: REAL INTEGRATION PUBLISHING — IN PROGRESS
+-----------------------------------------------------------
 Goal: Replace placeholder adapters with live connections and enable recommendation-driven publishing.
 Why now: M6 placeholders and M7 safety rails are complete; real publishing closes the recommendation -> action -> data loop.
 
@@ -149,63 +149,40 @@ Success criteria:
 - No schema changes
 
 M8B — Facebook + Instagram Publishing — Deferred
-Deliverables:
-- Live Facebook adapter and live Instagram adapter
-- Shared publish guardrails reuse (auth, tenant isolation, spend/rate, circuit breaker)
-- End-to-end publishing tests against provider sandboxes
-Success criteria:
-- Facebook/Instagram publish actions safely execute from tenant-scoped requests
-- Auth and tenant isolation enforced identically to email
-- Spend guardrails cap per-tenant usage and block runaway sends
-- Failure behavior explicit and observable per provider
-- No regression in gateway/route contract coverage
-
 M8C — TikTok Publishing — Deferred
-Deliverables:
-- Live TikTok adapter
-- Shared guardrail reuse and end-to-end sandbox tests
-Success criteria:
-- TikTok actions publish safely from tenant-scoped requests
-- Auth/tenant isolation and spend guardrails enforced
-
 M8D — AI Media Generation — Deferred
-Deliverables:
-- AI video/image adapter
-- Auth + spend guardrails around generation requests
-- Sandbox-backed end-to-end generation tests
-Success criteria:
-- Media generation requests are tenant-isolated and spend-bounded
-- Failures are explicit and visible
 
-13. MILESTONE #9: TASK ENGINE (CURRENT)
-----------------------------------------------------------------
+13. MILESTONE #9: TASK ENGINE — PASS
+------------------------------------
 Goal: Convert recommendations and brief items into tracked, tenant-scoped tasks with lifecycle management.
 Why now: M8A live publishing is complete; agencies need execution tracking to operationalize outputs from the AI Brain. Tasks are the highest-value next workflow object.
-
 Deliverables:
-- New Task table + migration
+- Task table + migration with audited status-event table
 - TaskRepository and TaskService
 - Tenant-scoped task CRUD and state transitions
 - Auth + validation hardening for task workflows
-- Audit trail of task status changes
+- Audit trail of task status changes with deterministic ordering (monotonic sequence + timestamp tie-breaker)
 - In-memory + Postgres parity tests
 Success criteria:
 - Recommendations/brief outputs can be converted into tenant-scoped tasks
 - Tasks are assignable, trackable, and completable
 - Auth and tenant isolation enforced on all task operations
 - Invalid transitions/input rejected cleanly
+- Audit trail order is deterministic even for rapid transitions
 - All task tests are green
-- QA sign-off: pending
+- QA sign-off: PASS
 
-14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING (PLANNED)
-----------------------------------------------------------------
+14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING — CURRENT
+------------------------------------------------------------
 Goal: First paying client or internal pilot goes live.
-Why now: M5 through M9 form a stable, production-ready platform with dashboard, integrations, automation, and safety.
+Why now: M5 through M9 form a stable, production-ready platform with dashboard, integrations, task engine, and safety. This milestone converts internal maturity into real agency usage.
 Deliverables:
 - Client onboarding workflow
 - Pilot/support runbook
-- Production scaling and monitoring readiness
+- First live pilot client or internal tenant created and verified on the deployed system
+- Production scaling and monitoring readiness confirmed for the pilot surface
 Success criteria:
 - First client can self-serve or be onboarded within defined SLA
 - Product metrics and retention feedback loop is visible
 - Support and escalation paths are documented and staffed
+- Pilot tenant successfully creates campaigns, leads, tasks, and receives briefs/recommendations on the live instance

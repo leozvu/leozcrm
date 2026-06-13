@@ -26,6 +26,7 @@ npm start          # CRUD API on http://localhost:3000
 | `npm run migrate:rollback` | Roll back the last batch (rollback-safe) |
 | `npm run migrate:status` | Show applied vs pending migrations |
 | `npm run seed` | Seed + self-verify the schema |
+| `npm run onboard` | Provision a pilot tenant + print its API token (`-- --name … --email …`) |
 | `npm run db:reset` | rollback → migrate → seed |
 | `npm start` / `npm run dev` | Run the CRUD API (`dev` = watch mode) |
 | `npm test` | Run the data-contract test suite (in-memory SQLite) |
@@ -102,6 +103,22 @@ Each recommendation has a stable `code`, `title`, `rationale`, `category`
 high → low. Same client/`asOf` scoping as `/brief`. The engine lives in
 `services/recommendationService.ts` (derived from `BriefService`); the contract
 is in `domain/recommendation.ts`.
+
+## Onboarding & readiness (operations)
+
+The MVP-launch surface for putting a tenant live and monitoring the deployment.
+
+| Endpoint | Returns |
+|----------|---------|
+| `GET /health` | Liveness — `{ ok: true }` (public). |
+| `GET /ready` | Readiness — `200` when the DB is reachable **and** funnel stages are seeded; `503` otherwise (public). |
+| `POST /onboarding` | **Admin only.** Provisions a tenant → `201 { client, api_token, readiness }`. |
+
+The returned `api_token` is the tenant's per-client bearer token (scoped to that
+one client). Onboarding rejects missing fields (`400`), malformed email (`400`),
+and a duplicate tenant email (`409`). `npm run onboard` runs the same workflow
+from the CLI against the deployed database. See `docs/PILOT_RUNBOOK.md` for the
+launch and support runbook.
 
 ## Stack
 

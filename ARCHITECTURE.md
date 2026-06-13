@@ -121,7 +121,8 @@ Key patterns actually in use:
     │   ├── briefService.ts    daily CEO brief engine (+ text renderer)
     │   ├── recommendationService.ts  advisory recommendations from the brief
     │   ├── dashboardService.ts  composes KPI/brief/recommendation/leads into a view
-    │   └── taskService.ts     task lifecycle / state-transition validation (M9)
+    │   ├── taskService.ts     task lifecycle / state-transition validation (M9)
+    │   └── onboardingService.ts  tenant provisioning + platform-readiness report (M10)
     ├── integrations/          connector layer (see §5.1, §10)
     │   ├── placeholderAdapter.ts  abstract no-op adapter base (social/AI media)
     │   ├── channels.ts        concrete adapters (FB/TikTok/IG placeholder, email live, AI media)
@@ -139,8 +140,11 @@ Key patterns actually in use:
     │       ├── dashboard.ts   read-only HTML dashboard surface
     │       ├── integrations.ts  read-only integration registry metadata
     │       ├── emailPublish.ts  POST /integrations/email/send (live, guarded, M8A)
-    │       └── tasks.ts       tenant-scoped task CRUD + audited status transitions (M9)
+    │       ├── tasks.ts       tenant-scoped task CRUD + audited status transitions (M9)
+    │       ├── onboarding.ts  POST /onboarding — admin tenant provisioning (M10)
+    │       └── health.ts      GET /ready readiness probe (public, M10)
     ├── server.ts              process entry point
+    ├── onboard.ts             pilot-onboarding CLI (`npm run onboard`, M10)
     └── __tests__/
         ├── *.test.ts          node:test suites (in-memory SQLite)
         └── support/           shared, non-suite test fixtures/helpers
@@ -536,3 +540,34 @@ append-only `task_status_events` audit trail.
   `404` cross-tenant; lists auto-scope to the caller. Repository field validation
   keeps malformed input a clean `400`/`409`, and ownership reassignment is
   blocked. `assignee` is a free-text label — there is no users/team system.
+
+---
+
+## 12. Onboarding & readiness (M10)
+
+The MVP-launch milestone adds the operator surface to put a tenant live and the
+probe to monitor it — **without a schema change**, reusing the M7 auth model.
+
+- **Onboarding workflow.** `OnboardingService` (`services/onboardingService.ts`)
+  provisions a tenant: it guards required `name`/`email` (clean `400`), refuses a
+  duplicate tenant email (`409 client_exists`), creates the client through
+  `ClientRepository` (which validates the email shape), and returns a
+  **readiness summary** (how many of the 9 canonical funnel stages are seeded).
+  Funnel stages are global reference data seeded once at deploy (`npm run seed`),
+  not per-tenant. The service is http-free.
+- **Token issuance stays at the boundary.** Signing a tenant's bearer token is an
+  auth concern, so the service does **not** mint it. `POST /onboarding`
+  (`routes/onboarding.ts`, **admin-only** like `POST /clients`) and the
+  `npm run onboard` CLI (`src/onboard.ts`) sign the per-client token with the
+  same `AUTH_SECRET` the middleware verifies (`signClientToken`). The route
+  returns `201 { client, api_token, readiness }`; with no secret configured it
+  returns `503 not_configured` rather than issuing an unverifiable token.
+- **Readiness probe.** `GET /ready` (`routes/health.ts`) is public like
+  `/health`, but checks real dependencies: it counts funnel stages through
+  `FunnelStageRepository` — a successful query proves DB reachability, and the
+  count proves the platform is seeded. `200` when ready; `503` when the DB is
+  unreachable or the stages are unseeded. `/health` remains a pure liveness probe.
+- **CLI parity.** `npm run onboard -- --name … --email …` runs the same service
+  against the deployed DB so an operator can create and verify the first pilot
+  tenant; it mirrors `server.ts` for secret resolution (production must set
+  `AUTH_SECRET`). See `docs/PILOT_RUNBOOK.md` for the full launch/support runbook.

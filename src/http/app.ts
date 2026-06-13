@@ -8,6 +8,8 @@ import { createBriefRouter, briefRouter } from './routes/brief';
 import { createRecommendationsRouter, recommendationsRouter } from './routes/recommendations';
 import { createDashboardRouter, dashboardRouter } from './routes/dashboard';
 import { createTasksRouter, tasksRouter } from './routes/tasks';
+import { createOnboardingRouter } from './routes/onboarding';
+import { createReadinessRouter } from './routes/health';
 import { integrationsRouter } from './routes/integrations';
 import { createEmailPublishRouter } from './routes/emailPublish';
 import { EmailPublishService, buildEmailPublisherFromEnv } from '../integrations/email/emailPublishService';
@@ -21,9 +23,10 @@ import { BriefService } from '../services/briefService';
 import { RecommendationService } from '../services/recommendationService';
 import { DashboardService } from '../services/dashboardService';
 import { TaskService } from '../services/taskService';
+import { OnboardingService, onboardingService } from '../services/onboardingService';
 import { ValidationError } from '../errors';
 import { authenticate, resolveAuthConfig, AuthConfig } from './auth';
-import type { Knex } from '../db/knex';
+import { db, type Knex } from '../db/knex';
 
 export interface CreateAppOptions {
   /**
@@ -63,12 +66,16 @@ export function createApp(options: CreateAppOptions = {}) {
   const app = express();
   app.use(express.json());
 
-  // Liveness probe is the only public route — everything below requires auth.
+  // Public probes (no auth) — for load balancers / uptime monitors:
+  //   /health  liveness  — the process is up.
+  //   /ready   readiness — DB reachable AND funnel stages seeded (M10).
   app.get('/health', (_req, res) => res.json({ ok: true }));
+  app.use('/ready', createReadinessRouter({ knex: options.knex ?? db }));
 
   // Auth + tenant isolation (M7). Mounted before every data route so there is no
   // unauthenticated bypass path; each route then enforces its own client scope.
-  app.use(authenticate(resolveAuthConfig(options.auth)));
+  const authCfg = resolveAuthConfig(options.auth);
+  app.use(authenticate(authCfg));
 
   // Integration registry (Milestone #6). Read-only adapter metadata. Mounted
   // before the email publish route so the more specific path wins, and still
@@ -96,6 +103,7 @@ export function createApp(options: CreateAppOptions = {}) {
     const recommendations = new RecommendationService(brief);
     const dashboard = new DashboardService({ metrics, brief, recommendations, leads, stages, clients });
     const tasks = new TaskService(new TaskRepository(options.knex));
+    const onboarding = new OnboardingService(clients, stages);
     app.use('/funnel-stages', createFunnelStagesRouter({ stages }));
     app.use('/clients', createClientsRouter({ clients }));
     app.use('/campaigns', createCampaignsRouter({ campaigns }));
@@ -105,6 +113,7 @@ export function createApp(options: CreateAppOptions = {}) {
     app.use('/recommendations', createRecommendationsRouter({ recommendations, clients }));
     app.use('/dashboard', createDashboardRouter({ dashboard, clients }));
     app.use('/tasks', createTasksRouter({ tasks }));
+    app.use('/onboarding', createOnboardingRouter({ onboarding, secret: authCfg.secret }));
   } else {
     app.use('/funnel-stages', funnelStagesRouter);
     app.use('/clients', clientsRouter);
@@ -115,6 +124,7 @@ export function createApp(options: CreateAppOptions = {}) {
     app.use('/recommendations', recommendationsRouter);
     app.use('/dashboard', dashboardRouter);
     app.use('/tasks', tasksRouter);
+    app.use('/onboarding', createOnboardingRouter({ onboarding: onboardingService, secret: authCfg.secret }));
   }
 
   // Centralized error handler. Bad input (unknown/conflicting references) is a

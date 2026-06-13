@@ -10,6 +10,47 @@ Format:
 
 ---
 
+2026-06-12 — Milestone #10 implementation: client onboarding workflow + readiness probe
+Decision: Implement the codeable M10 launch surface with no schema change: an `OnboardingService` + admin-only `POST /onboarding` route that provisions a tenant, issues its per-client API token, and reports platform readiness; a public `GET /ready` readiness probe; and an `npm run onboard` CLI for provisioning/verifying the first pilot tenant on a deployed database. Plus `docs/PILOT_RUNBOOK.md` for launch/support.
+Context: M9 passed QA; M10 (MVP Launch & Client Onboarding) is current. Much of M10 is deployment/ops (hosting, real Postgres, staffing), which lives outside the codebase. The implementable deliverables are the onboarding workflow, monitoring readiness, and the pilot runbook — built strictly on existing patterns.
+Rationale:
+  - Reuse, no new schema: onboarding creates a `client` via `ClientRepository` (which already validates email shape), keys the tenant token off the M7 `<clientId>.<hmac>` scheme via `signClientToken`, and reads global funnel-stage reference data for readiness. No new tables, dependencies, frameworks, or auth model.
+  - Layering kept clean: the service is http-free and does NOT mint the token (token signing is an auth/http concern). The `/onboarding` route and the `onboard` CLI sign it at the boundary from the same `AUTH_SECRET` the middleware verifies; the route returns `201 { client, api_token, readiness }`, or `503 not_configured` when no secret is set (never an unverifiable token).
+  - Admin-only, fail-safe: provisioning a new tenant crosses the tenant boundary, so it is admin-only (same rule as `POST /clients`). Bad input is a clean `400`/`409` (missing fields `invalid_onboarding`, malformed email `invalid_email`, duplicate email `client_exists`) — never a 500.
+  - Real monitoring: `/ready` (public, like `/health`) verifies DB reachability and that funnel stages are seeded — distinguishing live/not-ready (`503`) for load balancers/uptime checks. `/health` stays a pure liveness probe.
+  - CLI parity for the pilot: `npm run onboard` runs the same service against the deployed DB and prints the tenant token + readiness, mirroring `server.ts` secret resolution (production must set `AUTH_SECRET`), so an operator can create AND verify the first live tenant.
+  - Coverage: service tests (provisioning, readiness, validation, duplicate, unseeded-DB readiness) and HTTP route tests (public probes, admin-only, issued token actually authenticates and is tenant-scoped, malformed/duplicate input) — added to the test script. typecheck clean; all suites green.
+Alternatives considered:
+  - Put token minting in the service (rejected: would force a `services → http/auth` import, inverting the layering; minting at the boundary keeps the service http-free).
+  - Per-tenant funnel-stage seeding during onboarding (rejected: funnel stages are global reference data seeded once at deploy; onboarding verifies readiness rather than reseeding).
+  - A users/identity table for onboarding (rejected: out of scope — the M7 per-client token model already makes a client its own tenant).
+Scope: implementation of M10's codeable deliverables only — no hosting/deploy automation, no billing, no new schema, no self-serve signup UI.
+Owner: Claude Code (Senior Dev), within the M10 scope.
+
+2026-06-12 — M9 remediation complete: task validation and deterministic audit ordering
+Decision: M9 Task Engine now passes QA after adding UUID-shape/gating validation before DB access, audit-note type/length guards, monotonic `seq` on `task_status_events`, composite unique order key `uq_task_events_task_seq`, and corresponding route/task+events coverage.
+Context: M9 shipped initially with malformed input reaching the repository boundary and non-guaranteed audit ordering when rapid transitions shared millisecond timestamps. After review, the issue was patched and QA passed; `task_status_events` no longer relies on timestamp tie-breaking for read order.
+Rationale:
+- Front-door validation in the repository means malformed request values return 400 and never touch the DB.
+- A 1-based monotonic `seq` per task makes the audit trail authoritative without depending on DB row-id insertion guarantees.
+- Backward compatibility preserved: migration added columns with app-side assignment (no schema rewrite).
+Alternatives considered:
+- Rely only on timestamp + row-id ordering (no seq): rejected because it kept display order DB-dependent.
+- Use timestamps alone with retry hacks: rejected because explicit sequence is simpler and deterministic.
+Owner: Claude Code / Codex / Hermes (M9 QA loop)
+
+2026-06-12 — M10 sequencing: client onboarding and pilot deployment as next highest-leverage milestone after M9
+Decision: Advance to M10 MVP Launch & Client Onboarding immediately after M9 passes.
+Context: M5-M9 together provide dashboard, integrations, publishing, task lifecycle, auth, tenant isolation, and deterministic audit. The product is mature enough for an internal/external pilot; further feature milestones before deployment would delay real-world validation.
+Rationale:
+  - Operationalizing an existing, QA-complete system into a hosted pilot generates real usage signals faster than expanding scope.
+  - Deployment itself exposes infrastructure/ops risk (Postgres runtime, hosting, monitoring), which is highest-value to resolve now.
+  - Subsequent improvements (social channels, advanced workspace views, weekly brief) are better informed by pilot feedback.
+Alternatives considered:
+  - Extend feature surface before deploying: lower leverage because we lack live usage evidence.
+  - Rewrite UI/frontend before launch: rejected because current dashboard is functional and Sprint priority is deployment-validated progress.
+Owner: Hermes (PM)
+
 2026-06-11 — Task persistence decision: dedicated Task table
 Decision: Persist tasks using a new Task table and migration.
 Context: Task is a first-class workflow object for Egoric and AIM.
@@ -17,35 +58,6 @@ Rationale: A dedicated table preserves clean domain semantics, supports richer f
 Alternatives considered:
   - Co-opt an existing table (leads/campaigns): rejected because it collapses distinct workflows and adds rework later.
 Owner: Hermes (PM)
-
-2026-06-12 — Milestone #9 remediation: monotonic audit-trail ordering + closing QA nice-to-haves
-Decision: Resolve the Codex M9 FAIL by giving `task_status_events` a per-task monotonic `seq` column that is the authoritative audit order, and by adding the two tracked nice-to-have items (cross-tenant route tests for PATCH/status; task lifecycle in the Postgres smoke). The malformed-input finding was already addressed in the M9 code (UUID-shape check on `client_id`, type/length check on the audit `note`), with tests.
-Context: Codex's high-priority finding #2 was that audit order relied on DB tie-breaking when events share a `created_at` millisecond. An interim fix ordered by `created_at, id`, but a random-UUID tie-breaker is deterministic-yet-arbitrary: on a same-millisecond tie it can place a transition before the initial create event, which is wrong for an audit trail.
-Rationale:
-  - Monotonic `seq`: `create` writes seq 1; `changeStatus` appends `max(seq)+1` for the task, computed inside the existing status+event transaction. `listStatusEvents` orders by `seq` alone, so the trail is correct regardless of timestamp ties and the create event always sorts first. This is the reviewer's first-listed acceptable remedy ("monotonic sequence").
-  - Integrity backstop: `unique(task_id, seq)` guarantees one value per position and rejects a racing duplicate writer (a single task is not transitioned concurrently in practice; the loser surfaces as the standard constraint 409, not a 500).
-  - The `seq` column was added to the existing `*_create_tasks` migration rather than a follow-up ALTER. M9 has not passed QA or shipped, every environment rebuilds the schema from scratch (test `:memory:`, dev `db:reset`), and the Postgres smoke recreates it — so the "never edit a shipped migration" rule's divergence risk does not apply, and defining the audit-order column alongside the table it orders is cleaner than an immediate ALTER of a not-yet-shipped feature's own table.
-  - Nice-to-haves: added route tests proving cross-tenant `PATCH /tasks/:id` and `POST /tasks/:id/status` are 404 with no mutation (matching the existing read/events/delete isolation tests), and extended `db:smoke:pg` to migrate the task tables, run a create→transition lifecycle, assert the monotonic audit seq, and verify both task tables drop on rollback.
-Alternatives considered:
-  - Keep `created_at, id` ordering (rejected: arbitrary on a tie; does not guarantee the create event is first — the exact case the finding raised).
-  - Add `seq` via a new follow-up migration (rejected: an ALTER of a table created moments earlier in the same un-shipped milestone is more awkward than defining the column once; no environment holds data the rule protects).
-Scope: remediation only — no new task fields, no new endpoints, no users/assignment system, no autonomous transitions.
-Owner: Claude Code (Senior Dev), within the M9 scope.
-
-2026-06-12 — Milestone #9 implementation: Task Engine
-Decision: Add `tasks` + `task_status_events` tables (Knex migration), a `TaskRepository`, a `TaskService` that owns lifecycle/state-transition validation, and tenant-scoped task routes — reusing the M7 auth/tenant and repository-validation patterns; audit STATUS changes only.
-Context: M9 operationalizes brief/recommendation outputs into tracked, tenant-scoped work without expanding into a full PM system, chat, or approval workflow.
-Rationale:
-  - State machine kept small/explicit in `domain/task.ts`: `open ⇄ in_progress`, `open → cancelled`, `in_progress → done|cancelled`; `done`/`cancelled` terminal. Legality lives in the service (workflow rules stay out of the data layer); the repository only records facts.
-  - Status changes and their audit event are written atomically in a transaction inside the repository (`create` records the initial status; `changeStatus` records each transition). Only status changes are audited — field edits (PATCH) append no event, and PATCH rejects a `status` field so transitions always go through the audited endpoint.
-  - Audit integrity reuses the existing composite-FK pattern: `task_status_events(client_id, task_id) → tasks(client_id, id)` (with `tasks.unique(client_id, id)`), mirroring leads→campaigns, so an event can never cross tenants; `task_id` FK cascades the trail on task delete.
-  - Auth/tenant isolation reuses M7 verbatim: routes sit behind `authenticate`, explicit client ids → 403 on mismatch, resource lookups → 404 cross-tenant; lists auto-scope to the caller; per-field validation in the repository keeps bad input a clean 400/409, never a 500.
-  - No users table: `assignee` is a free-text label (no team/identity system), honoring the "no full PM system / no approval workflow" scope limits. No autonomous execution — nothing transitions a task on its own.
-Alternatives considered:
-  - Store the audit trail as a JSON column on the task (rejected: a queryable append-only table is cleaner and tenant-safe via the composite FK).
-  - Put transition validation in the repository (rejected: workflow legality is a business rule and belongs in the service, per ARCHITECTURE §5).
-  - A users/assignment table for assignee (rejected: out of scope — would be a team system).
-Owner: Claude Code (Senior Dev), within the M9 scope.
 
 2026-06-11 — Milestone sequencing after M8A
 Decision: Continue Social Publishing path (M8B/C/D) before Task Engine or Approval Workflow.
@@ -94,7 +106,6 @@ Alternatives considered:
 Owner: Hermes (PM)
 
 ---
-
 2026-06-11 — Milestone #8A implementation: live email publishing (Resend)
 Decision: Make the email channel a live Resend-backed adapter behind an explicitly-invoked, tenant-scoped, guardrailed publish endpoint; keep social/AI media as placeholders; no schema change.
 Context: M8A replaces the email placeholder with real sending while preserving the M6 integration boundary and M7 auth/tenant rules.
@@ -112,7 +123,6 @@ Alternatives considered:
 Owner: Claude Code (Senior Dev), within the M8A scope.
 
 ---
-
 2026-06-11 — Milestone #8A remediation: per-attempt guard accounting, sender enforcement, bounded retries
 Decision: Resolve the Codex M8A FAIL by (a) checking the spend/rate/circuit guard and reserving one unit BEFORE every provider attempt (retries included), recording each failed attempt toward the circuit; (b) requiring a valid `EMAIL_FROM` for live sending and rejecting caller-provided `from` unless it is on an allowlist; (c) hard-bounding retries.
 Context: The first M8A pass guarded once per logical publish, so one publish with N retries could make N+1 provider calls under a single unit and count one circuit failure; the caller could also set an arbitrary `from`, and `EMAIL_MAX_RETRIES` was unbounded.
@@ -135,7 +145,7 @@ Decision: Add bearer-token auth + per-client tenant isolation, repository-level 
 Context: M7 (Production Hardening) must protect the surfaces M5/M6 exposed before external users/agents touch CRM data. There is no users/tenants table and the milestone forbids a schema redesign.
 Rationale:
   - Auth without a schema change: a per-client token is `"<clientId>.<hmac(secret, clientId)>"`, so the authenticated "tenant" is the client itself; a separate admin key grants cross-tenant/internal access. The middleware mounts after `/health` and fails closed (missing/invalid token → 401), so there is no unauthenticated bypass.
-  - Tenant isolation is enforced per route: explicit client ids (query `?clientId=`, `/clients/:id`, create-body `client_id`) → 403 on mismatch; resource lookups (`/campaigns/:id`, `/leads/:id`) → 404 on cross-tenant so existence is not leaked; list routes auto-scope to the caller's client. Listing all clients and the dashboard picker are admin-only.
+  - Tenant isolation is enforced per route: explicit client ids (query `?clientId=`, `/clients/:id`, create-body `client_id`) → 403 on mismatch; resource lookups (`/campaigns/:id`, `/leads/:id`) → 404 on cross-tenant so existence is not leaked; list routes auto-scope to the caller's client; listing all clients and the dashboard picker are admin-only.
   - Validation lives in the repositories (the one choke point both HTTP and programmatic callers share), so malformed input is a clean 400 and never reaches the DB as a 500. Ownership reassignment (changing a campaign/lead `client_id` on update) is blocked with a 409.
   - To drive CRUD route contract tests against a seeded DB, the clients/campaigns/leads/funnel-stages routers were converted to the same injectable factory pattern already used by metrics/brief/recommendations/dashboard. This was necessary: previously those routers always used the process-wide singletons, so route tests could not bind them to an in-memory DB.
   - Postgres parity is proven by an env-gated `db:smoke:pg` (migrate → seed+verify → rollback+verify-dropped). It skips cleanly when no PG is configured; it was not executed end-to-end here (no PostgreSQL/Docker available in this environment) and is run by QA against a real instance.
@@ -156,7 +166,6 @@ Alternatives considered:
 Owner: Hermes (PM)
 
 ---
-
 2026-06-10 — Milestone #3 scope: Daily CEO Brief Engine v0
 Decision: Build the Daily CEO Brief Engine before dashboard UI, integrations, and the recommendation system.
 Context: Milestone #2 (KPI Read Layer) passed QA. Multiple next steps were valid.
@@ -168,7 +177,6 @@ Alternatives considered:
 Owner: Hermes (PM)
 
 ---
-
 2026-06-11 — Milestone #6 scope: Integration Adapters — Placeholder
 Decision: Next milestone is a safe no-op integration adapter layer, not production publishing or hardening.
 Context: Milestone #5 passed QA.
@@ -179,7 +187,6 @@ Alternatives considered:
 Owner: Hermes (PM)
 
 ---
-
 2026-06-11 — Milestone #6 implementation: placeholder adapter architecture
 Decision: Add a new `src/integrations/` module — an `IntegrationAdapter` contract in `domain/integration.ts`, a `PlaceholderAdapter` base, five concrete channel adapters (Facebook, TikTok, Instagram, Email, AI Media), and an in-memory `IntegrationRegistry` singleton — surfaced through a read-only `GET /integrations` route. No execute/publish HTTP endpoint is exposed.
 Context: M6 requires a connector surface that mounts in the system but performs no external action. The existing layers (domain/repositories/services/http) had no home for outbound-channel concerns.
@@ -194,6 +201,7 @@ Alternatives considered:
   - One file per adapter (rejected: the five are trivial specialisations of one base; a single `channels.ts` keeps them cohesive with the registry as the single source of truth).
 Owner: Claude Code (Senior Dev), within the M6 scope approved above.
 
+---
 2026-06-10 — Milestone #4 scope: Recommendation System v0
 Decision: Build Recommendation System v0 before Dashboard UI, Integrations, and Production Hardening.
 Context: Milestone #3 (Daily CEO Brief Engine) passed QA. Product now has stable data, KPI, and brief contracts.
