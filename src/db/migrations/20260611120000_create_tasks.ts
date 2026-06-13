@@ -45,10 +45,17 @@ export async function up(knex: Knex): Promise<void> {
     t.string('to_status').notNullable();
     t.string('changed_by').nullable();  // 'admin' or the tenant/client id
     t.text('note').nullable();
+    // Per-task monotonic order-of-record: the authoritative audit-trail order,
+    // independent of `created_at` ties (rapid events can share a millisecond, so
+    // a timestamp alone cannot order them — and the initial create event must
+    // always sort first). Assigned in app code, 1-based, contiguous per task.
+    t.integer('seq').notNullable();
     t.timestamp('created_at').notNullable().defaultTo(knex.fn.now());
 
     t.index(['task_id'], 'idx_task_events_task_id');
     t.index(['client_id'], 'idx_task_events_client_id');
+    // One sequence value per task — makes the trail order explicit and unique.
+    t.unique(['task_id', 'seq'], { indexName: 'uq_task_events_task_seq' });
     // Same-tenant integrity: an event's (client_id, task_id) must match a task's
     // (client_id, id) — mirrors the leads→campaigns composite FK pattern.
     t.foreign(['client_id', 'task_id'], 'fk_task_events_same_client')

@@ -18,6 +18,20 @@ Alternatives considered:
   - Co-opt an existing table (leads/campaigns): rejected because it collapses distinct workflows and adds rework later.
 Owner: Hermes (PM)
 
+2026-06-12 — Milestone #9 remediation: monotonic audit-trail ordering + closing QA nice-to-haves
+Decision: Resolve the Codex M9 FAIL by giving `task_status_events` a per-task monotonic `seq` column that is the authoritative audit order, and by adding the two tracked nice-to-have items (cross-tenant route tests for PATCH/status; task lifecycle in the Postgres smoke). The malformed-input finding was already addressed in the M9 code (UUID-shape check on `client_id`, type/length check on the audit `note`), with tests.
+Context: Codex's high-priority finding #2 was that audit order relied on DB tie-breaking when events share a `created_at` millisecond. An interim fix ordered by `created_at, id`, but a random-UUID tie-breaker is deterministic-yet-arbitrary: on a same-millisecond tie it can place a transition before the initial create event, which is wrong for an audit trail.
+Rationale:
+  - Monotonic `seq`: `create` writes seq 1; `changeStatus` appends `max(seq)+1` for the task, computed inside the existing status+event transaction. `listStatusEvents` orders by `seq` alone, so the trail is correct regardless of timestamp ties and the create event always sorts first. This is the reviewer's first-listed acceptable remedy ("monotonic sequence").
+  - Integrity backstop: `unique(task_id, seq)` guarantees one value per position and rejects a racing duplicate writer (a single task is not transitioned concurrently in practice; the loser surfaces as the standard constraint 409, not a 500).
+  - The `seq` column was added to the existing `*_create_tasks` migration rather than a follow-up ALTER. M9 has not passed QA or shipped, every environment rebuilds the schema from scratch (test `:memory:`, dev `db:reset`), and the Postgres smoke recreates it — so the "never edit a shipped migration" rule's divergence risk does not apply, and defining the audit-order column alongside the table it orders is cleaner than an immediate ALTER of a not-yet-shipped feature's own table.
+  - Nice-to-haves: added route tests proving cross-tenant `PATCH /tasks/:id` and `POST /tasks/:id/status` are 404 with no mutation (matching the existing read/events/delete isolation tests), and extended `db:smoke:pg` to migrate the task tables, run a create→transition lifecycle, assert the monotonic audit seq, and verify both task tables drop on rollback.
+Alternatives considered:
+  - Keep `created_at, id` ordering (rejected: arbitrary on a tie; does not guarantee the create event is first — the exact case the finding raised).
+  - Add `seq` via a new follow-up migration (rejected: an ALTER of a table created moments earlier in the same un-shipped milestone is more awkward than defining the column once; no environment holds data the rule protects).
+Scope: remediation only — no new task fields, no new endpoints, no users/assignment system, no autonomous transitions.
+Owner: Claude Code (Senior Dev), within the M9 scope.
+
 2026-06-12 — Milestone #9 implementation: Task Engine
 Decision: Add `tasks` + `task_status_events` tables (Knex migration), a `TaskRepository`, a `TaskService` that owns lifecycle/state-transition validation, and tenant-scoped task routes — reusing the M7 auth/tenant and repository-validation patterns; audit STATUS changes only.
 Context: M9 operationalizes brief/recommendation outputs into tracked, tenant-scoped work without expanding into a full PM system, chat, or approval workflow.

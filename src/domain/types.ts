@@ -118,6 +118,12 @@ export interface TaskStatusEvent {
   /** Who made the change ('admin' or the client/tenant id), or null. */
   changed_by: string | null;
   note: string | null;
+  /**
+   * Per-task monotonic sequence (1-based). This is the authoritative order of
+   * the audit trail — `created_at` ties cannot reorder events, and the initial
+   * create event (seq 1) always sorts first.
+   */
+  seq: number;
   created_at: string;
 }
 

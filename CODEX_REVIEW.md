@@ -2,12 +2,22 @@
 
 Review target: current Milestone #9 implementation from `CHECKLIST.md`.
 
-## Verdict: FAIL
+## Verdict: PASS
 
 Verified locally:
 
 - `npm run typecheck` passed.
-- `npm test` passed: 142/142 tests.
+- `npm test` passed: 149/149 tests.
+- `npm run db:smoke:pg` was invoked and skipped because no PostgreSQL connection is configured (`DATABASE_URL` or `PGHOST`/`PGUSER`/`PGPASSWORD`/`PGDATABASE`).
+
+Evidence reviewed:
+
+- Task schema and audit trail tables exist in `src/db/migrations/20260611120000_create_tasks.ts`.
+- Task CRUD and lifecycle enforcement are implemented through `src/http/routes/tasks.ts`, `src/services/taskService.ts`, and `src/repositories/taskRepository.ts`.
+- Prior malformed-input concern is addressed by UUID-shape validation before client lookup in `src/repositories/taskRepository.ts:83`-`src/repositories/taskRepository.ts:90` and audit-note validation before status writes in `src/repositories/taskRepository.ts:164`-`src/repositories/taskRepository.ts:168`.
+- Prior audit-order concern is addressed by `seq` in `src/db/migrations/20260611120000_create_tasks.ts:48`-`src/db/migrations/20260611120000_create_tasks.ts:58`, initial event `seq: 1` in `src/repositories/taskRepository.ts:117`-`src/repositories/taskRepository.ts:129`, transition append sequencing in `src/repositories/taskRepository.ts:171`-`src/repositories/taskRepository.ts:190`, and `listStatusEvents` ordering by `seq` in `src/repositories/taskRepository.ts:202`-`src/repositories/taskRepository.ts:205`.
+- Route coverage now includes cross-tenant PATCH/status mutation rejection in `src/__tests__/tasksRoutes.test.ts:165`-`src/__tests__/tasksRoutes.test.ts:178`.
+- PostgreSQL smoke coverage path now includes task migration, lifecycle transition, monotonic audit sequence, and rollback checks in `src/db/pgSmoke.ts:43`-`src/db/pgSmoke.ts:86`.
 
 ## Critical Issues
 
@@ -15,14 +25,10 @@ None.
 
 ## High-Priority Issues
 
-1. **Malformed task input is not fully rejected at the HTTP/repository boundary before DB access.**  
-   Evidence: `src/http/routes/tasks.ts:73`-`src/http/routes/tasks.ts:77` only checks that `clientId` and `title` are truthy before calling `enforceClientScope`; for an admin caller, `enforceClientScope` allows any `clientId` value. `src/repositories/taskRepository.ts:81`-`src/repositories/taskRepository.ts:87` then checks only that `client_id` is truthy before passing it into `getRow(TABLES.clients, data.client_id)`, with no `typeof` or UUID-shape validation. That leaves malformed non-string `clientId` values to reach the DB layer instead of returning a clean task validation error. The status route has the same pattern for audit notes: `src/http/routes/tasks.ts:116`-`src/http/routes/tasks.ts:120` forwards `note` directly, and `src/repositories/taskRepository.ts:162`-`src/repositories/taskRepository.ts:170` inserts `meta.note` without type/length validation.
-
-2. **Status audit trail ordering is not guaranteed when events share the same timestamp.**  
-   Evidence: the migration defines only a UUID primary key and `created_at` timestamp for `task_status_events` at `src/db/migrations/20260611120000_create_tasks.ts:38`-`src/db/migrations/20260611120000_create_tasks.ts:48`; there is no monotonic sequence, revision number, or composite order key. `TaskRepository.listStatusEvents` orders only by `created_at` at `src/repositories/taskRepository.ts:176`-`src/repositories/taskRepository.ts:179`. Because timestamps are generated in app code via `BaseRepository.now()` at `src/repositories/baseRepository.ts:21`-`src/repositories/baseRepository.ts:22`, rapid create/transition events can share the same millisecond, making audit order dependent on database tie-breaking rather than an explicit rule.
+None.
 
 ## Nice-to-Have Improvements
 
-1. Add route tests for cross-tenant `PATCH /tasks/:id` and `POST /tasks/:id/status`, matching the read/events/delete isolation tests.
+1. Run `npm run db:smoke:pg` against a real PostgreSQL database before the deployment gate. The smoke path is present, but local verification skipped because PostgreSQL connection environment variables are not configured.
 
-2. Add a PostgreSQL smoke path that includes the new task migration and task repository lifecycle, so M9 parity is proven outside SQLite.
+2. Add a route contract test for malformed admin list filters, e.g. `GET /tasks?clientId=not-a-uuid`. Current evidence: `src/http/routes/tasks.ts:44`-`src/http/routes/tasks.ts:50` accepts any string query value for admin list, and `src/repositories/taskRepository.ts:42`-`src/repositories/taskRepository.ts:43` queries it directly. This does not currently cause a 500 or tenant leak, but a 400 would be more consistent with task-create validation.

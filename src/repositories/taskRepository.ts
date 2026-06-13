@@ -120,6 +120,7 @@ export class TaskRepository extends BaseRepository<Task> {
         id: uuidv4(),
         task_id: id,
         client_id: data.client_id,
+        seq: 1, // first event in the trail
         from_status: null,
         to_status: status,
         changed_by: actor ?? null,
@@ -169,10 +170,18 @@ export class TaskRepository extends BaseRepository<Task> {
     const now = this.now();
     await this.knex.transaction(async (trx) => {
       await trx(TABLES.tasks).where({ id }).update({ status: toStatus, updated_at: now });
+      // Append at the next monotonic position for this task. Computed inside the
+      // transaction; the unique (task_id, seq) index is the backstop against a
+      // racing writer (a single task is not transitioned concurrently in practice).
+      const [{ maxSeq } = { maxSeq: null }] = await trx(TABLES.taskStatusEvents)
+        .where({ task_id: id })
+        .max({ maxSeq: 'seq' });
+      const nextSeq = Number(maxSeq ?? 0) + 1;
       await trx(TABLES.taskStatusEvents).insert({
         id: uuidv4(),
         task_id: id,
         client_id: clientId,
+        seq: nextSeq,
         from_status: fromStatus,
         to_status: toStatus,
         changed_by: meta.actor ?? null,
@@ -184,18 +193,16 @@ export class TaskRepository extends BaseRepository<Task> {
   }
 
   /**
-   * The status-change audit trail for one task, oldest first. Ordering is a
-   * deterministic composite key — `created_at` then `id` as a stable
-   * tie-breaker — so events that share a millisecond timestamp still have a
-   * fixed, explicit order rather than relying on DB tie-breaking.
+   * The status-change audit trail for one task, oldest first. Order is the
+   * per-task monotonic `seq`, not `created_at`: rapid events can share a
+   * millisecond, so a timestamp cannot order them and could even place a
+   * transition before the create event. `seq` is the authoritative, explicit
+   * order-of-record — independent of DB tie-breaking.
    */
   async listStatusEvents(taskId: string): Promise<TaskStatusEvent[]> {
     return this.knex(TABLES.taskStatusEvents)
       .where({ task_id: taskId })
-      .orderBy([
-        { column: 'created_at', order: 'asc' },
-        { column: 'id', order: 'asc' },
-      ]);
+      .orderBy('seq', 'asc');
   }
 }
 

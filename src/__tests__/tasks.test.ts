@@ -136,23 +136,30 @@ test('a malformed audit note is rejected (400) and never written', async () => {
   assert.equal(events.length, 1);
 });
 
-test('audit events are deterministically ordered on a timestamp tie (created_at, then id)', async () => {
-  const task = await service.create(clientId, { title: 'Tie-break' });
-  const sameTs = '2999-01-01T00:00:00.000Z'; // later than the create event
-  // Insert out of id order (the "2…" row first) at an identical timestamp.
-  await db('task_status_events').insert([
-    { id: '22222222-2222-4222-8222-222222222222', task_id: task.id, client_id: clientId, from_status: 'open', to_status: 'in_progress', changed_by: null, note: null, created_at: sameTs },
-    { id: '11111111-1111-4111-8111-111111111111', task_id: task.id, client_id: clientId, from_status: 'in_progress', to_status: 'done', changed_by: null, note: null, created_at: sameTs },
-  ]);
+test('audit events are ordered by a monotonic per-task seq, not by timestamp', async () => {
+  // Real transitions: in a fast test these may all share a created_at millisecond,
+  // yet the trail must still read open → in_progress → done with seq 1,2,3.
+  const task = await service.create(clientId, { title: 'Seq order' });
+  await service.transition(task, 'in_progress');
+  const inProgress = await service.getById(task.id);
+  await service.transition(inProgress!, 'done');
 
   const events = await service.statusEvents(task.id);
-  // create event first, then the two tied events ordered by id ascending —
-  // independent of insertion order, so the trail is fully deterministic.
-  assert.equal(events[0].to_status, 'open');
-  assert.deepEqual(
-    events.slice(1).map((e) => e.id),
-    ['11111111-1111-4111-8111-111111111111', '22222222-2222-4222-8222-222222222222'],
-  );
+  assert.deepEqual(events.map((e) => e.to_status), ['open', 'in_progress', 'done']);
+  assert.deepEqual(events.map((e) => e.seq), [1, 2, 3]);
+
+  // Hard case from the QA finding: later events carry an EARLIER timestamp than
+  // the create event and are inserted out of order. Ordering follows `seq`, so
+  // the initial create event (seq 1) still sorts first.
+  const task2 = await service.create(clientId, { title: 'Tie' }); // real (2026) created_at, seq 1
+  await db('task_status_events').insert([
+    { id: '33333333-3333-4333-8333-333333333333', task_id: task2.id, client_id: clientId, seq: 3, from_status: 'in_progress', to_status: 'done', changed_by: null, note: null, created_at: '1999-01-01T00:00:00.000Z' },
+    { id: '22222222-2222-4222-8222-222222222222', task_id: task2.id, client_id: clientId, seq: 2, from_status: 'open', to_status: 'in_progress', changed_by: null, note: null, created_at: '1999-01-01T00:00:00.000Z' },
+  ]);
+
+  const events2 = await service.statusEvents(task2.id);
+  assert.deepEqual(events2.map((e) => e.to_status), ['open', 'in_progress', 'done']);
+  assert.deepEqual(events2.map((e) => e.seq), [1, 2, 3]);
 });
 
 test('the task migration is reversible (down drops both tables cleanly)', async () => {

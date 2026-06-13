@@ -162,6 +162,21 @@ test('PATCH cannot change status; status edits must use the transition endpoint'
   assert.equal(r.body.code, 'status_change_not_allowed');
 });
 
+test('PATCH and status transition are tenant-scoped (cross-tenant → 404, no mutation)', async () => {
+  const created = await createTask(clientA, clientHeaders(clientA), 'Isolated');
+  const id = created.body.id;
+
+  // Client B cannot edit A's task fields…
+  assert.equal((await req('PATCH', `/tasks/${id}`, { title: 'hijacked' }, clientHeaders(clientB))).status, 404);
+  // …nor transition A's task status (existence is not leaked).
+  assert.equal((await req('POST', `/tasks/${id}/status`, { status: 'in_progress' }, clientHeaders(clientB))).status, 404);
+
+  // A's task is untouched by the rejected cross-tenant writes.
+  const ownRead = await req('GET', `/tasks/${id}`, undefined, clientHeaders(clientA));
+  assert.equal(ownRead.body.title, 'Isolated');
+  assert.equal(ownRead.body.status, 'open');
+});
+
 test('the audit-trail endpoint is read-only and tenant-scoped', async () => {
   const created = await createTask(clientA, clientHeaders(clientA), 'Audited');
   const id = created.body.id;

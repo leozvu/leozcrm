@@ -521,6 +521,12 @@ append-only `task_status_events` audit trail.
   status and its event **atomically in a transaction**. PATCH edits non-status
   fields only and rejects a `status` field, so every transition goes through the
   audited path. There is no autonomous transition.
+- **Audit order is a per-task monotonic `seq`, not a timestamp.** Each event
+  carries a 1-based `seq` (assigned in app code inside the same transaction;
+  `unique(task_id, seq)` is the integrity backstop). `listStatusEvents` orders by
+  `seq`, so rapid events that share a `created_at` millisecond still read in a
+  fixed, correct order and the create event (seq 1) always sorts first — rather
+  than depending on DB tie-breaking.
 - **Audit integrity via the composite-FK pattern.**
   `task_status_events(client_id, task_id) → tasks(client_id, id)` (with
   `tasks.unique(client_id, id)`) mirrors leads→campaigns, so an event can never
