@@ -183,22 +183,51 @@ Deliverables present:
 - Client onboarding workflow (`POST /onboarding`, `npm run onboard` CLI) creating tenant + issuing token
 - `GET /ready` readiness probe
 - Pilot/support runbook (`docs/PILOT_RUNBOOK.md`)
+Status:
+- Local verification: PASS
+- Deployment readiness: BLOCKED
+
 Remaining deployment-gate tasks:
-1. Provision PostgreSQL environment.
-2. Execute `npm run db:smoke:pg` against a real PostgreSQL instance and record PASS/BLOCKER.
-3. Execute live pilot verification end-to-end:
-   - Deploy app with real DB.
-   - Call `/ready` and confirm PASS.
-   - Run `npm run onboard` to create the first pilot tenant.
-   - Verify pilot tenant can create campaigns, leads, tasks, and receive briefs/recommendations on the live instance.
-   - Record base URL, pilot client_id, and verification results in the runbook or deployment evidence file.
-Success criteria:
-- PostgreSQL smoke passes.
-- Live pilot tenant is created and succeeds through the Core MVP loop on a real URL.
-- Support/escalation paths documented.
-Risks:
-- No PostgreSQL instance provisioned yet.
-- Hosting/monitoring/monitoring not yet live.
+
+1. PostgreSQL environment provisioned and smoke-tested: PASS.
+2. Live pilot verification end-to-end: BLOCKED / not yet executed.
+
+   * Deploy app with real DB.
+   * Call `/ready` and confirm PASS.
+   * Run `npm run onboard` or `POST /onboarding` to create the first pilot tenant.
+   * Verify pilot tenant can create campaigns, leads, tasks, and receive briefs/recommendations on the live instance.
+   * Record base URL, pilot client_id, and verification results in the runbook or deployment evidence file.
+
+Deployment evidence:
+--- Blocker 1: PostgreSQL smoke (Supabase Session Pooler, DATABASE_URL) --------
+Date (UTC):        2026-06-**T**:__Z
+Postgres target:   Supabase managed PostgreSQL via Session Pooler
+DB:                postgres / disposable smoke run
+TLS:               sslmode=require
+pg driver:         installed
+Command:           npm run db:smoke (DATABASE_URL set inline, credentials redacted)
+Result:            PASS
+
+Key output lines:
+"seeded 9 funnel stages, 9 present."
+"task lifecycle + monotonic audit seq verified."
+"Postgres migrate/seed/rollback smoke PASSED."
+
+Tables verified:
+funnel_stages
+clients
+campaigns
+leads
+tasks
+task_status_events
+
+Notes:
+Direct Supabase host failed DNS/connection from local machine.
+Supabase Session Pooler connection succeeded.
+DATABASE_URL was cleared from shell after verification.
+
+Blocker 1 status: PASS
+Blocker 2 status: BLOCKED — live pilot verification not yet executed.
 
 15. MILESTONE #10.1: PENDING — Post-P10 Candidate
 -------------------------------------------------
