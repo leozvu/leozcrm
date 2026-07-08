@@ -12,6 +12,7 @@
 import { db } from './knex';
 import { seedFunnelStages } from './fixtures';
 import { ValidationError } from '../errors';
+import { FUNNEL_STAGES } from '../domain/funnel';
 import { funnelStageRepository } from '../repositories/funnelStageRepository';
 import { clientRepository } from '../repositories/clientRepository';
 import { campaignRepository } from '../repositories/campaignRepository';
@@ -119,12 +120,40 @@ async function verifyCrossClientRejected(): Promise<void> {
   }
 }
 
+/**
+ * Production verification: the canonical funnel stages are present with the
+ * canonical keys/positions (the same contract `/ready` checks). No demo data
+ * is involved.
+ */
+async function verifyStagesOnly(): Promise<void> {
+  const stages = await funnelStageRepository.listOrdered();
+  const byKey = new Map(stages.map((s) => [s.key, s]));
+  const canonical =
+    stages.length === FUNNEL_STAGES.length &&
+    FUNNEL_STAGES.every((def) => byKey.get(def.key)?.position === def.position);
+  if (!canonical) {
+    throw new Error(`verification failed: funnel stages are not canonical (${stages.length}/${FUNNEL_STAGES.length} present)`);
+  }
+  console.log(`Funnel stages verified: ${stages.length}/${FUNNEL_STAGES.length} canonical stages present.`);
+}
+
 async function main() {
   const count = await seedFunnelStages(db);
   console.log(`Seeded ${count} funnel stages.`);
-  await seedDemoData();
-  await verify();
-  await verifyCrossClientRejected();
+
+  // Demo data (a fake tenant + campaign + leads) is a dev/test convenience —
+  // NEVER seeded into a production database unless explicitly forced with
+  // SEED_DEMO_DATA=true. Production seeding is reference data (stages) only.
+  const isProd = (process.env.NODE_ENV || 'development') === 'production';
+  const seedDemo = process.env.SEED_DEMO_DATA === 'true' || !isProd;
+  if (seedDemo) {
+    await seedDemoData();
+    await verify();
+    await verifyCrossClientRejected();
+  } else {
+    console.log('Production environment — skipping demo data (set SEED_DEMO_DATA=true to force).');
+    await verifyStagesOnly();
+  }
 }
 
 main()

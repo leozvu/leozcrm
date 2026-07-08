@@ -12,8 +12,10 @@ import type { Knex } from '../../db/knex';
  *
  * Unlike `/health` (a pure liveness probe that says only "the process is up"),
  * readiness verifies the dependencies a request actually needs:
- *   - the database is reachable (the stage count query succeeds), and
- *   - the canonical funnel stages are seeded (`npm run seed` has been run).
+ *   - the database is reachable (the stage query succeeds), and
+ *   - the CANONICAL funnel stages are seeded (`npm run seed` has been run):
+ *     every canonical key is present at its canonical position, not merely
+ *     "some nine rows exist" (Codex M10 review: a drifted table must not pass).
  *
  * It is mounted publicly (before auth), like `/health`, so a load balancer or
  * uptime monitor can poll it without a token. DB access goes through the
@@ -31,11 +33,16 @@ export function createReadinessRouter(deps: ReadinessRouterDeps): Router {
     '/',
     asyncHandler(async (_req, res) => {
       try {
-        const present = await stages.count();
-        const funnelReady = present === FUNNEL_STAGES.length;
-        res.status(funnelReady ? 200 : 503).json({
-          ok: funnelReady,
-          checks: { db: 'ok', funnel_stages: present, funnel_ready: funnelReady },
+        const rows = await stages.listOrdered();
+        const byKey = new Map(rows.map((s) => [s.key, s]));
+        // Canonical means: exact count, and every canonical key present at its
+        // canonical position. Nine drifted/renamed rows must NOT read as ready.
+        const canonical =
+          rows.length === FUNNEL_STAGES.length &&
+          FUNNEL_STAGES.every((def) => byKey.get(def.key)?.position === def.position);
+        res.status(canonical ? 200 : 503).json({
+          ok: canonical,
+          checks: { db: 'ok', funnel_stages: rows.length, funnel_ready: canonical },
         });
       } catch {
         // A failed query means the DB is unreachable — a 503, not a 500.

@@ -27,7 +27,9 @@ function authConfig(): AuthConfig {
   return { secret, adminKey };
 }
 
-const app = createApp({ auth: authConfig() });
+// Structured request logging is on by default in a running server (one JSON
+// line per request); set LOG_REQUESTS=off to silence it.
+const app = createApp({ auth: authConfig(), logRequests: process.env.LOG_REQUESTS !== 'off' });
 
 const server = app.listen(port, () => {
   console.log(`LeozOps CRM API listening on http://localhost:${port}`);

@@ -1,0 +1,43 @@
+# LeozOps AI — one-command pilot deployment (M10).
+#
+#   AUTH_SECRET=<long-random> ADMIN_API_KEY=<operator-key> docker compose up -d
+#
+# Brings up PostgreSQL 16 + the API (migrations + reference-data seed run on
+# start). Verify with:
+#
+#   curl http://localhost:3000/ready
+#   npm run verify:pilot -- --base-url http://localhost:3000 --admin-key $ADMIN_API_KEY
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: leozops
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-leozops}
+      POSTGRES_DB: leozops
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U leozops -d leozops"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: postgres://leozops:${POSTGRES_PASSWORD:-leozops}@db:5432/leozops
+      # REQUIRED — the app fails loud without AUTH_SECRET in production.
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET to a long random string}
+      ADMIN_API_KEY: ${ADMIN_API_KEY:?set ADMIN_API_KEY for the operator caller}
+      # Optional publishing credentials (channels fail closed as 503 not_configured until set):
+      # RESEND_API_KEY, EMAIL_FROM, META_ACCESS_TOKEN, META_FACEBOOK_PAGE_ID, META_INSTAGRAM_USER_ID
+    ports:
+      - "${PORT:-3000}:3000"
+
+volumes:
+  pgdata:

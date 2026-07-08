@@ -57,6 +57,39 @@ export interface CreateAppOptions {
    * transport and deterministic clock so no real post is published.
    */
   socialPublisher?: SocialPublishService;
+  /**
+   * Emit one structured JSON log line per request (method, path, status,
+   * duration, tenant) — operational visibility for the deployed pilot (M10).
+   * Off by default so tests stay quiet; `server.ts` turns it on.
+   */
+  logRequests?: boolean;
+}
+
+/**
+ * Structured request logging. One line per completed response, as JSON so a log
+ * collector can parse it. Only the path (never the query string, body, or
+ * Authorization header) is logged, so tokens/PII in parameters cannot leak into
+ * logs; the tenant is logged as its client id (or "admin" / null).
+ */
+function requestLogger(req: Request, res: Response, next: NextFunction): void {
+  const startedAt = process.hrtime.bigint();
+  res.on('finish', () => {
+    const durationMs = Number(process.hrtime.bigint() - startedAt) / 1e6;
+    const tenant = req.auth ? (req.auth.admin ? 'admin' : req.auth.clientId) : null;
+    console.log(
+      JSON.stringify({
+        ts: new Date().toISOString(),
+        method: req.method,
+        // originalUrl (query stripped): req.path is router-relative by the time
+        // the response finishes, which would log "/" for every mounted route.
+        path: req.originalUrl.split('?')[0],
+        status: res.statusCode,
+        duration_ms: Math.round(durationMs * 10) / 10,
+        tenant,
+      }),
+    );
+  });
+  next();
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -73,6 +106,7 @@ function isConstraintViolation(err: any): boolean {
 export function createApp(options: CreateAppOptions = {}) {
   const app = express();
   app.use(express.json());
+  if (options.logRequests) app.use(requestLogger);
 
   // Public probes (no auth) — for load balancers / uptime monitors:
   //   /health  liveness  — the process is up.

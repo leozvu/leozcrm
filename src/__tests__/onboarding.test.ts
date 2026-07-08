@@ -56,6 +56,34 @@ test('onboard refuses to duplicate an existing tenant email (409)', async () => 
   await assert.rejects(service.onboard({ name: 'Second', email: 'dup@example.com' }), isValidation(409, 'client_exists'));
 });
 
+test('emails are normalized: mixed case + whitespace stores canonically and dedupes (409)', async () => {
+  const result = await service.onboard({ name: 'Mixed', email: '  Mixed.Case@Example.COM ' });
+  assert.equal(result.client.email, 'mixed.case@example.com');
+  // A re-onboard differing only by case/whitespace is the SAME tenant → 409.
+  await assert.rejects(
+    service.onboard({ name: 'Mixed Again', email: 'MIXED.CASE@example.com' }),
+    isValidation(409, 'client_exists'),
+  );
+});
+
+test('the database itself enforces tenant-email uniqueness (race-condition guard)', async () => {
+  const clients = new ClientRepository(db);
+  await clients.create({ name: 'Unique A', email: 'unique@example.com' });
+  // Bypass the application-level duplicate check entirely: a raw duplicate
+  // insert must be rejected by the uq_clients_email constraint.
+  await assert.rejects(
+    db('clients').insert({
+      id: '99999999-9999-4999-8999-999999999999',
+      name: 'Unique B',
+      email: 'unique@example.com',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }),
+    (err: any) => String(err?.code ?? err?.message).includes('CONSTRAINT') || /unique/i.test(String(err)),
+  );
+});
+
 test('readiness reports not-ready on a migrated-but-unseeded database', async () => {
   const bare = knexFactory(config.test);
   try {

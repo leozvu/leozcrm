@@ -58,6 +58,21 @@ test('health and readiness probes are public; readiness confirms the platform is
   assert.equal(ready.body.checks.funnel_ready, true);
 });
 
+test('readiness rejects a drifted funnel table: nine NON-canonical rows are not ready', async () => {
+  // Rename one canonical stage key — the count is still 9, but the funnel is
+  // no longer canonical, so /ready must flip to 503 (Codex M10 review item).
+  await db('funnel_stages').where({ key: 'lead' }).update({ key: 'drifted' });
+  try {
+    const ready = await req('GET', '/ready');
+    assert.equal(ready.status, 503);
+    assert.equal(ready.body.ok, false);
+    assert.equal(ready.body.checks.funnel_stages, 9);
+    assert.equal(ready.body.checks.funnel_ready, false);
+  } finally {
+    await db('funnel_stages').where({ key: 'drifted' }).update({ key: 'lead' });
+  }
+});
+
 test('onboarding is admin-only', async () => {
   // Unauthenticated → 401.
   assert.equal((await req('POST', '/onboarding', { name: 'X', email: 'x@example.com' })).status, 401);
