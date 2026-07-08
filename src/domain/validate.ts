@@ -54,3 +54,14 @@ export function isOneOf<T extends string>(allowed: readonly T[], value: unknown)
 export function isIntInRange(value: unknown, min: number, max: number): value is number {
   return typeof value === 'number' && Number.isInteger(value) && value >= min && value <= max;
 }
+
+/** An absolute http(s) URL (shape only — no reachability check). */
+export function isHttpUrl(value: unknown): value is string {
+  if (typeof value !== 'string' || value.length > 2048) return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === 'http:' || url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}

@@ -10,6 +10,22 @@ Format:
 
 ---
 
+2026-07-08 — M8B implementation: Facebook + Instagram publishing via Meta Graph API
+Decision: Implement M8B (the first sanctioned post-M10 candidate) as a mirror of the M8A email architecture: a per-channel live `MetaGraphAdapter` provider edge, a `SocialPublishService` orchestrator (validate → guard → bounded retry/backoff), and one explicit, tenant-scoped endpoint `POST /integrations/social/publish`.
+Context: M10's remaining blocker (live pilot verification) is ops/infrastructure work, not code. ROADMAP lists M8B as the first post-M10 candidate; building it now keeps the sequence while the gate stays with ops. Live end-to-end verification against a real Meta app joins the existing deployment-gate evidence list.
+Rationale:
+- Reusing the proven M8A shape (explicit invocation, guardrails, sandbox-transport tests, not_configured fail-closed) minimises new risk surface.
+- The spend guard was channel-agnostic already; it moved to `src/integrations/spendGuard.ts` as `PublishSpendGuard` with the M8A name re-exported, so M8A code and tests are untouched.
+- Guard scope is `client_id|channel` (per tenant per channel): one platform's budget/circuit can never starve or unlock another's.
+- One endpoint with a `channel` field (not per-channel routes) because both channels share credentials, guard semantics, and result contract; the adapter split stays internal.
+- Instagram uses the documented two-step container flow; a retry after a failed publish step re-creates the container (unpublished containers are inert, so no duplicate posts).
+- The Meta access token is sent only in the POST body, never in the URL, so it cannot leak into request logs.
+Alternatives considered:
+- Meta SDK dependency: rejected; the built-in `fetch` transport keeps the zero-new-dependency posture from M8A and stays injectable for tests.
+- Shared tenant-wide social budget (not per channel): rejected; a Facebook outage tripping the circuit would silently block Instagram.
+- Waiting for the M10 gate to close: rejected; the gate is blocked on ops, and this is the sanctioned next candidate — code-complete now, live verification recorded with the gate evidence.
+Owner: Claude Code (Senior Dev), within the M8B scope listed in ROADMAP.md.
+
 2026-06-12 — M10 milestone state reclassification: local code PASS / deployment BLOCKED
 Decision: Classify current M10 work as local code verified but deployment blocked. Do not mark M10 fully PASS until PostgreSQL smoke and live pilot verification are executed.
 Context: Local verification is complete (159/159 tests green, typecheck clean) and M10.1 was committed. Codex review explicitly requires deployment evidence: real `npm run db:smoke:pg` output and recorded pilot verification on a live instance.

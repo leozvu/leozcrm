@@ -1,32 +1,22 @@
 import { IntegrationAdapter, IntegrationCapability, IntegrationChannel } from '../domain/integration';
 import { PlaceholderAdapter } from './placeholderAdapter';
 import { ResendEmailAdapter } from './email/resendEmailAdapter';
+import { MetaGraphAdapter } from './social/metaGraphAdapter';
 
 /**
  * Concrete channel adapters for the registry.
  *
- * Social (Facebook / TikTok / Instagram) and AI media remain safe **placeholder**
- * no-ops (Milestone #6) — they only declare identity/capabilities and inherit the
- * no-op behaviour. The **email** channel is, as of Milestone #8A, the live
- * `ResendEmailAdapter` (its actual sending happens via the separate, guarded
+ * TikTok and AI media remain safe **placeholder** no-ops (Milestone #6) — they
+ * only declare identity/capabilities and inherit the no-op behaviour. The
+ * **email** channel is the live `ResendEmailAdapter` (Milestone #8A) and the
+ * **facebook** and **instagram** channels are, as of Milestone #8B, the live
+ * `MetaGraphAdapter` (their actual posting happens via the separate, guarded
  * publish path, not through `execute`).
  */
-
-export class FacebookAdapter extends PlaceholderAdapter {
-  readonly channel: IntegrationChannel = 'facebook';
-  readonly displayName = 'Facebook';
-  readonly capabilities: readonly IntegrationCapability[] = ['publish_post'];
-}
 
 export class TikTokAdapter extends PlaceholderAdapter {
   readonly channel: IntegrationChannel = 'tiktok';
   readonly displayName = 'TikTok';
-  readonly capabilities: readonly IntegrationCapability[] = ['publish_post'];
-}
-
-export class InstagramAdapter extends PlaceholderAdapter {
-  readonly channel: IntegrationChannel = 'instagram';
-  readonly displayName = 'Instagram';
   readonly capabilities: readonly IntegrationCapability[] = ['publish_post'];
 }
 
@@ -38,16 +28,17 @@ export class AiMediaAdapter extends PlaceholderAdapter {
 
 /**
  * Canonical construction order for the registry (single source of truth for
- * which adapters exist). The email entry is the live Resend adapter; the others
- * remain placeholders. The registry instance only needs metadata/`execute` from
- * the email adapter, so an unconfigured instance is fine here — the real send
- * path uses its own configured adapter via `EmailPublishService`.
+ * which adapters exist). Email + facebook/instagram are the live adapters;
+ * tiktok/ai_media remain placeholders. The registry instances only need
+ * metadata/`execute` from the live adapters, so unconfigured instances are fine
+ * here — the real publish paths use their own configured adapters via
+ * `EmailPublishService` / `SocialPublishService`.
  */
 export function createDefaultAdapters(): IntegrationAdapter[] {
   return [
-    new FacebookAdapter(),
+    new MetaGraphAdapter('facebook'),
     new TikTokAdapter(),
-    new InstagramAdapter(),
+    new MetaGraphAdapter('instagram'),
     new ResendEmailAdapter(),
     new AiMediaAdapter(),
   ];

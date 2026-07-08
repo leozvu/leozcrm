@@ -148,7 +148,31 @@ Success criteria:
 - Failure modes are logged and visible, not silent
 - No schema changes
 
-M8B — Facebook + Instagram Publishing — Deferred
+M8B — Facebook + Instagram Publishing — Completed (local code PASS)
+Deliverables:
+- Live Meta Graph adapter (`MetaGraphAdapter`) replacing the Facebook and
+  Instagram placeholders; Facebook Page feed posts + the Instagram two-step
+  container flow (`/media` → `/media_publish`)
+- Explicit, tenant-scoped publish endpoint: POST /integrations/social/publish
+  (auth + `enforceClientScope`, same shape as the M8A email surface)
+- Spend guardrails generalised into a shared `PublishSpendGuard`
+  (daily cap / rate limit / stop-on-failure), scoped per tenant PER CHANNEL;
+  per-attempt accounting so retries can never exceed the caps
+- Bounded retry + exponential backoff with a hard retry ceiling; Graph error
+  classification (transient/rate codes retryable, invalid token/parameter fatal)
+- Access token travels in the request BODY, never the URL (no token in logs)
+- Sandbox-transport test suite: 34 new tests across the service and HTTP
+  routes (suite total 193/193 green), including a no-autonomous-posting proof
+  (recommendations publish nothing)
+Success criteria:
+- Recommendations can reference (never trigger) safe social publish actions — met
+- Auth enforced and tenant-isolated — met
+- Spend/budget checks prevent runaway posting — met (per-channel caps + circuit)
+- Failure modes are logged and visible, not silent — met (precise reason → HTTP status + Retry-After)
+- No schema changes — met
+- Live Meta app verification: recorded with the M10 deployment-gate evidence
+  when infrastructure is available (same treatment as M8A's Resend sandbox step)
+
 M8C — TikTok Publishing — Deferred
 M8D — AI Media Generation — Deferred
 

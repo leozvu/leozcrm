@@ -12,7 +12,9 @@ import { createOnboardingRouter } from './routes/onboarding';
 import { createReadinessRouter } from './routes/health';
 import { integrationsRouter } from './routes/integrations';
 import { createEmailPublishRouter } from './routes/emailPublish';
+import { createSocialPublishRouter } from './routes/socialPublish';
 import { EmailPublishService, buildEmailPublisherFromEnv } from '../integrations/email/emailPublishService';
+import { SocialPublishService, buildSocialPublisherFromEnv } from '../integrations/social/socialPublishService';
 import { MetricsRepository } from '../repositories/metricsRepository';
 import { ClientRepository } from '../repositories/clientRepository';
 import { CampaignRepository } from '../repositories/campaignRepository';
@@ -49,6 +51,12 @@ export interface CreateAppOptions {
    * deterministic clock so no real email is sent.
    */
   emailPublisher?: EmailPublishService;
+  /**
+   * Social publisher (Meta Graph, M8B). Defaults to one built from the
+   * environment (`META_*` / `SOCIAL_*`). Tests inject one with a sandbox
+   * transport and deterministic clock so no real post is published.
+   */
+  socialPublisher?: SocialPublishService;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -81,11 +89,14 @@ export function createApp(options: CreateAppOptions = {}) {
   // before the email publish route so the more specific path wins, and still
   // behind auth (above).
   //
-  // Live email publishing (Milestone #8A): an explicitly-invoked, tenant-scoped,
-  // guardrailed POST surface. Social/AI media remain metadata-only placeholders —
-  // there is no publish surface for them.
+  // Live email publishing (Milestone #8A) and live Facebook/Instagram publishing
+  // (Milestone #8B): explicitly-invoked, tenant-scoped, guardrailed POST
+  // surfaces. TikTok/AI media remain metadata-only placeholders — there is no
+  // publish surface for them.
   const emailPublisher = options.emailPublisher ?? buildEmailPublisherFromEnv();
+  const socialPublisher = options.socialPublisher ?? buildSocialPublisherFromEnv();
   app.use('/integrations/email', createEmailPublishRouter({ publisher: emailPublisher }));
+  app.use('/integrations/social', createSocialPublishRouter({ publisher: socialPublisher }));
   app.use('/integrations', integrationsRouter);
 
   // All DB-backed routes. When a connection is injected (route tests), every

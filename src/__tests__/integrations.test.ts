@@ -1,8 +1,10 @@
 /**
- * Integration adapter tests (Milestone #6, updated for #8A). The connector layer
- * still exposes five channels and `execute` is a no-op for ALL of them (it never
- * sends). Social/AI media remain placeholder/advisory; email is now the live
- * Resend adapter (its real sending is a separate, explicit path — not `execute`).
+ * Integration adapter tests (Milestone #6, updated for #8A/#8B). The connector
+ * layer still exposes five channels and `execute` is a no-op for ALL of them (it
+ * never sends or posts). TikTok/AI media remain placeholder/advisory; email is
+ * the live Resend adapter (M8A) and facebook/instagram are the live Meta Graph
+ * adapters (M8B) — their real publishing is a separate, explicit path, not
+ * `execute`.
  *
  * Run: npm test
  */
@@ -17,25 +19,30 @@ import { ValidationError } from '../errors';
 
 const registry = new IntegrationRegistry();
 
-test('registry exposes five channels: social/AI placeholder, email live', () => {
+test('registry exposes five channels: tiktok/AI placeholder, email + facebook + instagram live', () => {
   const infos = registry.listInfo();
   assert.deepEqual(
     infos.map((i) => i.channel),
     ['facebook', 'tiktok', 'instagram', 'email', 'ai_media'],
   );
   const byChannel = Object.fromEntries(infos.map((i) => [i.channel, i]));
-  for (const ch of ['facebook', 'tiktok', 'instagram', 'ai_media']) {
+  for (const ch of ['tiktok', 'ai_media']) {
     assert.equal(byChannel[ch].mode, 'placeholder');
     assert.equal(byChannel[ch].advisory_only, true);
     assert.ok(byChannel[ch].capabilities.length > 0);
   }
-  // Email is the live channel — it can act, but only via the explicit publish path.
+  // Live channels can act, but only via their explicit publish paths.
   assert.equal(byChannel.email.mode, 'live');
   assert.equal(byChannel.email.advisory_only, false);
   assert.deepEqual(byChannel.email.capabilities, ['send_email']);
+  for (const ch of ['facebook', 'instagram']) {
+    assert.equal(byChannel[ch].mode, 'live');
+    assert.equal(byChannel[ch].advisory_only, false);
+    assert.deepEqual(byChannel[ch].capabilities, ['publish_post']);
+  }
 });
 
-test('every adapter execute is a no-op: performed:false, no_op:true (email included)', () => {
+test('every adapter execute is a no-op: performed:false, no_op:true (live adapters included)', () => {
   for (const adapter of registry.list()) {
     const capability = adapter.capabilities[0];
     const result = adapter.execute({ capability, payload: {} });
@@ -47,7 +54,7 @@ test('every adapter execute is a no-op: performed:false, no_op:true (email inclu
 });
 
 test('execute echoes payload key names only — never payload values (no secret leakage)', () => {
-  // Facebook (placeholder) — same no-secret-echo guarantee as before.
+  // Facebook (live as of M8B) — same no-secret-echo guarantee as before.
   const facebook = registry.get('facebook')!;
   const result = facebook.execute({
     capability: 'publish_post',
@@ -96,7 +103,8 @@ test('execute performs NO network I/O even when every egress path is armed to th
     (net as any).createConnection = boom;
 
     // execute() must touch no network for ANY adapter — including the live email
-    // adapter (it acknowledges but never sends; real sending is a separate path).
+    // and social adapters (they acknowledge but never send/post; real publishing
+    // is a separate path).
     for (const adapter of createDefaultAdapters()) {
       const result = adapter.execute({
         capability: adapter.capabilities[0],

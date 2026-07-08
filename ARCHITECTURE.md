@@ -124,13 +124,17 @@ Key patterns actually in use:
     │   ├── taskService.ts     task lifecycle / state-transition validation (M9)
     │   └── onboardingService.ts  tenant provisioning + platform-readiness report (M10)
     ├── integrations/          connector layer (see §5.1, §10)
-    │   ├── placeholderAdapter.ts  abstract no-op adapter base (social/AI media)
-    │   ├── channels.ts        concrete adapters (FB/TikTok/IG placeholder, email live, AI media)
+    │   ├── placeholderAdapter.ts  abstract no-op adapter base (TikTok/AI media)
+    │   ├── channels.ts        concrete adapters (TikTok/AI media placeholder; email + FB/IG live)
     │   ├── registry.ts        in-memory IntegrationRegistry (+ singleton)
-    │   └── email/             live email publishing (M8A)
-    │       ├── resendEmailAdapter.ts  Resend provider edge (fetch transport + timeout)
-    │       ├── spendGuard.ts          per-tenant daily cap / rate limit / circuit breaker
-    │       └── emailPublishService.ts orchestration: validate → guard → retry/backoff
+    │   ├── spendGuard.ts      shared PublishSpendGuard: daily cap / rate limit / circuit breaker
+    │   ├── email/             live email publishing (M8A)
+    │   │   ├── resendEmailAdapter.ts  Resend provider edge (fetch transport + timeout)
+    │   │   ├── spendGuard.ts          re-export of the shared guard under the M8A name
+    │   │   └── emailPublishService.ts orchestration: validate → guard → retry/backoff
+    │   └── social/            live Facebook/Instagram publishing (M8B)
+    │       ├── metaGraphAdapter.ts    Meta Graph provider edge (FB /feed; IG /media + /media_publish)
+    │       └── socialPublishService.ts orchestration: validate → guard → retry/backoff
     ├── http/
     │   ├── app.ts             createApp({ knex? }): wiring + error handler
     │   ├── asyncHandler.ts    forwards async errors to Express
@@ -140,6 +144,7 @@ Key patterns actually in use:
     │       ├── dashboard.ts   read-only HTML dashboard surface
     │       ├── integrations.ts  read-only integration registry metadata
     │       ├── emailPublish.ts  POST /integrations/email/send (live, guarded, M8A)
+    │       ├── socialPublish.ts POST /integrations/social/publish (live, guarded, M8B)
     │       ├── tasks.ts       tenant-scoped task CRUD + audited status transitions (M9)
     │       ├── onboarding.ts  POST /onboarding — admin tenant provisioning (M10)
     │       └── health.ts      GET /ready readiness probe (public, M10)
@@ -477,7 +482,8 @@ cleanly when no PG is configured). See `docs/POSTGRES_SMOKE.md`.
 ## 10. Live email publishing (M8A)
 
 The email channel is the first **`'live'`** integration (`src/integrations/email/`).
-Social and AI-media adapters remain metadata-only placeholders.
+TikTok and AI-media adapters remain metadata-only placeholders; Facebook and
+Instagram went live in M8B (see §10.1).
 
 - **The integration boundary is preserved.** `IntegrationAdapter.execute()` is a
   no-op acknowledgement for *every* adapter — it never sends. The contract only
@@ -507,6 +513,43 @@ Social and AI-media adapters remain metadata-only placeholders.
   `.env.example`). Unconfigured, the endpoint returns `503 not_configured` rather
   than failing silently. Tests inject a sandbox transport, so no real email is
   ever sent.
+
+### 10.1 Live Facebook/Instagram publishing (M8B)
+
+`src/integrations/social/` is a deliberate structural mirror of the email path —
+same boundary, same guarantees — targeting the Meta Graph API:
+
+- **One provider edge, two channels.** `MetaGraphAdapter` is instantiated once
+  per channel (`facebook` / `instagram`) over shared config. Facebook posts are a
+  single `POST /{page-id}/feed`; Instagram uses the documented two-step container
+  flow (`POST /{ig-user-id}/media` → `POST /{ig-user-id}/media_publish`). Both
+  HTTP calls count as ONE logical attempt; a retry after a failed publish step
+  re-creates the container (unpublished containers are inert — no duplicate
+  posts). The access token travels in the form-encoded POST **body**, never the
+  URL, so it cannot leak into request logs.
+- **Graph-aware outcome classification.** 429/5xx, `error.is_transient`, and the
+  known throttling codes (1, 2, 4, 17, 32, 613) are retryable; invalid token
+  (190) and invalid parameter (100 → `invalid_message`) are fatal, so a dead
+  token never produces a retry storm.
+- **Shared guard, finer scope.** The M8A guard mechanism moved to
+  `src/integrations/spendGuard.ts` as `PublishSpendGuard` (the email module
+  re-exports it under its original name, so M8A code is untouched). The social
+  service keys it by `client_id|channel`: budgets and circuit breakers are
+  independent per tenant AND per channel, so a Facebook outage can never block
+  Instagram publishing (or vice versa).
+- **Explicit invocation, tenant-scoped.** `POST /integrations/social/publish`
+  (body carries `channel`) is the only posting surface — behind `authenticate` +
+  `enforceClientScope`, with the same reason→status mapping and `Retry-After`
+  behaviour as email. `execute()` on the live adapters remains a no-op; a route
+  test asserts recommendations trigger zero provider calls.
+- **Channel-aware validation.** Facebook requires `message` and/or `link`;
+  Instagram requires a publicly-reachable `image_url` (caption optional, `link`
+  rejected); both enforce the 2 200-character text ceiling. Bad input never
+  reaches the provider or consumes quota.
+- **Configuration.** `META_ACCESS_TOKEN` / `META_FACEBOOK_PAGE_ID` /
+  `META_INSTAGRAM_USER_ID` / `SOCIAL_*` (see `.env.example`). A channel missing
+  its credentials fails closed with `503 not_configured`. Tests inject a sandbox
+  transport, so no real post is ever published.
 
 ---
 
