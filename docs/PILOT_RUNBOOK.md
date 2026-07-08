@@ -18,17 +18,29 @@ only what exists in this repository — no new infrastructure is assumed.
 
 ## 2. Deploy / bring-up
 
+**Option A — Docker (recommended):** brings up PostgreSQL 16 + the API; the
+container runs migrate → seed → serve on start.
+
+```bash
+AUTH_SECRET=<long-random> ADMIN_API_KEY=<operator-key> docker compose up -d
+curl http://localhost:3000/ready
+```
+
+**Option B — bare Node:**
+
 ```bash
 npm install
 # Production: confirm Postgres is reachable and migrations are reversible there.
 npm run db:smoke:pg        # env-gated; migrate → seed → rollback verification
-npm run migrate            # apply schema
-npm run seed               # seed the 9 canonical funnel stages (+ demo data in dev)
-NODE_ENV=production AUTH_SECRET=… ADMIN_API_KEY=… npm start
+NODE_ENV=production DATABASE_URL=… AUTH_SECRET=… ADMIN_API_KEY=… npm run start:prod
+# (start:prod = migrate → seed → serve. In production, seed inserts the 9
+#  canonical funnel stages ONLY — no demo data.)
 ```
 
 **`npm run db:smoke:pg` is the deployment gate** — it must pass against the real
 PostgreSQL instance before exposing the service. See `docs/POSTGRES_SMOKE.md`.
+Every request is logged as one structured JSON line (method, path, status,
+duration, tenant); set `LOG_REQUESTS=off` to silence.
 
 ## 3. Monitoring readiness
 
@@ -78,7 +90,17 @@ Failure modes (all clean, never a 500):
 
 ## 5. Verify the tenant end to end
 
-Using the tenant's `api_token` (set `T=<api_token>`):
+**One command (preferred):** the repeatable verifier runs the entire launch
+criterion — onboarding, tenant auth, campaign, lead + stage move, task +
+audited transition, KPIs, brief, recommendations — and prints an evidence
+block for `docs/DEPLOYMENT_EVIDENCE.md`. It exits non-zero on any failure.
+
+```bash
+npm run verify:pilot -- --base-url $BASE_URL --admin-key $ADMIN_API_KEY \
+    [--name "Pilot Co"] [--email pilot@acme.com]
+```
+
+Manual spot checks with the tenant's `api_token` (set `T=<api_token>`):
 
 ```bash
 curl -H "authorization: Bearer $T" "$BASE_URL/clients/<clientId>"        # its own record
@@ -90,7 +112,9 @@ curl -H "authorization: Bearer $T" -X POST "$BASE_URL/tasks" -d '…'        # t
 ```
 
 A tenant that can create campaigns/leads/tasks and read its brief +
-recommendations on the live instance meets the M10 launch criterion.
+recommendations on the live instance meets the M10 launch criterion — a green
+`verify:pilot` run IS that proof; paste its evidence block into
+`docs/DEPLOYMENT_EVIDENCE.md`.
 
 ## 6. Support & escalation
 

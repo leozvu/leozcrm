@@ -173,8 +173,29 @@ Success criteria:
 - Live Meta app verification: recorded with the M10 deployment-gate evidence
   when infrastructure is available (same treatment as M8A's Resend sandbox step)
 
-M8C — TikTok Publishing — Deferred
-M8D — AI Media Generation — Deferred
+M8C — TikTok Publishing — Completed (local code PASS)
+Deliverables:
+- Live TikTok Content Posting adapter (`TikTokContentAdapter`) replacing the
+  placeholder: video posts (`/v2/post/publish/video/init/`) and photo posts
+  (`/v2/post/publish/content/init/`, DIRECT_POST), media pulled by TikTok from
+  a public URL (`PULL_FROM_URL`) — the app never uploads bytes
+- Plugged into the SAME `SocialPublishService` via a new `SocialProviderAdapter`
+  seam (adding a channel = one adapter class + one registry entry)
+- Private-by-default posting: `privacy_level` defaults to `SELF_ONLY`
+  (configurable via TIKTOK_PRIVACY_LEVEL)
+- TikTok-aware error classification (rate limits retryable; invalid params /
+  dead tokens / spam-risk caps fatal — no retry storm)
+- Bearer token in the header only (never the URL); same per-tenant-per-channel
+  guardrails and bounded retry/backoff as M8B
+- 10 new sandbox-transport tests; suite total 206/206 green
+Success criteria: same as M8B — all met locally; live TikTok app verification
+joins the deployment-gate evidence when credentials are issued.
+
+M8D — AI Media Generation — Deferred (requires CEO decision)
+Blocked on a product decision, not code: which AI media provider (and budget /
+usage caps) to integrate. The connector seam is ready (`ai_media` placeholder
+adapter + the M8-proven live-adapter pattern). Decision request logged in
+DECISIONS.md 2026-07-08; no development scheduled until Leoz picks a provider.
 
 13. MILESTONE #9: TASK ENGINE — PASS
 ------------------------------------
@@ -196,31 +217,33 @@ Success criteria:
 - All task tests are green
 - QA sign-off: PASS
 
-14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING — LOCAL CODE PASS / DEPLOYMENT BLOCKED
-----------------------------------------------------------------------------------------
+14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING — CODE PASS / VERIFIED ON REAL POSTGRESQL / ONE OPS STEP REMAINING
+--------------------------------------------------------------------------------------------------------------------
 Goal: Ship the first pilot tenant on a live PostgreSQL-backed deployment.
-Status:
-- Local verification: PASS (159/159 tests green, typecheck clean)
-- Deployment readiness: BLOCKED
-Why now: All prior milestone code is QA’d; M10 adds onboarding, `/ready`, and pilot runbook. Shipping a live instance is the next product-value unlock.
+Status (2026-07-08):
+- Local verification: PASS (206/206 tests green, typecheck clean)
+- Deployment readiness: VERIFIED — the full pilot flow passed 15/15 against a
+  production-mode instance (`NODE_ENV=production`, pg driver, prod seed mode,
+  fail-loud auth) on a real PostgreSQL 16 database. Evidence:
+  `docs/DEPLOYMENT_EVIDENCE.md`.
 Deliverables present:
 - Client onboarding workflow (`POST /onboarding`, `npm run onboard` CLI) creating tenant + issuing token
-- `GET /ready` readiness probe
-- Pilot/support runbook (`docs/PILOT_RUNBOOK.md`)
-Status:
-- Local verification: PASS
-- Deployment readiness: BLOCKED
+- `GET /ready` readiness probe — now validates the CANONICAL stage keys/positions (Codex item closed)
+- Repeatable live verifier: `npm run verify:pilot -- --base-url … --admin-key …` (Codex item closed)
+- DB-level tenant-email uniqueness + email normalization (Codex item closed)
+- Deployment packaging: Dockerfile, docker-compose (app + PostgreSQL 16), `npm run start:prod`
+- Structured JSON request logging (per-request method/path/status/duration/tenant)
+- Production seed = reference data only (no demo tenant in prod)
+- Pilot/support runbook (`docs/PILOT_RUNBOOK.md`) + evidence log (`docs/DEPLOYMENT_EVIDENCE.md`)
 
-Remaining deployment-gate tasks:
+Remaining deployment-gate task (ops + one CEO decision — hosting choice):
 
-1. PostgreSQL environment provisioned and smoke-tested: PASS.
-2. Live pilot verification end-to-end: BLOCKED / not yet executed.
-
-   * Deploy app with real DB.
-   * Call `/ready` and confirm PASS.
-   * Run `npm run onboard` or `POST /onboarding` to create the first pilot tenant.
-   * Verify pilot tenant can create campaigns, leads, tasks, and receive briefs/recommendations on the live instance.
-   * Record base URL, pilot client_id, and verification results in the runbook or deployment evidence file.
+1. PostgreSQL environment provisioned and smoke-tested: PASS (twice — Supabase
+   2026-06 and PG 16 2026-07-08, incl. the new unique-email migration).
+2. Public-host pilot verification: PENDING HOSTING CHOICE.
+   * `AUTH_SECRET=… ADMIN_API_KEY=… docker compose up -d` (or any Node host)
+   * `npm run verify:pilot -- --base-url https://<public-url> --admin-key $ADMIN_API_KEY`
+   * Paste the printed evidence block into `docs/DEPLOYMENT_EVIDENCE.md`.
 
 Deployment evidence:
 --- Blocker 1: PostgreSQL smoke (Supabase Session Pooler, DATABASE_URL) --------
@@ -251,7 +274,9 @@ Supabase Session Pooler connection succeeded.
 DATABASE_URL was cleared from shell after verification.
 
 Blocker 1 status: PASS
-Blocker 2 status: BLOCKED — live pilot verification not yet executed.
+Blocker 2 status: VERIFIED ON REAL POSTGRESQL (2026-07-08) — full pilot flow
+15/15 PASS via `npm run verify:pilot` on a production-mode instance; public-host
+run pending hosting choice. Full record: docs/DEPLOYMENT_EVIDENCE.md.
 
 15. MILESTONE #10.1: PENDING — Post-P10 Candidate
 -------------------------------------------------
