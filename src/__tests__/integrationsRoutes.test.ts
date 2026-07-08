@@ -60,12 +60,10 @@ test('GET /integrations — lists channels with per-adapter mode/advisory flags'
     ['facebook', 'tiktok', 'instagram', 'email', 'ai_media'],
   );
   const byChannel = Object.fromEntries(body.integrations.map((i: any) => [i.channel, i]));
-  for (const ch of ['tiktok', 'ai_media']) {
-    assert.equal(byChannel[ch].mode, 'placeholder');
-    assert.equal(byChannel[ch].advisory_only, true);
-  }
-  // Email is live as of M8A; facebook/instagram are live as of M8B.
-  for (const ch of ['email', 'facebook', 'instagram']) {
+  assert.equal(byChannel.ai_media.mode, 'placeholder');
+  assert.equal(byChannel.ai_media.advisory_only, true);
+  // Email is live as of M8A; facebook/instagram as of M8B; tiktok as of M8C.
+  for (const ch of ['email', 'facebook', 'instagram', 'tiktok']) {
     assert.equal(byChannel[ch].mode, 'live');
     assert.equal(byChannel[ch].advisory_only, false);
   }
@@ -77,10 +75,10 @@ test('GET /integrations/:channel — returns one adapter info (live email/social
   assert.equal(fb.body.mode, 'live');
   assert.equal(fb.body.advisory_only, false);
 
-  const tiktok = await req('/integrations/tiktok');
-  assert.equal(tiktok.status, 200);
-  assert.equal(tiktok.body.mode, 'placeholder');
-  assert.equal(tiktok.body.advisory_only, true);
+  const aiMedia = await req('/integrations/ai_media');
+  assert.equal(aiMedia.status, 200);
+  assert.equal(aiMedia.body.mode, 'placeholder');
+  assert.equal(aiMedia.body.advisory_only, true);
 
   const email = await req('/integrations/email');
   assert.equal(email.status, 200);
@@ -96,11 +94,11 @@ test('GET /integrations/:channel — 404 for an unknown channel', async () => {
   assert.match(body.error, /integration not found/);
 });
 
-test('placeholder channels have no publish endpoint (email + social publish are the only action surfaces)', async () => {
+test('no publish endpoint exists outside the explicit surfaces (email/send + social/publish)', async () => {
   // Email publishes via POST /integrations/email/send (M8A) and facebook/
-  // instagram via POST /integrations/social/publish (M8B). Everything else —
-  // including per-channel paths that were never mounted — falls through to
-  // Express's default 404, so no placeholder action is routed.
+  // instagram/tiktok via POST /integrations/social/publish (M8B/M8C).
+  // Everything else — including per-channel paths that were never mounted —
+  // falls through to Express's default 404, so no other action is routed.
   assert.equal((await req('/integrations/facebook/publish', 'POST')).status, 404);
   assert.equal((await req('/integrations/tiktok/publish', 'POST')).status, 404);
   assert.equal((await req('/integrations/ai_media/generate', 'POST')).status, 404);

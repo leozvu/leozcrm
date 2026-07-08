@@ -132,8 +132,10 @@ Key patterns actually in use:
     │   │   ├── resendEmailAdapter.ts  Resend provider edge (fetch transport + timeout)
     │   │   ├── spendGuard.ts          re-export of the shared guard under the M8A name
     │   │   └── emailPublishService.ts orchestration: validate → guard → retry/backoff
-    │   └── social/            live Facebook/Instagram publishing (M8B)
+    │   └── social/            live Facebook/Instagram (M8B) + TikTok (M8C) publishing
+    │       ├── providerAdapter.ts     SocialProviderAdapter seam (one adapter per channel)
     │       ├── metaGraphAdapter.ts    Meta Graph provider edge (FB /feed; IG /media + /media_publish)
+    │       ├── tiktokAdapter.ts       TikTok Content Posting edge (video/photo init, PULL_FROM_URL)
     │       └── socialPublishService.ts orchestration: validate → guard → retry/backoff
     ├── http/
     │   ├── app.ts             createApp({ knex? }): wiring + error handler
@@ -517,7 +519,10 @@ Instagram went live in M8B (see §10.1).
 ### 10.1 Live Facebook/Instagram publishing (M8B)
 
 `src/integrations/social/` is a deliberate structural mirror of the email path —
-same boundary, same guarantees — targeting the Meta Graph API:
+same boundary, same guarantees — targeting the Meta Graph API. The service
+publishes through the `SocialProviderAdapter` seam (`providerAdapter.ts`), so a
+new channel is one adapter class + one registry entry (TikTok proved this in
+M8C, §10.2):
 
 - **One provider edge, two channels.** `MetaGraphAdapter` is instantiated once
   per channel (`facebook` / `instagram`) over shared config. Facebook posts are a
@@ -550,6 +555,29 @@ same boundary, same guarantees — targeting the Meta Graph API:
   `META_INSTAGRAM_USER_ID` / `SOCIAL_*` (see `.env.example`). A channel missing
   its credentials fails closed with `503 not_configured`. Tests inject a sandbox
   transport, so no real post is ever published.
+
+### 10.2 Live TikTok publishing (M8C)
+
+`tiktokAdapter.ts` plugs the TikTok Content Posting API v2 into the same
+`SocialPublishService` via the `SocialProviderAdapter` seam — no service or
+route changes beyond validation for the new channel:
+
+- **PULL_FROM_URL only.** TikTok fetches the media from a public URL; the app
+  never uploads bytes. A video post inits `/v2/post/publish/video/init/`; a
+  photo post inits `/v2/post/publish/content/init/` in `DIRECT_POST` mode. A
+  successful init returns a `publish_id` (TikTok finishes processing
+  asynchronously) — that id is the publish result.
+- **Private-by-default.** `privacy_level` defaults to `SELF_ONLY`: a freshly
+  published post is visible only to the account until an operator widens it or
+  configures `TIKTOK_PRIVACY_LEVEL`. The safest possible live-posting posture.
+- **TikTok-aware classification.** `rate_limit_exceeded` / `internal_error` /
+  HTTP 429/5xx are retryable; `invalid_params` and unverified pull-URL errors
+  are `invalid_message`; dead tokens, missing scopes, and `spam_risk_*` caps
+  are fatal `provider_error` — no retry storm against a refused request.
+- **Same guarantees as M8B.** Bearer token in the header (never the URL), the
+  shared per-tenant-per-channel `PublishSpendGuard` (a spent Facebook budget
+  cannot block TikTok and vice versa), bounded retry/backoff, `execute()` a
+  no-op, `503 not_configured` fail-closed until `TIKTOK_ACCESS_TOKEN` is set.
 
 ---
 

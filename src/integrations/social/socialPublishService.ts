@@ -1,24 +1,28 @@
 import {
   MAX_POST_TEXT_LENGTH,
+  PROVIDER_BY_CHANNEL,
   SOCIAL_CHANNELS,
   SocialPostMessage,
+  SocialProvider,
   SocialPublishResult,
 } from '../../domain/social';
 import { isHttpUrl, isOneOf } from '../../domain/validate';
 import { MetaGraphAdapter, fetchSocialTransport } from './metaGraphAdapter';
+import { TikTokContentAdapter, fetchTikTokTransport } from './tiktokAdapter';
+import { SocialProviderAdapter } from './providerAdapter';
 import { PublishSpendGuard } from '../spendGuard';
 
 /**
- * Social publish orchestration (Milestone #8B) — the Facebook/Instagram
- * counterpart of `EmailPublishService` (M8A), deliberately structured the same
- * way. The single, explicitly-invoked entry point for posting. It is the only
- * place that ties together:
+ * Social publish orchestration (Milestone #8B, extended in #8C) — the
+ * Facebook/Instagram/TikTok counterpart of `EmailPublishService` (M8A),
+ * deliberately structured the same way. The single, explicitly-invoked entry
+ * point for posting. It is the only place that ties together:
  *
  *   1. message validation (clean failure, never a provider call on bad input),
  *   2. per-tenant-per-channel spend guardrails (daily cap, rate limit,
  *      stop-on-failure) via the shared `PublishSpendGuard`,
- *   3. the provider edge (`MetaGraphAdapter.publishOnce`) with retry +
- *      exponential backoff on transient (retryable) failures.
+ *   3. the provider edge (`SocialProviderAdapter.publishOnce` — Meta Graph or
+ *      TikTok) with retry + exponential backoff on transient failures.
  *
  * It performs NO autonomous posting: callers (the publish route) invoke
  * `publish` explicitly per request. `sleep` is injectable so backoff is instant
@@ -51,8 +55,9 @@ export interface SocialPublishConfig {
 
 /** The per-channel adapters the service publishes through. */
 export interface SocialAdapters {
-  facebook: MetaGraphAdapter;
-  instagram: MetaGraphAdapter;
+  facebook: SocialProviderAdapter;
+  instagram: SocialProviderAdapter;
+  tiktok: SocialProviderAdapter;
 }
 
 const defaultSleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
@@ -107,18 +112,35 @@ export class SocialPublishService {
       if (!hasText(post.message) && !hasText(post.link)) return 'a Facebook post needs "message" and/or "link"';
       if (post.link !== undefined && !isHttpUrl(post.link)) return '"link" must be an absolute http(s) URL';
       if (post.image_url !== undefined) return '"image_url" is not supported for Facebook feed posts';
+      if (post.video_url !== undefined) return '"video_url" is not supported for Facebook feed posts';
       return null;
     }
-    // instagram
-    if (!isHttpUrl(post.image_url)) return 'an Instagram post needs a publicly-reachable "image_url" (absolute http(s) URL)';
-    if (post.link !== undefined) return '"link" is not supported for Instagram posts';
+    if (post.channel === 'instagram') {
+      if (!isHttpUrl(post.image_url)) return 'an Instagram post needs a publicly-reachable "image_url" (absolute http(s) URL)';
+      if (post.link !== undefined) return '"link" is not supported for Instagram posts';
+      if (post.video_url !== undefined) return '"video_url" is not supported for Instagram posts (image posts only)';
+      return null;
+    }
+    // tiktok — exactly ONE media source: a video post or a photo post.
+    if (post.video_url !== undefined && post.image_url !== undefined) {
+      return 'a TikTok post needs exactly one of "video_url" or "image_url", not both';
+    }
+    if (post.video_url !== undefined) {
+      if (!isHttpUrl(post.video_url)) return '"video_url" must be a publicly-reachable absolute http(s) URL';
+    } else if (!isHttpUrl(post.image_url)) {
+      return 'a TikTok post needs a publicly-reachable "video_url" or "image_url" (absolute http(s) URL)';
+    }
+    if (post.link !== undefined) return '"link" is not supported for TikTok posts';
     return null;
   }
 
   async publish(clientId: string, post: SocialPostMessage): Promise<SocialPublishResult> {
     const channel = post.channel;
+    // For an unknown channel (rejected below) there is no adapter to name a
+    // provider — fall back to meta_graph purely so the failure envelope is typed.
+    const provider: SocialProvider = PROVIDER_BY_CHANNEL[channel] ?? 'meta_graph';
     const fail = (reason: any, detail: string, attempts: number, retry_after_seconds?: number): SocialPublishResult => ({
-      ok: false, provider: 'meta_graph', channel, client_id: clientId, reason, detail, attempts, retry_after_seconds,
+      ok: false, provider, channel, client_id: clientId, reason, detail, attempts, retry_after_seconds,
     });
 
     // 1. Validate the post — bad input never reaches the provider or quota.
@@ -129,7 +151,8 @@ export class SocialPublishService {
     //    explicit, non-silent 503-class failure, before any provider call.
     const adapter = this.adapters[channel];
     if (!adapter.isConfigured()) {
-      return fail('not_configured', `${channel} publishing is not configured (set META_ACCESS_TOKEN and the channel target id)`, 0);
+      const hint = channel === 'tiktok' ? 'set TIKTOK_ACCESS_TOKEN' : 'set META_ACCESS_TOKEN and the channel target id';
+      return fail('not_configured', `${channel} publishing is not configured (${hint})`, 0);
     }
 
     // 3. Attempt with retry + bounded exponential backoff. The spend/rate/circuit
@@ -161,7 +184,7 @@ export class SocialPublishService {
       if (result.kind === 'success') {
         this.guard.recordSuccess(scope);
         return {
-          ok: true, provider: 'meta_graph', channel, id: result.id, client_id: clientId,
+          ok: true, provider: adapter.provider, channel, id: result.id, client_id: clientId,
           attempts: providerAttempts, remaining_today: this.guard.remainingToday(scope),
         };
       }
@@ -184,7 +207,8 @@ export class SocialPublishService {
 
 /**
  * Build the process-wide social publisher from environment configuration. When
- * `META_ACCESS_TOKEN` (or a channel's target id) is unset that channel is
+ * a channel's credentials are unset (`META_ACCESS_TOKEN` + target id for
+ * Facebook/Instagram; `TIKTOK_ACCESS_TOKEN` for TikTok) that channel is
  * "unconfigured" and the service returns a `not_configured` failure rather than
  * throwing — so the route mounts either way and the failure is explicit.
  */
@@ -200,6 +224,12 @@ export function buildSocialPublisherFromEnv(): SocialPublishService {
   const adapters: SocialAdapters = {
     facebook: new MetaGraphAdapter('facebook', shared),
     instagram: new MetaGraphAdapter('instagram', shared),
+    tiktok: new TikTokContentAdapter({
+      accessToken: process.env.TIKTOK_ACCESS_TOKEN,
+      transport: process.env.TIKTOK_ACCESS_TOKEN ? fetchTikTokTransport : undefined,
+      timeoutMs: numberEnv('SOCIAL_TIMEOUT_MS', 10_000),
+      privacyLevel: process.env.TIKTOK_PRIVACY_LEVEL,
+    }),
   };
   const guard = new PublishSpendGuard({
     dailyCap: numberEnv('SOCIAL_DAILY_CAP', 25),

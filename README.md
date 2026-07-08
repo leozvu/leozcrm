@@ -2,12 +2,14 @@
 
 An AI Operating Partner for agencies and business owners — **CRM + AI Brain + Agent Workforce.**
 
-> **Current state: MVP feature-complete, deployment gate pending.**
+> **Current state: MVP feature-complete and verified on real PostgreSQL.**
 > The CRM data layer (Client, Campaign, Lead, FunnelStage), KPI read layer,
 > daily CEO brief, advisory recommendations, dashboard, task engine, tenant
-> auth/onboarding, and live email + Facebook/Instagram publishing are built and
-> tested. TikTok and AI-media generation remain safe placeholders. Live
-> deployment verification (M10 gate) is the remaining launch step.
+> auth/onboarding, and live email + Facebook/Instagram/TikTok publishing are
+> built and tested; the full pilot flow has passed against a real PostgreSQL
+> 16 instance in production mode (see `docs/DEPLOYMENT_EVIDENCE.md`). AI-media
+> generation remains a safe placeholder. The remaining launch step is running
+> `npm run verify:pilot` against the chosen public host.
 
 ## Quickstart (zero database setup)
 
@@ -107,26 +109,29 @@ is in `domain/recommendation.ts`.
 
 ## Publishing (explicit, guardrailed — never autonomous)
 
-Two live publish surfaces exist: **email** (M8A, Resend) and **Facebook /
-Instagram** (M8B, Meta Graph API). Both are explicitly invoked, authenticated,
-tenant-scoped, and wrapped in per-tenant spend guardrails (daily cap, rate
-limit, stop-on-failure circuit) with bounded retry/backoff. Recommendations may
-*reference* a publish (`recommendation_code`) but can never trigger one.
-TikTok and AI media remain metadata-only placeholders with no publish surface.
+Three live publish surfaces exist: **email** (M8A, Resend), **Facebook /
+Instagram** (M8B, Meta Graph API), and **TikTok** (M8C, Content Posting API).
+All are explicitly invoked, authenticated, tenant-scoped, and wrapped in
+per-tenant spend guardrails (daily cap, rate limit, stop-on-failure circuit)
+with bounded retry/backoff. Recommendations may *reference* a publish
+(`recommendation_code`) but can never trigger one. AI media remains a
+metadata-only placeholder with no publish surface.
 
 | Endpoint | Does |
 |----------|------|
 | `POST /integrations/email/send` | Send one email — body: `{ clientId, to, subject, html?/text?, from?, recommendation_code? }` |
-| `POST /integrations/social/publish` | Publish one post — body: `{ clientId, channel: "facebook"\|"instagram", message?, link?, image_url?, recommendation_code? }` |
+| `POST /integrations/social/publish` | Publish one post — body: `{ clientId, channel: "facebook"\|"instagram"\|"tiktok", message?, link?, image_url?, video_url?, recommendation_code? }` |
 | `GET /integrations` | Read-only adapter metadata (mode, capabilities, advisory flag) |
 
 Channel rules: Facebook needs `message` and/or `link`; Instagram needs a
 publicly-reachable `image_url` (its `message` becomes the caption) and uses the
-documented two-step container flow. A channel is disabled (`503
+documented two-step container flow; TikTok needs exactly one of `video_url` /
+`image_url` (media is pulled by TikTok from the public URL) and publishes with
+`privacy_level` `SELF_ONLY` by default. A channel is disabled (`503
 not_configured`) until its provider credentials are set (`RESEND_API_KEY` +
-`EMAIL_FROM`; `META_ACCESS_TOKEN` + the channel target id — see
-`.env.example`). Failure responses carry a precise `code`
-(`invalid_message` 400, caps 429 + `Retry-After`, `provider_error` 502,
+`EMAIL_FROM`; `META_ACCESS_TOKEN` + the channel target id;
+`TIKTOK_ACCESS_TOKEN` — see `.env.example`). Failure responses carry a precise
+`code` (`invalid_message` 400, caps 429 + `Retry-After`, `provider_error` 502,
 `not_configured`/`circuit_open` 503, `timeout` 504). Engines live in
 `src/integrations/email/` and `src/integrations/social/`; contracts in
 `domain/email.ts` and `domain/social.ts`.

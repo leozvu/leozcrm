@@ -5,11 +5,11 @@ import { SocialFailureReason } from '../../domain/social';
 import { enforceClientScope } from '../auth';
 
 /**
- * Explicit social publish endpoint (Milestone #8B).
+ * Explicit social publish endpoint (Milestone #8B, extended in #8C).
  *
  *   POST /integrations/social/publish
- *   body: { clientId, channel: 'facebook' | 'instagram',
- *           message?, link?, image_url?, recommendation_code? }
+ *   body: { clientId, channel: 'facebook' | 'instagram' | 'tiktok',
+ *           message?, link?, image_url?, video_url?, recommendation_code? }
  *
  * Publishing is **explicitly invoked** and tenant-scoped: the caller must be
  * authenticated (middleware) and authorised for `clientId` (`enforceClientScope`).
@@ -45,14 +45,14 @@ export function createSocialPublishRouter(
   router.post(
     '/publish',
     asyncHandler(async (req, res) => {
-      const { clientId, channel, message, link, image_url, recommendation_code } = req.body ?? {};
+      const { clientId, channel, message, link, image_url, video_url, recommendation_code } = req.body ?? {};
       if (!clientId || !channel) {
         return res.status(400).json({ error: 'clientId and channel are required', code: 'invalid_message' });
       }
       // Tenant isolation: only publish for your own client (admin may publish for any).
       if (!enforceClientScope(req, res, clientId)) return;
 
-      const result = await publisher.publish(clientId, { channel, message, link, image_url, recommendation_code });
+      const result = await publisher.publish(clientId, { channel, message, link, image_url, video_url, recommendation_code });
 
       if (result.ok) {
         return res.status(200).json(result);

@@ -1,10 +1,10 @@
 /**
- * Integration adapter tests (Milestone #6, updated for #8A/#8B). The connector
- * layer still exposes five channels and `execute` is a no-op for ALL of them (it
- * never sends or posts). TikTok/AI media remain placeholder/advisory; email is
- * the live Resend adapter (M8A) and facebook/instagram are the live Meta Graph
- * adapters (M8B) — their real publishing is a separate, explicit path, not
- * `execute`.
+ * Integration adapter tests (Milestone #6, updated for #8A/#8B/#8C). The
+ * connector layer still exposes five channels and `execute` is a no-op for ALL
+ * of them (it never sends or posts). AI media remains placeholder/advisory;
+ * email is the live Resend adapter (M8A), facebook/instagram are the live Meta
+ * Graph adapters (M8B), and tiktok is the live Content Posting adapter (M8C) —
+ * their real publishing is a separate, explicit path, not `execute`.
  *
  * Run: npm test
  */
@@ -19,23 +19,21 @@ import { ValidationError } from '../errors';
 
 const registry = new IntegrationRegistry();
 
-test('registry exposes five channels: tiktok/AI placeholder, email + facebook + instagram live', () => {
+test('registry exposes five channels: AI media placeholder, email + facebook + instagram + tiktok live', () => {
   const infos = registry.listInfo();
   assert.deepEqual(
     infos.map((i) => i.channel),
     ['facebook', 'tiktok', 'instagram', 'email', 'ai_media'],
   );
   const byChannel = Object.fromEntries(infos.map((i) => [i.channel, i]));
-  for (const ch of ['tiktok', 'ai_media']) {
-    assert.equal(byChannel[ch].mode, 'placeholder');
-    assert.equal(byChannel[ch].advisory_only, true);
-    assert.ok(byChannel[ch].capabilities.length > 0);
-  }
+  assert.equal(byChannel.ai_media.mode, 'placeholder');
+  assert.equal(byChannel.ai_media.advisory_only, true);
+  assert.ok(byChannel.ai_media.capabilities.length > 0);
   // Live channels can act, but only via their explicit publish paths.
   assert.equal(byChannel.email.mode, 'live');
   assert.equal(byChannel.email.advisory_only, false);
   assert.deepEqual(byChannel.email.capabilities, ['send_email']);
-  for (const ch of ['facebook', 'instagram']) {
+  for (const ch of ['facebook', 'instagram', 'tiktok']) {
     assert.equal(byChannel[ch].mode, 'live');
     assert.equal(byChannel[ch].advisory_only, false);
     assert.deepEqual(byChannel[ch].capabilities, ['publish_post']);

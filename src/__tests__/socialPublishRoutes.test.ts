@@ -22,6 +22,7 @@ import type { AddressInfo } from 'node:net';
 import config from '../../knexfile';
 import { createApp } from '../http/app';
 import { MetaGraphAdapter, SocialTransport } from '../integrations/social/metaGraphAdapter';
+import { TikTokContentAdapter, TikTokTransport } from '../integrations/social/tiktokAdapter';
 import { PublishSpendGuard, SpendGuardConfig } from '../integrations/spendGuard';
 import { SocialPublishService } from '../integrations/social/socialPublishService';
 import { TEST_AUTH, adminHeaders, clientHeaders } from './support/authHarness';
@@ -48,9 +49,18 @@ function makePublisher(opts: PublisherOpts = {}) {
     transport: configured ? (opts.transport ?? okTransport()) : undefined,
     timeoutMs: 20,
   };
+  const tiktokTransport: TikTokTransport = async () => ({
+    status: 200,
+    body: { data: { publish_id: 'tt_route_ok' }, error: { code: 'ok', message: '' } },
+  });
   const adapters = {
     facebook: new MetaGraphAdapter('facebook', shared),
     instagram: new MetaGraphAdapter('instagram', shared),
+    tiktok: new TikTokContentAdapter({
+      accessToken: configured ? 'tiktok_test_token' : undefined,
+      transport: configured ? tiktokTransport : undefined,
+      timeoutMs: 20,
+    }),
   };
   const guard = new PublishSpendGuard({
     dailyCap: opts.guard?.dailyCap ?? 100,
@@ -123,6 +133,17 @@ test('publish succeeds for an in-scope client (sandbox) and for admin, on both c
     assert.equal(ig.status, 200);
     assert.equal(ig.body.channel, 'instagram');
 
+    const tt = await post(
+      base,
+      '/integrations/social/publish',
+      { clientId: CLIENT, channel: 'tiktok', message: 'clip', video_url: 'https://cdn.example.com/x.mp4' },
+      clientHeaders(CLIENT),
+    );
+    assert.equal(tt.status, 200);
+    assert.equal(tt.body.channel, 'tiktok');
+    assert.equal(tt.body.provider, 'tiktok');
+    assert.equal(tt.body.id, 'tt_route_ok');
+
     const asAdmin = await post(base, '/integrations/social/publish', { clientId: 'any-client', ...FB_POST }, adminHeaders());
     assert.equal(asAdmin.status, 200);
     assert.equal(asAdmin.body.ok, true);
@@ -144,6 +165,10 @@ test('publish rejects missing fields and invalid posts with 400', async () => {
     const noImage = await post(base, '/integrations/social/publish', { clientId: CLIENT, channel: 'instagram', message: 'x' }, clientHeaders(CLIENT));
     assert.equal(noImage.status, 400);
     assert.equal(noImage.body.code, 'invalid_message');
+
+    const noMedia = await post(base, '/integrations/social/publish', { clientId: CLIENT, channel: 'tiktok', message: 'x' }, clientHeaders(CLIENT));
+    assert.equal(noMedia.status, 400);
+    assert.equal(noMedia.body.code, 'invalid_message');
   });
 });
 

@@ -27,19 +27,28 @@ import {
   SocialTransportResponse,
   fetchSocialTransport,
 } from '../integrations/social/metaGraphAdapter';
+import {
+  TikTokContentAdapter,
+  TikTokTransport,
+  fetchTikTokTransport,
+} from '../integrations/social/tiktokAdapter';
 import { PublishSpendGuard, SpendGuardConfig } from '../integrations/spendGuard';
 import { SocialPublishService, MAX_RETRIES_CEILING } from '../integrations/social/socialPublishService';
 import { SocialPostMessage } from '../domain/social';
 
 const FB_POST: SocialPostMessage = { channel: 'facebook', message: 'Big launch today' };
 const IG_POST: SocialPostMessage = { channel: 'instagram', message: 'Launch pic', image_url: 'https://cdn.example.com/launch.jpg' };
+const TT_VIDEO: SocialPostMessage = { channel: 'tiktok', message: 'Launch clip', video_url: 'https://cdn.example.com/launch.mp4' };
+const TT_PHOTO: SocialPostMessage = { channel: 'tiktok', message: 'Launch pic', image_url: 'https://cdn.example.com/launch.jpg' };
 
 /** Build a service around a sandbox transport with overridable knobs. */
 function makeService(opts: {
   transport?: SocialTransport;
+  tiktokTransport?: TikTokTransport;
   accessToken?: string; // use the `'accessToken' in opts` sentinel to unset
   facebookPageId?: string;
   instagramUserId?: string;
+  tiktokPrivacyLevel?: string;
   timeoutMs?: number;
   maxRetries?: number;
   backoffMaxMs?: number;
@@ -56,6 +65,15 @@ function makeService(opts: {
   const adapters = {
     facebook: new MetaGraphAdapter('facebook', shared),
     instagram: new MetaGraphAdapter('instagram', shared),
+    // TikTok is configured only when a tiktok transport is provided — the
+    // Meta-focused tests leave it unconfigured, which is fine (they never
+    // publish to the tiktok channel).
+    tiktok: new TikTokContentAdapter({
+      accessToken: opts.tiktokTransport ? 'tiktok_test_token' : undefined,
+      transport: opts.tiktokTransport,
+      timeoutMs: opts.timeoutMs ?? 20,
+      privacyLevel: opts.tiktokPrivacyLevel,
+    }),
   };
   const guard = new PublishSpendGuard({
     dailyCap: opts.guard?.dailyCap ?? 100,
@@ -412,6 +430,166 @@ test('Graph request contract: Instagram creates a container then publishes it', 
   assert.equal(create.params.access_token, 'meta_test_token');
   assert.equal(publish.url, 'https://graph.facebook.com/v23.0/ig-456/media_publish');
   assert.equal(publish.params.creation_id, 'container_7');
+});
+
+// ---- TikTok (M8C) ----
+
+/** A tiktok transport that records requests, for contract/call-count assertions. */
+function capturingTikTok(responder: (n: number) => SocialTransportResponse) {
+  const requests: Array<Parameters<TikTokTransport>[0]> = [];
+  const transport: TikTokTransport = async (req) => {
+    requests.push(req);
+    return responder(requests.length);
+  };
+  return { transport, requests };
+}
+
+const TT_OK = (): SocialTransportResponse => ({ status: 200, body: { data: { publish_id: 'v_pub_1' }, error: { code: 'ok', message: '' } } });
+
+test('sandbox: a TikTok video post inits the video endpoint and returns the publish_id', async () => {
+  const cap = capturingTikTok(TT_OK);
+  const { service } = makeService({ tiktokTransport: cap.transport, guard: { dailyCap: 5 } });
+  const r = await service.publish('client-A', TT_VIDEO);
+  assert.equal(r.ok, true);
+  if (r.ok) {
+    assert.equal(r.provider, 'tiktok');
+    assert.equal(r.channel, 'tiktok');
+    assert.equal(r.id, 'v_pub_1');
+    assert.equal(r.remaining_today, 4);
+  }
+  const req = cap.requests[0];
+  assert.equal(req.url, 'https://open.tiktokapis.com/v2/post/publish/video/init/');
+  assert.ok(!req.url.includes('tiktok_test_token'), 'the access token must never appear in the URL');
+  assert.equal(req.accessToken, 'tiktok_test_token');
+  assert.deepEqual(req.body.source_info, { source: 'PULL_FROM_URL', video_url: TT_VIDEO.video_url });
+  assert.deepEqual(req.body.post_info, { title: 'Launch clip', privacy_level: 'SELF_ONLY' });
+});
+
+test('sandbox: a TikTok photo post inits the content endpoint in DIRECT_POST mode', async () => {
+  const cap = capturingTikTok(TT_OK);
+  const { service } = makeService({ tiktokTransport: cap.transport });
+  const r = await service.publish('client-A', TT_PHOTO);
+  assert.equal(r.ok, true);
+  const req = cap.requests[0];
+  assert.equal(req.url, 'https://open.tiktokapis.com/v2/post/publish/content/init/');
+  assert.equal(req.body.media_type, 'PHOTO');
+  assert.equal(req.body.post_mode, 'DIRECT_POST');
+  assert.deepEqual((req.body.source_info as any).photo_images, [TT_PHOTO.image_url]);
+});
+
+test('TikTok privacy level defaults to SELF_ONLY and is configurable', async () => {
+  const cap = capturingTikTok(TT_OK);
+  const { service } = makeService({ tiktokTransport: cap.transport, tiktokPrivacyLevel: 'PUBLIC_TO_EVERYONE' });
+  await service.publish('client-A', TT_VIDEO);
+  assert.equal((cap.requests[0].body.post_info as any).privacy_level, 'PUBLIC_TO_EVERYONE');
+});
+
+test('validation: channel-invalid TikTok posts (and video_url on Meta channels) never reach a provider', async () => {
+  let calls = 0;
+  const spyMeta: SocialTransport = async () => { calls++; return { status: 200, body: { id: 'x' } }; };
+  const spyTikTok: TikTokTransport = async () => { calls++; return TT_OK(); };
+  const { service } = makeService({ transport: spyMeta, tiktokTransport: spyTikTok });
+
+  for (const bad of [
+    { channel: 'tiktok', message: 'no media at all' },
+    { channel: 'tiktok', video_url: 'not-a-url' },
+    { channel: 'tiktok', video_url: TT_VIDEO.video_url, image_url: TT_PHOTO.image_url }, // both
+    { channel: 'tiktok', image_url: TT_PHOTO.image_url, link: 'https://x.com' }, // link unsupported
+    { channel: 'facebook', message: 'hi', video_url: TT_VIDEO.video_url }, // video not supported on feed
+    { channel: 'instagram', image_url: TT_PHOTO.image_url, video_url: TT_VIDEO.video_url },
+  ]) {
+    const r = await service.publish('client-A', bad as any);
+    assert.equal(r.ok, false, JSON.stringify(bad));
+    if (!r.ok) assert.equal(r.reason, 'invalid_message');
+  }
+  assert.equal(calls, 0, 'invalid posts must not call any provider');
+});
+
+test('not configured: TikTok without a token fails closed while Meta channels still publish', async () => {
+  const { service } = makeService({ transport: okTransport() }); // no tiktokTransport
+  const tt = await service.publish('client-A', TT_VIDEO);
+  assert.equal(tt.ok, false);
+  if (!tt.ok) {
+    assert.equal(tt.reason, 'not_configured');
+    assert.match(tt.detail, /TIKTOK_ACCESS_TOKEN/);
+  }
+  assert.equal((await service.publish('client-A', FB_POST)).ok, true);
+});
+
+test('a TikTok rate_limit_exceeded error is retryable', async () => {
+  const cap = capturingTikTok((n) =>
+    n === 1
+      ? { status: 429, body: { error: { code: 'rate_limit_exceeded', message: 'slow down' } } }
+      : TT_OK(),
+  );
+  const { service } = makeService({ tiktokTransport: cap.transport, maxRetries: 1 });
+  const r = await service.publish('client-A', TT_VIDEO);
+  assert.equal(r.ok, true);
+  if (r.ok) assert.equal(r.attempts, 2);
+});
+
+test('a TikTok invalid token error is fatal — no retry storm against a dead token', async () => {
+  const cap = capturingTikTok(() => ({
+    status: 401,
+    body: { error: { code: 'access_token_invalid', message: 'The access token is invalid' } },
+  }));
+  const { service } = makeService({ tiktokTransport: cap.transport, maxRetries: 5 });
+  const r = await service.publish('client-A', TT_VIDEO);
+  assert.equal(r.ok, false);
+  if (!r.ok) {
+    assert.equal(r.reason, 'provider_error');
+    assert.equal(r.attempts, 1);
+  }
+  assert.equal(cap.requests.length, 1);
+});
+
+test('a TikTok invalid_params error is fatal and classified invalid_message', async () => {
+  const cap = capturingTikTok(() => ({
+    status: 400,
+    body: { error: { code: 'invalid_params', message: 'video_url is malformed' } },
+  }));
+  const { service } = makeService({ tiktokTransport: cap.transport, maxRetries: 3 });
+  const r = await service.publish('client-A', TT_VIDEO);
+  assert.equal(r.ok, false);
+  if (!r.ok) assert.equal(r.reason, 'invalid_message');
+  assert.equal(cap.requests.length, 1);
+});
+
+test('TikTok budget is independent of the Meta channels (per-channel guard scope)', async () => {
+  const cap = capturingTikTok(TT_OK);
+  const { service } = makeService({ transport: okTransport(), tiktokTransport: cap.transport, guard: { dailyCap: 1 } });
+  assert.equal((await service.publish('client-A', FB_POST)).ok, true);
+  assert.equal((await service.publish('client-A', FB_POST)).ok, false); // FB budget spent
+  assert.equal((await service.publish('client-A', TT_VIDEO)).ok, true, 'the TikTok budget is independent');
+});
+
+test('fetchTikTokTransport issues a JSON POST with Bearer auth and parses the response', async () => {
+  const calls: Array<{ url: any; init: any }> = [];
+  const realFetch = (globalThis as any).fetch;
+  (globalThis as any).fetch = async (url: any, init: any) => {
+    calls.push({ url, init });
+    return { status: 200, json: async () => ({ data: { publish_id: 'p_real' }, error: { code: 'ok' } }) };
+  };
+  try {
+    const ac = new AbortController();
+    const res = await fetchTikTokTransport({
+      url: 'https://open.tiktokapis.com/v2/post/publish/video/init/',
+      accessToken: 'act_live_abc',
+      body: { post_info: { title: 'T' } },
+      signal: ac.signal,
+    });
+    assert.equal(res.status, 200);
+    assert.equal(res.body.data.publish_id, 'p_real');
+
+    const { url, init } = calls[0];
+    assert.equal(url, 'https://open.tiktokapis.com/v2/post/publish/video/init/');
+    assert.equal(init.method, 'POST');
+    assert.equal(init.headers.authorization, 'Bearer act_live_abc');
+    assert.match(init.headers['content-type'], /application\/json/);
+    assert.deepEqual(JSON.parse(init.body), { post_info: { title: 'T' } });
+  } finally {
+    (globalThis as any).fetch = realFetch;
+  }
 });
 
 test('fetchSocialTransport issues a form-encoded POST and parses the response', async () => {

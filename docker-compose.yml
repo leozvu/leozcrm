@@ -35,7 +35,8 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET to a long random string}
       ADMIN_API_KEY: ${ADMIN_API_KEY:?set ADMIN_API_KEY for the operator caller}
       # Optional publishing credentials (channels fail closed as 503 not_configured until set):
-      # RESEND_API_KEY, EMAIL_FROM, META_ACCESS_TOKEN, META_FACEBOOK_PAGE_ID, META_INSTAGRAM_USER_ID
+      # RESEND_API_KEY, EMAIL_FROM, META_ACCESS_TOKEN, META_FACEBOOK_PAGE_ID,
+      # META_INSTAGRAM_USER_ID, TIKTOK_ACCESS_TOKEN
     ports:
       - "${PORT:-3000}:3000"
 

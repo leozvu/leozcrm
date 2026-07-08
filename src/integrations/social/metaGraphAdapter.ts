@@ -7,7 +7,8 @@ import {
   IntegrationChannel,
   IntegrationMode,
 } from '../../domain/integration';
-import { SocialChannel, SocialFailureReason, SocialPostMessage } from '../../domain/social';
+import { SocialChannel, SocialPostMessage, SocialProvider } from '../../domain/social';
+import { SocialProviderAdapter, SocialPublishAttempt } from './providerAdapter';
 import { ValidationError } from '../../errors';
 
 /**
@@ -30,11 +31,11 @@ import { ValidationError } from '../../errors';
 const DEFAULT_GRAPH_BASE = 'https://graph.facebook.com';
 const DEFAULT_GRAPH_VERSION = 'v23.0';
 
-/** What the provider edge returns for one attempt. */
-export type MetaGraphAttempt =
-  | { kind: 'success'; id: string }
-  | { kind: 'retryable'; reason: Extract<SocialFailureReason, 'timeout' | 'network_error' | 'provider_error'>; detail: string }
-  | { kind: 'fatal'; reason: Extract<SocialFailureReason, 'provider_error' | 'invalid_message' | 'not_configured'>; detail: string };
+/** The channels the Meta Graph provider serves. */
+export type MetaChannel = Extract<SocialChannel, 'facebook' | 'instagram'>;
+
+/** What the provider edge returns for one attempt (shared shape, see providerAdapter). */
+export type MetaGraphAttempt = SocialPublishAttempt;
 
 export interface SocialTransportRequest {
   /** Full Graph endpoint URL (never contains the token). */
@@ -93,8 +94,9 @@ export interface MetaGraphConfig {
  */
 const RETRYABLE_GRAPH_CODES = new Set([1, 2, 4, 17, 32, 613]);
 
-export class MetaGraphAdapter implements IntegrationAdapter {
-  readonly channel: IntegrationChannel;
+export class MetaGraphAdapter implements IntegrationAdapter, SocialProviderAdapter {
+  readonly channel: MetaChannel;
+  readonly provider: SocialProvider = 'meta_graph';
   readonly displayName: string;
   readonly capabilities: readonly IntegrationCapability[] = ['publish_post'];
   readonly mode: IntegrationMode = 'live';
@@ -106,7 +108,7 @@ export class MetaGraphAdapter implements IntegrationAdapter {
   private readonly timeoutMs: number;
   private readonly base: string;
 
-  constructor(channel: SocialChannel, config: MetaGraphConfig = {}) {
+  constructor(channel: MetaChannel, config: MetaGraphConfig = {}) {
     this.channel = channel;
     this.displayName = channel === 'facebook' ? 'Facebook (Meta Graph)' : 'Instagram (Meta Graph)';
     this.accessToken = config.accessToken;
