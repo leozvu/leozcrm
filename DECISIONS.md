@@ -33,6 +33,53 @@ Process notes:
 - Implementation tasks are not yet created; a separate CEO go is required.
 Owner: Leoz (Product Owner). Recorded by Hermes (PM).
 
+DECISION-002 addendum — 2026-07-18 — Sprint 1A implementation authorized
+Status: Approved (Leoz). EXECUTION ON HOLD pending Repository Identity Rule.
+Decision: Begin Sprint 1A ONLY — implementation tasks exclusively for the
+Egoric read-only snapshot endpoint (Egoric repository, test instance only,
+gate G1). Sprint 1B and 1C tasks must not be created until Sprint 1A is
+completed, Codex-reviewed, merged, and accepted.
+Task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6).
+Repository identity ruling (Leoz, 2026-07-18): `agency-erp`
+(leozvu/CRMegoric.git) is NOT the canonical Egoric repository. The canonical
+ERP/CRM repository is `repositoryrealms`. The Repository Identity Rule was
+added to GOVERNANCE.md; implementation may not begin until the canonical
+repository's local path, remote, and branch are confirmed and its registry
+row is marked CONFIRMED.
+Owner: Leoz. Recorded by Hermes (PM).
+
+DECISION-002 addendum 2 — 2026-07-19 — Canonical source, branch model, and deployment isolation
+Status: Approved (Leoz).
+Decision (option (a) of the production-lineage question):
+- leozvu/repositoryrealms is the go-forward canonical ERP/CRM source.
+- Sprint 1A targets repositoryrealms, not agency-erp/CRMegoric.git.
+- `codex/realms-demo` is NOT an approved production branch; it is preserved
+  as staging/demo.
+- Protected production baseline branch `main` created from 76082dc (latest
+  verified production-lineage commit, v3.36); GitHub branch protection
+  enabled (PR + 1 approving review); set as default branch.
+- Sprint 1A implementation branch `feat/leozops-s1a` created from main.
+- Promotion flow: feat/leozops-s1a -> Egoric-only test/staging deployment ->
+  Codex G1 PASS -> merge to main -> explicit CEO production approval ->
+  Vercel CLI deploy to the Egoric project only.
+- The integration feature flag and LEOZOPS_READ key must never be deployed
+  to aim, vnecom, fretas, or egolive. The route is disabled by default in
+  every deployment and enabled only via deployment-specific environment
+  variables in the Egoric Vercel project (prj_Hh4aZEj9q3hvULaUfC4GwFvxYii9).
+  See `docs/DEPLOYMENT_FLAG_ISOLATION.md`.
+- Production deployment approval: NOT YET GRANTED.
+Context: Production-lineage verification (GOVERNANCE.md) proved
+repositoryrealms/codex/realms-demo contains the full production v3.x history
+plus staging/demo commits; the live Egoric ERP runs at
+erp-egoric.vercel.app as one of five businesses served by one codebase.
+Hold conditions (all satisfied 2026-07-19; see GOVERNANCE.md):
+main created from 76082dc; feat/leozops-s1a created; credential-file risk
+verified resolved (untracked + gitignored in agency-erp, absent from
+repositoryrealms); flag-isolation documented.
+Sprint 1A remains ON HOLD pending explicit CEO release. No source code
+modified.
+Owner: Leoz. Recorded by Hermes (PM).
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.
