@@ -18,7 +18,11 @@ Legend:
 Evidence-gated, no calendar dates. Gates are defined in the execution plan
 and Codex QA gates in `docs/EGORIC_INTEGRATION.md` §15.
 
-### Sprint 1 — ⏳ Planned (implementation tasks not yet created; CEO go required)
+### Sprint 1 — 🚧 In Progress — S1.A authorized (DECISION-002 addendum, 2026-07-18)
+
+S1.A task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6, Egoric repo, gate G1).
+S1.B/S1.C tasks must not be created until S1.A is completed, Codex-reviewed,
+merged, and accepted.
 
 Goal:
 Egoric Snapshot → LeozOps Ingestion → CEO Brief → Local End-to-End Proof.

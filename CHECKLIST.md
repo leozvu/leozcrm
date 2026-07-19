@@ -3,9 +3,12 @@ LEOZOPS AI — PROJECT CHECKLIST
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: APPROVED (DECISION-002, DECISIONS.md 2026-07-18) / IMPLEMENTATION TASKS NOT YET CREATED
+Status: APPROVED (DECISION-002, DECISIONS.md 2026-07-18) / SPRINT 1A IN PROGRESS
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
+Sprint 1A tasks (authorized, Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
+S1.B/S1.C tasks must not be created until S1.A is completed, Codex-reviewed,
+merged, and accepted.
 
 Egoric is the operational system of record. LeozOps is a read-only
 intelligence platform. The historical milestones below (sections 1-15,

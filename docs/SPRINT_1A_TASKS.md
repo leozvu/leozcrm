@@ -1,7 +1,9 @@
 # Sprint 1A — Implementation Tasks (Egoric read-only snapshot endpoint)
 
-Status: ON HOLD — awaiting explicit CEO release (all hold conditions
-satisfied 2026-07-19; see GOVERNANCE.md "Sprint 1A hold conditions").
+Status: ACTIVE — hold lifted by CEO 2026-07-19 after governance commit
+9137139. T1–T5 dispatched to Claude Code on
+C:\Users\Asus\Desktop\repositoryrealms @ feat/leozops-s1a. T6 reserved for
+independent Codex G1 review.
 Target repository (per DECISION-002 addendum 2 + Repository Identity
 Registry): **leozvu/repositoryrealms**, branch **feat/leozops-s1a**
 (cut from protected `main` @ 76082dc). `agency-erp` (leozvu/CRMegoric.git)
