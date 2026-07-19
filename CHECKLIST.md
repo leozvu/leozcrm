@@ -1,6 +1,64 @@
 LEOZOPS AI — PROJECT CHECKLIST
 ===============================
 
+0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
+----------------------------------------------------------------------------
+Status: APPROVED (DECISION-002, DECISIONS.md 2026-07-18) / IMPLEMENTATION TASKS NOT YET CREATED
+Canonical contract: docs/EGORIC_INTEGRATION.md
+Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
+
+Egoric is the operational system of record. LeozOps is a read-only
+intelligence platform. The historical milestones below (sections 1-15,
+"Legacy Foundation") describe how the existing LeozOps codebase was built,
+with completion evidence intact. They do not authorize deploying it as a
+second operational CRM. Every future task references this section.
+
+SPRINT 1 — Goal:
+  Egoric Snapshot -> LeozOps Ingestion -> CEO Brief -> Local End-to-End Proof
+  Nothing else. Evidence-gated, no calendar dates.
+
+Evidence gates (ALL required before Sprint 2):
+- G1: Egoric snapshot endpoint (test instance only) — LEOZOPS_READ
+  capability, auth matrix, recursive PII denial, deterministic ETag/304,
+  method denial. Codex PASS.
+- G2: LeozOps ingestion — tenant/source_connection entities, immutable
+  idempotent snapshot storage, schema fail-closed, no-write-egress proof.
+  Codex PASS.
+- G3: CEO Brief from snapshot — deterministic, Egoric-native funnel,
+  provenance + limitations on every output, integration profile denies
+  CRM/task/onboarding/email routes. Codex PASS.
+- G4 (SPRINT 1 ACCEPTANCE): local end-to-end vs Egoric test instance —
+  exact count reconciliation, zero-mutation proof, feature-flag +
+  key-revocation drill. Codex PASS in CODEX_REVIEW.md; Leoz acceptance
+  recorded in DECISIONS.md.
+
+HARD STOP: Sprint 2 does not start until G4 acceptance is recorded.
+
+SPRINT 2 — Goal (re-planned and re-approved at G4):
+  Deployment -> Test Instance -> Production Shadow -> Read-only Pilot
+- Polling cadence/retry/circuit/reconciliation, metrics + recommendations
+  routes, alerting, runbooks.
+- Hosting decision; independent LeozOps Postgres + secrets; readiness/canary.
+- Ten-business-day read-only production shadow (contract §11), then CEO
+  go/extend/revoke decision.
+- All 12 Codex release gates (contract §15) before any production key/flag.
+
+Forbidden throughout (contract §2):
+- Direct/shared database access or production DB writes.
+- Director or employee-role integration keys and generic Egoric CRUD APIs.
+- Write-back, double entry, autonomous tasks, email, social publishing, or
+  invoice actions.
+- Treating current webhooks as a source of truth.
+- Mapping Egoric Clients to LeozOps tenants or forcing Egoric stages into the
+  LeozOps nine-stage funnel.
+
+Claude Code must follow CLAUDE.md. Hermes must follow HERMES.md. Codex release
+criteria are in docs/EGORIC_INTEGRATION.md.
+
+================================================
+LEGACY FOUNDATION (HISTORICAL — EVIDENCE INTACT)
+================================================
+
 1. WHAT WE ARE BUILDING
 -----------------------
 An AI Operating Partner for agencies and business owners.
@@ -172,25 +230,31 @@ Success criteria:
 - All task tests are green
 - QA sign-off: PASS
 
-14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING — LOCAL CODE PASS / DEPLOYMENT BLOCKED
+14. MILESTONE #10: MVP LAUNCH & CLIENT ONBOARDING — SUPERSEDED BY DECISION-002
 ----------------------------------------------------------------------------------------
-Goal: Ship the first pilot tenant on a live PostgreSQL-backed deployment.
-Status:
+Status: Superseded by DECISION-002
+Reason: The architecture has changed after Egoric ERP became the production
+system of record. LeozOps will not launch as a standalone operational CRM;
+deployment now belongs to Sprint 2 of the Intelligence Integration track
+(section 0).
+
+Original goal (historical): Ship the first pilot tenant on a live
+PostgreSQL-backed deployment.
+Completion evidence retained:
 - Local verification: PASS (159/159 tests green, typecheck clean)
-- Deployment readiness: BLOCKED
-Why now: All prior milestone code is QA’d; M10 adds onboarding, `/ready`, and pilot runbook. Shipping a live instance is the next product-value unlock.
-Deliverables present:
 - Client onboarding workflow (`POST /onboarding`, `npm run onboard` CLI) creating tenant + issuing token
 - `GET /ready` readiness probe
 - Pilot/support runbook (`docs/PILOT_RUNBOOK.md`)
 Status:
 - Local verification: PASS
-- Deployment readiness: BLOCKED
+- Deployment readiness (standalone): superseded — see section 0
 
-Remaining deployment-gate tasks:
+Deployment-gate outcome at supersession:
 
 1. PostgreSQL environment provisioned and smoke-tested: PASS.
-2. Live pilot verification end-to-end: BLOCKED / not yet executed.
+2. Live pilot verification end-to-end: never executed; requirement
+   superseded by DECISION-002. The former steps are retained below as
+   history only (do not execute for the standalone CRM):
 
    * Deploy app with real DB.
    * Call `/ready` and confirm PASS.
@@ -226,12 +290,15 @@ Direct Supabase host failed DNS/connection from local machine.
 Supabase Session Pooler connection succeeded.
 DATABASE_URL was cleared from shell after verification.
 
-Blocker 1 status: PASS
-Blocker 2 status: BLOCKED — live pilot verification not yet executed.
+Blocker 1 status: PASS (evidence carries forward to Sprint 2 deployment work)
+Blocker 2 status: Superseded by DECISION-002 — never executed for the standalone CRM.
 
-15. MILESTONE #10.1: PENDING — Post-P10 Candidate
+15. MILESTONE #10.1 — SUPERSEDED BY DECISION-002
 -------------------------------------------------
-Reserved. Do not start until M10 deployment gate is closed. Options under review:
+Status: Superseded by DECISION-002.
+The post-M10 candidate list (M8B publishing, monitoring expansion) is
+archived. All future work follows section 0 (LeozOps Intelligence
+Integration) per GOVERNANCE change-control. Options retained as history:
 - M8B: Facebook + Instagram Publishing
 - Operational monitoring/alerting expansion
 - Any scope requested by Leoz after pilot feedback (per GOVERNANCE change-control)

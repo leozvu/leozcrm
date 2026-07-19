@@ -2,11 +2,25 @@
 
 An AI Operating Partner for agencies and business owners — **CRM + AI Brain + Agent Workforce.**
 
-> **Current state: data layer foundation only.**
-> This repo currently contains the CRM data-model migration contract: the four
-> core tables (Client, Campaign, Lead, FunnelStage), rollback-safe migrations,
-> a seed/verify script, and basic CRUD. The dashboard, AI agents, integrations,
-> and social posting are **not** built yet — they layer on top of this.
+> **Current direction:** Egoric is the production CRM/ERP and sole operational
+> system of record. LeozOps is being repositioned as a separately deployed,
+> read-only intelligence layer for KPIs, CEO Briefs, and advisory
+> recommendations. Read [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md)
+> before planning or implementing integration work.
+
+The repository already contains the historical CRM foundation, KPI read layer,
+CEO Brief, recommendation engine, dashboard, task engine, tenant protection, and
+email integration. M10 local code is verified, but a standalone live CRM pilot
+was not completed. That standalone launch path is superseded for the Egoric use
+case: the Egoric integration profile must not mount LeozOps CRM mutations,
+onboarding, tasks, or email publishing.
+
+Agent handoffs:
+
+- Hermes: [`HERMES.md`](HERMES.md)
+- Claude Code: [`CLAUDE.md`](CLAUDE.md)
+- Canonical architecture and QA contract:
+  [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md)
 
 ## Quickstart (zero database setup)
 

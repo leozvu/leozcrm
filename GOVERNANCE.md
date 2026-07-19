@@ -5,12 +5,16 @@
 Order of precedence:
 
 1. PRODUCT.md — what we build and why
-2. CHECKLIST.md — build order and acceptance criteria
-3. ROADMAP.md — milestone sequence and status
-4. DECISIONS.md — why we chose one path over another
-5. CODEX_REVIEW.md — current QA state and blockers
-6. ARCHITECTURE.md — module contracts and interfaces (to be created)
-7. GOVERNANCE.md — this file
+2. docs/EGORIC_INTEGRATION.md — canonical Egoric ownership, boundary, contract, rollout, and QA rules
+3. CHECKLIST.md — build order and acceptance criteria
+4. ROADMAP.md — milestone sequence and status
+5. DECISIONS.md — why we chose one path over another
+6. CODEX_REVIEW.md — current QA state and blockers
+7. ARCHITECTURE.md — existing module contracts and interfaces
+8. GOVERNANCE.md — this file
+
+`HERMES.md` and `CLAUDE.md` are role-specific entry points. They summarize but
+do not override the sources above.
 
 When docs conflict, the higher-precedence file wins. Update downstream docs when a higher doc changes.
 
@@ -42,3 +46,7 @@ A milestone is complete when:
 - Scope additions go through PM recommendation + CEO approval.
 - Architecture changes require a proposed ARCHITECTURE.md edit and PM review.
 - Hardening items from CODEX_REVIEW.md stay visible in CHECKLIST.md until completed.
+- Egoric integration changes must preserve the forbidden boundaries and release
+  gates in `docs/EGORIC_INTEGRATION.md`.
+- Documentation approval does not itself authorize production enablement,
+  credential creation, or production data mutation.

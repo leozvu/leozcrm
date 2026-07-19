@@ -1,5 +1,13 @@
 # LeozOps AI — Architecture
 
+> **Egoric integration scope note (2026-07-18):** This file describes the
+> existing standalone LeozOps application. It is not the target deployment
+> architecture for Egoric. For Egoric work, the canonical contract is
+> [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md): Egoric remains the
+> operational system of record and LeozOps runs as a separate, read-only
+> intelligence service. The integration profile must not mount CRM mutations,
+> onboarding, tasks, or email publishing.
+
 This document describes the architecture that **currently exists** in the
 repository. It is descriptive, not aspirational: it records the stack, patterns,
 and conventions already in the code so new work stays consistent with them.

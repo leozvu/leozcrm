@@ -10,6 +10,59 @@ Format:
 
 ---
 
+DECISION-002 — 2026-07-18 — Egoric becomes the operational system of record
+Status: Approved
+Decision:
+- Egoric owns operational CRM/ERP.
+- LeozOps becomes a read-only intelligence platform.
+- No duplicate CRM.
+- No shared database.
+- Sprint 1 scope: Egoric Snapshot → LeozOps Ingestion → CEO Brief. Nothing else.
+- No deployment until Sprint 1 passes local end-to-end verification.
+Reason:
+Egoric is already deployed and used by employees. LeozOps now provides
+intelligence instead of replacing CRM.
+Consequences:
+- Legacy standalone CRM roadmap archived.
+- Integration-first architecture adopted.
+- All future milestones follow this decision unless superseded by another ADR.
+Process notes:
+- Execution plan: `.hermes/plans/2026-07-18_egoric-integration-execution-plan.md`
+  (v2, evidence-gated, dates removed, deployment deferred to Sprint 2).
+- Sprint 2 must not start until Sprint 1 acceptance (gate G4) is recorded here.
+- Implementation tasks are not yet created; a separate CEO go is required.
+Owner: Leoz (Product Owner). Recorded by Hermes (PM).
+
+2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
+Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
+Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.
+Rationale:
+- Preserves existing employee workflows and gives every operational entity one owner.
+- Reuses the highest-value LeozOps components without making LeozOps another ERP.
+- A narrow REST export provides an auditable, versioned, revocable boundary.
+- A separate LeozOps deployment and database limit blast radius.
+- Read-only shadow operation makes correctness measurable before any UI exposure.
+Decision boundaries:
+- Egoric owns clients, leads, tasks, users, invoices, and operational workflows.
+- External ad platforms own delivery facts; Egoric may later own a canonical campaign reference. LeozOps owns neither campaign master.
+- LeozOps owns derived metric definitions/snapshots, briefs, and advisory recommendations.
+- The pilot uses a dedicated `LEOZOPS_READ` GET-only, PII-minimized lead snapshot. It does not use a Director key, generic CRUD API, existing webhooks, queue, or direct database access.
+- No write-back, autonomous external action, production DB write, shared database credential, double entry, or big-bang rewrite.
+- The Egoric-native funnel is preserved; no historical conversion is claimed without stage history.
+Supersedes:
+- The prior assumption that M10 should deploy LeozOps as a standalone operational CRM for the Egoric organization.
+- The prior sequencing assumption that real publishing or task automation is the next integration priority.
+Does not delete:
+- Existing CRM/task/email code or its historical test evidence. Those capabilities remain present but are excluded from the Egoric read-only integration deployment profile.
+Implementation contract: `docs/EGORIC_INTEGRATION.md`.
+Alternatives considered:
+- Embed the full LeozOps application inside Egoric: rejected because it couples releases and duplicates domain logic.
+- Use a background worker with direct Supabase access: rejected because it bypasses API authorization/audit and broadens production blast radius.
+- Use Egoric webhooks first: rejected because delivery is not yet durable or replayable.
+- Use a Director API key against generic `/api/v1/*`: rejected because the key also has write capability.
+- Bidirectional entity sync: rejected because it creates two operational owners and conflict resolution requirements.
+Owner: Leoz (Product Owner). Hermes owns sequencing; Claude Code owns implementation within the contract; Codex owns release QA.
+
 2026-06-12 — M10 milestone state reclassification: local code PASS / deployment BLOCKED
 Decision: Classify current M10 work as local code verified but deployment blocked. Do not mark M10 fully PASS until PostgreSQL smoke and live pilot verification are executed.
 Context: Local verification is complete (159/159 tests green, typecheck clean) and M10.1 was committed. Codex review explicitly requires deployment evidence: real `npm run db:smoke:pg` output and recorded pilot verification on a live instance.
