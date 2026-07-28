@@ -161,6 +161,22 @@ Decision:
   credential creation, Egoric write-back, or autonomous action.
 Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
 
+DECISION-002 addendum 5 — 2026-07-28 — G3 accepted; local S1.D authorized
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Accept the deterministic Egoric CEO Brief and isolated `egoric-readonly`
+  profile merged through `leozcrm`
+  [PR #6](https://github.com/leozvu/leozcrm/pull/6) at `main@3a5fb9e`.
+- Authorize Sprint 1D/G4 implementation for local/test end-to-end proof only:
+  test snapshot pull, exact reconciliation, no-mutation evidence, and local
+  feature-flag/key-revocation drills.
+- Keep Sprint 2 and all deployment work blocked until G4 passes technical QA
+  and Product Owner acceptance is recorded.
+- This acceptance does not authorize production deployment, production flags,
+  production or test-instance credential creation, scheduled polling, Egoric
+  write-back, publishing, or autonomous action.
+Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
+
 DECISION-002 addendum 4 — 2026-07-28 — G2 accepted; local S1.C authorized
 Status: Approved by Leoz (Product Owner).
 Decision:

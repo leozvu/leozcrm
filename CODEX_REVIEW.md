@@ -473,9 +473,10 @@ Baseline: `origin/main@cf60bc0`
 
 Reviewed implementation commit: `3048dcd`
 
-Publication status: **LOCAL REVIEW; PR/MERGE PENDING**
+Publication status: **MERGED** through
+[leozcrm PR #6](https://github.com/leozvu/leozcrm/pull/6) at `main@3a5fb9e`
 
-Verdict: **G3 TECHNICAL PASS LOCALLY**
+Verdict: **G3 COMPLETE — MERGED; PRODUCT OWNER ACCEPTED LOCAL S1.D CONTINUATION**
 
 ## A. Snapshot-native brief contract
 
@@ -537,9 +538,9 @@ Verdict: **G3 TECHNICAL PASS LOCALLY**
 
 ## E. Gate result
 
-The branch satisfies the G3 technical evidence contract for local/test use.
-Publication, merge, and Product Owner acceptance remain pending. S1.D/G4 stays
-blocked until those steps complete.
+The branch satisfies the G3 technical evidence contract for local/test use and
+was merged through PR #6 at `main@3a5fb9e`. Product Owner acceptance for
+local/test S1.D/G4 continuation is recorded in DECISION-002 addendum 5.
 
 This verdict does not authorize production deployment, production flags or
 credentials, scheduled polling, write-back, publishing, or autonomous action.

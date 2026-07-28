@@ -146,10 +146,10 @@ transitions.
 | `egoric-readonly` | Current canonical integration | Health plus approved tenant intelligence read routes |
 | Supervised operator | Future, after G6 approval | Read routes plus individually allowlisted approved commands |
 
-The `egoric-readonly` runtime profile is implemented locally in S1.C with
-health plus one authenticated tenant brief route. It remains unapproved for
-deployment until G3, G4, and the later deployment gates pass. The default
-legacy app must never be deployed as the Egoric LeozOps integration.
+The `egoric-readonly` runtime profile is implemented on `main` through PR #6
+with health plus one authenticated tenant brief route. It remains unapproved
+for deployment until G4 and the later deployment gates pass. The default legacy
+app must never be deployed as the Egoric LeozOps integration.
 
 ## 8. Product decision rule
 

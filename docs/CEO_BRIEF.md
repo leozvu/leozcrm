@@ -1,6 +1,6 @@
 # LeozOps Egoric CEO Brief — G3 Contract
 
-Status: **G3 TECHNICAL QA PASS LOCALLY — publication and acceptance pending**
+Status: **G3 COMPLETE — merged through PR #6 at `main@3a5fb9e`**
 
 The G3 brief is a deterministic current-state view over one accepted Business
 Memory snapshot. It is separate from the historical CRM `BriefService` and
