@@ -27,8 +27,9 @@ Status: APPROVED / SPRINT 1 IN PROGRESS / G1 TECHNICAL PASS LOCAL — MERGE PEND
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
-Corrective QA passes locally at repositoryrealms@28ceff6 against main@507187f.
-The commit is not pushed, no PR exists, and S1.A is not merged or accepted.
+Corrective QA passes at repositoryrealms@28ceff6 against main@507187f.
+The branch is published and draft PR #7 is open; S1.A is not yet reviewed,
+merged, or accepted.
 S1.B/S1.C tasks must not be created until those steps complete.
 
 Egoric is the operational system of record. LeozOps is a read-only

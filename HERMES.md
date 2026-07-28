@@ -35,9 +35,9 @@ capability and must not be mounted in the Egoric integration deployment profile.
 
 1. Treat the older M8 publishing and standalone M10 CRM launch plan as paused
    for the Egoric integration path.
-2. Treat G1 technical QA as locally passed at `repositoryrealms@28ceff6`, but
-   keep S1.B blocked until S1.A is pushed, reviewed through a PR, merged, and
-   accepted. Then create work items in the Sprint 1 → Sprint 2 order defined by DECISION-002
+2. Treat G1 technical QA as passed at `repositoryrealms@28ceff6` with draft PR
+   #7 open, but keep S1.B blocked until S1.A is reviewed, merged, and accepted.
+   Then create work items in the Sprint 1 → Sprint 2 order defined by DECISION-002
    and `docs/EGORIC_INTEGRATION.md` §13 (S1.A → S1.B → S1.C → S1.D, evidence
    gates G1–G4); do not combine the stages into a big-bang
    ticket. Sprint 2 work items must not be created until Sprint 1 acceptance

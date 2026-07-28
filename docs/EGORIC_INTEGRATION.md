@@ -17,11 +17,12 @@ Implementation owner: Claude Code
 
 QA owner: Codex
 
-Progress note (2026-07-28): corrective S1.A technical QA is **PASS** on local
-`leozvu/repositoryrealms` commit `28ceff6`, merged with current
-`origin/main@507187f`. The remote feature branch still points to `165ee06`, no
-PR exists, and merge/Product Owner acceptance remain pending. S1.B and S1.C
-remain blocked until those publication and acceptance steps complete.
+Progress note (2026-07-28): corrective S1.A technical QA is **PASS** on
+`leozvu/repositoryrealms` commit `28ceff6`, based on current
+`origin/main@507187f`. The branch is published and
+[draft PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is open;
+review, merge, and Product Owner acceptance remain pending. S1.B and S1.C
+remain blocked until those review and acceptance steps complete.
 
 This document is the canonical implementation contract for connecting LeozOps
 to the production Egoric CRM/ERP. It supersedes any older instruction to launch

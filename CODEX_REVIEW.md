@@ -298,9 +298,11 @@ Branch and commit: `feat/leozops-s1a` @ `28ceff6`
 
 Current baseline: `origin/main` @ `507187f`; merge-base is exactly `507187f`
 
-Remote status: `origin/feat/leozops-s1a` remains at `165ee06`; no PR exists.
+Remote status: `origin/feat/leozops-s1a` points to `28ceff6`; draft
+[repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is
+open against `main`.
 
-Verdict: **TECHNICAL PASS — LOCAL COMMIT; PUSH/PR/MERGE/ACCEPTANCE PENDING**
+Verdict: **TECHNICAL PASS — DRAFT PR OPEN; REVIEW/MERGE/ACCEPTANCE PENDING**
 
 ## A. Scope and lineage
 
@@ -364,14 +366,14 @@ weaken the route capability, PII, method, or default-off boundaries.
 
 ## F. Gate and merge recommendation
 
-The S1.A technical contract passes at local commit `28ceff6`.
+The S1.A technical contract passes at published commit `28ceff6`.
 
 Do not start S1.B yet. First:
 
-1. push the reviewed branch commit;
-2. open a PR to current `main` and preserve the flag-off default;
-3. complete repository review and merge; and
-4. record Product Owner acceptance.
+1. complete review of [repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7)
+   and preserve the flag-off default;
+2. merge the PR; and
+3. record Product Owner acceptance.
 
 No production deployment, feature-flag enablement, or key provisioning is
 approved by this verdict.

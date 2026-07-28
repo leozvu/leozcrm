@@ -47,9 +47,11 @@ and Codex QA gates in `docs/EGORIC_INTEGRATION.md` §15.
 ### Sprint 1 — 🚧 In Progress — G1 technical PASS local; merge/acceptance pending
 
 S1.A task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6, Egoric repo, gate G1).
-Corrective technical QA passes locally at `repositoryrealms@28ceff6` against
-`main@507187f`. The commit is not pushed, no PR exists, and S1.A is not merged
-or accepted. S1.B/S1.C tasks must not be created until those steps complete.
+Corrective technical QA passes at `repositoryrealms@28ceff6` against
+`main@507187f`. The branch is published and
+[draft PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is open; S1.A
+is not yet reviewed, merged, or accepted. S1.B/S1.C tasks must not be created
+until those steps complete.
 
 Goal:
 Egoric Snapshot → LeozOps Ingestion → CEO Brief → Local End-to-End Proof.
