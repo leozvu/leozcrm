@@ -23,8 +23,8 @@ Progress note (2026-07-28): corrective S1.A technical QA is **PASS** on reviewed
 `main@98c0eca`; Product Owner accepted G1 for local S1.B continuation. G2 passed
 and [leozcrm PR #4](https://github.com/leozvu/leozcrm/pull/4) was merged as
 `main@d1d34c5`; Product Owner authorized local/test S1.C/G3 continuation.
-S1.C is implemented on `codex/leozops-s1c-ceo-brief`; G3 technical QA passed
-locally and publication/Product Owner acceptance remain pending.
+S1.C passed G3 and [leozcrm PR #6](https://github.com/leozvu/leozcrm/pull/6)
+was merged as `main@3a5fb9e`; Product Owner authorized local/test S1.D/G4.
 Production enablement, credentials, polling, and write-back remain unauthorized.
 
 This document is the canonical implementation contract for connecting LeozOps

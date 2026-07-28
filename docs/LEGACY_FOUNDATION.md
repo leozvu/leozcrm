@@ -31,9 +31,9 @@ its presence does not define the current product or authorize deployment.
 
 The current default application still mounts historical CRM, task, onboarding,
 and email surfaces. The `INTEGRATION_MODE=egoric-readonly` route-isolation
-profile is implemented on the local S1.C branch but remains gated and
-undeployed. Only that isolated profile may become the Egoric integration after
-G3, G4, and the later deployment gates pass.
+profile was merged through PR #6 but remains gated and undeployed. Only that
+isolated profile may become the Egoric integration after G4 and the later
+deployment gates pass.
 
 Therefore:
 

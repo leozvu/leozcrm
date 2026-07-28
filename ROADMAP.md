@@ -45,7 +45,7 @@ or autonomy authority.
 Evidence-gated, no calendar dates. Gates are defined in the execution plan
 and Codex QA gates in `docs/EGORIC_INTEGRATION.md` §15.
 
-### Sprint 1 — 🚧 In Progress — G2 complete; G3 technical QA PASS locally
+### Sprint 1 — 🚧 In Progress — G3 complete; S1.D/G4 authorized
 
 S1.A task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6, Egoric repo, gate G1).
 Corrective technical QA passed at `repositoryrealms@28ceff6` against
@@ -57,8 +57,9 @@ kept S1.C blocked until G2 passed. G2 technical QA passed on
 was squash-merged to `main@d1d34c5`, and Product Owner acceptance for local
 S1.C/G3 continuation is recorded in DECISION-002 addendum 4.
 The deterministic native-funnel brief and `egoric-readonly` route-isolation
-profile are implemented on `codex/leozops-s1c-ceo-brief`; G3 technical QA
-passed locally and publication/Product Owner acceptance remain pending.
+profile passed G3 technical QA and [PR #6](https://github.com/leozvu/leozcrm/pull/6)
+was squash-merged to `main@3a5fb9e`. Product Owner acceptance for local S1.D/G4
+continuation is recorded in DECISION-002 addendum 5.
 
 Goal:
 Egoric Snapshot → LeozOps Ingestion → CEO Brief → Local End-to-End Proof.

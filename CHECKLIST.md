@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: APPROVED / SPRINT 1 IN PROGRESS / G2 COMPLETE / G3 LOCAL QA PASS
+Status: APPROVED / SPRINT 1 IN PROGRESS / G3 COMPLETE / S1.D AUTHORIZED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -34,8 +34,8 @@ PR #7 merged to repositoryrealms/main@98c0eca and Product Owner accepted G1
 for local S1.B continuation. G2 technical QA passed on
 codex/leozops-s1b-business-memory and PR #4 was squash-merged to
 leozcrm/main@d1d34c5. Product Owner accepted local S1.C/G3 continuation.
-S1.C implementation is on codex/leozops-s1c-ceo-brief; G3 technical QA passed
-locally and publication/Product Owner acceptance remain pending.
+S1.C passed technical QA and PR #6 was squash-merged to
+leozcrm/main@3a5fb9e. Product Owner accepted local S1.D/G4 continuation.
 
 Egoric is the operational system of record. LeozOps is a read-only
 intelligence platform. The historical milestones below (sections 1-15,
