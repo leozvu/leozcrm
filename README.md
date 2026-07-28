@@ -17,8 +17,8 @@ Autopilot, with human authority and evidence gates at every step.
 |---|---|
 | Product foundation | G0 complete on `main` via [PR #1](https://github.com/leozvu/leozcrm/pull/1) at `b7aa417` |
 | Egoric data supply | G1 complete: [repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) merged to `main@98c0eca`; Product Owner authorized local S1.B continuation |
-| LeozOps ingestion / Business Memory | S1.B authorized; G2 implementation starting locally in read-only mode |
-| Snapshot-based CEO Brief | Not started; blocked by G2 |
+| LeozOps ingestion / Business Memory | G2 technical QA PASS locally on `codex/leozops-s1b-business-memory`; publication and Product Owner acceptance pending |
+| Snapshot-based CEO Brief | Not started; blocked until the G2 branch is merged and accepted |
 | Production integration | Not authorized |
 
 The immediate critical path is:
@@ -35,7 +35,9 @@ The immediate critical path is:
 4. [`docs/RELEASE_GATES.md`](docs/RELEASE_GATES.md) — G0–G7 evidence gates.
 5. [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md) — binding Egoric
    API, security, rollout, and QA contract.
-6. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+6. [`docs/BUSINESS_MEMORY.md`](docs/BUSINESS_MEMORY.md) — G2 analytical-memory
+   schema, ingestion invariants, and evidence contract.
+7. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 
