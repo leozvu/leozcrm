@@ -15,7 +15,8 @@
     "seed": "tsx src/db/seed.ts",
     "onboard": "tsx src/onboard.ts",
     "db:reset": "tsx src/db/migrate.ts rollback && tsx src/db/migrate.ts latest && tsx src/db/seed.ts",
-    "db:smoke:pg": "tsx src/db/pgSmoke.ts"
+    "db:smoke:pg": "tsx src/db/pgSmoke.ts",
+    "verify:e2e:local": "tsx scripts/localE2E.ts"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
