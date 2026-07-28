@@ -544,3 +544,80 @@ local/test S1.D/G4 continuation is recorded in DECISION-002 addendum 5.
 
 This verdict does not authorize production deployment, production flags or
 credentials, scheduled polling, write-back, publishing, or autonomous action.
+
+---
+
+# G4 Review — Sprint 1D Local End-to-End
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/leozcrm`
+
+Branch: `codex/leozops-s1d-local-e2e`
+
+Baseline: `origin/main@2354bb0`
+
+Reviewed implementation commit: `dc9fb89`
+
+Publication status: **PENDING**
+
+Verdict: **G4 TECHNICAL PASS — PUBLICATION AND PRODUCT OWNER ACCEPTANCE PENDING**
+
+## A. Actual-handler end-to-end path
+
+- The runner fail-closes unless canonical `leozvu/repositoryrealms` is on clean
+  `main` exactly matching `origin/main`; the reviewed run used
+  `98c0eca01330cbf101bca8ff93de38cdd8ec4045`.
+- It dynamically imports the actual RepositoryRealms
+  `lib/leozops/handler.js`, supplies a frozen four-record local fixture through
+  the handler's existing injection seam, and passes the response through the
+  production `EgoricSalesV1Adapter`.
+- The complete exercised path is source handler → source adapter → schema
+  validation → immutable Business Memory → deterministic CEO Brief →
+  authenticated `egoric-readonly` HTTP route.
+- In-memory SQLite, process-local HTTP, and randomly generated ephemeral keys
+  keep the test deterministic and prevent external or production side effects.
+
+## B. Reconciliation and revocation evidence
+
+- Four source records produced one immutable snapshot, one idempotent run, and
+  a brief total of four.
+- Native stages reconcile exactly: new 1, contacted 0, proposal 1,
+  negotiation 0, won 1, and lost 1; active pipeline is 2, won is 1, lost is 1,
+  and current-state win rate is 0.5.
+- Flag off returned 404 without reading facts; a bad key returned 401; the
+  accepted pull returned 200; replay returned 304; rotating the source key hash
+  made the old key return 401 and disabled its LeozOps connection; disabling
+  the flag again returned 404.
+- Only the authenticated 200 and 304 paths loaded source facts. The adapter
+  emitted exactly three GET requests and no request body.
+- The frozen source data, canonical source commit, and canonical source
+  worktree remained unchanged. PII fixtures appeared in neither stored memory,
+  CEO output, nor source audit lines; raw ephemeral keys were not logged.
+- The tenant-scoped brief returned 200, remained
+  `advisory_only: true` under `egoric_ceo_brief_v1`, and a malformed legacy POST
+  returned 404 before parsing its body.
+
+## C. Verification evidence
+
+- `npm run verify:e2e:local`: **PASS**.
+- LeozOps full regression suite: **182/182 PASS**, 0 skipped, 0 failed.
+- RepositoryRealms LeozOps suite: **69/69 PASS**, 0 skipped, 0 failed.
+- `npm run typecheck`: **PASS**.
+- Canonical source remained clean at `main@98c0eca`, matching `origin/main`.
+- `package-lock.json` is unchanged; no dependency was added or upgraded.
+- `npm audit --omit=dev --audit-level=high`: no high/critical finding; one low
+  `body-parser` and one moderate `uuid` advisory are pre-existing.
+- `git diff --check`, Markdown relative-link check, secret-pattern scan, and
+  new-path egress/mutation boundary scan: **PASS**.
+
+## D. Scope limitation and gate result
+
+This proves G4's deterministic local/test contract. It does not exercise a
+deployed source, live PostgreSQL, real production data, production secrets,
+runtime scheduling, or the ten-business-day shadow evidence required by G5.
+
+The technical G4 contract passes at reviewed commit `dc9fb89`. Sprint 1 and G5
+remain blocked until this branch is published and Product Owner acceptance is
+recorded. No production deployment, feature flag, credential provisioning,
+scheduled polling, write-back, publishing, or autonomous action is authorized.
