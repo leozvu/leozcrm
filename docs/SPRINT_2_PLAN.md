@@ -1,8 +1,8 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **PROPOSED — PRODUCT OWNER APPROVAL REQUIRED BEFORE IMPLEMENTATION**
+Status: **S2.A T1–T4 AUTHORIZED FOR LOCAL/TEST; ALL LATER WORK BLOCKED**
 
-Authority: DECISION-002 addendum 6 authorizes planning only.
+Authority: DECISION-002 addendum 7 authorizes the local reliability core only.
 
 Baseline:
 
@@ -26,9 +26,10 @@ The plan deliberately separates four facts that must not be conflated:
 
 ## 2. Authorization wall
 
-Merging this plan authorizes no implementation or external state change.
-Before work starts, the Product Owner must approve the task cut and resolve the
-decisions in section 11.
+DECISION-002 addendum 7 authorizes S2.A T1–T4 in local/test scope with injected
+policy values and no mounted scheduler. T5–T8 and every external state change
+remain blocked until the Product Owner approves the relevant task cut and
+resolves the decisions in section 11.
 
 Separate, just-in-time approval is then required at both external checkpoints:
 

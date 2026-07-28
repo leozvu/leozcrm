@@ -23,14 +23,15 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: APPROVED / SPRINT 1 COMPLETE / G4 ACCEPTED / SPRINT 2 PLANNING ONLY
+Status: SPRINT 1 COMPLETE / G4 ACCEPTED / S2.A T1-T4 LOCAL CORE AUTHORIZED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
 Sprint 1B tasks (LeozOps repo): docs/SPRINT_1B_TASKS.md — T1-T7.
 Sprint 1C tasks (LeozOps repo): docs/SPRINT_1C_TASKS.md — T1-T7.
 Sprint 1D tasks (LeozOps repo): docs/SPRINT_1D_TASKS.md — T1-T7.
-Sprint 2/G5 proposal: docs/SPRINT_2_PLAN.md — implementation not approved.
+Sprint 2/G5 plan: docs/SPRINT_2_PLAN.md — S2.A T1-T4 local/test authorized;
+T5-T8 and P1/P2 blocked.
 Business Memory contract: docs/BUSINESS_MEMORY.md.
 Corrective QA passed at repositoryrealms@28ceff6 against main@507187f.
 PR #7 merged to repositoryrealms/main@98c0eca and Product Owner accepted G1

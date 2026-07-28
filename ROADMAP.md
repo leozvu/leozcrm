@@ -84,13 +84,14 @@ Evidence gates G1–G4 — ALL required before Sprint 2:
 The G4 hard stop is satisfied. Only Sprint 2/G5 planning is now authorized;
 implementation and deployment require separate Product Owner approval.
 
-### Sprint 2 — ⏳ Plan Proposed (implementation not approved)
+### Sprint 2 — 🚧 S2.A Reliability Core In Progress (local/test only)
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
 
-Proposed plan: [`docs/SPRINT_2_PLAN.md`](docs/SPRINT_2_PLAN.md). It must be
-approved before implementation. Planned contents:
+Plan: [`docs/SPRINT_2_PLAN.md`](docs/SPRINT_2_PLAN.md). DECISION-002 addendum 7
+authorizes S2.A T1–T4 locally; T5–T8 and all external work remain blocked.
+Planned contents:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.
 - Connector health, reconciliation evidence, and operator runbooks; the
