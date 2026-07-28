@@ -59,6 +59,7 @@ export interface IntelligenceRun {
 
 export const EGORIC_SCHEMA_VERSION = '1.0' as const;
 export const EGORIC_FUNNEL_ID = 'egoric_sales_v1' as const;
+export const EGORIC_SNAPSHOT_PATH = '/api/integrations/leozops/v1/lead-snapshot' as const;
 export const EGORIC_ACTIVE_STAGES = ['new', 'contacted', 'proposal', 'negotiation'] as const;
 export const EGORIC_TERMINAL_OUTCOMES = ['won', 'lost'] as const;
 export const EGORIC_STAGES = [...EGORIC_ACTIVE_STAGES, ...EGORIC_TERMINAL_OUTCOMES] as const;
@@ -106,6 +107,31 @@ export class SnapshotContractError extends Error {
     super(message);
     this.name = 'SnapshotContractError';
   }
+}
+
+/** Validate and canonicalize the only endpoint the G2 adapter may persist/use. */
+export function validateEgoricSnapshotEndpoint(raw: string): string {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    fail('invalid_endpoint', 'source endpoint is not a valid URL');
+  }
+  const localHttp = url.protocol === 'http:'
+    && ['localhost', '127.0.0.1', '[::1]'].includes(url.hostname);
+  if (url.protocol !== 'https:' && !localHttp) {
+    fail('invalid_endpoint', 'source endpoint must use HTTPS');
+  }
+  if (
+    url.username
+    || url.password
+    || url.hash
+    || url.search
+    || url.pathname !== EGORIC_SNAPSHOT_PATH
+  ) {
+    fail('invalid_endpoint', 'source endpoint must be the dedicated credential-free snapshot route');
+  }
+  return url.toString();
 }
 
 function fail(code: string, message: string): never {

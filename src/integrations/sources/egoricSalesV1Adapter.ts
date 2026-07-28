@@ -3,6 +3,7 @@ import {
   EGORIC_SCHEMA_VERSION,
   EgoricSalesV1Snapshot,
   SnapshotContractError,
+  validateEgoricSnapshotEndpoint,
   validateEgoricSalesV1Snapshot,
 } from '../../domain/businessMemory';
 import {
@@ -13,29 +14,7 @@ import {
 } from './sourceAdapter';
 
 type FetchLike = typeof fetch;
-const SNAPSHOT_PATH = '/api/integrations/leozops/v1/lead-snapshot';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
-function validatedEndpoint(raw: string): URL {
-  let url: URL;
-  try {
-    url = new URL(raw);
-  } catch {
-    throw new SourceAdapterError('invalid_endpoint', 'source endpoint is not a valid URL');
-  }
-  const localHttp = url.protocol === 'http:'
-    && ['localhost', '127.0.0.1', '::1'].includes(url.hostname);
-  if (url.protocol !== 'https:' && !localHttp) {
-    throw new SourceAdapterError('invalid_endpoint', 'source endpoint must use HTTPS');
-  }
-  if (url.username || url.password || url.hash || url.search || url.pathname !== SNAPSHOT_PATH) {
-    throw new SourceAdapterError(
-      'invalid_endpoint',
-      'source endpoint must be the dedicated credential-free snapshot route',
-    );
-  }
-  return url;
-}
 
 function safeEtag(value: string | null | undefined): string | null {
   if (value == null || value === '') return null;
@@ -60,7 +39,15 @@ export class EgoricSalesV1Adapter implements SourceAdapter<EgoricSalesV1Snapshot
   ) {}
 
   async pull(request: SourcePullRequest): Promise<SourcePullResult<EgoricSalesV1Snapshot>> {
-    const endpoint = validatedEndpoint(request.endpointUrl);
+    let endpoint: string;
+    try {
+      endpoint = validateEgoricSnapshotEndpoint(request.endpointUrl);
+    } catch (error) {
+      if (error instanceof SnapshotContractError) {
+        throw new SourceAdapterError(error.code, 'source endpoint is invalid');
+      }
+      throw error;
+    }
     if (
       typeof request.bearerToken !== 'string'
       || request.bearerToken.length === 0

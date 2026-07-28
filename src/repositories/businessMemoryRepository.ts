@@ -9,6 +9,7 @@ import {
   SourceSnapshot,
   Tenant,
   canonicalStringify,
+  validateEgoricSnapshotEndpoint,
   validateEgoricSalesV1Snapshot,
 } from '../domain/businessMemory';
 
@@ -105,8 +106,9 @@ export class BusinessMemoryRepository {
     if (!TENANT_KEY_RE.test(input.sourceTenantKey)) {
       throw new BusinessMemoryError('invalid_source_tenant', 'source tenant key is invalid');
     }
+    let endpointUrl: string;
     try {
-      new URL(input.endpointUrl);
+      endpointUrl = validateEgoricSnapshotEndpoint(input.endpointUrl);
     } catch {
       throw new BusinessMemoryError('invalid_endpoint', 'source endpoint is invalid');
     }
@@ -120,7 +122,7 @@ export class BusinessMemoryRepository {
       .where(identity)
       .first();
     if (existing) {
-      if (existing.schema_version !== input.schemaVersion || existing.endpoint_url !== input.endpointUrl) {
+      if (existing.schema_version !== input.schemaVersion || existing.endpoint_url !== endpointUrl) {
         throw new BusinessMemoryError(
           'source_connection_conflict',
           'source connection identity has different contract settings',
@@ -135,7 +137,7 @@ export class BusinessMemoryRepository {
       id,
       ...identity,
       schema_version: input.schemaVersion,
-      endpoint_url: input.endpointUrl,
+      endpoint_url: endpointUrl,
       status: 'active',
       last_etag: null,
       last_success_at: null,
@@ -146,7 +148,7 @@ export class BusinessMemoryRepository {
       .where(identity)
       .first();
     if (!stored) throw new Error('failed to create source connection');
-    if (stored.schema_version !== input.schemaVersion || stored.endpoint_url !== input.endpointUrl) {
+    if (stored.schema_version !== input.schemaVersion || stored.endpoint_url !== endpointUrl) {
       throw new BusinessMemoryError(
         'source_connection_conflict',
         'source connection identity has different contract settings',

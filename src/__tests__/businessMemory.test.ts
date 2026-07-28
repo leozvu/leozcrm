@@ -258,6 +258,34 @@ test('tenant and source connection identities are idempotent and separate from l
   assert.equal(await db('clients').where({ id: tenant.id }).first(), undefined);
 });
 
+test('source connection rejects credential-bearing or generic URLs before persistence', async () => {
+  const tenant = await repository.ensureTenant({
+    tenantKey: `tenant-${++sequence}`,
+    displayName: `Tenant ${sequence}`,
+  });
+  for (const endpointUrl of [
+    'https://user:secret@egoric.example/api/integrations/leozops/v1/lead-snapshot',
+    'https://egoric.example/api/integrations/leozops/v1/lead-snapshot?token=secret',
+    'https://egoric.example/api/v1/leads',
+  ]) {
+    await assert.rejects(
+      repository.ensureSourceConnection({
+        tenantId: tenant.id,
+        sourceSystem: 'egoric',
+        sourceTenantKey: `unsafe-${sequence}`,
+        schemaVersion: EGORIC_SCHEMA_VERSION,
+        endpointUrl,
+      }),
+      (error: unknown) => error instanceof BusinessMemoryError && error.code === 'invalid_endpoint',
+    );
+  }
+  const persistedConnections = await db(BUSINESS_MEMORY_TABLES.sourceConnections)
+    .where({ tenant_id: tenant.id })
+    .count<{ count: number | string }>({ count: '*' })
+    .first();
+  assert.equal(Number(persistedConnections?.count ?? 0), 0);
+});
+
 test('replaying the same 200 snapshot stores exactly one immutable snapshot and one run', async () => {
   const { tenant, connection } = await setupConnection();
   const snapshot = snapshotFor(connection.source_tenant_key);
