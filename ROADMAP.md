@@ -45,7 +45,7 @@ or autonomy authority.
 Evidence-gated, no calendar dates. Gates are defined in the execution plan
 and Codex QA gates in `docs/EGORIC_INTEGRATION.md` §15.
 
-### Sprint 1 — 🚧 In Progress — G3 complete; S1.D/G4 authorized
+### Sprint 1 — ✅ Complete — G4 accepted
 
 S1.A task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6, Egoric repo, gate G1).
 Corrective technical QA passed at `repositoryrealms@28ceff6` against
@@ -59,7 +59,10 @@ S1.C/G3 continuation is recorded in DECISION-002 addendum 4.
 The deterministic native-funnel brief and `egoric-readonly` route-isolation
 profile passed G3 technical QA and [PR #6](https://github.com/leozvu/leozcrm/pull/6)
 was squash-merged to `main@3a5fb9e`. Product Owner acceptance for local S1.D/G4
-continuation is recorded in DECISION-002 addendum 5.
+continuation is recorded in DECISION-002 addendum 5. The actual-handler local
+end-to-end proof passed G4 and [PR #8](https://github.com/leozvu/leozcrm/pull/8)
+was squash-merged to `main@5ef3fd5`; Sprint 1 acceptance is recorded in
+DECISION-002 addendum 6.
 
 Goal:
 Egoric Snapshot → LeozOps Ingestion → CEO Brief → Local End-to-End Proof.
@@ -78,14 +81,15 @@ Evidence gates G1–G4 — ALL required before Sprint 2:
   key-revocation drill. Evidence recorded in repo; Codex PASS in
   CODEX_REVIEW.md; Leoz formally accepts (recorded in DECISIONS.md).
 
-HARD STOP: no Sprint 2 work until G4 acceptance is recorded.
+The G4 hard stop is satisfied. Only Sprint 2/G5 planning is now authorized;
+implementation and deployment require separate Product Owner approval.
 
-### Sprint 2 — ⏳ Planned (scope re-approved at G4)
+### Sprint 2 — ⏳ Planning Authorized (implementation not approved)
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
 
-Indicative contents (re-planned after Sprint 1 acceptance):
+Indicative contents to be re-planned and approved before implementation:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.
 - Metrics + recommendations read routes with provenance.

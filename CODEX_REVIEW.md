@@ -559,9 +559,10 @@ Baseline: `origin/main@2354bb0`
 
 Reviewed implementation commit: `dc9fb89`
 
-Publication status: **PENDING**
+Publication status: **MERGED** through
+[leozcrm PR #8](https://github.com/leozvu/leozcrm/pull/8) at `main@5ef3fd5`
 
-Verdict: **G4 TECHNICAL PASS — PUBLICATION AND PRODUCT OWNER ACCEPTANCE PENDING**
+Verdict: **G4 COMPLETE — MERGED; PRODUCT OWNER ACCEPTED SPRINT 1**
 
 ## A. Actual-handler end-to-end path
 
@@ -617,7 +618,9 @@ This proves G4's deterministic local/test contract. It does not exercise a
 deployed source, live PostgreSQL, real production data, production secrets,
 runtime scheduling, or the ten-business-day shadow evidence required by G5.
 
-The technical G4 contract passes at reviewed commit `dc9fb89`. Sprint 1 and G5
-remain blocked until this branch is published and Product Owner acceptance is
-recorded. No production deployment, feature flag, credential provisioning,
-scheduled polling, write-back, publishing, or autonomous action is authorized.
+The technical G4 contract passes at reviewed commit `dc9fb89` and was published
+through PR #8 at `main@5ef3fd5`. Product Owner acceptance is recorded in
+DECISION-002 addendum 6, completing Sprint 1 and allowing G5 planning only. No
+G5 implementation, production deployment, feature flag, credential
+provisioning, scheduled polling, write-back, publishing, or autonomous action
+is authorized.

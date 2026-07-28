@@ -23,11 +23,13 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: APPROVED / SPRINT 1 IN PROGRESS / G3 COMPLETE / S1.D AUTHORIZED
+Status: APPROVED / SPRINT 1 COMPLETE / G4 ACCEPTED / SPRINT 2 PLANNING ONLY
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
 Sprint 1B tasks (LeozOps repo): docs/SPRINT_1B_TASKS.md — T1-T7.
+Sprint 1C tasks (LeozOps repo): docs/SPRINT_1C_TASKS.md — T1-T7.
+Sprint 1D tasks (LeozOps repo): docs/SPRINT_1D_TASKS.md — T1-T7.
 Business Memory contract: docs/BUSINESS_MEMORY.md.
 Corrective QA passed at repositoryrealms@28ceff6 against main@507187f.
 PR #7 merged to repositoryrealms/main@98c0eca and Product Owner accepted G1
@@ -36,6 +38,9 @@ codex/leozops-s1b-business-memory and PR #4 was squash-merged to
 leozcrm/main@d1d34c5. Product Owner accepted local S1.C/G3 continuation.
 S1.C passed technical QA and PR #6 was squash-merged to
 leozcrm/main@3a5fb9e. Product Owner accepted local S1.D/G4 continuation.
+S1.D passed actual-handler local E2E QA and PR #8 was squash-merged to
+leozcrm/main@5ef3fd5. Product Owner accepted Sprint 1 in DECISION-002
+addendum 6.
 
 Egoric is the operational system of record. LeozOps is a read-only
 intelligence platform. The historical milestones below (sections 1-15,
@@ -62,9 +67,11 @@ Evidence gates (ALL required before Sprint 2):
   key-revocation drill. Codex PASS in CODEX_REVIEW.md; Leoz acceptance
   recorded in DECISIONS.md.
 
-HARD STOP: Sprint 2 does not start until G4 acceptance is recorded.
+G4 HARD STOP SATISFIED. Sprint 2 planning is authorized; implementation and
+deployment remain blocked until the resulting plan receives explicit Product
+Owner approval.
 
-SPRINT 2 — Goal (re-planned and re-approved at G4):
+SPRINT 2 — Goal (planning authorization only):
   Deployment -> Test Instance -> Production Shadow -> Read-only Pilot
 - Polling cadence/retry/circuit/reconciliation, metrics + recommendations
   routes, alerting, runbooks.

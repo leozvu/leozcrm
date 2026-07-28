@@ -1,6 +1,6 @@
 # Local Egoric-to-LeozOps End-to-End Verification
 
-Status: **G4 TECHNICAL PASS — LOCAL/TEST ONLY**
+Status: **G4 COMPLETE — PR #8 MERGED; PRODUCT OWNER ACCEPTED**
 
 This verification connects the canonical RepositoryRealms snapshot handler to
 the LeozOps source adapter, Business Memory, deterministic CEO Brief, and
@@ -50,7 +50,9 @@ process exits.
 
 The G4 run used canonical RepositoryRealms
 `main@98c0eca01330cbf101bca8ff93de38cdd8ec4045` and LeozOps implementation
-commit `dc9fb89`.
+commit `dc9fb89`. The evidence was published through
+[leozcrm PR #8](https://github.com/leozvu/leozcrm/pull/8) at `main@5ef3fd5`
+and accepted by the Product Owner in DECISION-002 addendum 6.
 
 | Evidence | Result |
 |---|---:|

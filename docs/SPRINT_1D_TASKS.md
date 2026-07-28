@@ -1,6 +1,6 @@
 # Sprint 1D — Local End-to-End Proof
 
-Status: **G4 TECHNICAL PASS — PUBLICATION AND PRODUCT ACCEPTANCE PENDING**
+Status: **COMPLETE — PR #8 MERGED AT `main@5ef3fd5`; PRODUCT OWNER ACCEPTED**
 
 Target repository: `leozvu/leozcrm`
 
@@ -32,6 +32,8 @@ the entire local path is reproducible, source and brief counts match exactly,
 feature flag and key revocation work, no source mutation occurs, and both
 repositories remain regression-clean.
 
-Sprint 1 is not accepted and G5 remains blocked until this work is published
-and Product Owner acceptance is recorded. G4 never authorizes production,
-credentials, deployment, a scheduler, write-back, publishing, or autonomy.
+The work was published through
+[leozcrm PR #8](https://github.com/leozvu/leozcrm/pull/8) and accepted in
+DECISION-002 addendum 6. Sprint 1 is complete and G5 planning may begin. G4
+does not authorize G5 implementation, production, credentials, deployment, a
+scheduler, write-back, publishing, or autonomy.
