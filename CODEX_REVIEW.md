@@ -243,7 +243,10 @@ Review date: 2026-07-28
 
 Target: `leozvu/leozcrm`, branch `codex/leozops-phase-0`
 
-Verdict: **LOCAL PASS — MERGE PENDING**
+Review verdict: **LOCAL PASS**
+
+Publication result (2026-07-28): **MERGED** through
+[leozcrm PR #1](https://github.com/leozvu/leozcrm/pull/1) at `b7aa417`.
 
 ## Scope verified
 
@@ -281,8 +284,8 @@ Verdict: **LOCAL PASS — MERGE PENDING**
 
 ## Gate result
 
-G0 is complete on this branch. Repository-canonical status requires review and
-merge. G1 status is tracked by the corrective rereview below.
+G0 is complete and repository-canonical on `main` after PR #1. G1 status is
+tracked by the corrective rereview below.
 
 ---
 

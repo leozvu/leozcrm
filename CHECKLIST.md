@@ -3,7 +3,7 @@ LEOZOPS — PROJECT CHECKLIST
 
 PHASE 0 — PRODUCT FOUNDATION (DECISION-003)
 -------------------------------------------
-Status: COMPLETE ON codex/leozops-phase-0 / MERGE PENDING
+Status: COMPLETE ON MAIN / PR #1 MERGED AT b7aa417
 Canonical product: PRODUCT.md
 Operating model: docs/PRODUCT_OPERATING_MODEL.md
 Vocabulary: docs/GLOSSARY.md
@@ -23,13 +23,12 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: APPROVED / SPRINT 1 IN PROGRESS / G1 TECHNICAL PASS LOCAL — MERGE PENDING
+Status: APPROVED / SPRINT 1 IN PROGRESS / G1 TECHNICAL PASS — APPROVAL PENDING
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
 Corrective QA passes at repositoryrealms@28ceff6 against main@507187f.
-The branch is published and draft PR #7 is open; S1.A is not yet reviewed,
-merged, or accepted.
+PR #7 is ready for review; S1.A is not yet approved, merged, or accepted.
 S1.B/S1.C tasks must not be created until those steps complete.
 
 Egoric is the operational system of record. LeozOps is a read-only
