@@ -84,15 +84,17 @@ Evidence gates G1–G4 — ALL required before Sprint 2:
 The G4 hard stop is satisfied. Only Sprint 2/G5 planning is now authorized;
 implementation and deployment require separate Product Owner approval.
 
-### Sprint 2 — ⏳ Planning Authorized (implementation not approved)
+### Sprint 2 — ⏳ Plan Proposed (implementation not approved)
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
 
-Indicative contents to be re-planned and approved before implementation:
+Proposed plan: [`docs/SPRINT_2_PLAN.md`](docs/SPRINT_2_PLAN.md). It must be
+approved before implementation. Planned contents:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.
-- Metrics + recommendations read routes with provenance.
+- Connector health, reconciliation evidence, and operator runbooks; the
+  existing authenticated CEO Brief remains the only product read route.
 - Hosting decision; LeozOps deployed with independent Postgres + secrets;
   readiness/canary.
 - Ten-business-day read-only production shadow per

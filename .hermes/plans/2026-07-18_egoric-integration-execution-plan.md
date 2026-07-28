@@ -1,10 +1,10 @@
 # Egoric Integration — Execution Plan (v2, CEO-approved with modifications)
 
-> **Status (2026-07-28):** APPROVED PLAN. S1.A/G1 passed at reviewed
-> `repositoryrealms@28ceff6` and merged through
-> [PR #7](https://github.com/leozvu/repositoryrealms/pull/7) as `main@98c0eca`.
-> Product Owner accepted local S1.B continuation. S1.B/G2 is authorized; S1.C
-> remains blocked until G2 passes.
+> **Status (2026-07-28):** SPRINT 1 COMPLETE. G1–G4 passed and Product Owner
+> acceptance was recorded through `leozcrm/main@8a86bae`. DECISION-002
+> addendum 6 authorizes Sprint 2 planning only. The proposed task cut is in
+> `docs/SPRINT_2_PLAN.md`; implementation remains blocked pending separate
+> Product Owner approval.
 > Per GOVERNANCE.md, plan approval does not authorize production enablement,
 > credential creation, or data mutation.
 
@@ -17,8 +17,9 @@
 2. Deployment (production shadow) moved AFTER successful local integration.
 3. Sprint 1 scope pinned to: Egoric snapshot → LeozOps ingestion → CEO Brief.
    Nothing else.
-4. Sprint 2 must not start until Sprint 1 is formally accepted.
-5. No implementation tasks are created until CEO approval of the task cut.
+4. Sprint 2 implementation must not start until Sprint 1 is formally accepted.
+5. Sprint 2 implementation tasks remain on hold until CEO approval of the task
+   cut.
 
 ---
 
@@ -118,7 +119,8 @@ Deliverables:
    limitations ("no historical conversion", "client attribution
    unavailable").
 3. One read-only surface: `GET /v1/tenants/{tenantKey}/brief?asOf=…`.
-   (Metrics and recommendations routes are Sprint 2.)
+   (Additional metrics and recommendations routes remain deferred pending a
+   separate scope approval.)
 4. `INTEGRATION_MODE=egoric-readonly` profile: CRM mutations, onboarding,
    tasks, and email publishing NOT mounted; those routes → 404/405.
 
@@ -131,31 +133,36 @@ Evidence gate G3 (Codex QA — ALL must pass):
   return 404/405 in integration mode; brief route works.
 - Full suite + typecheck green.
 
-**S1.D — Local end-to-end integration (both repos, test instance)**
+**S1.D — Local actual-handler end-to-end integration (both repos)**
 
 Deliverables:
-1. LeozOps in `egoric-readonly` profile pulls a real snapshot from the
-   Egoric TEST instance and produces a CEO Brief.
-2. Count reconciliation: stage/source/total counts in the brief match
-   Egoric test-instance data exactly.
+1. LeozOps imports the actual canonical RepositoryRealms snapshot handler,
+   supplies frozen local test facts through its existing injection seam, and
+   produces a CEO Brief through the complete production code path.
+2. Count reconciliation: stage/source/total counts in the brief match the
+   handler-produced local snapshot exactly.
 3. Feature-flag off + key revocation demonstrably stop access.
 
 Evidence gate G4 = **SPRINT 1 ACCEPTANCE** (CEO sign-off required):
-- End-to-end evidence bundle recorded in-repo: snapshot_id, ETag/304
+- End-to-end evidence bundle recorded in-repo: source commit, snapshot_id,
+  ETag/304
   behavior, reconciliation table, brief output, no-mutation proof,
   flag/revocation drill result.
 - Codex documents PASS in CODEX_REVIEW.md.
 - Leoz reviews the actual brief output and formally accepts Sprint 1.
 
-**HARD STOP.** No Sprint 2 work of any kind until G4 acceptance is
-recorded in DECISIONS.md.
+**HARD STOP SATISFIED.** G4 acceptance is recorded in DECISION-002 addendum 6.
+Sprint 2 planning is allowed; implementation still requires approval of the
+new task cut.
 
 ### SPRINT 2 — Hardening + deployment (only after Sprint 1 accepted)
 
-Indicative scope (to be re-planned and re-approved at G4):
+Proposed scope is now detailed in `docs/SPRINT_2_PLAN.md` and is not approved
+for implementation. It includes:
 - Scheduled 15-min ETag polling, retry/backoff/jitter, Retry-After,
   401/403 disable-and-alert, circuit breaker, nightly reconciliation.
-- Metrics + recommendations read routes with full provenance.
+- One existing authenticated CEO Brief route; additional metrics and
+  recommendations routes remain deferred.
 - Structured connector health/audit metrics, alerting per contract §9,
   operational runbooks (key rotation, stale data, schema mismatch,
   rollback, snapshot replay).
@@ -193,20 +200,25 @@ recorded go/extend/revoke decision to close.
 5. Production regression → deployment deferred to Sprint 2, behind G4 and
    the 12 release gates.
 
-## 6. Open questions for Leoz
+## 6. Sprint 2 decisions for Leoz
 
-- Q1 — Standalone M10 blocker-2 disposition: reclassify as
-  PAUSED/superseded in CHECKLIST/ROADMAP? (Postgres smoke PASS stands;
-  hosting decision now needed in Sprint 2, not before.)
-- Q2 — Egoric repo + test instance access for Claude Code at Sprint 1
-  start.
-- Q3 — Where does the CEO Brief get read during S1.D review (raw API
-  response acceptable, or minimal rendering needed)?
+- Q1 — Resolved: standalone M10 is paused/superseded. Its historical smoke
+  evidence does not satisfy the current Business Memory PostgreSQL gate;
+  Sprint 2 requires a new live disposable smoke on the current migrations.
+- Q2 — Select and name the test/production runtime, PostgreSQL, and Egoric
+  deployment identities before external work.
+- Q3 — Confirm the authenticated raw API as the G5 review surface or separately
+  approve a minimal read-only rendering.
+- Q4 — Confirm business timezone/hours, Director reviewer, alert destination,
+  retention policy, and reliability thresholds.
 
 ## 7. Process state
 
-- Plan v2: APPROVED by Leoz with the five modifications above.
+- Plan v2 governed Sprint 1 and was approved by Leoz with the five
+  modifications above.
 - S1.A tasks were implemented and corrective G1 technical QA passed at reviewed
   `repositoryrealms@28ceff6`; PR #7 merged as `main@98c0eca`.
-- Product Owner accepted local S1.B continuation. Hermes may cut S1.B/G2 work;
-  S1.C remains blocked until G2 passes.
+- G2, G3, and the local actual-handler G4 proof subsequently passed and merged.
+- Product Owner accepted Sprint 1 through `leozcrm/main@8a86bae`.
+- Sprint 2/G5 plan v1 is proposed in `docs/SPRINT_2_PLAN.md`; no implementation
+  or external environment action is approved.

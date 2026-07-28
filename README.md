@@ -22,9 +22,13 @@ Autopilot, with human authority and evidence gates at every step.
 | Local end-to-end proof | S1.D/G4 authorized for local/test implementation |
 | Production integration | Not authorized |
 
-The immediate critical path is:
+Sprint 1 completed the initial critical path:
 
 `Egoric Snapshot → LeozOps Ingestion → Business Memory → CEO Brief → Local E2E Proof`
+
+The next proposed path is plan-only until Product Owner approval:
+
+`Reliability Hardening → Networked Test → Production Shadow → G5 Decision`
 
 ## Start here
 
@@ -40,7 +44,9 @@ The immediate critical path is:
    schema, ingestion invariants, and evidence contract.
 7. [`docs/CEO_BRIEF.md`](docs/CEO_BRIEF.md) — G3 formula, provenance, output,
    authentication, and route-isolation contract.
-8. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+8. [`docs/SPRINT_2_PLAN.md`](docs/SPRINT_2_PLAN.md) — proposed G5 hardening,
+   deployment, shadow, evidence, and approval checkpoints.
+9. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 

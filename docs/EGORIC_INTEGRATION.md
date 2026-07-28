@@ -1,6 +1,6 @@
 # LeozOps ↔ Egoric Integration Architecture
 
-Status: **Approved direction; Sprint 1 in progress**
+Status: **Approved direction; Sprint 1 complete; Sprint 2 plan proposed**
 
 Decision date: 2026-07-18
 
@@ -25,7 +25,11 @@ and [leozcrm PR #4](https://github.com/leozvu/leozcrm/pull/4) was merged as
 `main@d1d34c5`; Product Owner authorized local/test S1.C/G3 continuation.
 S1.C passed G3 and [leozcrm PR #6](https://github.com/leozvu/leozcrm/pull/6)
 was merged as `main@3a5fb9e`; Product Owner authorized local/test S1.D/G4.
-Production enablement, credentials, polling, and write-back remain unauthorized.
+The actual-handler local E2E proof passed G4 through
+[PR #8](https://github.com/leozvu/leozcrm/pull/8) at `main@5ef3fd5`, and Sprint 1
+acceptance was recorded through PR #9 at `main@8a86bae`. Sprint 2 planning is
+authorized; implementation, production enablement, credentials, polling, and
+write-back remain unauthorized.
 
 This document is the canonical implementation contract for connecting LeozOps
 to the production Egoric CRM/ERP. It supersedes any older instruction to launch
@@ -348,15 +352,17 @@ Pilot acceptance:
 | S1.A — Egoric export | Feature-flagged GET endpoint, `LEOZOPS_READ`, schema, ETag, PII denial tests | **G1** — test instance only; Codex auth/contract PASS |
 | S1.B — LeozOps ingestion | Source adapter, tenant/source_connection, immutable idempotent snapshots, schema fail-closed, no-write-egress proof | **G2** — unit/integration tests and typecheck PASS |
 | S1.C — CEO Brief | Native-funnel brief with provenance/limitations, single read-only brief route, integration-only profile | **G3** — deterministic brief + profile route-denial tests PASS |
-| S1.D — Local end-to-end | Test-instance pull, exact count reconciliation, flag/key-revocation drill | **G4** — Codex PASS in `CODEX_REVIEW.md`; Leoz acceptance recorded in `DECISIONS.md` (**Sprint 1 acceptance**) |
+| S1.D — Local end-to-end | Actual canonical handler + frozen local test facts → adapter → memory → brief; exact reconciliation; flag/key-revocation drill | **G4** — Codex PASS in `CODEX_REVIEW.md`; Leoz acceptance recorded in `DECISIONS.md` (**Sprint 1 acceptance**) |
 
 ### Sprint 2 — Deployment → Test Instance → Production Shadow → Read-only Pilot
 
-Scope re-planned and re-approved at G4. Indicative stages:
+The proposed scope is detailed in [`SPRINT_2_PLAN.md`](SPRINT_2_PLAN.md).
+Planning is authorized; implementation requires separate Product Owner
+approval. Indicative stages:
 
 | Stage | Deliverable | Evidence gate |
 |---|---|---|
-| S2.A — Hardening | Scheduled 15-minute ETag polling, retry/backoff, circuit breaker, nightly reconciliation, metrics + recommendations routes, alerting, runbooks | Full suite/typecheck green; Codex PASS |
+| S2.A — Hardening | Scheduled 15-minute ETag polling, retry/backoff, persistent circuit state, nightly reconciliation, connector health, alerting, runbooks | Full suite/typecheck plus live disposable PostgreSQL smoke green; Codex PASS |
 | S2.B — Deployment | Hosting decision; LeozOps deployed with independent Postgres + secrets; readiness/canary | All 12 QA release gates (§15) that are testable pre-production PASS |
 | S2.C — Production shadow | Ten business days of read-only production pulls | Every pilot criterion in §11 passes |
 | S2.D — Release decision | Approve, extend, or revoke; optional read-only Egoric presentation | Product-owner decision recorded in `DECISIONS.md` |
