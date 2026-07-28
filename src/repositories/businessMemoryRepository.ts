@@ -33,6 +33,11 @@ export interface AcceptedSnapshot {
   run_created: boolean;
 }
 
+export interface SnapshotRun {
+  snapshot: SourceSnapshot;
+  run: IntelligenceRun;
+}
+
 /**
  * Data access for the LeozOps-owned analytical read model. Snapshot mutation
  * and deletion methods intentionally do not exist; database triggers provide
@@ -164,6 +169,37 @@ export class BusinessMemoryRepository {
     return this.knex<SourceConnection>(BUSINESS_MEMORY_TABLES.sourceConnections)
       .where({ id: connectionId, tenant_id: tenantId })
       .first();
+  }
+
+  async findTenantByKey(tenantKey: string): Promise<Tenant | undefined> {
+    return this.knex<Tenant>(BUSINESS_MEMORY_TABLES.tenants)
+      .where({ tenant_key: tenantKey })
+      .first();
+  }
+
+  async findLatestSnapshotRunForTenant(
+    tenantId: string,
+    asOfCutoff?: string,
+  ): Promise<SnapshotRun | undefined> {
+    const query = this.knex<IntelligenceRun>(BUSINESS_MEMORY_TABLES.intelligenceRuns)
+      .where({ tenant_id: tenantId, status: 'accepted' });
+    if (asOfCutoff !== undefined) query.andWhere('as_of', '<=', asOfCutoff);
+    const run = await query
+      .orderBy('as_of', 'desc')
+      .orderBy('created_at', 'desc')
+      .orderBy('id', 'asc')
+      .first();
+    if (!run) return undefined;
+    const snapshot = await this.knex<SourceSnapshot>(BUSINESS_MEMORY_TABLES.sourceSnapshots)
+      .where({ id: run.source_snapshot_id, tenant_id: tenantId })
+      .first();
+    if (!snapshot) {
+      throw new BusinessMemoryError(
+        'missing_source_snapshot',
+        'accepted intelligence run has no tenant-scoped source snapshot',
+      );
+    }
+    return { snapshot, run };
   }
 
   async recordPullSuccess(
