@@ -2,7 +2,7 @@
   "name": "leozops-ai",
   "version": "0.1.0",
   "private": true,
-  "description": "LeozOps AI — CRM data layer foundation (Client, Campaign, Lead, FunnelStage)",
+  "description": "LeozOps — AI Operating Partner and read-only business intelligence layer for CEOs",
   "license": "UNLICENSED",
   "scripts": {
     "dev": "tsx watch src/server.ts",

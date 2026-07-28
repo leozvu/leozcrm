@@ -1,14 +1,35 @@
-LEOZOPS AI — PROJECT CHECKLIST
-===============================
+LEOZOPS — PROJECT CHECKLIST
+===========================
+
+PHASE 0 — PRODUCT FOUNDATION (DECISION-003)
+-------------------------------------------
+Status: COMPLETE ON codex/leozops-phase-0 / MERGE PENDING
+Canonical product: PRODUCT.md
+Operating model: docs/PRODUCT_OPERATING_MODEL.md
+Vocabulary: docs/GLOSSARY.md
+Gate map: docs/RELEASE_GATES.md
+Legacy classification: docs/LEGACY_FOUNDATION.md
+
+[x] North Star, first user, operating loop, MVP, and non-goals agree.
+[x] CEO / LeozOps / Egoric ownership is explicit.
+[x] Observer -> Advisor -> Planner -> Operator -> Autopilot sequence is gated.
+[x] Observation, insight, recommendation, approval, and action are distinct.
+[x] Existing standalone routes are classified and excluded from the planned
+    egoric-readonly profile.
+[x] README, product metadata, governance, architecture warning, roadmap, and
+    decision log point to the same direction.
+
+Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: APPROVED (DECISION-002, DECISIONS.md 2026-07-18) / SPRINT 1A IN PROGRESS
+Status: APPROVED / SPRINT 1 IN PROGRESS / G1 TECHNICAL PASS LOCAL — MERGE PENDING
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
-Sprint 1A tasks (authorized, Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
-S1.B/S1.C tasks must not be created until S1.A is completed, Codex-reviewed,
-merged, and accepted.
+Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
+Corrective QA passes locally at repositoryrealms@28ceff6 against main@507187f.
+The commit is not pushed, no PR exists, and S1.A is not merged or accepted.
+S1.B/S1.C tasks must not be created until those steps complete.
 
 Egoric is the operational system of record. LeozOps is a read-only
 intelligence platform. The historical milestones below (sections 1-15,
@@ -61,6 +82,10 @@ criteria are in docs/EGORIC_INTEGRATION.md.
 ================================================
 LEGACY FOUNDATION (HISTORICAL — EVIDENCE INTACT)
 ================================================
+
+The sections below are retained as historical checklist evidence. They are not
+the current product plan and must be interpreted through
+docs/LEGACY_FOUNDATION.md.
 
 1. WHAT WE ARE BUILDING
 -----------------------

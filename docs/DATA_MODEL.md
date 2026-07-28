@@ -1,5 +1,10 @@
 # LeozOps AI — CRM Data Layer Foundation
 
+> **Legacy scope:** This document describes the historical standalone CRM
+> schema. It is not the Business Memory model for the current Egoric integration
+> and must not be used to map Egoric Client records to LeozOps tenants. See
+> `LEGACY_FOUNDATION.md` and `PRODUCT_OPERATING_MODEL.md`.
+
 > Scope of this deliverable: **data layer only.** No dashboard, no AI agents, no
 > integrations, no social posting. This is the migration contract everything
 > else will build on top of.

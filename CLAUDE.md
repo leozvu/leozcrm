@@ -3,11 +3,15 @@
 Before implementing integration work, read these files in order:
 
 1. `PRODUCT.md`
-2. `docs/EGORIC_INTEGRATION.md`
-3. `DECISIONS.md`
-4. `HERMES.md`
-5. `CHECKLIST.md`
-6. `ARCHITECTURE.md`
+2. `docs/PRODUCT_OPERATING_MODEL.md`
+3. `docs/GLOSSARY.md`
+4. `docs/RELEASE_GATES.md`
+5. `docs/EGORIC_INTEGRATION.md`
+6. `docs/LEGACY_FOUNDATION.md`
+7. `DECISIONS.md`
+8. `HERMES.md`
+9. `CHECKLIST.md`
+10. `ARCHITECTURE.md`
 
 For Egoric integration work, `docs/EGORIC_INTEGRATION.md` is the canonical
 technical contract. Older CRM-first, task, publishing, onboarding, or M10 pilot
@@ -15,8 +19,9 @@ instructions are historical when they conflict with it.
 
 ## Architecture mandate
 
-Egoric remains the operational system of record. LeozOps is a separately
-deployed, read-only API intelligence layer.
+Egoric remains the operational system of record. LeozOps is the AI Operating
+Partner, beginning as a separately deployed, read-only Observer. Current
+implementation authority ends at the evidence gate named by the task.
 
 Implementation must not:
 
@@ -43,7 +48,9 @@ gates G1–G4, no calendar dates. Sprint 1 is S1.A → S1.B → S1.C → S1.D pe
 `docs/EGORIC_INTEGRATION.md` §13. Do not start Sprint 2 work until Sprint 1
 acceptance (G4) is recorded in `DECISIONS.md`.
 
-The first slice (S1.A, gate G1) is the feature-flagged Egoric endpoint:
+S1.A technical QA passes locally at `repositoryrealms@28ceff6`, but S1.B cannot
+begin until that commit is pushed, reviewed, merged, and accepted. The first
+slice contract is the feature-flagged Egoric endpoint:
 
 ```http
 GET /api/integrations/leozops/v1/lead-snapshot

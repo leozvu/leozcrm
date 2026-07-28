@@ -1,21 +1,25 @@
-# LeozOps AI — Architecture
+# LeozOps — Existing Legacy Runtime Architecture
 
-> **Egoric integration scope note (2026-07-18):** This file describes the
-> existing standalone LeozOps application. It is not the target deployment
-> architecture for Egoric. For Egoric work, the canonical contract is
-> [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md): Egoric remains the
-> operational system of record and LeozOps runs as a separate, read-only
-> intelligence service. The integration profile must not mount CRM mutations,
+> **Scope warning (2026-07-28):** This file describes the existing standalone
+> runtime preserved in this repository. It is not the target product
+> architecture and must not be used to justify a standalone Egoric CRM
+> deployment. Read
+> [`docs/PRODUCT_OPERATING_MODEL.md`](docs/PRODUCT_OPERATING_MODEL.md) for the
+> target LeozOps layers, [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md)
+> for the binding source contract, and
+> [`docs/LEGACY_FOUNDATION.md`](docs/LEGACY_FOUNDATION.md) before reusing a
+> component. The future integration profile must not mount CRM mutations,
 > onboarding, tasks, or email publishing.
 
 This document describes the architecture that **currently exists** in the
 repository. It is descriptive, not aspirational: it records the stack, patterns,
 and conventions already in the code so new work stays consistent with them.
 
-> Current scope: CRM **data layer** + a read-only **KPI layer** on top of it.
-> There is no dashboard UI, no AI agent, and no real integrations yet — those
-> layer on top of what is documented here. See `ROADMAP.md` for sequencing and
-> `docs/DATA_MODEL.md` for the schema in depth.
+> Runtime scope documented below: historical CRM data layer plus its KPI,
+> brief, recommendation, dashboard, integration, task, auth, and onboarding
+> milestones. This is implementation archaeology and regression context; see
+> `ROADMAP.md` for the current build sequence and `docs/DATA_MODEL.md` for the
+> legacy schema in depth.
 
 ---
 

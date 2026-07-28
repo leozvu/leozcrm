@@ -10,6 +10,72 @@ Format:
 
 ---
 
+DECISION-003 — 2026-07-28 — LeozOps is the AI Operating Partner for a CEO
+
+Status: Approved by Leoz; Phase 0 documentation implemented on
+`codex/leozops-phase-0`, merge pending.
+
+Decision:
+
+- LeozOps is the AI Operating Partner for a CEO: it observes the business,
+  maintains trustworthy analytical memory, explains change, recommends next
+  actions, and may eventually coordinate approved actions through the systems
+  that own them.
+- Egoric remains the operational body and sole CRM/ERP system of record. The
+  CEO remains the decision and approval authority.
+- Revenue/funnel intelligence is the first product wedge. The maturity order is
+  Connected → Observer → Advisor → Planner → supervised Operator → bounded
+  Autopilot.
+- The immediate MVP remains Jarvis Observer:
+  `Egoric Snapshot → Business Memory → Deterministic Metrics → CEO Brief`.
+- Capability is evidence-gated by `docs/RELEASE_GATES.md`. The JARVIS metaphor
+  grants no write, execution, production, credential, or autonomy authority.
+- The existing standalone CRM/task/onboarding/email runtime is legacy
+  foundation. Its classification and reuse rules are binding in
+  `docs/LEGACY_FOUNDATION.md`.
+
+Context:
+
+The repository already contained a safe read-only Egoric integration decision,
+but its public identity and metadata still presented “CRM + AI Brain + Agent
+Workforce”. The product vision is broader than a revenue dashboard and narrower
+than uncontrolled autonomy: a trusted intelligence-to-action loop for the CEO.
+Phase 0 aligns the product language without weakening DECISION-002.
+
+Rationale:
+
+- Gives the long-term JARVIS vision a concrete, testable capability ladder.
+- Keeps the first release small enough to verify against real source facts.
+- Prevents the legacy standalone CRM from competing with Egoric.
+- Separates deterministic truth, AI interpretation, recommendation, approval,
+  and action so trust can be earned progressively.
+
+Consequences:
+
+- `PRODUCT.md` and `docs/PRODUCT_OPERATING_MODEL.md` become the product entry
+  points.
+- `docs/GLOSSARY.md` is normative for domain/API/UI language.
+- G0–G7 govern capability sequencing; G1–G4 technical requirements in the
+  Egoric integration contract remain unchanged.
+- Voice, broad dashboards, autonomous agents, publishing, task creation, and
+  write-back remain off the critical path.
+- Any supervised action or bounded autonomy requires a separate future
+  decision and explicit CEO approval.
+
+Alternatives considered:
+
+- Position LeozOps only as Revenue Intelligence: rejected because it describes
+  the first wedge but not the approved product destination.
+- Resume the standalone “CRM + Agent Workforce” roadmap: rejected because it
+  duplicates Egoric ownership and expands risk before trust is established.
+- Build a general-purpose chatbot first: rejected because fluent answers
+  without deterministic Business Memory and evidence do not satisfy the CEO
+  operating job.
+
+Owner: Leoz (Product Owner). Implemented in documentation by Codex.
+
+---
+
 DECISION-002 — 2026-07-18 — Egoric becomes the operational system of record
 Status: Approved
 Decision:

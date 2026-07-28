@@ -234,3 +234,144 @@ regression suites do not override these independently reproduced gate failures.
 **Do not merge `feat/leozops-s1a`. Do not deploy or provision a key.** Apply only
 the corrective scope in section G on the same Sprint 1A branch, rerun T6, and
 require a new independent G1 verdict. S1.B and S1.C remain prohibited.
+
+---
+
+# Phase 0 Product Contract Review
+
+Review date: 2026-07-28
+
+Target: `leozvu/leozcrm`, branch `codex/leozops-phase-0`
+
+Verdict: **LOCAL PASS — MERGE PENDING**
+
+## Scope verified
+
+- `PRODUCT.md` defines the CEO user, JARVIS operating-partner role, North Star,
+  operating loop, MVP, maturity ladder, principles, and current non-goals.
+- `docs/PRODUCT_OPERATING_MODEL.md` assigns CEO, LeozOps, Egoric, and external
+  system ownership and separates the current read-only path from future action
+  authority.
+- `docs/GLOSSARY.md` distinguishes observation, insight, recommendation,
+  action proposal, approval, and action and records the tenant/client and
+  current-state/conversion invariants.
+- `docs/RELEASE_GATES.md` preserves integration gates G1–G4 and adds G0, G5,
+  G6, and G7 without weakening the existing QA contract.
+- `docs/LEGACY_FOUNDATION.md`, README, architecture, data-model, pilot, and
+  Postgres-smoke warnings prevent the historical standalone runtime from being
+  presented as the approved Egoric deployment.
+- `DECISION-003`, governance, roadmap, checklist, implementation/PM briefs, and
+  the Hermes execution plan point to the same direction.
+- At the time of this Phase 0 review, G1 remained FAIL. The subsequent
+  corrective rereview below supersedes that technical verdict but does not
+  authorize S1.B, production credentials, deployment, write-back, or autonomy.
+
+## Verification evidence
+
+- Repository identity: remote `https://github.com/leozvu/leozcrm.git`, branch
+  `codex/leozops-phase-0`, based on `main` at `24cc08a`.
+- Markdown relative-link check: PASS across 21 repository Markdown files.
+- `git diff --check`: PASS.
+- `package.json` and `package-lock.json` parse: PASS.
+- `npm run typecheck`: PASS.
+- `npm test`: PASS, 159/159.
+- `npm audit`: 2 low and 1 moderate pre-existing dependency advisories; no
+  dependency or lockfile was changed in Phase 0. Dependency remediation is
+  separate hardening work and remains required before production release.
+
+## Gate result
+
+G0 is complete on this branch. Repository-canonical status requires review and
+merge. G1 status is tracked by the corrective rereview below.
+
+---
+
+# Corrective G1 Rereview — Sprint 1A Egoric Lead Snapshot
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/repositoryrealms`
+
+Local path: `C:\Users\Asus\OneDrive\Tài liệu\Fak that shit\CRMegoric-Realms-Demo`
+
+Branch and commit: `feat/leozops-s1a` @ `28ceff6`
+
+Current baseline: `origin/main` @ `507187f`; merge-base is exactly `507187f`
+
+Remote status: `origin/feat/leozops-s1a` remains at `165ee06`; no PR exists.
+
+Verdict: **TECHNICAL PASS — LOCAL COMMIT; PUSH/PR/MERGE/ACCEPTANCE PENDING**
+
+## A. Scope and lineage
+
+- The reviewed commit is on top of merge commit `894045d`, which integrates the
+  current `origin/main@507187f` baseline without a textual conflict.
+- The S1.A delta against current main is additive except for six commented
+  environment-template lines: 19 files, 1,361 insertions, no deletions from
+  existing application behavior.
+- No Prisma schema or migration changed.
+- Exactly one LeozOps route exists:
+  `/api/integrations/leozops/v1/lead-snapshot`.
+- The flag is still default-off. No key, hash, production flag, deployment
+  configuration, or live credential was created.
+
+## B. Prior blocker closure
+
+1. **Correlation confidentiality — PASS.** Caller correlation IDs are accepted
+   only as strict UUIDs. Email, token-like, control-character, oversized, and
+   malformed values are replaced and never echoed or logged.
+2. **HTTP validator compliance — PASS.** The response emits a quoted ETag;
+   quoted, weak, list, wildcard, mismatch, and 304-empty-body cases are covered.
+   The body `snapshot_id` remains the unquoted content identifier.
+3. **Generic API denial — PASS.** Executable tests invoke the real `/api/v1/*`
+   handlers and `apiUser()` boundary, plus real `/api/data/*` handlers and the
+   `currentUser()` boundary. The LeozOps key receives secure 401/403 denial,
+   request bodies are not read, and operational handlers do not execute.
+4. **Deployment isolation — PASS.** Missing or different deployment hashes
+   deny the key; only the matching deployment-scoped hash validates.
+
+## C. Additional corrective evidence
+
+- `HEAD` and `OPTIONS` are explicitly routed through the GET-only handler and,
+  with POST/PUT/PATCH/DELETE, return 405 while enabled and 404 while disabled.
+- Current string timestamp facts are preserved in the snapshot hash. Defensive
+  Date inputs normalize to ISO before hashing, so the identifier covers the
+  exact JSON fact served.
+- Data-source and projection failures return a generic, no-store 500 and one
+  payload-free audit event; underlying error details are neither returned nor
+  logged.
+- The route performs one allowlisted `prisma.lead.findMany` query. Static scans
+  found no Prisma mutation, raw SQL, outbound network call, or generic API use
+  in the route implementation.
+- Recursive output tests continue to deny the prohibited PII keys and values.
+
+## D. Verification evidence on `28ceff6`
+
+- Focused LeozOps suite: **69/69 PASS**.
+- Full repository suite: **756/756 PASS**, 0 skipped, 0 failed.
+- `npm run build`: **PASS**; Next.js production build includes the snapshot
+  route.
+- `npm audit --omit=dev --audit-level=high`: **0 vulnerabilities**.
+- `git diff --check`: **PASS**.
+- Prisma schema equality with current main: **PASS**.
+- Secret-pattern scan of the zero-context delta: **PASS**.
+
+## E. Accepted limitation
+
+The in-memory 60/hour limiter remains best-effort per serverless instance, as
+documented for S1.A. A shared global limiter is later hardening and does not
+weaken the route capability, PII, method, or default-off boundaries.
+
+## F. Gate and merge recommendation
+
+The S1.A technical contract passes at local commit `28ceff6`.
+
+Do not start S1.B yet. First:
+
+1. push the reviewed branch commit;
+2. open a PR to current `main` and preserve the flag-off default;
+3. complete repository review and merge; and
+4. record Product Owner acceptance.
+
+No production deployment, feature-flag enablement, or key provisioning is
+approved by this verdict.
