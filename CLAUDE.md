@@ -48,9 +48,9 @@ gates G1–G4, no calendar dates. Sprint 1 is S1.A → S1.B → S1.C → S1.D pe
 `docs/EGORIC_INTEGRATION.md` §13. Do not start Sprint 2 work until Sprint 1
 acceptance (G4) is recorded in `DECISIONS.md`.
 
-S1.A technical QA passes at `repositoryrealms@28ceff6`; the branch is published
-and draft PR #7 is open. S1.B cannot begin until that PR is reviewed, merged,
-and accepted. The first slice contract is the feature-flagged Egoric endpoint:
+S1.A technical QA passes at `repositoryrealms@28ceff6`; PR #7 is ready for
+review. S1.B cannot begin until that PR is approved, merged, and accepted. The
+first slice contract is the feature-flagged Egoric endpoint:
 
 ```http
 GET /api/integrations/leozops/v1/lead-snapshot

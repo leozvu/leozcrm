@@ -14,12 +14,13 @@ Legend:
 
 ---
 
-## Phase 0 — Product Foundation — ✅ Complete on branch; merge pending
+## Phase 0 — Product Foundation — ✅ Complete on `main`
 
 Goal: establish one product identity and one build contract before adding more
 runtime capability.
 
-Evidence completed on `codex/leozops-phase-0`:
+Evidence merged through [PR #1](https://github.com/leozvu/leozcrm/pull/1) at
+`main@b7aa417`:
 
 - LeozOps defined as the AI Operating Partner for a CEO; Revenue Intelligence
   is the first wedge, not the final boundary.
@@ -49,8 +50,8 @@ and Codex QA gates in `docs/EGORIC_INTEGRATION.md` §15.
 S1.A task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6, Egoric repo, gate G1).
 Corrective technical QA passes at `repositoryrealms@28ceff6` against
 `main@507187f`. The branch is published and
-[draft PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is open; S1.A
-is not yet reviewed, merged, or accepted. S1.B/S1.C tasks must not be created
+[PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is ready for review;
+S1.A is not yet approved, merged, or accepted. S1.B/S1.C tasks must not be created
 until those steps complete.
 
 Goal:

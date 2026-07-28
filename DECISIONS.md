@@ -12,8 +12,8 @@ Format:
 
 DECISION-003 — 2026-07-28 — LeozOps is the AI Operating Partner for a CEO
 
-Status: Approved by Leoz; Phase 0 documentation implemented on
-`codex/leozops-phase-0`, merge pending.
+Status: Approved by Leoz; Phase 0 documentation merged to `main` through
+[PR #1](https://github.com/leozvu/leozcrm/pull/1) at `b7aa417`.
 
 Decision:
 
