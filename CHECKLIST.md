@@ -30,6 +30,7 @@ Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
 Sprint 1B tasks (LeozOps repo): docs/SPRINT_1B_TASKS.md — T1-T7.
 Sprint 1C tasks (LeozOps repo): docs/SPRINT_1C_TASKS.md — T1-T7.
 Sprint 1D tasks (LeozOps repo): docs/SPRINT_1D_TASKS.md — T1-T7.
+Sprint 2/G5 proposal: docs/SPRINT_2_PLAN.md — implementation not approved.
 Business Memory contract: docs/BUSINESS_MEMORY.md.
 Corrective QA passed at repositoryrealms@28ceff6 against main@507187f.
 PR #7 merged to repositoryrealms/main@98c0eca and Product Owner accepted G1
@@ -62,7 +63,7 @@ Evidence gates (ALL required before Sprint 2):
 - G3: CEO Brief from snapshot — deterministic, Egoric-native funnel,
   provenance + limitations on every output, integration profile denies
   CRM/task/onboarding/email routes. Codex PASS.
-- G4 (SPRINT 1 ACCEPTANCE): local end-to-end vs Egoric test instance —
+- G4 (SPRINT 1 ACCEPTANCE): actual canonical handler + local test facts —
   exact count reconciliation, zero-mutation proof, feature-flag +
   key-revocation drill. Codex PASS in CODEX_REVIEW.md; Leoz acceptance
   recorded in DECISIONS.md.
@@ -73,8 +74,8 @@ Owner approval.
 
 SPRINT 2 — Goal (planning authorization only):
   Deployment -> Test Instance -> Production Shadow -> Read-only Pilot
-- Polling cadence/retry/circuit/reconciliation, metrics + recommendations
-  routes, alerting, runbooks.
+- Polling cadence/retry/circuit/reconciliation, connector health, alerting,
+  runbooks; no new product read routes.
 - Hosting decision; independent LeozOps Postgres + secrets; readiness/canary.
 - Ten-business-day read-only production shadow (contract §11), then CEO
   go/extend/revoke decision.
