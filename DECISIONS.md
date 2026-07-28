@@ -161,6 +161,22 @@ Decision:
   credential creation, Egoric write-back, or autonomous action.
 Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
 
+DECISION-002 addendum 4 — 2026-07-28 — G2 accepted; local S1.C authorized
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Accept the G2 Business Memory implementation and QA evidence merged through
+  `leozcrm` [PR #4](https://github.com/leozvu/leozcrm/pull/4) at
+  `main@d1d34c5`.
+- Authorize Sprint 1C/G3 implementation for a deterministic, snapshot-based CEO
+  Brief and integration-only read profile in local/test scope.
+- Continue the solo-repository workflow: Codex must record technical evidence,
+  publish a PR, and may merge only after the branch is clean and mergeable.
+- Keep G4 blocked until G3 passes and is accepted.
+- This acceptance does not authorize production deployment, production flags,
+  credential creation, scheduled polling, Egoric write-back, publishing, or
+  autonomous action.
+Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.
