@@ -16,8 +16,8 @@ Autopilot, with human authority and evidence gates at every step.
 | Area | Status |
 |---|---|
 | Product foundation | G0 complete on `main` via [PR #1](https://github.com/leozvu/leozcrm/pull/1) at `b7aa417` |
-| Egoric data supply | G1 technical QA passed at `repositoryrealms@28ceff6`; [PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is ready for review; approval, merge, and Product Owner acceptance remain pending |
-| LeozOps ingestion / Business Memory | Not started; blocked until S1.A is reviewed, merged, and accepted |
+| Egoric data supply | G1 complete: [repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) merged to `main@98c0eca`; Product Owner authorized local S1.B continuation |
+| LeozOps ingestion / Business Memory | S1.B authorized; G2 implementation starting locally in read-only mode |
 | Snapshot-based CEO Brief | Not started; blocked by G2 |
 | Production integration | Not authorized |
 
