@@ -161,6 +161,22 @@ Decision:
   credential creation, Egoric write-back, or autonomous action.
 Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
 
+DECISION-002 addendum 4 — 2026-07-28 — G2 accepted; local S1.C authorized
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Accept the G2 Business Memory implementation and QA evidence merged through
+  `leozcrm` [PR #4](https://github.com/leozvu/leozcrm/pull/4) at
+  `main@d1d34c5`.
+- Authorize Sprint 1C/G3 implementation for a deterministic, snapshot-based CEO
+  Brief and integration-only read profile in local/test scope.
+- Continue the solo-repository workflow: Codex must record technical evidence,
+  publish a PR, and may merge only after the branch is clean and mergeable.
+- Keep G4 blocked until G3 passes and is accepted.
+- This acceptance does not authorize production deployment, production flags,
+  credential creation, scheduled polling, Egoric write-back, publishing, or
+  autonomous action.
+Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
+
 DECISION-002 addendum 5 — 2026-07-28 — G3 accepted; local S1.D authorized
 Status: Approved by Leoz (Product Owner).
 Decision:
@@ -177,20 +193,24 @@ Decision:
   write-back, publishing, or autonomous action.
 Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
 
-DECISION-002 addendum 4 — 2026-07-28 — G2 accepted; local S1.C authorized
+DECISION-002 addendum 6 — 2026-07-28 — G4 accepted; Sprint 1 complete
 Status: Approved by Leoz (Product Owner).
 Decision:
-- Accept the G2 Business Memory implementation and QA evidence merged through
-  `leozcrm` [PR #4](https://github.com/leozvu/leozcrm/pull/4) at
-  `main@d1d34c5`.
-- Authorize Sprint 1C/G3 implementation for a deterministic, snapshot-based CEO
-  Brief and integration-only read profile in local/test scope.
-- Continue the solo-repository workflow: Codex must record technical evidence,
-  publish a PR, and may merge only after the branch is clean and mergeable.
-- Keep G4 blocked until G3 passes and is accepted.
-- This acceptance does not authorize production deployment, production flags,
-  credential creation, scheduled polling, Egoric write-back, publishing, or
-  autonomous action.
+- Accept the actual-handler local end-to-end proof merged through `leozcrm`
+  [PR #8](https://github.com/leozvu/leozcrm/pull/8) at `main@5ef3fd5`.
+- Record G4 and Sprint 1 complete: the canonical source handler, production
+  adapter, immutable Business Memory, deterministic CEO Brief, and isolated
+  read profile reconcile exactly with no source mutation.
+- Authorize Sprint 2/G5 planning only. The plan must separately define hosting,
+  PostgreSQL verification, secret/flag isolation, canary, polling reliability,
+  reconciliation, monitoring, rollback, and the ten-business-day shadow gate.
+- Require a new explicit Product Owner approval before G5 implementation or
+  any deployment, test/production credential, source feature flag, scheduled
+  poll, or production-data access.
+- Continue the solo-repository workflow: Codex records evidence and may merge a
+  clean, mergeable PR only after self-QA; this does not waive product gates.
+- Write-back, publishing, employee workflow changes, and autonomy remain out of
+  scope.
 Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
 
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
