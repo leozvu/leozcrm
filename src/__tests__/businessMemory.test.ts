@@ -217,6 +217,34 @@ test('adapter rejects unsafe endpoint, auth failure, unsupported schema, and ETa
       && error.code === 'etag_mismatch'
       && error.disableConnection,
   );
+
+  const unexpected304 = new EgoricSalesV1Adapter(async () => new Response(null, { status: 304 }));
+  await assert.rejects(
+    unexpected304.pull({
+      endpointUrl: 'https://egoric.example/api/integrations/leozops/v1/lead-snapshot',
+      bearerToken: 'key',
+      sourceTenantKey: 'egoric',
+    }),
+    (error: unknown) => error instanceof SourceAdapterError
+      && error.code === 'unexpected_not_modified'
+      && error.disableConnection,
+  );
+
+  const mismatched304 = new EgoricSalesV1Adapter(async () => new Response(null, {
+    status: 304,
+    headers: { etag: '"sha256:different"' },
+  }));
+  await assert.rejects(
+    mismatched304.pull({
+      endpointUrl: 'https://egoric.example/api/integrations/leozops/v1/lead-snapshot',
+      bearerToken: 'key',
+      sourceTenantKey: 'egoric',
+      previousEtag: '"sha256:previous"',
+    }),
+    (error: unknown) => error instanceof SourceAdapterError
+      && error.code === 'etag_mismatch'
+      && error.disableConnection,
+  );
 });
 
 test('adapter discards a malformed source correlation header', async () => {

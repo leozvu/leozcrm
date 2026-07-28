@@ -87,9 +87,26 @@ export class EgoricSalesV1Adapter implements SourceAdapter<EgoricSalesV1Snapshot
       ? presentedCorrelationId
       : correlationId;
     if (response.status === 304) {
+      if (!previousEtag) {
+        throw new SourceAdapterError(
+          'unexpected_not_modified',
+          'source returned 304 without a prior ETag',
+          304,
+          true,
+        );
+      }
+      const responseEtag = safeEtag(response.headers.get('etag')) ?? previousEtag;
+      if (responseEtag !== previousEtag) {
+        throw new SourceAdapterError(
+          'etag_mismatch',
+          'source 304 ETag does not match the requested ETag',
+          304,
+          true,
+        );
+      }
       return {
         kind: 'not_modified',
-        etag: response.headers.get('etag') ?? previousEtag,
+        etag: responseEtag,
         correlation_id: responseCorrelationId,
       };
     }
