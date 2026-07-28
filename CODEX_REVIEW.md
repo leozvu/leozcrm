@@ -392,9 +392,10 @@ Baseline: `origin/main@ef9f664`
 
 Reviewed commits: `0484b04`, `0c05e39`, and `1e5ffb9`
 
-Publication status: **LOCAL REVIEW; PR/MERGE PENDING**
+Publication status: **MERGED** through
+[leozcrm PR #4](https://github.com/leozvu/leozcrm/pull/4) at `main@d1d34c5`
 
-Verdict: **G2 TECHNICAL PASS LOCALLY**
+Verdict: **G2 COMPLETE — MERGED; PRODUCT OWNER ACCEPTED LOCAL S1.C CONTINUATION**
 
 ## A. Scope and ownership boundary
 
@@ -451,8 +452,9 @@ deployment and is not waived by this gate.
 ## E. Gate result
 
 The implemented branch satisfies the G2 technical evidence contract for local
-and test use. Publication, merge, and Product Owner acceptance remain pending;
-S1.C/G3 stays blocked until those steps complete.
+and test use and was merged through PR #4 at `main@d1d34c5`. Product Owner
+acceptance for local/test S1.C/G3 continuation is recorded in DECISION-002
+addendum 4.
 
 This verdict does not authorize production credentials, production polling,
 deployment, write-back, external publishing, or autonomous action.

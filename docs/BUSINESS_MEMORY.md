@@ -1,6 +1,6 @@
 # LeozOps Business Memory — G2 Contract
 
-Status: **G2 TECHNICAL QA PASS LOCALLY — publication and acceptance pending**
+Status: **G2 COMPLETE — merged through PR #4 at `main@d1d34c5`**
 
 Business Memory is the LeozOps-owned analytical read model. It stores accepted
 source evidence and deterministic run identity. It is not a CRM, an Egoric
@@ -70,6 +70,10 @@ The focused suite must prove:
 
 G2 does not authorize S1.C, production credentials, production polling,
 write-back, or autonomous action.
+
+Product Owner authorization for local/test S1.C work is a separate decision
+recorded in DECISION-002 addendum 4; it grants none of the production powers
+excluded above.
 
 Local QA evidence and the accepted pre-production limitation are recorded in
 `../CODEX_REVIEW.md`. A live PostgreSQL lifecycle was not available in this

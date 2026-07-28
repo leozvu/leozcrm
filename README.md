@@ -17,8 +17,8 @@ Autopilot, with human authority and evidence gates at every step.
 |---|---|
 | Product foundation | G0 complete on `main` via [PR #1](https://github.com/leozvu/leozcrm/pull/1) at `b7aa417` |
 | Egoric data supply | G1 complete: [repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) merged to `main@98c0eca`; Product Owner authorized local S1.B continuation |
-| LeozOps ingestion / Business Memory | G2 technical QA PASS locally on `codex/leozops-s1b-business-memory`; publication and Product Owner acceptance pending |
-| Snapshot-based CEO Brief | Not started; blocked until the G2 branch is merged and accepted |
+| LeozOps ingestion / Business Memory | G2 complete: [PR #4](https://github.com/leozvu/leozcrm/pull/4) merged to `main@d1d34c5`; Product Owner accepted local S1.C continuation |
+| Snapshot-based CEO Brief | S1.C/G3 authorized for local/test development |
 | Production integration | Not authorized |
 
 The immediate critical path is:

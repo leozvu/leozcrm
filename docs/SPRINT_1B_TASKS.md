@@ -1,6 +1,6 @@
 # Sprint 1B — LeozOps Ingestion and Business Memory
 
-Status: **G2 TECHNICAL QA PASS LOCALLY — PR/MERGE/ACCEPTANCE PENDING**
+Status: **COMPLETE — PR #4 MERGED AT `main@d1d34c5`; PRODUCT OWNER ACCEPTED**
 
 Target repository: `leozvu/leozcrm`
 

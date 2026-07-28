@@ -20,9 +20,10 @@ QA owner: Codex
 Progress note (2026-07-28): corrective S1.A technical QA is **PASS** on reviewed
 `leozvu/repositoryrealms` commit `28ceff6`, based on `main@507187f`.
 [PR #7](https://github.com/leozvu/repositoryrealms/pull/7) was merged as
-`main@98c0eca`; Product Owner accepted G1 for local S1.B continuation. S1.B/G2
-is authorized. S1.C remains blocked until G2 passes. Production enablement,
-credentials, and write-back remain unauthorized.
+`main@98c0eca`; Product Owner accepted G1 for local S1.B continuation. G2 passed
+and [leozcrm PR #4](https://github.com/leozvu/leozcrm/pull/4) was merged as
+`main@d1d34c5`; Product Owner authorized local/test S1.C/G3 continuation.
+Production enablement, credentials, polling, and write-back remain unauthorized.
 
 This document is the canonical implementation contract for connecting LeozOps
 to the production Egoric CRM/ERP. It supersedes any older instruction to launch
