@@ -1,143 +1,105 @@
-# LeozOps AI
+# LeozOps
 
-An AI Operating Partner for agencies and business owners — **CRM + AI Brain + Agent Workforce.**
+**The AI Operating Partner for a CEO.**
 
-> **Current direction:** Egoric is the production CRM/ERP and sole operational
-> system of record. LeozOps is being repositioned as a separately deployed,
-> read-only intelligence layer for KPIs, CEO Briefs, and advisory
-> recommendations. Read [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md)
-> before planning or implementing integration work.
+LeozOps observes business data, builds a trustworthy analytical memory,
+explains what changed, and recommends what to do next. Egoric remains the
+operational CRM/ERP and sole system of record; LeozOps is separately deployed
+and starts as a read-only intelligence service.
 
-The repository already contains the historical CRM foundation, KPI read layer,
-CEO Brief, recommendation engine, dashboard, task engine, tenant protection, and
-email integration. M10 local code is verified, but a standalone live CRM pilot
-was not completed. That standalone launch path is superseded for the Egoric use
-case: the Egoric integration profile must not mount LeozOps CRM mutations,
-onboarding, tasks, or email publishing.
+Revenue and funnel intelligence are the first product wedge. The long-term
+direction is Observer → Advisor → Planner → supervised Operator → bounded
+Autopilot, with human authority and evidence gates at every step.
 
-Agent handoffs:
+## Current status
 
-- Hermes: [`HERMES.md`](HERMES.md)
-- Claude Code: [`CLAUDE.md`](CLAUDE.md)
-- Canonical architecture and QA contract:
-  [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md)
+| Area | Status |
+|---|---|
+| Product foundation | Phase 0 complete on `codex/leozops-phase-0`; merge pending |
+| Egoric data supply | G1 technical QA passed at `repositoryrealms@28ceff6`; branch published and [draft PR #7](https://github.com/leozvu/repositoryrealms/pull/7) open; review, merge, and Product Owner acceptance remain pending |
+| LeozOps ingestion / Business Memory | Not started; blocked until S1.A is reviewed, merged, and accepted |
+| Snapshot-based CEO Brief | Not started; blocked by G2 |
+| Production integration | Not authorized |
 
-## Quickstart (zero database setup)
+The immediate critical path is:
+
+`Egoric Snapshot → LeozOps Ingestion → Business Memory → CEO Brief → Local E2E Proof`
+
+## Start here
+
+1. [`PRODUCT.md`](PRODUCT.md) — product definition, North Star, MVP, and
+   non-goals.
+2. [`docs/PRODUCT_OPERATING_MODEL.md`](docs/PRODUCT_OPERATING_MODEL.md) — roles,
+   layers, ownership, lifecycle coverage, and deployment profiles.
+3. [`docs/GLOSSARY.md`](docs/GLOSSARY.md) — canonical product and domain terms.
+4. [`docs/RELEASE_GATES.md`](docs/RELEASE_GATES.md) — G0–G7 evidence gates.
+5. [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md) — binding Egoric
+   API, security, rollout, and QA contract.
+6. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+
+## Non-negotiable boundaries
+
+- Egoric owns clients, leads, users, tasks, invoices, and workflows.
+- LeozOps owns immutable analytical snapshots, versioned metrics, CEO Briefs,
+  and advisory recommendations.
+- No shared database, direct Egoric database access, generic Director key,
+  double entry, or autonomous external action.
+- Deterministic code calculates metrics; generated language explains them.
+- Every output includes evidence, formula/engine version, freshness, funnel
+  semantics, and known limitations.
+- A recommendation is not an action. Operational execution requires a future
+  allowlisted command contract and the appropriate approval gate.
+
+## What currently exists in this repository
+
+The runtime on `main` is a tested historical standalone CRM foundation with
+CRUD, KPI, brief, recommendation, dashboard, task, onboarding, authentication,
+and email-publishing code. It predates the current product direction.
+
+Some deterministic service and testing patterns may be reused, but the current
+default app is **not** the approved Egoric integration deployment. In
+particular, it still mounts operational routes that must be absent from the
+future `INTEGRATION_MODE=egoric-readonly` profile.
+
+Read [`docs/LEGACY_FOUNDATION.md`](docs/LEGACY_FOUNDATION.md) before reusing or
+deploying any existing runtime capability. [`ARCHITECTURE.md`](ARCHITECTURE.md)
+and [`docs/DATA_MODEL.md`](docs/DATA_MODEL.md) describe that historical
+foundation, not the complete target architecture.
+
+## Legacy local development
+
+These commands run and verify the historical standalone foundation only. They
+do not start the approved Egoric integration:
 
 ```bash
 npm install
 cp .env.example .env
-npm run migrate    # build the schema (SQLite by default)
-npm run seed       # seed funnel stages + demo data and print a funnel snapshot
-npm start          # CRUD API on http://localhost:3000
+npm run migrate
+npm run seed
+npm start
 ```
 
-## Scripts
+| Command | Purpose |
+|---|---|
+| `npm test` | Run the registered regression suites |
+| `npm run typecheck` | Run strict TypeScript checking |
+| `npm run migrate` | Apply pending legacy/current repository migrations |
+| `npm run migrate:rollback` | Roll back the last migration batch |
+| `npm run seed` | Seed and verify historical demo data |
+| `npm run db:reset` | Roll back, migrate, and seed |
+| `npm start` / `npm run dev` | Run the current default legacy API profile |
 
-| Command | Does |
-|---------|------|
-| `npm run migrate` | Apply pending migrations |
-| `npm run migrate:rollback` | Roll back the last batch (rollback-safe) |
-| `npm run migrate:status` | Show applied vs pending migrations |
-| `npm run seed` | Seed + self-verify the schema |
-| `npm run onboard` | Provision a pilot tenant + print its API token (`-- --name … --email …`) |
-| `npm run db:reset` | rollback → migrate → seed |
-| `npm start` / `npm run dev` | Run the CRUD API (`dev` = watch mode) |
-| `npm test` | Run the data-contract test suite (in-memory SQLite) |
-| `npm run typecheck` | `tsc --noEmit` |
-
-## Layout
-
-```
-src/
-  domain/        funnel definition (source of truth) + row types
-  db/            knex connection, migrations, migrate runner, seed/verify
-  repositories/  model layer: BaseRepository + Client/Campaign/Lead/FunnelStage + Metrics
-  services/      business layer: BriefService + RecommendationService
-  http/          Express app + CRUD routes + read-only KPI + brief + recommendation routes
-knexfile.ts      dev=SQLite, test=SQLite(:memory:), production=PostgreSQL
-docs/DATA_MODEL.md   full setup plan, schema, indexes, and funnel notes
-```
-
-**Read `docs/DATA_MODEL.md`** for the database setup plan, schema, index
-rationale, rollback-safety notes, and how the data model supports the funnel.
-
-## KPI read layer (read-only)
-
-The read-only metrics API converts live CRM data into funnel KPIs. Every
-endpoint is **scoped to a single client** via a required `?clientId=` query
-parameter (`400` if missing, `404` if the client is unknown) and only ever
-reads — it never mutates. This is the layer the KPI dashboard and the Daily CEO
-Brief Agent build on top of.
-
-| Endpoint | Returns |
-|----------|---------|
-| `GET /metrics/funnel?clientId=` | Per-stage lead counts, cumulative reach, step + overall conversion rates |
-| `GET /metrics/sources?clientId=` | Lead volume grouped by `source` |
-| `GET /metrics/channels?clientId=` | Lead volume grouped by campaign `channel` (no campaign → `unattributed`) |
-| `GET /metrics/campaigns?clientId=` | Per-campaign attribution (lead count, won count, budget) + unattributed count |
-| `GET /metrics/trends?clientId=` | Lead-creation volume bucketed by day (UTC) |
-
-Aggregation logic lives in `repositories/metricsRepository.ts`; the typed result
-shapes are in `domain/metrics.ts`.
-
-## Daily CEO Brief (read-only)
-
-The brief engine turns the KPI layer into a deterministic executive summary for
-one client: a funnel snapshot, an acquisition delta, anomalies, and advisory
-recommended actions. It consumes only the KPI repository (no new queries, no
-schema change) and recommendations are **advisory only** — nothing is automated.
-
-| Endpoint | Returns |
-|----------|---------|
-| `GET /brief?clientId=` | Today's brief as JSON |
-| `GET /brief?clientId=&asOf=YYYY-MM-DD` | Brief for a specific day |
-| `GET /brief?clientId=&format=text` | Brief rendered as plain text |
-
-Same client scoping as the KPI routes (`400` missing/blank `clientId` or
-invalid `asOf`, `404` unknown client). The engine lives in
-`services/briefService.ts`; the output contract is in `domain/brief.ts`. Given
-the same CRM state and `asOf`, it always produces the same brief.
-
-## Recommendations (advisory-only)
-
-The Recommendation System turns the brief's funnel analysis into prioritised,
-categorised advice — the first "AI Brain" behaviour. It is **advisory only**:
-read-only, no scheduling or execution, and every recommendation (and the report)
-carries `advisory_only: true`.
-
-| Endpoint | Returns |
-|----------|---------|
-| `GET /recommendations?clientId=` | Advisory report for today |
-| `GET /recommendations?clientId=&asOf=YYYY-MM-DD` | Advisory report for a specific day |
-
-Each recommendation has a stable `code`, `title`, `rationale`, `category`
-(`acquisition`/`conversion`/`attribution`/`spend`/`retention`), `priority`
-(`high`/`medium`/`low`), and an optional `related_stage`; reports are sorted
-high → low. Same client/`asOf` scoping as `/brief`. The engine lives in
-`services/recommendationService.ts` (derived from `BriefService`); the contract
-is in `domain/recommendation.ts`.
-
-## Onboarding & readiness (operations)
-
-The MVP-launch surface for putting a tenant live and monitoring the deployment.
-
-| Endpoint | Returns |
-|----------|---------|
-| `GET /health` | Liveness — `{ ok: true }` (public). |
-| `GET /ready` | Readiness — `200` when the DB is reachable **and** funnel stages are seeded; `503` otherwise (public). |
-| `POST /onboarding` | **Admin only.** Provisions a tenant → `201 { client, api_token, readiness }`. |
-
-The returned `api_token` is the tenant's per-client bearer token (scoped to that
-one client). Onboarding rejects missing fields (`400`), malformed email (`400`),
-and a duplicate tenant email (`409`). `npm run onboard` runs the same workflow
-from the CLI against the deployed database. See `docs/PILOT_RUNBOOK.md` for the
-launch and support runbook.
+Do not configure an Egoric production key, enable a production feature flag, or
+deploy this default profile as LeozOps.
 
 ## Stack
 
-Node + TypeScript · Knex (migrations + query builder) · Express · SQLite (dev) / PostgreSQL (prod).
+Node.js · TypeScript strict · Express · Knex · SQLite for local/test ·
+PostgreSQL for production · `node:test` via tsx
 
-## Roles
+## Repository roles
 
-Leoz = CEO/Product Owner · Hermes = PM · Claude Code = Senior Dev · Codex = QA.
+Leoz = Product Owner · Hermes = PM · Claude Code = implementation · Codex = QA
+
+Role labels describe the historical workflow. Product authority, QA evidence,
+and repository governance are defined in [`GOVERNANCE.md`](GOVERNANCE.md).

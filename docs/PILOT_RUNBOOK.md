@@ -1,5 +1,10 @@
 # LeozOps AI — Pilot & Support Runbook (M10)
 
+> **Superseded runbook — do not execute for the Egoric integration.** This file
+> documents the historical standalone CRM pilot. The approved read-only Egoric
+> pilot is defined in `EGORIC_INTEGRATION.md` §11 and will receive a separate
+> deployment runbook after G4.
+
 Operational runbook for the MVP launch: how to stand up the platform, onboard
 the first pilot tenant, monitor it, and handle support/escalation. It documents
 only what exists in this repository — no new infrastructure is assumed.

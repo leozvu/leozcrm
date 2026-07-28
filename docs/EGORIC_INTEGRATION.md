@@ -1,15 +1,28 @@
 # LeozOps ↔ Egoric Integration Architecture
 
-Status: **Approved direction; implementation not started**  
-Decision date: 2026-07-18  
+Status: **Approved direction; Sprint 1 in progress**
+
+Decision date: 2026-07-18
+
 Governing ADR: **DECISION-002** (`DECISIONS.md`) — Egoric becomes the
 operational system of record; sequencing is evidence-gated Sprint 1 / Sprint 2
 (no calendar dates); no deployment until Sprint 1 passes local end-to-end
-verification.  
-Product owner: Leoz  
-PM: Hermes  
-Implementation owner: Claude Code  
+verification.
+
+Product owner: Leoz
+
+PM: Hermes
+
+Implementation owner: Claude Code
+
 QA owner: Codex
+
+Progress note (2026-07-28): corrective S1.A technical QA is **PASS** on
+`leozvu/repositoryrealms` commit `28ceff6`, based on current
+`origin/main@507187f`. The branch is published and
+[draft PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is open;
+review, merge, and Product Owner acceptance remain pending. S1.B and S1.C
+remain blocked until those review and acceptance steps complete.
 
 This document is the canonical implementation contract for connecting LeozOps
 to the production Egoric CRM/ERP. It supersedes any older instruction to launch
@@ -18,6 +31,10 @@ turn recommendations into autonomous external actions.
 
 Documentation approval does not authorize a production deployment or production
 data mutation. Each milestone below still needs its normal kickoff and QA gate.
+
+The higher-level product role and maturity model are defined in
+`PRODUCT_OPERATING_MODEL.md` and `RELEASE_GATES.md`. Those documents expand the
+long-term vision but do not relax any read-only pilot requirement here.
 
 ## 1. Decision
 

@@ -1,5 +1,9 @@
 # PostgreSQL Lifecycle Smoke (Milestone #7, Phase C)
 
+> **Legacy evidence:** This smoke validates the historical CRM schema. Its PASS
+> may inform infrastructure choices but does not prove that the future Business
+> Memory schema or `egoric-readonly` deployment is production-ready.
+
 The CRM schema is written with Knex's dialect-portable schema builder and
 app-generated UUID keys, so the **same migrations run unchanged on SQLite
 (dev/test) and PostgreSQL (production)**. This smoke proves that claim against a

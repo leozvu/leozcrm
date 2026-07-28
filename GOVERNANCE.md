@@ -5,13 +5,16 @@
 Order of precedence:
 
 1. PRODUCT.md — what we build and why
-2. docs/EGORIC_INTEGRATION.md — canonical Egoric ownership, boundary, contract, rollout, and QA rules
-3. CHECKLIST.md — build order and acceptance criteria
-4. ROADMAP.md — milestone sequence and status
-5. DECISIONS.md — why we chose one path over another
-6. CODEX_REVIEW.md — current QA state and blockers
-7. ARCHITECTURE.md — existing module contracts and interfaces
-8. GOVERNANCE.md — this file
+2. docs/PRODUCT_OPERATING_MODEL.md — system roles, product layers, ownership, and capability model
+3. docs/EGORIC_INTEGRATION.md — canonical Egoric ownership, boundary, contract, rollout, and QA rules
+4. docs/RELEASE_GATES.md — product maturity and evidence gates
+5. docs/GLOSSARY.md — canonical terms and semantic invariants
+6. CHECKLIST.md — build order and acceptance criteria
+7. ROADMAP.md — milestone sequence and status
+8. DECISIONS.md — why we chose one path over another
+9. CODEX_REVIEW.md — current QA state and blockers
+10. ARCHITECTURE.md — existing legacy module contracts and interfaces
+11. GOVERNANCE.md — this file
 
 `HERMES.md` and `CLAUDE.md` are role-specific entry points. They summarize but
 do not override the sources above.
@@ -50,6 +53,11 @@ A milestone is complete when:
   gates in `docs/EGORIC_INTEGRATION.md`.
 - Documentation approval does not itself authorize production enablement,
   credential creation, or production data mutation.
+- “JARVIS”, “Operating Partner”, “Advisor”, “Planner”, or “Operator” language
+  does not grant execution authority. Capability is unlocked only by the
+  corresponding evidence gate in `docs/RELEASE_GATES.md`.
+- Historical runtime code must be classified through
+  `docs/LEGACY_FOUNDATION.md` before it is reused in the current product track.
 
 ## Repository Identity Rule
 
@@ -72,8 +80,8 @@ remote, satisfies this rule.
 
 | Role | Canonical name | Local path | Git top-level | Remote URL | Branch | Verified | Status |
 |---|---|---|---|---|---|---|---|
-| LeozOps (intelligence layer) | leozcrm | C:\Users\Asus\Desktop\leozops-main | C:/Users/Asus/Desktop/leozops-main | https://github.com/leozvu/leozcrm.git | main | 2026-07-18 | CONFIRMED |
-| Egoric ERP/CRM (canonical product source) | repositoryrealms (CEO-declared 2026-07-18; option (a) chosen 2026-07-19) | C:\Users\Asus\Desktop\repositoryrealms | C:/Users/Asus/Desktop/repositoryrealms | https://github.com/leozvu/repositoryrealms.git | main (protected baseline @ 76082dc); feat/leozops-s1a (S1.A work); codex/realms-demo (staging/demo, preserved) | 2026-07-19 | Canonical product source: CONFIRMED · Sprint 1A implementation target: CONFIRMED · Production deployment target: Egoric Vercel project only (prj_Hh4aZEj9q3hvULaUfC4GwFvxYii9) · Production deployment approval: NOT YET GRANTED |
+| LeozOps (AI Operating Partner / intelligence layer) | leozcrm | C:\Users\Asus\OneDrive\Tài liệu\Fak that shit\leozcrm | C:/Users/Asus/OneDrive/Tài liệu/Fak that shit/leozcrm | https://github.com/leozvu/leozcrm.git | codex/leozops-phase-0 (from main @ 24cc08a) | 2026-07-28 | CONFIRMED for Phase 0 documentation; no production authorization |
+| Egoric ERP/CRM (canonical product source) | repositoryrealms (CEO-declared 2026-07-18; option (a) chosen 2026-07-19) | C:\Users\Asus\OneDrive\Tài liệu\Fak that shit\CRMegoric-Realms-Demo | C:/Users/Asus/OneDrive/Tài liệu/Fak that shit/CRMegoric-Realms-Demo | https://github.com/leozvu/repositoryrealms.git | feat/leozops-s1a @ 28ceff6, based on origin/main @ 507187f; draft PR #7 open | 2026-07-28 | Canonical source: CONFIRMED · G1 technical QA: PASS · Publication/PR: COMPLETE · Review/merge/Product Owner acceptance: PENDING · Production deployment target: Egoric Vercel project only (prj_Hh4aZEj9q3hvULaUfC4GwFvxYii9) · Production deployment approval: NOT GRANTED |
 
 ### Production-lineage verification (2026-07-19, read-only evidence)
 

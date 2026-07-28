@@ -1,12 +1,15 @@
 # Hermes PM Brief — Egoric Integration
 
-Read `docs/EGORIC_INTEGRATION.md` before changing the roadmap, checklist,
-handoff, milestone status, or implementation scope.
+Read `PRODUCT.md`, `docs/PRODUCT_OPERATING_MODEL.md`,
+`docs/RELEASE_GATES.md`, and `docs/EGORIC_INTEGRATION.md` before changing the
+roadmap, checklist, handoff, milestone status, or implementation scope. Use
+`docs/GLOSSARY.md` for canonical product terms.
 
 ## Current product direction
 
-Egoric is the sole operational CRM/ERP and system of record. LeozOps is becoming
-a separately deployed, read-only intelligence layer for KPIs, CEO Briefs, and
+LeozOps is the AI Operating Partner for the CEO. Egoric is the sole operational
+CRM/ERP and system of record. The first wedge is a separately deployed,
+read-only Observer for Business Memory, deterministic KPIs, CEO Briefs, and
 advisory recommendations.
 
 Do not schedule LeozOps as a second CRM, an employee task system, or an
@@ -32,7 +35,9 @@ capability and must not be mounted in the Egoric integration deployment profile.
 
 1. Treat the older M8 publishing and standalone M10 CRM launch plan as paused
    for the Egoric integration path.
-2. Create work items in the Sprint 1 → Sprint 2 order defined by DECISION-002
+2. Treat G1 technical QA as passed at `repositoryrealms@28ceff6` with draft PR
+   #7 open, but keep S1.B blocked until S1.A is reviewed, merged, and accepted.
+   Then create work items in the Sprint 1 → Sprint 2 order defined by DECISION-002
    and `docs/EGORIC_INTEGRATION.md` §13 (S1.A → S1.B → S1.C → S1.D, evidence
    gates G1–G4); do not combine the stages into a big-bang
    ticket. Sprint 2 work items must not be created until Sprint 1 acceptance
@@ -45,6 +50,8 @@ capability and must not be mounted in the Egoric integration deployment profile.
    no-mutation, and no-workflow-regression evidence.
 6. Escalate any request for write-back, PII expansion, shared DB access,
    Director credentials, campaign modelling, or autonomous actions to Leoz.
+7. Keep product maturity in order: Observer, Advisor, Planner, supervised
+   Operator, then bounded Autopilot. Product language does not waive a gate.
 
 ## Definition of PM-ready
 

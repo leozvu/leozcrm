@@ -1,4 +1,4 @@
-# LeozOps AI — Roadmap
+# LeozOps — Roadmap
 
 > **Governing decision:** DECISION-002 (DECISIONS.md, 2026-07-18). Egoric is
 > the operational system of record; LeozOps is a read-only intelligence
@@ -6,10 +6,36 @@
 > Integration" track below unless superseded by another ADR.
 > Canonical contract: `docs/EGORIC_INTEGRATION.md`.
 > Execution plan: `.hermes/plans/2026-07-18_egoric-integration-execution-plan.md`.
+> Product maturity gates: `docs/RELEASE_GATES.md`.
 
 Legend:
 - Milestone = internal development phase ending in a verified, releasable increment
 - Status: ⏳ Planned · 🚧 In Progress · ✅ Completed · ⏸️ Paused · 🗄️ Superseded
+
+---
+
+## Phase 0 — Product Foundation — ✅ Complete on branch; merge pending
+
+Goal: establish one product identity and one build contract before adding more
+runtime capability.
+
+Evidence completed on `codex/leozops-phase-0`:
+
+- LeozOps defined as the AI Operating Partner for a CEO; Revenue Intelligence
+  is the first wedge, not the final boundary.
+- CEO, LeozOps, Egoric, and external-system responsibilities made explicit.
+- Observer → Advisor → Planner → Operator → Autopilot maturity sequence defined.
+- Canonical vocabulary separates observation, insight, recommendation,
+  approval, and action.
+- G0–G7 product/release gates and capability stop rule defined.
+- Historical CRM/task/onboarding/email runtime classified as legacy and
+  excluded from the `egoric-readonly` deployment profile.
+- README, product definition, architecture warning, package metadata,
+  governance, integration status, roadmap, and decision log aligned.
+
+Gate G0 becomes repository-canonical when this branch is reviewed and merged.
+No production enablement, credential, write-back, or S1.B authorization follows
+from Phase 0.
 
 ---
 
@@ -18,11 +44,14 @@ Legend:
 Evidence-gated, no calendar dates. Gates are defined in the execution plan
 and Codex QA gates in `docs/EGORIC_INTEGRATION.md` §15.
 
-### Sprint 1 — 🚧 In Progress — S1.A authorized (DECISION-002 addendum, 2026-07-18)
+### Sprint 1 — 🚧 In Progress — G1 technical PASS local; merge/acceptance pending
 
 S1.A task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6, Egoric repo, gate G1).
-S1.B/S1.C tasks must not be created until S1.A is completed, Codex-reviewed,
-merged, and accepted.
+Corrective technical QA passes at `repositoryrealms@28ceff6` against
+`main@507187f`. The branch is published and
+[draft PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is open; S1.A
+is not yet reviewed, merged, or accepted. S1.B/S1.C tasks must not be created
+until those steps complete.
 
 Goal:
 Egoric Snapshot → LeozOps Ingestion → CEO Brief → Local End-to-End Proof.

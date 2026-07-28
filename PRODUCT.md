@@ -1,83 +1,115 @@
-Product name: LeozOps AI
+# LeozOps — Product Definition
 
-Current approved direction — 2026-07-18:
+Status: **Canonical product direction**
 
-Egoric is the production CRM/ERP and the sole operational system of record.
+Approved by: Leoz, Product Owner
 
-LeozOps must become a separately deployed, read-only intelligence layer for
-versioned KPIs, CEO Briefs, and advisory recommendations. It must not become a
-second CRM/ERP for Egoric employees.
+Effective: 2026-07-28
 
-The existing LeozOps CRM, campaign, task, onboarding, and email capabilities are
-historical foundation code. They are not mounted in the Egoric integration
-deployment profile and they do not authorize operational write-back.
+Governing decision: `DECISION-003`
 
-Non-negotiable integration constraints:
+## Product statement
 
-- Start with a GET-only, de-identified Egoric lead snapshot.
-- Egoric owns clients, leads, tasks, users, invoices, and operational workflows.
-- LeozOps owns derived metrics, briefs, and advisory recommendations.
-- No direct/shared database access, production DB writes, double entry, generic
-  Egoric CRUD API access, Director key, or autonomous external action.
-- Preserve the Egoric-native funnel and disclose missing stage history.
-- Use the milestone and QA contract in `docs/EGORIC_INTEGRATION.md`.
+LeozOps is the AI Operating Partner for a CEO. It observes the business,
+maintains a trustworthy analytical memory, explains what is changing, proposes
+what to do next, and eventually coordinates approved actions through the
+operational systems that own them.
 
-This direction supersedes the older standalone-CRM launch model below wherever
-the two conflict. The original description is retained as product history.
+Egoric is the operational body and system of record. LeozOps is the
+intelligence and decision-support layer. The CEO remains the decision owner.
 
+Revenue and funnel intelligence are the first useful wedge, not the final
+product boundary.
 
+## North Star
 
-Goal:
+A CEO should be able to open LeozOps and, in less than five minutes, answer:
 
-Build an AI Operating Partner for agencies and business owners.
+1. What is the state of the business?
+2. What changed or is off target?
+3. What evidence explains it?
+4. What should we do next?
+5. Which approved actions can LeozOps coordinate safely?
 
+## Core operating loop
 
+`Observe → Understand → Recommend → Approve → Coordinate → Measure → Learn`
 
-Core idea:
+The current product implements the left side of this loop first. Approval,
+coordination, and bounded autonomy are future capabilities gated by evidence;
+they are not authorized by this product definition.
 
-CRM + AI Brain + Agent Workforce.
+## Primary user and job
 
+The first user is the CEO/founder operating an Egoric-backed business. LeozOps
+must reduce the time needed to understand business performance and turn source
+facts into a small number of evidence-backed priorities.
 
+The first production job is a company-wide sales-funnel brief based on a
+PII-minimized Egoric snapshot. The current source data supports lead-state and
+conversion-pipeline observation only; it does not yet support historical
+stage-conversion, client attribution, or the complete customer lifecycle.
 
-Funnel:
+## Product maturity model
 
-Traffic -> Attention -> Lead -> Qualification -> Nurture -> Conversion -> Activation -> Upsell -> Retention.
+| Level | Product role | Capability | Authorization |
+|---|---|---|---|
+| L0 — Connected | Data connection | Reads a narrow, revocable Egoric snapshot | Current integration work |
+| L1 — Observer | Situational awareness | Business Memory, metrics, anomalies, CEO Brief | MVP |
+| L2 — Advisor | Decision support | Evidence-backed diagnosis and recommendations | After read-only pilot |
+| L3 — Planner | Goal orchestration | Turns CEO goals and constraints into plans | Future gate |
+| L4 — Operator | Supervised execution | Executes allowlisted actions after approval | Future gate |
+| L5 — Autopilot | Bounded autonomy | Executes reversible, low-risk policies within limits | Separate future approval |
 
+## MVP outcome
 
+The MVP is **Jarvis Observer**, not a general chatbot or a second CRM:
 
-Do not use AMF branding or AMF data.
+`Egoric Snapshot → Business Memory → Deterministic Metrics → CEO Brief`
 
-Use only the general funnel logic.
+It is successful when:
 
+- source and derived counts reconcile exactly;
+- every metric and conclusion is traceable to source evidence;
+- unknowns and data limitations are explicit;
+- the CEO understands the situation in under five minutes;
+- no LeozOps request mutates Egoric; and
+- the output is repeatedly useful during the read-only shadow pilot.
 
+## Product principles
 
-First MVP:
+- **Truth before fluency.** Deterministic code calculates metrics; AI may
+  explain them but must not invent or silently recompute them.
+- **Evidence with every claim.** Outputs carry snapshot, formula, freshness,
+  funnel, and limitation provenance.
+- **One operational owner.** Egoric owns CRM/ERP entities and workflows.
+- **Human authority.** A recommendation is not an action. The CEO controls
+  approval, risk, budget, and revocation.
+- **Earn autonomy.** Read-only trust precedes planning; planning precedes
+  supervised execution; supervised execution precedes bounded autonomy.
+- **Fail closed.** Unsupported schemas, stale data, ambiguous identity, and
+  missing authorization stop the flow rather than produce a plausible answer.
 
-1\. Custom CRM foundation
+## Explicit non-goals for the current track
 
-2\. Client and campaign database
+- A duplicate CRM/ERP, campaign master, employee directory, or task system.
+- Shared or direct access to the Egoric database.
+- Autonomous email, social publishing, invoice operations, or task creation.
+- Replacing Egoric screens or employee workflows.
+- Claiming coverage of all nine customer-lifecycle stages before the required
+  source facts exist.
+- Building voice, a general agent marketplace, or broad automation before the
+  Observer and Advisor gates pass.
 
-3\. Content queue
+## Canonical supporting documents
 
-4\. Lead tracking
+- Product operating model: `docs/PRODUCT_OPERATING_MODEL.md`
+- Terms and semantic invariants: `docs/GLOSSARY.md`
+- Product and release gates: `docs/RELEASE_GATES.md`
+- Egoric technical contract: `docs/EGORIC_INTEGRATION.md`
+- Legacy-code classification: `docs/LEGACY_FOUNDATION.md`
+- Milestone status: `ROADMAP.md`
 
-5\. KPI dashboard
-
-6\. Daily CEO Brief Agent
-
-7\. Recommendation system
-
-8\. Placeholder integrations for Facebook, TikTok, Instagram, email, and AI video/image tools.
-
-
-
-Roles:
-
-Leoz = CEO/Product Owner
-
-Hermes = PM
-
-Claude Code = Senior Dev
-
-Codex = QA
-
+Historical descriptions of LeozOps as “CRM + AI Brain + Agent Workforce” are
+preserved only as product history. They do not authorize a standalone CRM
+deployment or operational write-back.
