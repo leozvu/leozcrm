@@ -35,7 +35,9 @@ The immediate critical path is:
 4. [`docs/RELEASE_GATES.md`](docs/RELEASE_GATES.md) — G0–G7 evidence gates.
 5. [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md) — binding Egoric
    API, security, rollout, and QA contract.
-6. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+6. [`docs/BUSINESS_MEMORY.md`](docs/BUSINESS_MEMORY.md) — G2 analytical-memory
+   schema, ingestion invariants, and evidence contract.
+7. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 

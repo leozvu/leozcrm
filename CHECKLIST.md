@@ -27,6 +27,8 @@ Status: APPROVED / SPRINT 1 IN PROGRESS / G1 COMPLETE / S1.B AUTHORIZED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
+Sprint 1B tasks (LeozOps repo): docs/SPRINT_1B_TASKS.md — T1-T7.
+Business Memory contract: docs/BUSINESS_MEMORY.md.
 Corrective QA passed at repositoryrealms@28ceff6 against main@507187f.
 PR #7 merged to repositoryrealms/main@98c0eca and Product Owner accepted G1
 for local S1.B continuation. S1.C remains blocked until G2 passes.
