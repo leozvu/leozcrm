@@ -18,7 +18,7 @@ Autopilot, with human authority and evidence gates at every step.
 | Product foundation | G0 complete on `main` via [PR #1](https://github.com/leozvu/leozcrm/pull/1) at `b7aa417` |
 | Egoric data supply | G1 complete: [repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) merged to `main@98c0eca`; Product Owner authorized local S1.B continuation |
 | LeozOps ingestion / Business Memory | G2 complete: [PR #4](https://github.com/leozvu/leozcrm/pull/4) merged to `main@d1d34c5`; Product Owner accepted local S1.C continuation |
-| Snapshot-based CEO Brief | S1.C/G3 authorized for local/test development |
+| Snapshot-based CEO Brief | G3 technical QA PASS locally on `codex/leozops-s1c-ceo-brief`; publication and Product Owner acceptance pending |
 | Production integration | Not authorized |
 
 The immediate critical path is:
@@ -37,7 +37,9 @@ The immediate critical path is:
    API, security, rollout, and QA contract.
 6. [`docs/BUSINESS_MEMORY.md`](docs/BUSINESS_MEMORY.md) — G2 analytical-memory
    schema, ingestion invariants, and evidence contract.
-7. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+7. [`docs/CEO_BRIEF.md`](docs/CEO_BRIEF.md) — G3 formula, provenance, output,
+   authentication, and route-isolation contract.
+8. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 
@@ -58,10 +60,11 @@ The runtime on `main` is a tested historical standalone CRM foundation with
 CRUD, KPI, brief, recommendation, dashboard, task, onboarding, authentication,
 and email-publishing code. It predates the current product direction.
 
-Some deterministic service and testing patterns may be reused, but the current
-default app is **not** the approved Egoric integration deployment. In
-particular, it still mounts operational routes that must be absent from the
-future `INTEGRATION_MODE=egoric-readonly` profile.
+Some deterministic service and testing patterns may be reused, but the default
+`legacy` app is **not** the approved Egoric integration deployment. The local
+S1.C branch implements a separate `INTEGRATION_MODE=egoric-readonly` profile
+that excludes those operational routes; it remains unapproved for deployment
+until its evidence gates pass.
 
 Read [`docs/LEGACY_FOUNDATION.md`](docs/LEGACY_FOUNDATION.md) before reusing or
 deploying any existing runtime capability. [`ARCHITECTURE.md`](ARCHITECTURE.md)
@@ -89,7 +92,7 @@ npm start
 | `npm run migrate:rollback` | Roll back the last migration batch |
 | `npm run seed` | Seed and verify historical demo data |
 | `npm run db:reset` | Roll back, migrate, and seed |
-| `npm start` / `npm run dev` | Run the current default legacy API profile |
+| `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 Do not configure an Egoric production key, enable a production feature flag, or
 deploy this default profile as LeozOps.

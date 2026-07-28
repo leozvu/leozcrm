@@ -458,3 +458,88 @@ addendum 4.
 
 This verdict does not authorize production credentials, production polling,
 deployment, write-back, external publishing, or autonomous action.
+
+---
+
+# G3 Review — Sprint 1C Deterministic Egoric CEO Brief
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/leozcrm`
+
+Branch: `codex/leozops-s1c-ceo-brief`
+
+Baseline: `origin/main@cf60bc0`
+
+Reviewed implementation commit: `3048dcd`
+
+Publication status: **LOCAL REVIEW; PR/MERGE PENDING**
+
+Verdict: **G3 TECHNICAL PASS LOCALLY**
+
+## A. Snapshot-native brief contract
+
+- The G3 engine reads only accepted Business Memory snapshot/run evidence. It
+  does not call the legacy CRM KPI/Brief services or the nine-stage funnel.
+- It re-parses and revalidates the complete stored `egoric_sales_v1` payload,
+  then reconciles row, run, source, snapshot, and record-count provenance before
+  calculating a metric.
+- Formula `egoric_ceo_brief_v1` reports exact current-state stage counts, active
+  pipeline, won/lost outcomes, win rate, owner coverage, active estimated value,
+  overdue expected close, source distribution, quality, and freshness.
+- It makes no reached, stage-to-stage conversion, velocity, or historical-delta
+  claim because durable stage history is unavailable.
+- Repeating the same tenant, cutoff, and Business Memory state returns the same
+  complete brief, including its immutable run-based `generated_at`.
+
+## B. Evidence, limitation, and confidentiality boundaries
+
+- Every output includes source snapshot and run IDs, formula/source-engine
+  versions, source/schema/funnel identity, freshness timestamps and status,
+  exact quality, deterministic observations, known limitations, and
+  `advisory_only: true`.
+- Raw external lead IDs and legacy Client/Campaign fields are absent.
+- Free-text source labels are presented only through a small channel allowlist;
+  every other non-null value becomes `unclassified`, preventing email/token-like
+  source values from being reflected to the CEO output.
+- Estimated-value currency is explicitly `null`; numeric aggregate overflow,
+  corrupt JSON, invalid hash/schema, missing provenance, and row/run mismatch
+  fail closed.
+
+## C. Runtime profile and authentication
+
+- `INTEGRATION_MODE=egoric-readonly` mounts public `GET /health` and the
+  authenticated `GET /v1/tenants/:tenantKey/brief` only.
+- A separate HMAC tenant-read token and optional separate read-admin key use
+  `LEOZOPS_OUTPUT_AUTH_SECRET` / `LEOZOPS_OUTPUT_ADMIN_KEY`; legacy Client auth
+  is not used for the new tenant identity.
+- CRM, lead, campaign, legacy metrics/brief/recommendation, dashboard, task,
+  onboarding, integration registry, email publishing, and legacy readiness
+  routes return 404 in the profile. A write method on the brief path also 404s.
+- The profile mounts no JSON body parser, constructs no email publisher, emits
+  no outbound request, and performs no persistence write.
+- Default mode remains historical `legacy`; example profile/auth settings are
+  commented and no credential, production flag, or deployment was created.
+
+## D. Verification evidence
+
+- Focused G3 brief/profile suite: **10/10 PASS**.
+- Full repository regression suite: **182/182 PASS**, 0 skipped, 0 failed.
+- `npm run typecheck`: **PASS**.
+- Markdown relative-link check: **PASS** across 24 repository Markdown files.
+- `git diff --check`: **PASS**.
+- `package-lock.json` is unchanged; no dependency was added or upgraded.
+- `npm audit --omit=dev --audit-level=high`: no high/critical finding; one low
+  `body-parser` and one moderate `uuid` advisory are pre-existing.
+- Secret-pattern, G3 network-egress, and persistence-write scans: **PASS**.
+- The authenticated route matrix proves tenant separation and legacy surface
+  denial, including malformed JSON sent to an unmounted legacy POST route.
+
+## E. Gate result
+
+The branch satisfies the G3 technical evidence contract for local/test use.
+Publication, merge, and Product Owner acceptance remain pending. S1.D/G4 stays
+blocked until those steps complete.
+
+This verdict does not authorize production deployment, production flags or
+credentials, scheduled polling, write-back, publishing, or autonomous action.
