@@ -1,5 +1,5 @@
 import * as dotenv from 'dotenv';
-import { createApp } from './http/app';
+import { createApp, resolveRuntimeProfile } from './http/app';
 import { AuthConfig } from './http/auth';
 import { db } from './db/knex';
 
@@ -27,10 +27,13 @@ function authConfig(): AuthConfig {
   return { secret, adminKey };
 }
 
-const app = createApp({ auth: authConfig() });
+const profile = resolveRuntimeProfile();
+const app = profile === 'egoric-readonly'
+  ? createApp({ profile })
+  : createApp({ profile, auth: authConfig() });
 
 const server = app.listen(port, () => {
-  console.log(`LeozOps CRM API listening on http://localhost:${port}`);
+  console.log(`LeozOps ${profile} API listening on http://localhost:${port}`);
 });
 
 // Graceful shutdown so the DB pool closes cleanly.

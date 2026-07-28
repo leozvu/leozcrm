@@ -27,8 +27,22 @@ import { OnboardingService, onboardingService } from '../services/onboardingServ
 import { ValidationError } from '../errors';
 import { authenticate, resolveAuthConfig, AuthConfig } from './auth';
 import { db, type Knex } from '../db/knex';
+import { createEgoricReadonlyApp } from './egoricReadonlyApp';
+import type { IntegrationReadAuthConfig } from './integrationReadAuth';
+
+export type RuntimeProfile = 'legacy' | 'egoric-readonly';
+
+export function resolveRuntimeProfile(explicit?: string): RuntimeProfile {
+  const value = explicit ?? process.env.INTEGRATION_MODE ?? 'legacy';
+  if (value !== 'legacy' && value !== 'egoric-readonly') {
+    throw new Error(`Unsupported INTEGRATION_MODE: ${value}`);
+  }
+  return value;
+}
 
 export interface CreateAppOptions {
+  /** Explicit runtime capability profile. Defaults from INTEGRATION_MODE. */
+  profile?: RuntimeProfile;
   /**
    * Optional Knex connection for the read-only KPI / brief / recommendation
    * layers. When provided, those routes are bound to repositories on this
@@ -49,6 +63,8 @@ export interface CreateAppOptions {
    * deterministic clock so no real email is sent.
    */
   emailPublisher?: EmailPublishService;
+  /** Separate output credential for the egoric-readonly tenant brief surface. */
+  integrationReadAuth?: IntegrationReadAuthConfig;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -63,6 +79,13 @@ function isConstraintViolation(err: any): boolean {
  * out of scope for this data-layer foundation (see Codex review list).
  */
 export function createApp(options: CreateAppOptions = {}) {
+  const profile = resolveRuntimeProfile(options.profile);
+  if (profile === 'egoric-readonly') {
+    return createEgoricReadonlyApp({
+      knex: options.knex,
+      integrationReadAuth: options.integrationReadAuth,
+    });
+  }
   const app = express();
   app.use(express.json());
 

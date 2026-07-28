@@ -8,8 +8,9 @@
 > target LeozOps layers, [`docs/EGORIC_INTEGRATION.md`](docs/EGORIC_INTEGRATION.md)
 > for the binding source contract, and
 > [`docs/LEGACY_FOUNDATION.md`](docs/LEGACY_FOUNDATION.md) before reusing a
-> component. The future integration profile must not mount CRM mutations,
-> onboarding, tasks, or email publishing.
+> component. The S1.C `egoric-readonly` profile is implemented separately and
+> does not mount CRM mutations, onboarding, tasks, or email publishing; it is
+> still gated and undeployed.
 
 This document describes the architecture that **currently exists** in the
 repository. It is descriptive, not aspirational: it records the stack, patterns,
