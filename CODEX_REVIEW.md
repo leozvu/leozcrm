@@ -301,11 +301,11 @@ Branch and commit: `feat/leozops-s1a` @ `28ceff6`
 
 Current baseline: `origin/main` @ `507187f`; merge-base is exactly `507187f`
 
-Remote status: `origin/feat/leozops-s1a` points to `28ceff6`; draft
-[repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is
-open against `main`.
+Publication status: reviewed commit `28ceff6` was admin-squash-merged through
+[repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) to
+`main@98c0eca`. Branch protection remains configured.
 
-Verdict: **TECHNICAL PASS — DRAFT PR OPEN; REVIEW/MERGE/ACCEPTANCE PENDING**
+Verdict: **G1 COMPLETE — MERGED; PRODUCT OWNER ACCEPTED LOCAL S1.B CONTINUATION**
 
 ## A. Scope and lineage
 
@@ -360,6 +360,7 @@ Verdict: **TECHNICAL PASS — DRAFT PR OPEN; REVIEW/MERGE/ACCEPTANCE PENDING**
 - `git diff --check`: **PASS**.
 - Prisma schema equality with current main: **PASS**.
 - Secret-pattern scan of the zero-context delta: **PASS**.
+- Post-merge focused LeozOps suite on `main@98c0eca`: **69/69 PASS**.
 
 ## E. Accepted limitation
 
@@ -369,14 +370,10 @@ weaken the route capability, PII, method, or default-off boundaries.
 
 ## F. Gate and merge recommendation
 
-The S1.A technical contract passes at published commit `28ceff6`.
-
-Do not start S1.B yet. First:
-
-1. complete review of [repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7)
-   and preserve the flag-off default;
-2. merge the PR; and
-3. record Product Owner acceptance.
+The S1.A technical contract passes at reviewed commit `28ceff6` and merged
+commit `98c0eca`. Product Owner acceptance for local S1.B continuation is
+recorded in DECISION-002 addendum 3. G2 work may begin; S1.C remains blocked
+until G2 passes.
 
 No production deployment, feature-flag enablement, or key provisioning is
 approved by this verdict.

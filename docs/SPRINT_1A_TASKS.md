@@ -1,9 +1,8 @@
 # Sprint 1A — Implementation Tasks (Egoric read-only snapshot endpoint)
 
-Status: ACTIVE — hold lifted by CEO 2026-07-19 after governance commit
-9137139. T1–T5 dispatched to Claude Code on
-C:\Users\Asus\Desktop\repositoryrealms @ feat/leozops-s1a. T6 reserved for
-independent Codex G1 review.
+Status: **COMPLETE** — G1 passed, PR #7 merged to
+`repositoryrealms/main@98c0eca`, and Product Owner accepted local S1.B
+continuation on 2026-07-28.
 Target repository (per DECISION-002 addendum 2 + Repository Identity
 Registry): **leozvu/repositoryrealms**, branch **feat/leozops-s1a**
 (cut from protected `main` @ 76082dc). `agency-erp` (leozvu/CRMegoric.git)
@@ -12,8 +11,8 @@ is NOT the target. Deployment isolation rules:
 Vercel project; never aim/vnecom/fretas/egolive.
 
 CEO go for S1.A scope recorded 2026-07-18 (see DECISIONS.md, DECISION-002
-addendum). Scope: Sprint 1A ONLY. Sprint 1B/1C tasks MUST NOT be created until
-S1.A is completed, Codex-reviewed, merged, and accepted.
+addendum). The S1.A completion conditions are now satisfied. S1.B/G2 may
+proceed locally; S1.C remains blocked until G2 passes.
 
 Repository: **leozvu/repositoryrealms @ feat/leozops-s1a per the GOVERNANCE.md
 Repository Identity Registry** (NOT this repo — no LeozOps source changes in S1.A)

@@ -1,9 +1,10 @@
 # Egoric Integration — Execution Plan (v2, CEO-approved with modifications)
 
-> **Status (2026-07-28):** APPROVED PLAN. S1.A technical QA passes at
-> `repositoryrealms@28ceff6` against `main@507187f`; the branch is published and
-> [PR #7](https://github.com/leozvu/repositoryrealms/pull/7) is ready for review.
-> Approval, merge, and Product Owner acceptance remain pending; S1.B/S1.C stay blocked.
+> **Status (2026-07-28):** APPROVED PLAN. S1.A/G1 passed at reviewed
+> `repositoryrealms@28ceff6` and merged through
+> [PR #7](https://github.com/leozvu/repositoryrealms/pull/7) as `main@98c0eca`.
+> Product Owner accepted local S1.B continuation. S1.B/G2 is authorized; S1.C
+> remains blocked until G2 passes.
 > Per GOVERNANCE.md, plan approval does not authorize production enablement,
 > credential creation, or data mutation.
 
@@ -205,7 +206,7 @@ recorded go/extend/revoke decision to close.
 ## 7. Process state
 
 - Plan v2: APPROVED by Leoz with the five modifications above.
-- S1.A tasks were implemented and corrective G1 technical QA passes at
-  `repositoryrealms@28ceff6`; PR #7 is ready for review.
-- Hermes may cut S1.B/C work (separate repository and PR) only after that PR is
-  reviewed, merged, and Product Owner acceptance is recorded.
+- S1.A tasks were implemented and corrective G1 technical QA passed at reviewed
+  `repositoryrealms@28ceff6`; PR #7 merged as `main@98c0eca`.
+- Product Owner accepted local S1.B continuation. Hermes may cut S1.B/G2 work;
+  S1.C remains blocked until G2 passes.

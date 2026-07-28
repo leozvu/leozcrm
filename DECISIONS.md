@@ -146,6 +146,21 @@ Sprint 1A remains ON HOLD pending explicit CEO release. No source code
 modified.
 Owner: Leoz. Recorded by Hermes (PM).
 
+DECISION-002 addendum 3 — 2026-07-28 — G1 accepted; local S1B authorized
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Accept the independently verified Sprint 1A/G1 contract at reviewed commit
+  `28ceff6` and merged `repositoryrealms/main@98c0eca`.
+- Because `leozvu` is the solo repository collaborator and cannot approve the
+  author's own PR, PR #7 was admin-squash-merged after all required checks
+  passed. Branch protection remains configured; it was not removed or weakened.
+- Authorize Sprint 1B/G2 implementation in `leozcrm` for local/test read-only
+  ingestion and Business Memory only.
+- Keep S1.C blocked until G2 passes independent QA.
+- This acceptance does not authorize production deployment, production flags,
+  credential creation, Egoric write-back, or autonomous action.
+Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.
