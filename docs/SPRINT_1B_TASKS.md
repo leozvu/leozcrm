@@ -1,6 +1,6 @@
 # Sprint 1B — LeozOps Ingestion and Business Memory
 
-Status: **IMPLEMENTED LOCALLY — G2 QA PENDING**
+Status: **G2 TECHNICAL QA PASS LOCALLY — PR/MERGE/ACCEPTANCE PENDING**
 
 Target repository: `leozvu/leozcrm`
 
@@ -18,7 +18,7 @@ Production authorization: **NOT GRANTED**
 - [x] T4 — Add source-neutral adapter contract and GET-only Egoric adapter.
 - [x] T5 — Add atomic pull/accept service with ETag/304 handling.
 - [x] T6 — Add tenant, replay, no-write-egress, fail-closed, and immutability tests.
-- [ ] T7 — Independent G2 QA and gate verdict in `../CODEX_REVIEW.md`.
+- [x] T7 — Independent G2 QA and gate verdict in `../CODEX_REVIEW.md`.
 
 ## Explicit exclusions
 

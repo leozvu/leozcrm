@@ -45,7 +45,7 @@ or autonomy authority.
 Evidence-gated, no calendar dates. Gates are defined in the execution plan
 and Codex QA gates in `docs/EGORIC_INTEGRATION.md` §15.
 
-### Sprint 1 — 🚧 In Progress — G1 complete; S1.B/G2 authorized
+### Sprint 1 — 🚧 In Progress — G1 complete; G2 technical QA PASS locally
 
 S1.A task breakdown: `docs/SPRINT_1A_TASKS.md` (T1–T6, Egoric repo, gate G1).
 Corrective technical QA passed at `repositoryrealms@28ceff6` against
@@ -53,7 +53,8 @@ Corrective technical QA passed at `repositoryrealms@28ceff6` against
 was admin-squash-merged for the solo repository to `main@98c0eca` without
 changing branch protection. Product Owner continuation acceptance is recorded
 in DECISION-002 addendum 3. S1.B/G2 may proceed locally; S1.C remains blocked
-until G2 passes.
+until the G2 branch is published, merged, and accepted. Local G2 technical QA
+passed on `codex/leozops-s1b-business-memory`.
 
 Goal:
 Egoric Snapshot → LeozOps Ingestion → CEO Brief → Local End-to-End Proof.

@@ -377,3 +377,82 @@ until G2 passes.
 
 No production deployment, feature-flag enablement, or key provisioning is
 approved by this verdict.
+
+---
+
+# G2 Review — Sprint 1B LeozOps Business Memory
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/leozcrm`
+
+Branch: `codex/leozops-s1b-business-memory`
+
+Baseline: `origin/main@ef9f664`
+
+Reviewed commits: `0484b04`, `0c05e39`, and `1e5ffb9`
+
+Publication status: **LOCAL REVIEW; PR/MERGE PENDING**
+
+Verdict: **G2 TECHNICAL PASS LOCALLY**
+
+## A. Scope and ownership boundary
+
+- `Tenant` is a LeozOps business-isolation identity and is not the legacy CRM
+  `Client` entity.
+- `SourceConnection` stores only source identity, contract, endpoint, health,
+  and ETag state. The raw bearer key remains runtime-only.
+- `SourceSnapshot` is append-only evidence. SQLite and PostgreSQL migration
+  paths install database triggers that reject direct update or deletion.
+- `IntelligenceRun` is unique by tenant, snapshot, engine version, and `as_of`.
+- The source-neutral adapter exposes a pull operation only. The Egoric adapter
+  constructs exactly one GET request with no body to the dedicated snapshot
+  path; no new HTTP route, scheduler, retry loop, or runtime mount was added.
+
+## B. Fail-closed and idempotency evidence
+
+- Only exact `egoric_sales_v1` schema version `1.0`, native stages, field set,
+  quality reconciliation, tenant identity, and canonical SHA-256 are accepted.
+- Unknown fields (including recursive PII), versions, stages, invalid counts,
+  duplicated external IDs, and tampered hashes are rejected before storage.
+- Credential-bearing, query-bearing, generic, non-HTTPS public, and wrong-path
+  endpoints are rejected before a connection can be persisted.
+- A 200 response requires JSON plus an ETag exactly matching the snapshot ID.
+  A 304 is accepted only after a prior ETag and may not change that ETag.
+- Replaying the same 200 response inserts exactly one snapshot and one run.
+  A valid 304 updates connection health and inserts neither.
+- Composite foreign keys and tenant-scoped repository reads prevent a
+  connection, snapshot, or run from crossing tenant boundaries.
+
+## C. Verification evidence
+
+- Focused Business Memory suite: **13/13 PASS**.
+- Full repository regression suite: **172/172 PASS**, 0 skipped, 0 failed.
+- `npm run typecheck`: **PASS**.
+- Migration apply/rollback and immutable-trigger test on SQLite: **PASS**.
+- `git diff --check`: **PASS**.
+- Markdown relative-link check: **PASS** across 23 repository Markdown files.
+- `package-lock.json` is unchanged; no dependency was added or upgraded.
+- `npm audit --omit=dev --audit-level=high`: no high/critical finding; one low
+  `body-parser` and one moderate `uuid` advisory are pre-existing.
+- Secret-pattern and egress scans: no persisted credential or new write-method
+  egress; the only Business Memory network method is GET with no body.
+- Runtime-mount scan: the ingestion service is not imported by the HTTP app or
+  server startup path.
+
+## D. Accepted pre-production limitation
+
+A live disposable PostgreSQL service was unavailable because the local Docker
+engine was not running. The migration contains a PostgreSQL trigger path, but
+this verdict proves the required G2 local/test contract on SQLite only. A live
+PostgreSQL migrate/rollback smoke remains mandatory before any independent
+deployment and is not waived by this gate.
+
+## E. Gate result
+
+The implemented branch satisfies the G2 technical evidence contract for local
+and test use. Publication, merge, and Product Owner acceptance remain pending;
+S1.C/G3 stays blocked until those steps complete.
+
+This verdict does not authorize production credentials, production polling,
+deployment, write-back, external publishing, or autonomous action.
