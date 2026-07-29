@@ -1,6 +1,6 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **S2.A T1–T8 LOCAL/TEST TECHNICAL PASS; PUBLICATION PENDING**
+Status: **S2.A T1–T8 LOCAL/TEST ACCEPTED; POSTGRESQL CHECKPOINT OPEN**
 
 Authority: DECISION-002 addenda 7–9 authorize the complete S2.A local/test code
 cut. Live PostgreSQL and every external checkpoint remain blocked.
