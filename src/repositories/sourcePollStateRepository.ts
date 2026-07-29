@@ -129,6 +129,49 @@ export class SourcePollStateRepository {
     return this.validate(row);
   }
 
+  async findState(tenantId: string, connectionId: string): Promise<SourcePollState | undefined> {
+    const row = await this.knex<SourcePollState>(SOURCE_POLL_STATE_TABLE)
+      .where({ source_connection_id: connectionId, tenant_id: tenantId })
+      .first();
+    return row ? this.validate(row) : undefined;
+  }
+
+  /** Make an active, closed connection due without bypassing its lease/circuit guards. */
+  async makeDueForOperator(tenantId: string, connectionId: string): Promise<SourcePollState> {
+    const connection = await this.knex<SourceConnection>(BUSINESS_MEMORY_TABLES.sourceConnections)
+      .where({ id: connectionId, tenant_id: tenantId })
+      .first();
+    if (!connection) {
+      throw new PollStateError('unknown_source_connection', 'source connection does not exist for tenant');
+    }
+    if (connection.status !== 'active') {
+      throw new PollStateError('source_connection_disabled', 'source connection is disabled');
+    }
+    const state = await this.ensureState(tenantId, connectionId);
+    const now = this.now();
+    const activeLease = state.lease_id !== null
+      && (asMillis(state.lease_expires_at) ?? 0) > Date.parse(now);
+    if (activeLease) throw new PollStateError('lease_held', 'source poll lease is active');
+    if (state.circuit_state !== 'closed') {
+      throw new PollStateError('circuit_open', 'source circuit must be recovered before polling');
+    }
+    const affected = await this.knex(SOURCE_POLL_STATE_TABLE)
+      .where({
+        source_connection_id: connectionId,
+        tenant_id: tenantId,
+        revision: state.revision,
+      })
+      .update({
+        next_attempt_at: null,
+        lease_id: null,
+        lease_expires_at: null,
+        revision: this.knex.raw('revision + 1'),
+        updated_at: now,
+      });
+    if (affected !== 1) throw new PollStateError('operation_conflict', 'poll state changed concurrently');
+    return this.getState(tenantId, connectionId);
+  }
+
   async acquireLease(input: {
     tenantId: string;
     connectionId: string;
@@ -277,5 +320,88 @@ export class SourcePollStateRepository {
       });
     if (affected !== 1) throw new PollStateError('lease_lost', 'poll lease is no longer owned');
     return this.getState(input.tenantId, input.connectionId);
+  }
+
+  /** Disable immediately and invalidate any in-flight owner at the state boundary. */
+  async disableForOperator(tenantId: string, connectionId: string): Promise<SourcePollState> {
+    const connection = await this.knex<SourceConnection>(BUSINESS_MEMORY_TABLES.sourceConnections)
+      .where({ id: connectionId, tenant_id: tenantId })
+      .first();
+    if (!connection) {
+      throw new PollStateError('unknown_source_connection', 'source connection does not exist for tenant');
+    }
+    const state = await this.ensureState(tenantId, connectionId);
+    const now = this.now();
+    await this.knex.transaction(async (trx) => {
+      const connectionAffected = await trx(BUSINESS_MEMORY_TABLES.sourceConnections)
+        .where({ id: connectionId, tenant_id: tenantId })
+        .update({ status: 'disabled', updated_at: now });
+      const stateAffected = await trx(SOURCE_POLL_STATE_TABLE)
+        .where({
+          source_connection_id: connectionId,
+          tenant_id: tenantId,
+          revision: state.revision,
+        })
+        .update({
+          circuit_state: 'open',
+          next_attempt_at: null,
+          circuit_opened_at: now,
+          last_error_code: 'operator_disabled',
+          last_http_status: null,
+          lease_id: null,
+          lease_expires_at: null,
+          revision: trx.raw('revision + 1'),
+          updated_at: now,
+        });
+      if (connectionAffected !== 1 || stateAffected !== 1) {
+        throw new PollStateError('operation_conflict', 'source state changed concurrently');
+      }
+    });
+    return this.getState(tenantId, connectionId);
+  }
+
+  /** Explicit recovery re-enables the connection and resets its persisted circuit. */
+  async recoverForOperator(tenantId: string, connectionId: string): Promise<SourcePollState> {
+    const connection = await this.knex<SourceConnection>(BUSINESS_MEMORY_TABLES.sourceConnections)
+      .where({ id: connectionId, tenant_id: tenantId })
+      .first();
+    if (!connection) {
+      throw new PollStateError('unknown_source_connection', 'source connection does not exist for tenant');
+    }
+    const state = await this.ensureState(tenantId, connectionId);
+    const now = this.now();
+    if (
+      state.lease_id !== null
+      && (asMillis(state.lease_expires_at) ?? 0) > Date.parse(now)
+    ) {
+      throw new PollStateError('lease_held', 'source poll lease is active');
+    }
+    await this.knex.transaction(async (trx) => {
+      const connectionAffected = await trx(BUSINESS_MEMORY_TABLES.sourceConnections)
+        .where({ id: connectionId, tenant_id: tenantId })
+        .update({ status: 'active', updated_at: now });
+      const stateAffected = await trx(SOURCE_POLL_STATE_TABLE)
+        .where({
+          source_connection_id: connectionId,
+          tenant_id: tenantId,
+          revision: state.revision,
+        })
+        .update({
+          circuit_state: 'closed',
+          consecutive_failures: 0,
+          next_attempt_at: null,
+          circuit_opened_at: null,
+          last_error_code: null,
+          last_http_status: null,
+          lease_id: null,
+          lease_expires_at: null,
+          revision: trx.raw('revision + 1'),
+          updated_at: now,
+        });
+      if (connectionAffected !== 1 || stateAffected !== 1) {
+        throw new PollStateError('operation_conflict', 'source state changed concurrently');
+      }
+    });
+    return this.getState(tenantId, connectionId);
   }
 }

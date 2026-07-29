@@ -1,9 +1,9 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **S2.A T1–T4 MERGED AND ACCEPTED; CHECKPOINT A REMAINS OPEN**
+Status: **S2.A T1–T8 LOCAL/TEST TECHNICAL PASS; PUBLICATION PENDING**
 
-Authority: DECISION-002 addenda 7–8 authorize and accept the local reliability
-core only.
+Authority: DECISION-002 addenda 7–9 authorize the complete S2.A local/test code
+cut. Live PostgreSQL and every external checkpoint remain blocked.
 
 Baseline:
 
@@ -27,10 +27,10 @@ The plan deliberately separates four facts that must not be conflated:
 
 ## 2. Authorization wall
 
-DECISION-002 addendum 7 authorizes S2.A T1–T4 in local/test scope with injected
-policy values and no mounted scheduler. T5–T8 and every external state change
-remain blocked until the Product Owner approves the relevant task cut and
-resolves the decisions in section 11.
+DECISION-002 addenda 7–9 authorize S2.A T1–T8 in local/test scope with injected
+policy values and no mounted scheduler. Every external state change remains
+blocked until the Product Owner approves the relevant checkpoint and resolves
+the decisions in section 11.
 
 Separate, just-in-time approval is then required at both external checkpoints:
 
@@ -111,16 +111,16 @@ Implementation tasks after task-cut approval:
 - [x] **T4 — Persistent circuit breaker:** open after the approved threshold,
   remain restart-safe, support a single controlled probe, and close only after
   a valid 200 or 304 recovery.
-- [ ] **T5 — Nightly reconciliation:** compare source total/stage/source facts with
+- [x] **T5 — Nightly reconciliation:** compare source total/stage/source facts with
   the accepted stored snapshot and brief; record only counts, IDs, hashes, and
   status. Any mismatch fails the day and alerts; it never repairs Egoric.
-- [ ] **T6 — Freshness and health:** expose an authenticated operator health view
+- [x] **T6 — Freshness and health:** expose an authenticated operator health view
   with last success, source age, ETag, circuit state, next attempt, and failure
   class. No payload, PII, bearer token, or raw error body may appear.
-- [ ] **T7 — Operator commands:** one-shot poll, reconcile, disable, and recovery
+- [x] **T7 — Operator commands:** one-shot poll, reconcile, disable, and recovery
   commands run inside the service environment. No public mutation route is
   added to `egoric-readonly`.
-- [ ] **T8 — Runbooks and tests:** key rotation, flag shutdown, stale data, schema
+- [x] **T8 — Runbooks and tests:** key rotation, flag shutdown, stale data, schema
   mismatch, circuit recovery, replay, database outage, and rollback.
 
 Checkpoint A evidence:
@@ -136,10 +136,13 @@ Checkpoint A evidence:
 - dependency, secret, PII, and network-egress scans pass;
 - Codex records the technical verdict before P1 is requested.
 
-Interim T1–T4 evidence is recorded in
-[`POLL_RELIABILITY.md`](POLL_RELIABILITY.md). It proves the SQLite-backed local
-core only. Checkpoint A remains open: T5–T8 and a live disposable PostgreSQL
-cycle are still mandatory before P1 may be requested.
+T1–T4 evidence is recorded in [`POLL_RELIABILITY.md`](POLL_RELIABILITY.md), and
+T5–T8 evidence/runbooks are recorded in
+[`SOURCE_OPERATIONS.md`](SOURCE_OPERATIONS.md) and
+[`S2A_OPERATIONS_RUNBOOK.md`](S2A_OPERATIONS_RUNBOOK.md). The complete
+SQLite-backed local core passes, but Checkpoint A remains open: a live
+disposable PostgreSQL migrate/rollback/immutability cycle is still mandatory
+before P1 may be requested.
 
 ### S2.B — Networked pre-production proof
 
@@ -303,9 +306,10 @@ Checkpoint B covers network, PostgreSQL, isolation, and rollback; S2.C covers
 the production canary and sustained trust evidence. No checkpoint waives an
 earlier result.
 
-## 11. Product Owner decisions required
+## 11. Product Owner decisions required before P1
 
-The implementation kickoff must record:
+The S2.A local/test task cut in item 9 is approved by DECISION-002 addenda 7–9.
+Before P1, the Product Owner must still record:
 
 1. LeozOps test/production runtime provider, project IDs, regions, and owners.
 2. Managed PostgreSQL provider, database identities, backup expectation, and
@@ -317,6 +321,7 @@ The implementation kickoff must record:
    for the smallest pilot.
 7. Exact retry, timeout, circuit, and stale thresholds.
 8. Snapshot/evidence retention and access policy.
-9. Approval of the S2.A task cut.
+9. The already recorded approval of the S2.A local/test task cut.
 
-Until these are recorded, Sprint 2 remains plan-only.
+Until items 1–8 and the live PostgreSQL Checkpoint A evidence are recorded, P1
+and every external action remain blocked.

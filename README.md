@@ -19,16 +19,18 @@ Autopilot, with human authority and evidence gates at every step.
 | Egoric data supply | G1 complete: [repositoryrealms PR #7](https://github.com/leozvu/repositoryrealms/pull/7) merged to `main@98c0eca`; Product Owner authorized local S1.B continuation |
 | LeozOps ingestion / Business Memory | G2 complete: [PR #4](https://github.com/leozvu/leozcrm/pull/4) merged to `main@d1d34c5`; Product Owner accepted local S1.C continuation |
 | Snapshot-based CEO Brief | G3 complete: [PR #6](https://github.com/leozvu/leozcrm/pull/6) merged to `main@3a5fb9e`; Product Owner accepted local S1.D continuation |
-| Local end-to-end proof | S1.D/G4 authorized for local/test implementation |
+| Local end-to-end proof | G4 complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged to `main@5ef3fd5`; Sprint 1 accepted |
+| S2.A reliability hardening | T1–T4 accepted at `main@5d140a8`; T5–T8 local/test technical PASS at `cffccda`, publication pending |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
 
 `Egoric Snapshot → LeozOps Ingestion → Business Memory → CEO Brief → Local E2E Proof`
 
-The next proposed path is plan-only until Product Owner approval:
+The next blocked path requires live disposable PostgreSQL evidence and a new
+named Product Owner approval:
 
-`Reliability Hardening → Networked Test → Production Shadow → G5 Decision`
+`PostgreSQL Checkpoint A → P1 → Networked Test → P2 → Production Shadow → G5 Decision`
 
 ## Start here
 
@@ -48,7 +50,11 @@ The next proposed path is plan-only until Product Owner approval:
    deployment, shadow, evidence, and approval checkpoints.
 9. [`docs/POLL_RELIABILITY.md`](docs/POLL_RELIABILITY.md) — S2.A persistent
    lease, retry, and circuit contract.
-10. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+10. [`docs/SOURCE_OPERATIONS.md`](docs/SOURCE_OPERATIONS.md) — S2.A exact
+    reconciliation, sanitized health, and authenticated one-shot commands.
+11. [`docs/S2A_OPERATIONS_RUNBOOK.md`](docs/S2A_OPERATIONS_RUNBOOK.md) — local
+    failure, recovery, replay, and rollback procedures.
+12. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 

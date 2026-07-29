@@ -35,6 +35,7 @@ mounts no scheduler, and enables no deployment.
 | `source_snapshots` | `(source_system, source_tenant_key, snapshot_id)` | Append-only; database triggers reject UPDATE and DELETE |
 | `intelligence_runs` | `(tenant_id, snapshot_id, engine_version, as_of)` | Insert-once identity |
 | `source_poll_states` | one-to-one with `(tenant_id, source_connection_id)` | Mutable coordination/health only; no key or payload |
+| `source_reconciliations` | deterministic tenant/connection evidence key | Immutable counts, IDs, hashes, status, and safe failure only |
 
 Composite foreign keys bind connections, snapshots, and runs to the same
 tenant. The schema runs on SQLite for local/test and PostgreSQL for a future

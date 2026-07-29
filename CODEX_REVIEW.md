@@ -713,3 +713,90 @@ verification remain blocked/unproved.
 No scheduler may be mounted and no P1/P2 deployment, external database
 provisioning, credential, feature flag, production access, write-back,
 publishing, or autonomous action is authorized by this verdict.
+
+---
+
+# S2.A Review — Source Operations Core (T5–T8)
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/leozcrm`
+
+Branch: `codex/leozops-s2a-operations-core`
+
+Baseline: `origin/main@34164b3`
+
+Reviewed implementation commit: `cffccda`
+
+Publication status: **PENDING**
+
+Verdict: **S2.A T5–T8 LOCAL/TEST TECHNICAL PASS — CHECKPOINT A AND P1/P2 BLOCKED**
+
+## A. Exact and immutable reconciliation
+
+- One explicit reconciliation independently compares the validated immutable
+  source evidence, stored row/run provenance, and deterministic CEO Brief.
+- Only total, native-stage counts, and safe-source bucket counts enter the fact
+  projection. Unknown labels become `unclassified` before hashing.
+- Evidence stores only tenant/connection/snapshot/run identities, explicit
+  business date/timezone, counts, hashes, status, and one safe failure code.
+- SQLite and PostgreSQL migrations install update/delete rejection triggers.
+  An identical replay returns the existing row and does not emit a duplicate
+  failure alert.
+- A mismatch, missing snapshot, invalid contract, corrupt record, or evidence
+  write failure cannot become a pass and never repairs Egoric.
+
+## B. Authenticated operator boundary
+
+- Operator access uses an injected SHA-256 token fingerprint and constant-time
+  comparison. Raw operator/source tokens remain invocation-only.
+- Health exposes source age, freshness, ETag fingerprint, circuit state, next
+  attempt, safe failure, and latest reconciliation. It exposes no raw ETag,
+  endpoint, source tenant key, payload, PII, or credential.
+- `health`, `poll`, `reconcile`, `disable`, and `recover` are explicit in-process
+  CLI commands. Poll clears due state only for an active closed connection and
+  still uses the bounded lease/circuit coordinator.
+- Disable invalidates an in-flight owner. Recovery is explicit, tenant-scoped,
+  blocked by an active lease, and resets persistent circuit state only after an
+  operator chooses it.
+
+## C. Runtime and capability boundary
+
+- No Source Operations module is imported by `src/server.ts` or `src/http`.
+- No scheduler, interval, cron, queue, startup hook, new HTTP route, automatic
+  nightly invocation, or alternative network transport was added.
+- Reconciliation reads local immutable evidence only. One-shot polling keeps
+  the accepted GET-only/no-body source adapter and no-write contract.
+- PostgreSQL smoke code is prepared to exercise the new tables and immutable
+  evidence when a named disposable target is approved; this review did not
+  connect to or provision one.
+
+## D. Verification evidence
+
+- Focused Source Operations suite: **11/11 PASS**.
+- Complete LeozOps regression suite: **206/206 PASS**, 0 skipped, 0 failed.
+- RepositoryRealms LeozOps suite: **69/69 PASS**, 0 skipped, 0 failed.
+- `npm run typecheck`: **PASS**.
+- Actual-handler local E2E: **PASS** with exact 4/4 reconciliation, 200/304,
+  three GETs, zero request bodies, zero source mutations, and legacy write 404.
+- SQLite migration apply/rollback and reconciliation immutability: **PASS**.
+- Auth rotation, mismatch alert, replay, stale health, corrupt evidence,
+  database outage, tenant scope, lease expiry, disable/recovery, and token/PII
+  persistence tests: **PASS**.
+- `package-lock.json` unchanged; no dependency added or upgraded.
+- `npm audit --omit=dev --audit-level=high`: no high/critical finding; the
+  pre-existing low `body-parser` and moderate `uuid` advisories remain.
+- Runtime-mount, scheduler, new-network, secret-pattern, and HTTP-surface scans:
+  **PASS**.
+- `npm run db:smoke:pg`: **SKIPPED AS EXPECTED** because no approved
+  PostgreSQL target was configured; this is a limitation, not passing evidence.
+
+## E. Gate result and limitations
+
+The complete S2.A T1–T8 local/SQLite code cut passes. Checkpoint A remains open
+because its required live disposable PostgreSQL migrate/rollback/immutability
+cycle is unproved. P1 may not be requested or inferred from this verdict.
+
+No scheduler activation, P1/P2 deployment, external database provisioning,
+credential or feature-flag creation, production-data access, write-back,
+publishing, employee workflow change, or autonomous action is authorized.
