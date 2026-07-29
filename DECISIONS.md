@@ -213,6 +213,25 @@ Decision:
   scope.
 Owner: Leoz. Recorded by Codex from the explicit solo-continuation instruction.
 
+DECISION-002 addendum 7 — 2026-07-28 — S2.A reliability core authorized locally
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Treat the explicit instruction to continue after review of the merged G5
+  proposal as approval for S2.A tasks T1–T4 only: persistent poll state,
+  bounded coordination, fail-closed retry classification, and persistent
+  circuit breaking in local/test scope.
+- Keep reliability thresholds constructor-injected and test-controlled. The
+  canonical 15-minute target may be represented in code, but no scheduler is
+  mounted and no production retry/circuit defaults are activated.
+- Require SQLite migration/restart/concurrency/failure-path evidence and the
+  full regression suite before this core may merge.
+- Keep T5–T8, P1, P2, external PostgreSQL provisioning, runtime deployment,
+  secret or key creation, source feature flags, scheduled polling, and
+  production-data access blocked pending their named approval checkpoints.
+- Preserve GET-only/no-body source access and all existing no-write, PII,
+  tenant, profile-isolation, and advisory-only boundaries.
+Owner: Leoz. Recorded by Codex from the explicit instruction to continue.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.

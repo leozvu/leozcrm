@@ -17,6 +17,9 @@ import {
 import { EgoricSalesV1Adapter } from '../integrations/sources/egoricSalesV1Adapter';
 import { SourceAdapterError } from '../integrations/sources/sourceAdapter';
 import {
+  SOURCE_POLL_STATE_TABLE,
+} from '../domain/pollReliability';
+import {
   BusinessMemoryError,
   BusinessMemoryRepository,
 } from '../repositories/businessMemoryRepository';
@@ -469,6 +472,7 @@ test('Business Memory migration rolls back tables and immutability triggers clea
     BUSINESS_MEMORY_TABLES.sourceConnections,
     BUSINESS_MEMORY_TABLES.sourceSnapshots,
     BUSINESS_MEMORY_TABLES.intelligenceRuns,
+    SOURCE_POLL_STATE_TABLE,
     'source_snapshots_no_update',
     'source_snapshots_no_delete',
   ]) {

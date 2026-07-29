@@ -624,3 +624,90 @@ DECISION-002 addendum 6, completing Sprint 1 and allowing G5 planning only. No
 G5 implementation, production deployment, feature flag, credential
 provisioning, scheduled polling, write-back, publishing, or autonomous action
 is authorized.
+
+---
+
+# S2.A Review — Persistent Source Poll Reliability Core (T1–T4)
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/leozcrm`
+
+Branch: `codex/leozops-s2a-reliability-core`
+
+Baseline: `origin/main@b147716`
+
+Reviewed implementation commit: `b5f5ede`
+
+Publication status: **PENDING**
+
+Verdict: **S2.A T1–T4 TECHNICAL PASS — T5–T8 AND P1/P2 BLOCKED**
+
+## A. Persistent concurrency and circuit contract
+
+- A tenant-scoped `source_poll_states` row is one-to-one with each source
+  connection and stores no credential or source payload.
+- ETag and last-success state remain on the existing connection; the new table
+  holds only last/next attempt, consecutive failed cycles, safe error/status,
+  circuit, lease, and compare-and-swap revision state.
+- Atomic conditional update permits one in-flight poll cycle per connection.
+  An expired lease can be recovered after a crashed process, while a stale
+  owner cannot overwrite the newer lease.
+- Closed/open/half-open state survives coordinator/process recreation. Only one
+  due half-open probe runs; valid 200/304 closes and resets the circuit, while a
+  failed probe reopens it.
+
+## B. Bounded and fail-closed source behavior
+
+- Every timeout, retry, delay, jitter, circuit, and lease value is an explicit
+  constructor input with safety bounds. No production policy default exists;
+  the only fixed value is the approved 15-minute target cadence.
+- The lease duration must cover the mathematical maximum cycle runtime before
+  the coordinator can be constructed.
+- Network errors, 429, and eligible 5xx responses retry within the configured
+  bound. Exponential jitter is clamped; sanitized `Retry-After` is clamped by
+  both adapter and poll policy.
+- 401/403, 400/404/405, invalid endpoint/credential, schema/hash/tenant/ETag,
+  and other contract failures never retry and disable the connection.
+- Unknown programming/infrastructure failures are not swallowed: the core
+  attempts to record a safe classification, then rethrows the original error.
+- Every retry preserves one strict UUID correlation ID. Upstream body, raw
+  headers, exception messages, bearer values, and PII are never persisted in
+  poll state.
+
+## C. Capability boundary
+
+- The coordinator wraps the existing GET-only/no-body ingestion service; it
+  adds no alternative transport or caller-controlled method.
+- It is imported by neither `src/http` nor `src/server.ts`; no scheduler,
+  interval, cron, startup hook, queue, public trigger, or production config was
+  added.
+- The current `egoric-readonly` route surface is unchanged and G4 actual-handler
+  reconciliation still passes with zero source mutations.
+
+## D. Verification evidence
+
+- Focused poll reliability suite: **13/13 PASS**.
+- Business Memory + reliability focused suites: **26/26 PASS**.
+- Complete LeozOps regression suite: **195/195 PASS**, 0 skipped, 0 failed.
+- RepositoryRealms LeozOps suite: **69/69 PASS**, 0 skipped, 0 failed.
+- `npm run typecheck`: **PASS**.
+- Actual-handler `npm run verify:e2e:local`: **PASS** with exact 4/4 facts,
+  200/304, zero request bodies, zero source mutations, and legacy write 404.
+- SQLite migration apply/rollback including `source_poll_states`: **PASS**.
+- `package-lock.json` unchanged; no dependency added or upgraded.
+- `npm audit --omit=dev --audit-level=high`: no high/critical finding; the one
+  low `body-parser` and one moderate `uuid` advisory are pre-existing.
+- Runtime-mount, scheduler, new-network, secret-pattern, GET-only, tenant,
+  corruption, and credential-persistence scans: **PASS**.
+
+## E. Gate result and limitations
+
+The local/test S2.A reliability core T1–T4 passes at `b5f5ede`. This result does
+not complete S2.A Checkpoint A: T5 reconciliation, T6 operator health, T7
+commands, T8 full runbooks, and live disposable PostgreSQL verification remain
+blocked/unproved.
+
+No scheduler may be mounted and no P1/P2 deployment, external database
+provisioning, credential, feature flag, production access, write-back,
+publishing, or autonomous action is authorized by this verdict.

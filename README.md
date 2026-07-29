@@ -46,7 +46,9 @@ The next proposed path is plan-only until Product Owner approval:
    authentication, and route-isolation contract.
 8. [`docs/SPRINT_2_PLAN.md`](docs/SPRINT_2_PLAN.md) — proposed G5 hardening,
    deployment, shadow, evidence, and approval checkpoints.
-9. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+9. [`docs/POLL_RELIABILITY.md`](docs/POLL_RELIABILITY.md) — S2.A persistent
+   lease, retry, and circuit contract.
+10. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 
