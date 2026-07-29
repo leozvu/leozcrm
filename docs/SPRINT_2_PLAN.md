@@ -1,8 +1,9 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **S2.A T1–T4 TECHNICAL PASS AT `b5f5ede`; PUBLICATION PENDING**
+Status: **S2.A T1–T4 MERGED AND ACCEPTED; CHECKPOINT A REMAINS OPEN**
 
-Authority: DECISION-002 addendum 7 authorizes the local reliability core only.
+Authority: DECISION-002 addenda 7–8 authorize and accept the local reliability
+core only.
 
 Baseline:
 

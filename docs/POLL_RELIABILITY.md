@@ -1,6 +1,6 @@
 # Source Poll Reliability Core
 
-Status: **S2.A T1–T4 TECHNICAL PASS AT `b5f5ede`; PUBLICATION PENDING**
+Status: **S2.A T1–T4 MERGED AND ACCEPTED AT `main@5d140a8`**
 
 This local/test core wraps the existing explicit `SnapshotIngestionService`
 pull with persistent coordination, bounded retry, and circuit state. It is a
