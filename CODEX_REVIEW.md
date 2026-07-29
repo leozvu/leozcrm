@@ -865,3 +865,69 @@ Image digest and the full command-level result are recorded in
 No P1/P2 approval, infrastructure choice, external action, production access,
 write-back, publishing, employee workflow change, or autonomy is inferred from
 this verdict.
+
+---
+
+# P1 Review — Solo-Founder Decision Preflight
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/leozcrm`
+
+Branch: `codex/leozops-p1-decision-preflight`
+
+Baseline: `main@a256bae`
+
+Publication status: **LOCAL TECHNICAL PASS — PUBLICATION PENDING**
+
+Verdict: **P1 DECISION TOOLING PASS — P1 AND ALL EXTERNAL WORK BLOCKED**
+
+## A. Fail-closed decision boundary
+
+- One exact schema covers runtime/database/Egoric test and production
+  identities, plans, regions, owners, business calendar, reviewer, access,
+  alerts, poll policy, retention/access, and a monthly USD budget cap.
+- Test and production project, database, endpoint, source key, brief-access,
+  and alert-destination identities must be distinct.
+- Credential fields accept logical `secret://` references only. HTTPS source
+  URLs reject credentials, queries, fragments, localhost, and non-TLS schemes.
+- Unknown fields, placeholders, unsafe policies, invalid calendars, broad
+  access roles, and incomplete approval metadata fail closed.
+- PASS output contains a safe summary and omits every secret reference.
+
+## B. Runtime isolation
+
+- The preflight is an explicit CLI and is not imported by `src/server.ts` or
+  any HTTP module.
+- It contains no fetch/client, network, timer, scheduler, database, deployment,
+  provider SDK, or credential mutation path.
+- The checked-in example intentionally remains `pending` and returns exit 2.
+- No account, infrastructure, plan, spend, credential, feature flag, scheduler,
+  or external environment was created or changed.
+
+## C. Verification evidence
+
+- Focused P1 decision suite: **6/6 PASS**.
+- Complete LeozOps regression suite: **212/212 PASS**, 0 skipped, 0 failed.
+- RepositoryRealms LeozOps contract suite: **69/69 PASS**, 0 skipped, 0 failed.
+- `npm run typecheck`: **PASS**.
+- Actual-handler local E2E: **PASS** with exact 4/4 reconciliation, 200/304,
+  three GETs, zero request bodies, zero source mutations, and legacy write 404.
+- Pending-template CLI drill: **BLOCKED AS EXPECTED**, exit 2.
+- HTTP/runtime mount and network/scheduler primitive scans: **PASS**.
+- Local Markdown links: **38/38 PASS**.
+- `package-lock.json` unchanged; no dependency added or upgraded.
+- `npm audit --omit=dev --audit-level=high`: **PASS**; only the unchanged low
+  `body-parser` and moderate `uuid` advisories remain.
+
+## D. Gate result
+
+The local P1 decision tooling is technically complete under DECISION-002
+addendum 12. Render is a provisional recommendation only. P1 remains blocked
+until Leoz supplies and separately accepts one exact manifest that passes the
+preflight.
+
+No provider choice, purchase, managed infrastructure, P1/P2 approval,
+deployment, credential or flag, scheduler activation, production-data access,
+write-back, publishing, employee workflow change, or autonomy is authorized by
+this verdict.

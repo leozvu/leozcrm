@@ -1,0 +1,108 @@
+{
+  "schema_version": "leozops_p1_decision_v1",
+  "decision_id": "P1-REPLACE_ME",
+  "status": "pending",
+  "approved_by": "Leoz",
+  "approved_at": "pending",
+  "runtime": {
+    "provider": "pending",
+    "test": {
+      "project_id": "pending",
+      "plan": "pending",
+      "region": "pending",
+      "owner": "Leoz"
+    },
+    "production": {
+      "project_id": "pending",
+      "plan": "pending",
+      "region": "pending",
+      "owner": "Leoz"
+    }
+  },
+  "database": {
+    "provider": "pending",
+    "test": {
+      "project_id": "pending",
+      "database_id": "pending",
+      "plan": "pending",
+      "region": "pending",
+      "owner": "Leoz",
+      "connection_secret_ref": "pending",
+      "backup_enabled": true,
+      "backup_retention_days": 3
+    },
+    "production": {
+      "project_id": "pending",
+      "database_id": "pending",
+      "plan": "pending",
+      "region": "pending",
+      "owner": "Leoz",
+      "connection_secret_ref": "pending",
+      "backup_enabled": true,
+      "backup_retention_days": 7
+    }
+  },
+  "egoric": {
+    "test": {
+      "project_id": "pending",
+      "base_url": "pending",
+      "tenant_key": "pending",
+      "owner": "Leoz",
+      "source_flag": "LEOZOPS_SOURCE_ENABLED",
+      "source_key_secret_ref": "pending"
+    },
+    "production": {
+      "project_id": "prj_Hh4aZEj9q3hvULaUfC4GwFvxYii9",
+      "base_url": "https://erp-egoric.vercel.app",
+      "tenant_key": "egoric",
+      "owner": "Leoz",
+      "source_flag": "LEOZOPS_SOURCE_ENABLED",
+      "source_key_secret_ref": "pending"
+    }
+  },
+  "operations": {
+    "business_timezone": "America/New_York",
+    "business_days": [
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday"
+    ],
+    "business_start_local": "09:00",
+    "business_end_local": "18:00",
+    "director_reviewer": "Leoz",
+    "brief_access_method": "authenticated_read_api",
+    "brief_access_test_secret_ref": "pending",
+    "brief_access_production_secret_ref": "pending",
+    "alert_channel": "platform_native",
+    "alert_test_destination_ref": "pending",
+    "alert_production_destination_ref": "pending",
+    "on_call_owner": "Leoz"
+  },
+  "poll_policy": {
+    "cadenceMs": 900000,
+    "requestTimeoutMs": 10000,
+    "maxRetries": 2,
+    "baseDelayMs": 1000,
+    "maxDelayMs": 10000,
+    "jitterRatio": 0.2,
+    "circuitFailureThreshold": 3,
+    "circuitOpenMs": 900000,
+    "leaseMs": 120000,
+    "staleAfterMs": 1800000
+  },
+  "retention": {
+    "source_snapshot_days": 90,
+    "reconciliation_days": 365,
+    "access_roles": [
+      "leozops_service",
+      "founder_reviewer"
+    ]
+  },
+  "budget": {
+    "currency": "USD",
+    "monthly_limit": 0,
+    "owner": "Leoz"
+  }
+}
