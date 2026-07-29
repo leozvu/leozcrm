@@ -1,6 +1,6 @@
 # PostgreSQL Lifecycle and S2.A Checkpoint Smoke
 
-Status: **S2.A CHECKPOINT A TECHNICAL PASS; PUBLICATION PENDING**
+Status: **MERGED AND ACCEPTED — [PR #15](https://github.com/leozvu/leozcrm/pull/15), `main@5e9a4b7`**
 
 `npm run db:smoke:pg` exercises the complete current migration stack against a
 real PostgreSQL server. It is destructive to the named target database because

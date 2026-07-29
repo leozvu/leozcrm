@@ -20,7 +20,7 @@ Autopilot, with human authority and evidence gates at every step.
 | LeozOps ingestion / Business Memory | G2 complete: [PR #4](https://github.com/leozvu/leozcrm/pull/4) merged to `main@d1d34c5`; Product Owner accepted local S1.C continuation |
 | Snapshot-based CEO Brief | G3 complete: [PR #6](https://github.com/leozvu/leozcrm/pull/6) merged to `main@3a5fb9e`; Product Owner accepted local S1.D continuation |
 | Local end-to-end proof | G4 complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged to `main@5ef3fd5`; Sprint 1 accepted |
-| S2.A reliability hardening | T1–T8 accepted; disposable PostgreSQL 16 Checkpoint A smoke PASS; P1 blocked |
+| S2.A reliability hardening | T1–T8 accepted; disposable PostgreSQL 16 Checkpoint A accepted through [PR #15](https://github.com/leozvu/leozcrm/pull/15) at `main@5e9a4b7`; P1 blocked |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:

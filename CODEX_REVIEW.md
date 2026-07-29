@@ -815,7 +815,7 @@ Branch: `codex/leozops-s2a-postgres-checkpoint`
 
 Baseline: `main@a5a68b8`
 
-Publication status: **TECHNICAL PASS — PUBLICATION PENDING**
+Publication status: **MERGED — [PR #15](https://github.com/leozvu/leozcrm/pull/15), `main@5e9a4b7`**
 
 Verdict: **S2.A CHECKPOINT A PASS — P1/P2 AND EXTERNAL WORK BLOCKED**
 

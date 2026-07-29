@@ -294,7 +294,8 @@ Decision:
   PostgreSQL blocker as authorization for one disposable PostgreSQL smoke on
   the local machine only; no cloud/external target is authorized.
 - Accept the PostgreSQL 16 migrate/seed/task/source-evidence/immutability/
-  rollback PASS recorded in `docs/POSTGRES_SMOKE.md`.
+  rollback PASS recorded in `docs/POSTGRES_SMOKE.md` and merged through PR #15
+  at `leozcrm/main@5e9a4b7`.
 - Record S2.A Checkpoint A technically complete. The complete T1–T8 code cut
   now passes SQLite, PostgreSQL, full LeozOps, RepositoryRealms, typecheck,
   local actual-handler E2E, dependency, secret, and boundary verification.
