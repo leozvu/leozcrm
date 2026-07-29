@@ -878,7 +878,7 @@ Branch: `codex/leozops-p1-decision-preflight`
 
 Baseline: `main@a256bae`
 
-Publication status: **LOCAL TECHNICAL PASS — PUBLICATION PENDING**
+Publication status: **MERGED — [PR #17](https://github.com/leozvu/leozcrm/pull/17), `main@35ed23c`**
 
 Verdict: **P1 DECISION TOOLING PASS — P1 AND ALL EXTERNAL WORK BLOCKED**
 

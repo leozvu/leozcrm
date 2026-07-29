@@ -36,8 +36,9 @@ PostgreSQL 16 Checkpoint A smoke: PASS; evidence in docs/POSTGRES_SMOKE.md.
 Accepted through PR #15 at leozcrm/main@5e9a4b7. Managed/external PostgreSQL,
 P1/P2, and all external work remain blocked.
 P1 decision packet: docs/P1_DECISION_PACKET.md — local fail-closed manifest
-validator authorized by DECISION-002 addendum 12; the checked-in example is
-intentionally pending and P1 remains blocked.
+validator accepted through PR #17 at leozcrm/main@35ed23c under DECISION-002
+addendum 12; the checked-in example is intentionally pending and P1 remains
+blocked.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in

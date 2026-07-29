@@ -1,6 +1,6 @@
 # P1 Decision Packet — Solo Founder
 
-Status: **LOCAL PREFLIGHT ONLY — P1 NOT APPROVED**
+Status: **LOCAL TOOLING MERGED AND ACCEPTED — [PR #17](https://github.com/leozvu/leozcrm/pull/17), `main@35ed23c`; P1 NOT APPROVED**
 
 P1 is the permission boundary for creating the exact named networked test
 environment. This packet turns the eight Product Owner decisions in
