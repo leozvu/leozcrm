@@ -33,6 +33,7 @@ export class SourceAdapterError extends Error {
     message: string,
     public readonly status: number | null = null,
     public readonly disableConnection = false,
+    public readonly retryAfterMs: number | null = null,
   ) {
     super(message);
     this.name = 'SourceAdapterError';

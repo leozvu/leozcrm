@@ -15,6 +15,7 @@ import {
 
 type FetchLike = typeof fetch;
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MAX_RETRY_AFTER_MS = 24 * 60 * 60 * 1_000;
 
 function safeEtag(value: string | null | undefined): string | null {
   if (value == null || value === '') return null;
@@ -22,6 +23,19 @@ function safeEtag(value: string | null | undefined): string | null {
     throw new SourceAdapterError('invalid_etag', 'previous ETag is malformed');
   }
   return value;
+}
+
+/** Parse Retry-After into bounded numeric metadata without retaining the raw header. */
+function safeRetryAfterMs(value: string | null, now: number): number | null {
+  if (value === null || value.length === 0 || value.length > 100 || /[\r\n]/.test(value)) {
+    return null;
+  }
+  if (/^\d{1,6}$/.test(value)) {
+    return Math.min(Number(value) * 1_000, MAX_RETRY_AFTER_MS);
+  }
+  const date = Date.parse(value);
+  if (!Number.isFinite(date) || date <= now) return null;
+  return Math.min(date - now, MAX_RETRY_AFTER_MS);
 }
 
 /**
@@ -36,6 +50,7 @@ export class EgoricSalesV1Adapter implements SourceAdapter<EgoricSalesV1Snapshot
   constructor(
     private readonly fetchImpl: FetchLike = fetch,
     private readonly uuid: () => string = randomUUID,
+    private readonly clock: () => number = Date.now,
   ) {}
 
   async pull(request: SourcePullRequest): Promise<SourcePullResult<EgoricSalesV1Snapshot>> {
@@ -119,7 +134,13 @@ export class EgoricSalesV1Adapter implements SourceAdapter<EgoricSalesV1Snapshot
       );
     }
     if (response.status !== 200) {
-      throw new SourceAdapterError('source_http_error', 'source returned an unexpected status', response.status);
+      throw new SourceAdapterError(
+        'source_http_error',
+        'source returned an unexpected status',
+        response.status,
+        false,
+        safeRetryAfterMs(response.headers.get('retry-after'), this.clock()),
+      );
     }
     if (!(response.headers.get('content-type') ?? '').toLowerCase().includes('application/json')) {
       throw new SourceAdapterError('invalid_content_type', 'source response is not JSON', 200);
