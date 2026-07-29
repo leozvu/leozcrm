@@ -81,11 +81,12 @@ Evidence gates G1–G4 — ALL required before Sprint 2:
   key-revocation drill. Evidence recorded in repo; Codex PASS in
   CODEX_REVIEW.md; Leoz formally accepts (recorded in DECISIONS.md).
 
-The G4 hard stop is satisfied. DECISION-002 addenda 7–9 authorize S2.A local
-implementation only; live PostgreSQL, P1/P2, and deployment require separate
-Product Owner approval.
+The G4 hard stop is satisfied. DECISION-002 addenda 7–11 authorize and accept
+the S2.A local implementation plus one local disposable PostgreSQL checkpoint.
+P1/P2, managed infrastructure, and deployment require separate Product Owner
+approval.
 
-### Sprint 2 — 🚧 S2.A Local Core Accepted; PostgreSQL Gate Open
+### Sprint 2 — 🚧 S2.A Checkpoint A Pass; P1 Decision Blocked
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
@@ -93,10 +94,13 @@ Deployment → Test Instance → Production Shadow → Read-only Pilot.
 Plan: [`docs/SPRINT_2_PLAN.md`](docs/SPRINT_2_PLAN.md). DECISION-002 addendum 7
 authorized S2.A T1–T4 locally; addendum 8 accepts the core merged through
 [PR #11](https://github.com/leozvu/leozcrm/pull/11) at `main@5d140a8`. T5–T8
-are authorized for local/test implementation by addendum 9. Live PostgreSQL,
-P1/P2, and all external work remain blocked. The T5–T8 operations core passes
-local QA and is accepted through
+are authorized for local/test implementation by addendum 9. The T5–T8
+operations core passes local QA and is accepted through
 [PR #13](https://github.com/leozvu/leozcrm/pull/13) at `main@1911349`.
+The disposable PostgreSQL 16 migrate/immutability/rollback cycle passes per
+[`docs/POSTGRES_SMOKE.md`](docs/POSTGRES_SMOKE.md). P1 remains blocked on named
+environment and operating-policy decisions; managed infrastructure and every
+external action remain unauthorized.
 Planned contents:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.

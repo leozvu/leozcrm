@@ -802,3 +802,66 @@ inferred from this verdict.
 No scheduler activation, P1/P2 deployment, external database provisioning,
 credential or feature-flag creation, production-data access, write-back,
 publishing, employee workflow change, or autonomous action is authorized.
+
+---
+
+# S2.A Review — PostgreSQL Checkpoint A
+
+Review date: 2026-07-28
+
+Target repository: `leozvu/leozcrm`
+
+Branch: `codex/leozops-s2a-postgres-checkpoint`
+
+Baseline: `main@a5a68b8`
+
+Publication status: **TECHNICAL PASS — PUBLICATION PENDING**
+
+Verdict: **S2.A CHECKPOINT A PASS — P1/P2 AND EXTERNAL WORK BLOCKED**
+
+## A. Approved target and containment
+
+- One local disposable `postgres:16-alpine` container ran on loopback
+  `127.0.0.1:55432` with no named/shared volume.
+- The database was newly created for the smoke. Its generated credential was
+  invocation-only, never printed, and not retained.
+- No cloud resource, managed database, deployment, production data, source
+  flag, external credential, scheduler, or write path was created or enabled.
+
+## B. PostgreSQL evidence
+
+- Complete migration apply: **PASS**.
+- Nine canonical funnel stages seeded and verified: **PASS**.
+- Task lifecycle and monotonic audit sequence: **PASS**.
+- Source snapshot, intelligence run, deterministic brief, and exact
+  reconciliation lifecycle: **PASS**.
+- Direct update/delete rejection for immutable source snapshot and
+  reconciliation evidence: **PASS**.
+- Complete migration rollback and expected-table absence: **PASS**.
+
+Image digest and the full command-level result are recorded in
+[`docs/POSTGRES_SMOKE.md`](docs/POSTGRES_SMOKE.md).
+
+## C. Cleanup and gate result
+
+- The exact disposable container is absent and port `55432` is closed.
+- Docker Desktop was returned to its original stopped state.
+- S2.A Checkpoint A is technically complete under DECISION-002 addendum 11.
+- P1 remains blocked until the Product Owner records every exact environment
+  and operating-policy decision listed in `docs/SPRINT_2_PLAN.md` section 11.
+
+## D. Post-cleanup regression
+
+- Complete LeozOps suite: **206/206 PASS**, 0 skipped, 0 failed.
+- RepositoryRealms LeozOps contract suite: **69/69 PASS**, 0 skipped, 0 failed.
+- `npm run typecheck`: **PASS**.
+- Actual-handler local E2E: **PASS** with exact 4/4 reconciliation, 200/304,
+  three GETs, zero request bodies, zero source mutations, and legacy write 404.
+- Local Markdown links: **33/33 PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS**; no high/critical
+  finding. The pre-existing low `body-parser` and moderate `uuid` advisories
+  are unchanged.
+
+No P1/P2 approval, infrastructure choice, external action, production access,
+write-back, publishing, employee workflow change, or autonomy is inferred from
+this verdict.

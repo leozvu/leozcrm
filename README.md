@@ -20,17 +20,17 @@ Autopilot, with human authority and evidence gates at every step.
 | LeozOps ingestion / Business Memory | G2 complete: [PR #4](https://github.com/leozvu/leozcrm/pull/4) merged to `main@d1d34c5`; Product Owner accepted local S1.C continuation |
 | Snapshot-based CEO Brief | G3 complete: [PR #6](https://github.com/leozvu/leozcrm/pull/6) merged to `main@3a5fb9e`; Product Owner accepted local S1.D continuation |
 | Local end-to-end proof | G4 complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged to `main@5ef3fd5`; Sprint 1 accepted |
-| S2.A reliability hardening | T1–T4 accepted at `main@5d140a8`; T5–T8 accepted through [PR #13](https://github.com/leozvu/leozcrm/pull/13) at `main@1911349`; PostgreSQL gate open |
+| S2.A reliability hardening | T1–T8 accepted; disposable PostgreSQL 16 Checkpoint A smoke PASS; P1 blocked |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
 
 `Egoric Snapshot → LeozOps Ingestion → Business Memory → CEO Brief → Local E2E Proof`
 
-The next blocked path requires live disposable PostgreSQL evidence and a new
-named Product Owner approval:
+The local disposable PostgreSQL checkpoint is complete. The next blocked path
+requires a named Product Owner decision for the exact external environment:
 
-`PostgreSQL Checkpoint A → P1 → Networked Test → P2 → Production Shadow → G5 Decision`
+`P1 named-environment decision → Networked Test → P2 → Production Shadow → G5 Decision`
 
 ## Start here
 
@@ -52,9 +52,11 @@ named Product Owner approval:
    lease, retry, and circuit contract.
 10. [`docs/SOURCE_OPERATIONS.md`](docs/SOURCE_OPERATIONS.md) — S2.A exact
     reconciliation, sanitized health, and authenticated one-shot commands.
-11. [`docs/S2A_OPERATIONS_RUNBOOK.md`](docs/S2A_OPERATIONS_RUNBOOK.md) — local
+11. [`docs/POSTGRES_SMOKE.md`](docs/POSTGRES_SMOKE.md) — S2.A Checkpoint A
+    PostgreSQL lifecycle and immutability evidence.
+12. [`docs/S2A_OPERATIONS_RUNBOOK.md`](docs/S2A_OPERATIONS_RUNBOOK.md) — local
     failure, recovery, replay, and rollback procedures.
-12. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+13. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 

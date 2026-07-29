@@ -84,7 +84,8 @@ safe summaries and safe error codes only.
 - The existing source path remains GET-only with no request body.
 - A manual reconciliation reads LeozOps evidence only and never contacts or
   mutates Egoric.
-- P1/P2, live PostgreSQL, deployment, external credentials/flags, production
+- P1/P2, managed/external PostgreSQL, deployment, external credentials/flags,
+  production
   data, scheduled execution, write-back, publishing, and autonomy remain
   unauthorized.
 
@@ -101,7 +102,7 @@ safe summaries and safe error codes only.
   **PASS**;
 - package lock unchanged and no dependency added.
 
-`db:smoke:pg` now covers the new tables and immutable evidence path when a
-disposable PostgreSQL target is supplied. No target was supplied or authorized
-in this task, so live PostgreSQL remains explicitly **UNPROVED** and S2.A
-Checkpoint A remains open.
+`db:smoke:pg` covers the new tables and immutable evidence path. The approved
+local disposable PostgreSQL 16 cycle passed and was cleaned up as recorded in
+[`POSTGRES_SMOKE.md`](POSTGRES_SMOKE.md), closing the technical S2.A Checkpoint
+A requirement. P1 and every external action remain unauthorized.

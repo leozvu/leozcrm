@@ -1,9 +1,10 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **S2.A T1–T8 LOCAL/TEST ACCEPTED; POSTGRESQL CHECKPOINT OPEN**
+Status: **S2.A CHECKPOINT A TECHNICAL PASS; P1 BLOCKED**
 
-Authority: DECISION-002 addenda 7–9 authorize the complete S2.A local/test code
-cut. Live PostgreSQL and every external checkpoint remain blocked.
+Authority: DECISION-002 addenda 7–11 authorize and accept the complete S2.A
+local/test code cut plus one local disposable PostgreSQL checkpoint. Managed
+PostgreSQL and every external checkpoint remain blocked.
 
 Baseline:
 
@@ -140,9 +141,10 @@ T1–T4 evidence is recorded in [`POLL_RELIABILITY.md`](POLL_RELIABILITY.md), an
 T5–T8 evidence/runbooks are recorded in
 [`SOURCE_OPERATIONS.md`](SOURCE_OPERATIONS.md) and
 [`S2A_OPERATIONS_RUNBOOK.md`](S2A_OPERATIONS_RUNBOOK.md). The complete
-SQLite-backed local core passes, but Checkpoint A remains open: a live
-disposable PostgreSQL migrate/rollback/immutability cycle is still mandatory
-before P1 may be requested.
+The complete SQLite-backed local core and disposable PostgreSQL
+migrate/rollback/immutability cycle pass as recorded in
+[`POSTGRES_SMOKE.md`](POSTGRES_SMOKE.md). Checkpoint A is technically complete;
+P1 remains blocked on the named Product Owner decisions in section 11.
 
 ### S2.B — Networked pre-production proof
 
@@ -323,5 +325,5 @@ Before P1, the Product Owner must still record:
 8. Snapshot/evidence retention and access policy.
 9. The already recorded approval of the S2.A local/test task cut.
 
-Until items 1–8 and the live PostgreSQL Checkpoint A evidence are recorded, P1
+Until items 1–8 are recorded, P1
 and every external action remain blocked.
