@@ -33,7 +33,8 @@ Sprint 1D tasks (LeozOps repo): docs/SPRINT_1D_TASKS.md — T1-T7.
 Sprint 2/G5 plan: docs/SPRINT_2_PLAN.md — S2.A T1-T4 accepted and T5-T8
 merged through PR #13 at leozcrm/main@1911349 and accepted. Disposable
 PostgreSQL 16 Checkpoint A smoke: PASS; evidence in docs/POSTGRES_SMOKE.md.
-Managed/external PostgreSQL, P1/P2, and all external work remain blocked.
+Accepted through PR #15 at leozcrm/main@5e9a4b7. Managed/external PostgreSQL,
+P1/P2, and all external work remain blocked.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in

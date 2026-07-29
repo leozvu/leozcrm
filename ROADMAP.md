@@ -97,10 +97,11 @@ authorized S2.A T1–T4 locally; addendum 8 accepts the core merged through
 are authorized for local/test implementation by addendum 9. The T5–T8
 operations core passes local QA and is accepted through
 [PR #13](https://github.com/leozvu/leozcrm/pull/13) at `main@1911349`.
-The disposable PostgreSQL 16 migrate/immutability/rollback cycle passes per
-[`docs/POSTGRES_SMOKE.md`](docs/POSTGRES_SMOKE.md). P1 remains blocked on named
-environment and operating-policy decisions; managed infrastructure and every
-external action remain unauthorized.
+The disposable PostgreSQL 16 migrate/immutability/rollback cycle is accepted
+through [PR #15](https://github.com/leozvu/leozcrm/pull/15) at `main@5e9a4b7`;
+see [`docs/POSTGRES_SMOKE.md`](docs/POSTGRES_SMOKE.md). P1 remains blocked on
+named environment and operating-policy decisions; managed infrastructure and
+every external action remain unauthorized.
 Planned contents:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.
