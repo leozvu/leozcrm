@@ -80,8 +80,9 @@ logged by the reliability core.
   startup import.
 - Source transport remains the existing exact-path GET with no body.
 - The bearer value exists only in the in-memory `runOnce` input.
-- Permanent errors can disable a connection; recovery/operator commands remain
-blocked T7 scope.
+- Permanent errors can disable a connection; authenticated one-shot recovery
+  and other T7 commands are defined in
+  [`SOURCE_OPERATIONS.md`](SOURCE_OPERATIONS.md).
 
 ## Reviewed evidence
 
@@ -98,6 +99,5 @@ blocked T7 scope.
 - no high/critical dependency finding; the existing low `body-parser` and
   moderate `uuid` advisories remain unchanged.
 
-Live PostgreSQL, T5 reconciliation, T6 operator health, T7 commands, T8 full
-runbooks, scheduler mounting, P1, P2, and any external environment remain
-unproved and unauthorized.
+T5–T8 now pass locally at `cffccda`. Live PostgreSQL, scheduler mounting, P1,
+P2, and any external environment remain unproved and unauthorized.
