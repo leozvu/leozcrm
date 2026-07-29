@@ -323,6 +323,8 @@ Decision:
   pilot; this does not create a collaborator or weaken authentication.
 - Keep P1 blocked until one complete manifest passes local preflight and Leoz
   separately accepts its exact values in a later DECISION-002 addendum.
+- Accept the local decision tooling and evidence merged through PR #17 at
+  `leozcrm/main@35ed23c`; this acceptance does not approve the pending example.
 - This decision does not authorize account creation, paid spend, managed
   infrastructure, deployment, credentials, feature flags, scheduler
   activation, production data, write-back, publishing, employee workflow
