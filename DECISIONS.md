@@ -287,6 +287,26 @@ Decision:
 Owner: Leoz. Recorded by Codex from the instruction to continue the solo
 workflow through the clean local/test task cut.
 
+DECISION-002 addendum 11 — 2026-07-28 — S2.A PostgreSQL checkpoint accepted
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Treat the explicit instruction to continue after presentation of the
+  PostgreSQL blocker as authorization for one disposable PostgreSQL smoke on
+  the local machine only; no cloud/external target is authorized.
+- Accept the PostgreSQL 16 migrate/seed/task/source-evidence/immutability/
+  rollback PASS recorded in `docs/POSTGRES_SMOKE.md`.
+- Record S2.A Checkpoint A technically complete. The complete T1–T8 code cut
+  now passes SQLite, PostgreSQL, full LeozOps, RepositoryRealms, typecheck,
+  local actual-handler E2E, dependency, secret, and boundary verification.
+- Keep P1 blocked. Before P1, separately record the exact runtime/database
+  providers and identities, regions/owners, business timezone/hours, reviewer,
+  alert destination, approved runtime policies, and retention/access policy.
+- This decision does not authorize a managed database, deployment, external
+  credential or flag, scheduled worker, production data, write-back,
+  publishing, employee workflow change, or autonomous action.
+Owner: Leoz. Recorded by Codex from the explicit instruction to continue after
+the named local PostgreSQL checkpoint was presented.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.

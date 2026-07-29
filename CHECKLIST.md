@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / G4 ACCEPTED / S2.A T1-T8 LOCAL CORE ACCEPTED
+Status: SPRINT 1 COMPLETE / G4 ACCEPTED / S2.A CHECKPOINT A TECHNICAL PASS
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -31,8 +31,9 @@ Sprint 1B tasks (LeozOps repo): docs/SPRINT_1B_TASKS.md — T1-T7.
 Sprint 1C tasks (LeozOps repo): docs/SPRINT_1C_TASKS.md — T1-T7.
 Sprint 1D tasks (LeozOps repo): docs/SPRINT_1D_TASKS.md — T1-T7.
 Sprint 2/G5 plan: docs/SPRINT_2_PLAN.md — S2.A T1-T4 accepted and T5-T8
-merged through PR #13 at leozcrm/main@1911349 and accepted; live PostgreSQL,
-P1/P2, and external work blocked.
+merged through PR #13 at leozcrm/main@1911349 and accepted. Disposable
+PostgreSQL 16 Checkpoint A smoke: PASS; evidence in docs/POSTGRES_SMOKE.md.
+Managed/external PostgreSQL, P1/P2, and all external work remain blocked.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in

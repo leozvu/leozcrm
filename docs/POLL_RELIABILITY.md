@@ -99,5 +99,6 @@ logged by the reliability core.
 - no high/critical dependency finding; the existing low `body-parser` and
   moderate `uuid` advisories remain unchanged.
 
-T5–T8 now pass locally at `cffccda`. Live PostgreSQL, scheduler mounting, P1,
-P2, and any external environment remain unproved and unauthorized.
+T5–T8 and the local disposable PostgreSQL checkpoint now pass. Scheduler
+mounting, P1, P2, and every external environment remain unproved and
+unauthorized.

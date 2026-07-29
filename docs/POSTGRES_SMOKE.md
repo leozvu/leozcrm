@@ -1,57 +1,85 @@
-# PostgreSQL Lifecycle Smoke (Milestone #7, Phase C)
+# PostgreSQL Lifecycle and S2.A Checkpoint Smoke
 
-> **Legacy evidence:** This smoke validates the historical CRM schema. Its PASS
-> may inform infrastructure choices but does not prove that the future Business
-> Memory schema or `egoric-readonly` deployment is production-ready.
+Status: **S2.A CHECKPOINT A TECHNICAL PASS; PUBLICATION PENDING**
 
-The CRM schema is written with Knex's dialect-portable schema builder and
-app-generated UUID keys, so the **same migrations run unchanged on SQLite
-(dev/test) and PostgreSQL (production)**. This smoke proves that claim against a
-real PostgreSQL instance before external exposure.
+`npm run db:smoke:pg` exercises the complete current migration stack against a
+real PostgreSQL server. It is destructive to the named target database because
+it deliberately migrates and rolls back; use a new disposable database only.
 
-## What it does
+## What the smoke proves
 
-`npm run db:smoke:pg` runs `src/db/pgSmoke.ts`, which against the configured
-PostgreSQL database performs:
+Against the configured PostgreSQL database the script:
 
-1. `migrate latest` — apply all migrations, then assert the four tables exist.
-2. seed reference data — seed the canonical funnel stages, assert all 9 present.
-3. `migrate rollback` — revert, then assert all four tables are dropped cleanly
-   (no orphaned objects / non-reversible migration).
+1. applies every migration;
+2. verifies the legacy and LeozOps tables exist, including `tenants`,
+   `source_connections`, `source_snapshots`, `intelligence_runs`,
+   `source_poll_states`, and `source_reconciliations`;
+3. seeds and verifies the nine canonical funnel stages;
+4. exercises the task lifecycle and monotonic audit sequence;
+5. creates an Egoric tenant/connection, accepts a valid content-hashed
+   snapshot/run, generates the deterministic brief, and records a passing exact
+   reconciliation;
+6. proves PostgreSQL rejects direct mutation of both the source snapshot and
+   reconciliation evidence;
+7. rolls back the complete batch; and
+8. verifies every expected table is gone.
 
-It is **env-gated**: with no PostgreSQL configured it prints a skip message and
-exits `0`. When a target *is* configured, any failure exits non-zero.
+Missing PostgreSQL configuration prints a skip and exits zero so local test
+commands remain convenient. A skip is never passing release evidence.
 
-## Running it
+## Checkpoint A evidence — 2026-07-28
 
-Point it at a disposable PostgreSQL database (it migrates then rolls back, but
-use a throwaway DB):
+The approved local disposable target was:
 
-```bash
-# Option A: a single connection string
-export DATABASE_URL="postgres://user:pass@localhost:5432/leozops_smoke"
+- engine: Docker Desktop, restored to its original stopped state afterward;
+- image: `postgres:16-alpine`, digest
+  `sha256:57c72fd2a128e416c7fcc499958864df5301e940bca0a56f58fddf30ffc07777`;
+- container: `leozops-pg-checkpoint-a-20260728`;
+- endpoint: loopback only, `127.0.0.1:55432`;
+- database: `leozops_checkpoint_a`;
+- storage: disposable container filesystem, no named/shared volume;
+- credentials: generated in process, never printed or retained.
 
-# Option B: discrete PG* vars (used when DATABASE_URL is unset)
-export PGHOST=localhost PGPORT=5432 PGUSER=leozops PGPASSWORD=leozops PGDATABASE=leozops_smoke
+Observed result:
 
-npm run db:smoke:pg
-```
-
-A quick disposable instance via Docker:
-
-```bash
-docker run --rm -e POSTGRES_PASSWORD=leozops -e POSTGRES_DB=leozops_smoke \
-  -p 5432:5432 postgres:16
-# then, in another shell, with the env above set:
-npm run db:smoke:pg
-```
-
-Expected final line on success:
-
-```
+```text
+Postgres smoke: applying migrations…
+Postgres smoke: seeding reference data…
+  seeded 9 funnel stages, 9 present.
+Postgres smoke: exercising the task lifecycle…
+  task lifecycle + monotonic audit seq verified.
+Postgres smoke: exercising immutable source evidence…
+  source snapshot + reconciliation immutability verified.
+Postgres smoke: rolling back…
 Postgres migrate/seed/rollback smoke PASSED.
 ```
 
-> Note: `pg` is an optional dependency. If it is not installed in your
-> environment, install it first (`npm install pg`). The dev/test suites use
-> SQLite and do not require it.
+Cleanup evidence:
+
+- exact disposable container absent after the `finally` cleanup;
+- loopback port `55432` no longer listening;
+- Docker Desktop service returned to `Stopped / Manual`;
+- no cloud resource, deployment, named volume, production data, source flag,
+  or external credential was created.
+
+This closes the technical PostgreSQL requirement in S2.A Checkpoint A. It does
+not authorize P1, choose a managed provider, prove a networked test deployment,
+or authorize any production/external action.
+
+## Running on another approved disposable target
+
+Set either one connection string:
+
+```text
+DATABASE_URL=postgresql://<user>:<password>@<host>:<port>/<disposable_db>
+```
+
+or the standard `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, and `PGDATABASE`
+variables, then run:
+
+```text
+npm run db:smoke:pg
+```
+
+Never use an existing application database. Confirm the target identity,
+backup/retention expectation, and destruction authority before execution.
