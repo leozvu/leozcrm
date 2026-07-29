@@ -639,9 +639,10 @@ Baseline: `origin/main@b147716`
 
 Reviewed implementation commit: `b5f5ede`
 
-Publication status: **PENDING**
+Publication status: **MERGED —
+[PR #11](https://github.com/leozvu/leozcrm/pull/11), `main@5d140a8`**
 
-Verdict: **S2.A T1–T4 TECHNICAL PASS — T5–T8 AND P1/P2 BLOCKED**
+Verdict: **S2.A T1–T4 COMPLETE AND ACCEPTED — T5–T8 AND P1/P2 BLOCKED**
 
 ## A. Persistent concurrency and circuit contract
 
@@ -703,10 +704,11 @@ Verdict: **S2.A T1–T4 TECHNICAL PASS — T5–T8 AND P1/P2 BLOCKED**
 
 ## E. Gate result and limitations
 
-The local/test S2.A reliability core T1–T4 passes at `b5f5ede`. This result does
-not complete S2.A Checkpoint A: T5 reconciliation, T6 operator health, T7
-commands, T8 full runbooks, and live disposable PostgreSQL verification remain
-blocked/unproved.
+The local/test S2.A reliability core T1–T4 passed at `b5f5ede`, was merged
+through PR #11 at `main@5d140a8`, and is accepted in DECISION-002 addendum 8.
+This result does not complete S2.A Checkpoint A: T5 reconciliation, T6 operator
+health, T7 commands, T8 full runbooks, and live disposable PostgreSQL
+verification remain blocked/unproved.
 
 No scheduler may be mounted and no P1/P2 deployment, external database
 provisioning, credential, feature flag, production access, write-back,

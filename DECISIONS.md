@@ -232,6 +232,22 @@ Decision:
   tenant, profile-isolation, and advisory-only boundaries.
 Owner: Leoz. Recorded by Codex from the explicit instruction to continue.
 
+DECISION-002 addendum 8 — 2026-07-28 — S2.A reliability core accepted
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Accept the local/test S2.A T1–T4 reliability core merged through `leozcrm`
+  [PR #11](https://github.com/leozvu/leozcrm/pull/11) at `main@5d140a8`.
+- Record the persistent lease, bounded retry, fail-closed classification, and
+  restart-safe circuit capability as complete library infrastructure only.
+- Keep Checkpoint A open. T5 reconciliation, T6 operator health, T7 commands,
+  T8 runbooks, and live disposable PostgreSQL verification are not accepted or
+  authorized by this addendum.
+- Keep P1, P2, external provisioning, deployment, credentials, feature flags,
+  scheduler activation, production-data access, write-back, publishing, and
+  autonomous action blocked pending their explicit named approvals.
+Owner: Leoz. Recorded by Codex from the instruction to continue the solo
+workflow after the authorized core passed QA.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.
