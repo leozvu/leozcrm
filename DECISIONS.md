@@ -308,6 +308,28 @@ Decision:
 Owner: Leoz. Recorded by Codex from the explicit instruction to continue after
 the named local PostgreSQL checkpoint was presented.
 
+DECISION-002 addendum 12 — 2026-07-28 — P1 decision preflight authorized
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Treat the explicit instruction to continue after Checkpoint A acceptance as
+  authorization for local-only P1 decision tooling and documentation.
+- Create a fail-closed, secret-reference-only manifest validator covering the
+  exact runtime, database, Egoric deployment, business calendar, reviewer,
+  alert, polling, retention/access, and monthly-budget decisions.
+- Record Render web service + command-and-exit cron + independent Render
+  Postgres as the provisional smallest solo-founder recommendation only. It is
+  not an approved provider, plan, purchase, project, database, or deployment.
+- Permit Leoz to be both Director reviewer and on-call owner for the smallest
+  pilot; this does not create a collaborator or weaken authentication.
+- Keep P1 blocked until one complete manifest passes local preflight and Leoz
+  separately accepts its exact values in a later DECISION-002 addendum.
+- This decision does not authorize account creation, paid spend, managed
+  infrastructure, deployment, credentials, feature flags, scheduler
+  activation, production data, write-back, publishing, employee workflow
+  change, or autonomous action.
+Owner: Leoz. Recorded by Codex from the instruction to continue the solo
+workflow after S2.A Checkpoint A was merged and accepted.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.

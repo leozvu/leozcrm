@@ -86,7 +86,7 @@ the S2.A local implementation plus one local disposable PostgreSQL checkpoint.
 P1/P2, managed infrastructure, and deployment require separate Product Owner
 approval.
 
-### Sprint 2 — 🚧 S2.A Checkpoint A Pass; P1 Decision Blocked
+### Sprint 2 — 🚧 S2.A Accepted; P1 Decision Preflight Local
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
@@ -102,6 +102,10 @@ through [PR #15](https://github.com/leozvu/leozcrm/pull/15) at `main@5e9a4b7`;
 see [`docs/POSTGRES_SMOKE.md`](docs/POSTGRES_SMOKE.md). P1 remains blocked on
 named environment and operating-policy decisions; managed infrastructure and
 every external action remain unauthorized.
+DECISION-002 addendum 12 authorizes the local fail-closed manifest and
+provisional solo-founder defaults in
+[`docs/P1_DECISION_PACKET.md`](docs/P1_DECISION_PACKET.md). Its pending example
+does not approve P1 or any provider/spend.
 Planned contents:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.

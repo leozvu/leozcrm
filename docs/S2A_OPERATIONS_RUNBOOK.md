@@ -135,5 +135,8 @@ drops reconciliation evidence, so it requires a backup/retention decision in
 any non-disposable environment. Egoric needs no data restoration because every
 operation is read-only toward Egoric.
 
-The prepared `npm run db:smoke:pg` path must run against a named disposable
-PostgreSQL database before P1 can be requested. A skipped smoke is not evidence.
+The `npm run db:smoke:pg` path passed against the approved local disposable
+PostgreSQL target and was accepted through PR #15. Before P1, the complete
+environment decision must now pass
+`npm run p1:preflight -- <decision-manifest.json>` and be accepted in a new
+DECISION-002 addendum. Neither command authorizes external work by itself.

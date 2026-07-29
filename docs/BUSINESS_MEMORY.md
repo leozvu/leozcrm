@@ -78,7 +78,8 @@ Product Owner authorization for local/test S1.C work is a separate decision
 recorded in DECISION-002 addendum 4; it grants none of the production powers
 excluded above.
 
-Local QA evidence and the accepted pre-production limitation are recorded in
-`../CODEX_REVIEW.md`. A live PostgreSQL lifecycle was not available in this
-workspace; that infrastructure proof remains required before deployment, not
-for the SQLite-backed local/test G2 gate.
+Local QA evidence and the original pre-production limitation are recorded in
+`../CODEX_REVIEW.md`. PostgreSQL was unavailable during the historical G2
+review; the later complete disposable PostgreSQL 16 lifecycle passed and is
+recorded in `POSTGRES_SMOKE.md`. Managed infrastructure and deployment remain
+separate approval gates.

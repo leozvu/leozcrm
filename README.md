@@ -54,9 +54,11 @@ requires a named Product Owner decision for the exact external environment:
     reconciliation, sanitized health, and authenticated one-shot commands.
 11. [`docs/POSTGRES_SMOKE.md`](docs/POSTGRES_SMOKE.md) — S2.A Checkpoint A
     PostgreSQL lifecycle and immutability evidence.
-12. [`docs/S2A_OPERATIONS_RUNBOOK.md`](docs/S2A_OPERATIONS_RUNBOOK.md) — local
+12. [`docs/P1_DECISION_PACKET.md`](docs/P1_DECISION_PACKET.md) — fail-closed
+    founder decision manifest and provisional P1 defaults.
+13. [`docs/S2A_OPERATIONS_RUNBOOK.md`](docs/S2A_OPERATIONS_RUNBOOK.md) — local
     failure, recovery, replay, and rollback procedures.
-13. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+14. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 

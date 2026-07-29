@@ -325,5 +325,11 @@ Before P1, the Product Owner must still record:
 8. Snapshot/evidence retention and access policy.
 9. The already recorded approval of the S2.A local/test task cut.
 
-Until items 1–8 are recorded, P1
-and every external action remain blocked.
+The local fail-closed decision schema, provisional solo-founder defaults, and
+approval procedure are in [`P1_DECISION_PACKET.md`](P1_DECISION_PACKET.md).
+Run `npm run p1:preflight -- <decision-manifest.json>` before recording a P1
+approval. A passing preflight proves only that the decision is complete; it
+does not authorize or perform external work.
+
+Until items 1–8 are recorded in one passing manifest and accepted in a new
+DECISION-002 addendum, P1 and every external action remain blocked.

@@ -400,9 +400,10 @@ framework.
 - **HTTP route-level coverage exists for the `/metrics` routes.** Equivalent
   route-level tests for the M1 CRUD routes (bad IDs, cross-client conflicts,
   no-accidental-500s) are still tracked in `CHECKLIST.md` / `ROADMAP.md` M7.
-- **Postgres parity is by construction, not yet executed in CI.** The verified
-  runtime is SQLite; a Postgres migrate/seed/rollback smoke is a tracked
-  pre-production item.
+- **Postgres parity is locally proved, not yet executed in CI.** SQLite remains
+  the standard test runtime. The complete migration/immutability/rollback path
+  passed on disposable PostgreSQL 16 and is recorded in
+  `docs/POSTGRES_SMOKE.md`.
 
 ### Supported commands (the only supported entry points)
 
@@ -414,6 +415,7 @@ framework.
 | `npm run seed` | Seed + self-verify |
 | `npm run db:reset` | rollback → migrate → seed |
 | `npm run db:smoke:pg` | PostgreSQL migrate/seed/rollback smoke (env-gated; see `docs/POSTGRES_SMOKE.md`) |
+| `npm run p1:preflight -- <file>` | Fail-closed local validation of a P1 decision manifest; performs no external action |
 | `npm start` / `npm run dev` | Run the API (`dev` = watch) |
 
 ---
@@ -483,7 +485,8 @@ enforced at the DB level.
 `npm run db:smoke:pg` (`src/db/pgSmoke.ts`) runs migrate → seed+verify →
 rollback+verify-dropped against a configured PostgreSQL instance, proving the
 dialect-portable migrations are reversible on Postgres. It is env-gated (skips
-cleanly when no PG is configured). See `docs/POSTGRES_SMOKE.md`.
+cleanly when no PG is configured). The accepted disposable PostgreSQL 16
+evidence is in `docs/POSTGRES_SMOKE.md`.
 
 ---
 
