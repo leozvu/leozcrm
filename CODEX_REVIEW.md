@@ -728,9 +728,9 @@ Baseline: `origin/main@34164b3`
 
 Reviewed implementation commit: `cffccda`
 
-Publication status: **PENDING**
+Publication status: **MERGED — [PR #13](https://github.com/leozvu/leozcrm/pull/13), `main@1911349`**
 
-Verdict: **S2.A T5–T8 LOCAL/TEST TECHNICAL PASS — CHECKPOINT A AND P1/P2 BLOCKED**
+Verdict: **S2.A T5–T8 COMPLETE AND ACCEPTED — CHECKPOINT A AND P1/P2 BLOCKED**
 
 ## A. Exact and immutable reconciliation
 
@@ -793,9 +793,11 @@ Verdict: **S2.A T5–T8 LOCAL/TEST TECHNICAL PASS — CHECKPOINT A AND P1/P2 BLO
 
 ## E. Gate result and limitations
 
-The complete S2.A T1–T8 local/SQLite code cut passes. Checkpoint A remains open
-because its required live disposable PostgreSQL migrate/rollback/immutability
-cycle is unproved. P1 may not be requested or inferred from this verdict.
+The complete S2.A T1–T8 local/SQLite code cut passed, was merged through PR #13
+at `main@1911349`, and is accepted in DECISION-002 addendum 10. Checkpoint A
+remains open because its required live disposable PostgreSQL
+migrate/rollback/immutability cycle is unproved. P1 may not be requested or
+inferred from this verdict.
 
 No scheduler activation, P1/P2 deployment, external database provisioning,
 credential or feature-flag creation, production-data access, write-back,

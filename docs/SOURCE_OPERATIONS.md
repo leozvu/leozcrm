@@ -1,6 +1,6 @@
 # Source Operations Core
 
-Status: **S2.A T5–T8 TECHNICAL PASS AT `cffccda`; PUBLICATION PENDING**
+Status: **S2.A T5–T8 MERGED AND ACCEPTED AT `main@1911349`**
 
 This capability completes the local/test operational half of S2.A. It adds
 immutable reconciliation evidence, an authenticated sanitized health

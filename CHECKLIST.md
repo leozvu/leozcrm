@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / G4 ACCEPTED / S2.A T1-T8 TECHNICAL PASS
+Status: SPRINT 1 COMPLETE / G4 ACCEPTED / S2.A T1-T8 LOCAL CORE ACCEPTED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -31,12 +31,12 @@ Sprint 1B tasks (LeozOps repo): docs/SPRINT_1B_TASKS.md — T1-T7.
 Sprint 1C tasks (LeozOps repo): docs/SPRINT_1C_TASKS.md — T1-T7.
 Sprint 1D tasks (LeozOps repo): docs/SPRINT_1D_TASKS.md — T1-T7.
 Sprint 2/G5 plan: docs/SPRINT_2_PLAN.md — S2.A T1-T4 accepted and T5-T8
-local/test technical PASS at cffccda; live PostgreSQL, P1/P2, and external work
-blocked.
+merged through PR #13 at leozcrm/main@1911349 and accepted; live PostgreSQL,
+P1/P2, and external work blocked.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
-S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 technical PASS at
-cffccda; publication pending. Runbook: docs/S2A_OPERATIONS_RUNBOOK.md.
+S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in
+DECISION-002 addendum 10. Runbook: docs/S2A_OPERATIONS_RUNBOOK.md.
 Business Memory contract: docs/BUSINESS_MEMORY.md.
 Corrective QA passed at repositoryrealms@28ceff6 against main@507187f.
 PR #7 merged to repositoryrealms/main@98c0eca and Product Owner accepted G1

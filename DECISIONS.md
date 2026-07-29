@@ -268,6 +268,25 @@ Decision:
 Owner: Leoz. Recorded by Codex from the explicit instruction to continue after
 the T1–T4 acceptance boundary was presented.
 
+DECISION-002 addendum 10 — 2026-07-28 — S2.A T5–T8 accepted locally
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Accept the local/test Source Operations core merged through `leozcrm`
+  [PR #13](https://github.com/leozvu/leozcrm/pull/13) at `main@1911349`.
+- Record S2.A T1–T8 local/SQLite implementation complete: persistent polling
+  reliability, immutable exact reconciliation, sanitized authenticated health,
+  one-shot operator commands, and local failure/recovery runbooks all pass QA.
+- Keep S2.A Checkpoint A open because the required live disposable PostgreSQL
+  migrate/rollback/immutability smoke was skipped and remains unproved.
+- Do not infer P1 or authorize an external target. Runtime/provider identities,
+  policies, alert destination, retention, live PostgreSQL, deployment,
+  credentials, feature flags, scheduler activation, and production data still
+  require their named approvals.
+- Write-back, publishing, employee workflow changes, and autonomy remain out of
+  scope.
+Owner: Leoz. Recorded by Codex from the instruction to continue the solo
+workflow through the clean local/test task cut.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.

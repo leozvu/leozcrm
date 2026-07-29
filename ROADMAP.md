@@ -85,7 +85,7 @@ The G4 hard stop is satisfied. DECISION-002 addenda 7–9 authorize S2.A local
 implementation only; live PostgreSQL, P1/P2, and deployment require separate
 Product Owner approval.
 
-### Sprint 2 — 🚧 S2.A T1–T8 Technical Pass; PostgreSQL Gate Open
+### Sprint 2 — 🚧 S2.A Local Core Accepted; PostgreSQL Gate Open
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
@@ -95,7 +95,8 @@ authorized S2.A T1–T4 locally; addendum 8 accepts the core merged through
 [PR #11](https://github.com/leozvu/leozcrm/pull/11) at `main@5d140a8`. T5–T8
 are authorized for local/test implementation by addendum 9. Live PostgreSQL,
 P1/P2, and all external work remain blocked. The T5–T8 operations core passes
-local QA at `cffccda`; publication is pending.
+local QA and is accepted through
+[PR #13](https://github.com/leozvu/leozcrm/pull/13) at `main@1911349`.
 Planned contents:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.
