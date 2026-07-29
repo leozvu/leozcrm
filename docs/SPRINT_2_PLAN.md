@@ -1,6 +1,6 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **S2.A T1–T4 AUTHORIZED FOR LOCAL/TEST; ALL LATER WORK BLOCKED**
+Status: **S2.A T1–T4 TECHNICAL PASS AT `b5f5ede`; PUBLICATION PENDING**
 
 Authority: DECISION-002 addendum 7 authorizes the local reliability core only.
 
@@ -94,32 +94,32 @@ following packages are blocked.
 
 Implementation tasks after task-cut approval:
 
-- **T1 — Persistent poll state:** extend the existing source-connection health
-  fields with last attempt, consecutive failures, circuit state, next eligible
-  attempt, reconciliation status, and non-secret error classification. Do not
-  duplicate existing ETag or last-success state. Migrations must be reversible
-  and work on SQLite plus PostgreSQL.
-- **T2 — Bounded poll coordinator:** one in-flight pull per connection; fixed
+- [x] **T1 — Persistent poll state:** add a one-to-one source reliability state
+  with last attempt, consecutive failures, circuit state, next eligible
+  attempt, lease/revision, and non-secret error classification. Do not duplicate
+  existing ETag or last-success state. Migrations must be reversible and work
+  on SQLite plus PostgreSQL.
+- [x] **T2 — Bounded poll coordinator:** one in-flight pull per connection; fixed
   15-minute target cadence; deterministic test clock; bounded exponential
   backoff with jitter; `Retry-After` support; no unbounded retries.
-- **T3 — Fail-closed policy:** never retry 401/403 or schema/hash/tenant
+- [x] **T3 — Fail-closed policy:** never retry 401/403 or schema/hash/tenant
   failures; disable the affected connection, alert, and require operator
   recovery. Retry only network, 429, and eligible 5xx failures within bounds.
   The adapter may expose sanitized status and bounded `Retry-After` metadata;
   it must never expose or log the upstream body or caller-controlled headers.
-- **T4 — Persistent circuit breaker:** open after the approved threshold,
+- [x] **T4 — Persistent circuit breaker:** open after the approved threshold,
   remain restart-safe, support a single controlled probe, and close only after
   a valid 200 or 304 recovery.
-- **T5 — Nightly reconciliation:** compare source total/stage/source facts with
+- [ ] **T5 — Nightly reconciliation:** compare source total/stage/source facts with
   the accepted stored snapshot and brief; record only counts, IDs, hashes, and
   status. Any mismatch fails the day and alerts; it never repairs Egoric.
-- **T6 — Freshness and health:** expose an authenticated operator health view
+- [ ] **T6 — Freshness and health:** expose an authenticated operator health view
   with last success, source age, ETag, circuit state, next attempt, and failure
   class. No payload, PII, bearer token, or raw error body may appear.
-- **T7 — Operator commands:** one-shot poll, reconcile, disable, and recovery
+- [ ] **T7 — Operator commands:** one-shot poll, reconcile, disable, and recovery
   commands run inside the service environment. No public mutation route is
   added to `egoric-readonly`.
-- **T8 — Runbooks and tests:** key rotation, flag shutdown, stale data, schema
+- [ ] **T8 — Runbooks and tests:** key rotation, flag shutdown, stale data, schema
   mismatch, circuit recovery, replay, database outage, and rollback.
 
 Checkpoint A evidence:
@@ -134,6 +134,11 @@ Checkpoint A evidence:
 - integration profile still denies every legacy mutation surface;
 - dependency, secret, PII, and network-egress scans pass;
 - Codex records the technical verdict before P1 is requested.
+
+Interim T1–T4 evidence is recorded in
+[`POLL_RELIABILITY.md`](POLL_RELIABILITY.md). It proves the SQLite-backed local
+core only. Checkpoint A remains open: T5–T8 and a live disposable PostgreSQL
+cycle are still mandatory before P1 may be requested.
 
 ### S2.B — Networked pre-production proof
 

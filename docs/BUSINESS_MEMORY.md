@@ -21,9 +21,10 @@ Binding source contract: `EGORIC_INTEGRATION.md`
 - Unknown schemas, fields, stages, tenant identities, hashes, quality counts,
   content types, or ETags fail closed before storage.
 
-Scheduling, retries, circuit breaking, runtime route profiles, metrics, and CEO
-Brief generation are later gates. G2 intentionally does not expose a new HTTP
-route or enable a deployment.
+G2 intentionally added no scheduling, retry, or circuit capability. S2.A later
+added a local/test reliability core around the explicit pull, documented in
+[`POLL_RELIABILITY.md`](POLL_RELIABILITY.md); it still exposes no new HTTP route,
+mounts no scheduler, and enables no deployment.
 
 ## Storage model
 
@@ -33,6 +34,7 @@ route or enable a deployment.
 | `source_connections` | `(tenant_id, source_system, source_tenant_key)` | Connection state only; raw keys are never stored |
 | `source_snapshots` | `(source_system, source_tenant_key, snapshot_id)` | Append-only; database triggers reject UPDATE and DELETE |
 | `intelligence_runs` | `(tenant_id, snapshot_id, engine_version, as_of)` | Insert-once identity |
+| `source_poll_states` | one-to-one with `(tenant_id, source_connection_id)` | Mutable coordination/health only; no key or payload |
 
 Composite foreign keys bind connections, snapshots, and runs to the same
 tenant. The schema runs on SQLite for local/test and PostgreSQL for a future

@@ -32,6 +32,8 @@ Sprint 1C tasks (LeozOps repo): docs/SPRINT_1C_TASKS.md — T1-T7.
 Sprint 1D tasks (LeozOps repo): docs/SPRINT_1D_TASKS.md — T1-T7.
 Sprint 2/G5 plan: docs/SPRINT_2_PLAN.md — S2.A T1-T4 local/test authorized;
 T5-T8 and P1/P2 blocked.
+S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 technical PASS at
+b5f5ede; publication pending.
 Business Memory contract: docs/BUSINESS_MEMORY.md.
 Corrective QA passed at repositoryrealms@28ceff6 against main@507187f.
 PR #7 merged to repositoryrealms/main@98c0eca and Product Owner accepted G1
