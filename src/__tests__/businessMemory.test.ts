@@ -19,6 +19,7 @@ import { SourceAdapterError } from '../integrations/sources/sourceAdapter';
 import {
   SOURCE_POLL_STATE_TABLE,
 } from '../domain/pollReliability';
+import { SOURCE_RECONCILIATION_TABLE } from '../domain/sourceOperations';
 import {
   BusinessMemoryError,
   BusinessMemoryRepository,
@@ -473,6 +474,9 @@ test('Business Memory migration rolls back tables and immutability triggers clea
     BUSINESS_MEMORY_TABLES.sourceSnapshots,
     BUSINESS_MEMORY_TABLES.intelligenceRuns,
     SOURCE_POLL_STATE_TABLE,
+    SOURCE_RECONCILIATION_TABLE,
+    'source_reconciliations_no_update',
+    'source_reconciliations_no_delete',
     'source_snapshots_no_update',
     'source_snapshots_no_delete',
   ]) {

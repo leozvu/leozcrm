@@ -95,7 +95,8 @@ function sum(leads: EgoricSalesLead[], select: (lead: EgoricSalesLead) => number
   return total;
 }
 
-function presentableSource(value: string | null): string | null {
+/** Safe source bucket shared by the brief and reconciliation evidence. */
+export function presentableEgoricSource(value: string | null): string | null {
   if (value === null) return null;
   return SAFE_SOURCE_LABELS.get(value.trim().toLowerCase()) ?? 'unclassified';
 }
@@ -196,7 +197,7 @@ export class EgoricBriefService {
     const sourceCounts = new Map<string | null, number>();
     let unclassifiedSources = 0;
     for (const lead of snapshot.leads) {
-      const source = presentableSource(lead.source);
+      const source = presentableEgoricSource(lead.source);
       if (source === 'unclassified' && lead.source !== 'unclassified') unclassifiedSources += 1;
       sourceCounts.set(source, (sourceCounts.get(source) ?? 0) + 1);
     }
