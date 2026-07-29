@@ -1,9 +1,9 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **S2.A T1–T4 MERGED AND ACCEPTED; CHECKPOINT A REMAINS OPEN**
+Status: **S2.A T1–T4 ACCEPTED; T5–T8 AUTHORIZED FOR LOCAL/TEST**
 
-Authority: DECISION-002 addenda 7–8 authorize and accept the local reliability
-core only.
+Authority: DECISION-002 addenda 7–9 authorize the complete S2.A local/test code
+cut. Live PostgreSQL and every external checkpoint remain blocked.
 
 Baseline:
 
@@ -27,10 +27,10 @@ The plan deliberately separates four facts that must not be conflated:
 
 ## 2. Authorization wall
 
-DECISION-002 addendum 7 authorizes S2.A T1–T4 in local/test scope with injected
-policy values and no mounted scheduler. T5–T8 and every external state change
-remain blocked until the Product Owner approves the relevant task cut and
-resolves the decisions in section 11.
+DECISION-002 addenda 7–9 authorize S2.A T1–T8 in local/test scope with injected
+policy values and no mounted scheduler. Every external state change remains
+blocked until the Product Owner approves the relevant checkpoint and resolves
+the decisions in section 11.
 
 Separate, just-in-time approval is then required at both external checkpoints:
 

@@ -248,6 +248,26 @@ Decision:
 Owner: Leoz. Recorded by Codex from the instruction to continue the solo
 workflow after the authorized core passed QA.
 
+DECISION-002 addendum 9 — 2026-07-28 — S2.A operations core authorized locally
+Status: Approved by Leoz (Product Owner).
+Decision:
+- Treat the explicit instruction to continue after acceptance of T1–T4 as
+  approval for S2.A tasks T5–T8 in local/test code scope only.
+- Authorize a persistent exact-reconciliation record, a sanitized operator
+  health projection, and one-shot poll/reconcile/disable/recover commands that
+  run inside the service environment.
+- Authorize failure, replay, stale-data, recovery, database-outage, migration,
+  and rollback tests plus local runbooks. Scheduled execution may be modeled
+  and invoked explicitly in tests, but no scheduler or startup hook is mounted.
+- Require reconciliation to record counts, IDs, hashes, status, and safe error
+  classes only. It must never store source payloads, lead PII, credentials, raw
+  headers, or raw exception bodies and must never repair or mutate Egoric.
+- Keep live PostgreSQL provisioning, P1, P2, deployment, external credentials,
+  feature flags, production-data access, scheduled polling, write-back,
+  publishing, employee workflow changes, and autonomous action blocked.
+Owner: Leoz. Recorded by Codex from the explicit instruction to continue after
+the T1–T4 acceptance boundary was presented.
+
 2026-07-18 — Egoric is the operational system of record; LeozOps becomes a read-only intelligence layer
 Decision: Keep Egoric as the sole CRM/ERP and employee workflow system. Integrate LeozOps as a separately deployed, read-only API intelligence service for versioned KPIs, CEO Briefs, and advisory recommendations.
 Context: Egoric is already deployed and used by real employees. LeozOps contains useful deterministic intelligence components but also duplicates clients, leads, campaigns, tasks, onboarding, and publishing responsibilities. Launching both as operational CRMs would create double entry, ownership conflicts, and production risk.

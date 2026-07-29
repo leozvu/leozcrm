@@ -84,7 +84,7 @@ Evidence gates G1–G4 — ALL required before Sprint 2:
 The G4 hard stop is satisfied. Only Sprint 2/G5 planning is now authorized;
 implementation and deployment require separate Product Owner approval.
 
-### Sprint 2 — 🚧 S2.A T1–T4 Core Accepted; Checkpoint A Open
+### Sprint 2 — 🚧 S2.A T5–T8 Local Operations Core In Progress
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
@@ -92,7 +92,8 @@ Deployment → Test Instance → Production Shadow → Read-only Pilot.
 Plan: [`docs/SPRINT_2_PLAN.md`](docs/SPRINT_2_PLAN.md). DECISION-002 addendum 7
 authorized S2.A T1–T4 locally; addendum 8 accepts the core merged through
 [PR #11](https://github.com/leozvu/leozcrm/pull/11) at `main@5d140a8`. T5–T8
-and all external work remain blocked.
+are authorized for local/test implementation by addendum 9. Live PostgreSQL,
+P1/P2, and all external work remain blocked.
 Planned contents:
 - Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
   reconciliation, alerting, operational runbooks.
