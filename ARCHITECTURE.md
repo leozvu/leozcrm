@@ -615,3 +615,27 @@ surface and not a deployed runtime profile.
 - `autonomyOperator.ts` is command-and-exit. The checked-in adapter registry is
   empty; no scheduler, timer, background loop, HTTP mutation route, provider
   SDK, source credential, or external request is composed.
+
+---
+
+## 14. Phase 5 local operational-assurance control plane
+
+Phase 5 is an evidence and review layer over one exact Phase 4 policy. It does
+not add a deployed runtime profile or action capability.
+
+- `domain/operationalAssurancePolicy.ts` validates an exact local-rehearsal
+  policy bound to one immutable G7 fingerprint. Authority, assessor, and
+  reviewer credentials are distinct from one another and from every G7/G6 key.
+- `operationalAssuranceRepository.ts` derives bounded outcome/recovery/incident
+  counts and the validated G7 event-chain fingerprint directly from the
+  database. Policy, assessment, release-package, and ordered event records are
+  immutable in SQLite and PostgreSQL.
+- `operationalAssuranceService.ts` computes 15 deterministic checks. Packaging
+  requires the latest passing assessment inside its TTL and recomputes current
+  G5/G6/G7, kill-switch, incident, registry, and event-chain state.
+- Every package is `blocked_external` with eight canonical production blockers.
+  There is no approve, promote, waive, schedule, execute, or release method.
+- `operationalAssuranceOperator.ts` is command-and-exit and
+  `phase5Preflight.ts` is read-only/fail-closed. Production adapter composition
+  remains empty; no network client, timer, daemon, or HTTP mutation route is
+  added.

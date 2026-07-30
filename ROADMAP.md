@@ -193,6 +193,34 @@ authority is present.
 
 ---
 
+### Sprint 5 — ✅ Local operational assurance complete; external release blocked
+
+Goal:
+Immutable G5/G6/G7 Facts → Deterministic Safety Assessment → Freshness / Drift
+Recheck → Immutable Release Package → Explicit External Blockers.
+
+Plan: [`docs/SPRINT_5_PLAN.md`](docs/SPRINT_5_PLAN.md). DECISION-002 addendum 16
+authorizes only the local assurance package on
+`codex/leozops-phase5-operational-assurance`. It provides:
+
+- an exact G7-bound policy with three new credential fingerprints separated
+  from all G7/G6 credentials;
+- a 15-check assessment derived from immutable upstream records only;
+- execution, failure, reconciliation, recovery, incident, kill-switch, and
+  event-chain evidence over a bounded window;
+- idempotent immutable assessments and monotonic audit events;
+- latest-assessment TTL plus current-state and event-chain rechecks at review;
+- an immutable release package that can only be `blocked_external`; and
+- a fail-closed pending template, preflight, command-and-exit operator, SQLite /
+  PostgreSQL guards, and operations runbook.
+
+Still pending as external facts are the same G5/G6/G7 deployment, production
+history, exact adapter/credential, monitoring, canary, drills, and explicit
+Product Owner release evidence. Phase 5 creates no G8, no waiver/promote path,
+and no external capability.
+
+---
+
 ## Legacy Foundation (historical — completion evidence intact)
 
 The standalone LeozOps application track. Preserved as history per

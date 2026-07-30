@@ -19,6 +19,10 @@ require explicit Product Owner approval in addition to technical evidence.
 | **G6 — Supervised Action** | Individually allowlisted actions may be proposed and executed after approval | Action/approval contract; dry-run; idempotency; audit; expiry; risk/budget/rate controls; rollback; command-specific QA and CEO approval | **Local control plane complete on `codex/leozops-phase3-supervised-action`; G5 and every real command/adapter/release remain blocked** |
 | **G7 — Bounded Autonomy** | A reversible low-risk policy may execute without per-action approval | Proven supervised history; policy simulator; blast-radius limit; kill switch; monitoring; incident drill; revocation; explicit scope and CEO approval | **Local inert rehearsal complete on `codex/leozops-phase4-bounded-autonomy`; G5/G6, production history, deployed adapter/monitoring, external drills, and G7 release remain blocked** |
 
+Phase 5 is an assurance layer for G7, not a new gate and not G8. Its local
+assessment and release package remain `blocked_external`; they do not change
+the G7 row above or satisfy any external evidence requirement.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.
@@ -86,3 +90,9 @@ composition stays adapter-free and scheduler-free, the kill switch defaults to
 engaged, and only injected deterministic adapters may exercise the local path.
 No local simulation, fake execution, or database evidence can count as
 production supervised history or a G7 release.
+
+DECISION-002 addendum 16 permits only local operational-assurance code. It may
+recompute and package immutable rehearsal evidence but provides no waiver,
+promote, approve, schedule, execute, or release path. The package must retain
+every canonical external blocker until a future separately authorized phase
+defines proof against named production infrastructure.

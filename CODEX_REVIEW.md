@@ -1149,3 +1149,67 @@ credential, feature flag, scheduler, production-data access, employee workflow
 change, or actual autonomy was performed or authorized.
 
 ---
+
+# Phase 5 Local Review — Operational Assurance and Release Evidence
+
+Review date: 2026-07-30
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase5-operational-assurance`
+
+Baseline: Phase 4 commit `6daf143`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — EXTERNAL G5/G6/G7 RELEASE BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_phase5_operational_assurance_policy_v1` binds one policy
+  to one immutable G7 fingerprint, validity window, bounded evidence window,
+  assessment TTL, and three credentials distinct from all G7/G6 credentials.
+- The assessor accepts no arbitrary success claims. It derives 15 checks from
+  current G5/G6/G7 records, simulation, kill-switch state, incidents,
+  execution/recovery outcomes, and the validated G7 event chain.
+- Assessments are idempotent by exact key and immutable. Missing drills,
+  failed/reconciliation/in-progress execution, open incident, released kill
+  switch, upstream revoke/expiry, corrupt record, or non-empty production
+  registry fails locally.
+- Packaging requires the latest passing assessment inside its configured TTL,
+  recomputes current state, and rejects a later G5 decision or G7 event-chain
+  drift. Every package is immutable and exactly `blocked_external` with eight
+  canonical blockers.
+- There is no G8, waiver, approve, promote, release, schedule, or execute path.
+  Operator commands are command-and-exit; production composition stays empty.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **259/259 PASS**, 0 skipped, 0 failed.
+- Focused Phase 5 operational-assurance suite: **12/12 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable in-memory SQLite migrate/status/rollback through all 9 migrations:
+  **PASS**.
+- Disposable PostgreSQL 16 full lifecycle and Phase 5 policy/assessment/
+  blocked-package/immutability/rollback: **PASS** on loopback
+  `127.0.0.1:51661`; container auto-removed and Docker Desktop stopped.
+- Pending Phase 5 policy template preflight: **BLOCKED AS EXPECTED**, exit 2.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Phase 5 network/scheduler primitive scan: **PASS**, zero matches.
+- Local Markdown link scan: **PASS**, 38 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; unchanged low `body-parser` and moderate `uuid` advisories remain.
+- No dependencies were added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 5 assurance layer is ready to audit future named
+external evidence. It does not earn G7: the package itself records that G5/G6
+release, production history, adapter/credential, deployed monitoring and kill
+switch, canary, external drills, and explicit Product Owner G7 release remain
+unproven.
+
+No external mutation, provider purchase, deployment, managed resource,
+credential, feature flag, scheduler, production-data access, employee workflow
+change, waiver, or actual autonomy was performed or authorized.
+
+---

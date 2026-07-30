@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / PHASE 2–4 LOCAL CONTROL PLANES COMPLETE / EXTERNAL G5/G6/G7 BLOCKED
+Status: SPRINT 1 COMPLETE / PHASE 2–5 LOCAL CONTROL PLANES COMPLETE / EXTERNAL G5/G6/G7 BLOCKED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -61,6 +61,13 @@ codex/leozops-phase4-bounded-autonomy under DECISION-002 addendum 15.
 Operations: docs/PHASE_4_OPERATIONS.md. The production adapter registry remains
 empty; G5/G6 release, production supervised history, deployed monitoring,
 incident drills, and explicit G7 release remain blocked.
+Sprint 5 assurance plan: docs/SPRINT_5_PLAN.md. The exact G7-bound local policy,
+database-derived assessment, 15-check safety case, freshness/event-chain recheck,
+immutable `blocked_external` package, preflight, and command-and-exit operator
+are implemented on codex/leozops-phase5-operational-assurance under
+DECISION-002 addendum 16. Operations: docs/PHASE_5_OPERATIONS.md. Phase 5 does
+not create G8 or release G7; every external evidence requirement remains
+explicitly blocked and production composition remains adapter-free.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in

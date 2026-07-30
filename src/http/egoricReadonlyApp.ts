@@ -52,6 +52,10 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         'bounded_autonomy_recovery_approvals',
         'bounded_autonomy_incident_events',
         'bounded_autonomy_events',
+        'operational_assurance_policies',
+        'operational_assurance_assessments',
+        'operational_assurance_release_packages',
+        'operational_assurance_events',
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();

@@ -55,6 +55,10 @@ import {
   BoundedAutonomyService,
   autonomyRecoveryRequestFingerprint,
 } from '../services/boundedAutonomyService';
+import { PHASE5_TABLES } from '../domain/operationalAssurance';
+import { OperationalAssurancePolicyManifest } from '../domain/operationalAssurancePolicy';
+import { OperationalAssuranceRepository } from '../repositories/operationalAssuranceRepository';
+import { OperationalAssuranceService } from '../services/operationalAssuranceService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -110,6 +114,10 @@ async function main(): Promise<void> {
       G7_TABLES.recoveryApprovals,
       G7_TABLES.incidentEvents,
       G7_TABLES.events,
+      PHASE5_TABLES.policies,
+      PHASE5_TABLES.assessments,
+      PHASE5_TABLES.releasePackages,
+      PHASE5_TABLES.events,
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -682,6 +690,90 @@ async function main(): Promise<void> {
       evidenceFingerprint: incidentEvidence,
       occurredAt: sourceNow.toISOString(),
     });
+    await autonomyService.resolveIncident({
+      policyId: autonomyPolicy.policy_id,
+      incidentId: incident.incident.incident_id,
+      actor: 'Leoz',
+      releaseCredential: g7ReleaseCredential,
+      killSwitchCredential: g7KillCredential,
+      reasonCode: 'pg_smoke_incident_drill_resolved',
+      evidenceRefs: ['drill.pg_smoke.incident'],
+    });
+
+    const assuranceAuthorityCredential = 'pg-smoke-phase5-authority-credential';
+    const assuranceAssessorCredential = 'pg-smoke-phase5-assessor-credential';
+    const assuranceReviewerCredential = 'pg-smoke-phase5-reviewer-credential';
+    const assurancePolicy: OperationalAssurancePolicyManifest = {
+      schema_version: 'leozops_phase5_operational_assurance_policy_v1',
+      policy_id: 'P5-PG-SMOKE',
+      status: 'accepted',
+      assurance_mode: 'local_rehearsal',
+      environment: 'test',
+      approved_by: 'Leoz',
+      approved_at: '2026-07-29T00:58:00.000Z',
+      valid_from: '2026-07-29T00:59:00.000Z',
+      valid_until: '2026-07-30T00:40:00.000Z',
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      g7_policy: {
+        policy_id: autonomyPolicy.policy_id,
+        policy_fingerprint: autonomyPolicyRecord.policy_fingerprint,
+      },
+      identities: {
+        assurance_authority: 'Leoz',
+        authority_credential_sha256: credentialFingerprint(assuranceAuthorityCredential),
+        assessor: 'Leoz',
+        assessor_credential_sha256: credentialFingerprint(assuranceAssessorCredential),
+        release_reviewer: 'Leoz',
+        reviewer_credential_sha256: credentialFingerprint(assuranceReviewerCredential),
+      },
+      window: {
+        days: 7,
+        max_assessment_age_minutes: 15,
+        min_successful_executions: 1,
+        max_failed_executions: 0,
+        max_reconciliation_required_executions: 0,
+        require_successful_human_recovery: true,
+        require_resolved_incident_halt_drill: true,
+      },
+      safety: {
+        release_package_must_remain_blocked_external: true,
+        external_evidence_may_not_be_inferred: true,
+        production_adapter_registry_must_remain_empty: true,
+        waivers_allowed: false,
+      },
+      verdict: 'accepted',
+    };
+    const assuranceRepository = new OperationalAssuranceRepository(db);
+    const assuranceService = new OperationalAssuranceService(
+      assuranceRepository,
+      new ActionAdapterRegistry(),
+      () => sourceNow,
+    );
+    const assurancePolicyRecord = await assuranceService.acceptPolicy(
+      assurancePolicy,
+      assuranceAuthorityCredential,
+    );
+    const assuranceAssessment = await assuranceService.assess({
+      policyId: assurancePolicy.policy_id,
+      assessmentKey: 'pg-smoke-phase5-assessment-0001',
+      actor: 'Leoz',
+      assessorCredential: assuranceAssessorCredential,
+    });
+    if (assuranceAssessment.local_status !== 'pass' || assuranceAssessment.external_status !== 'blocked_external') {
+      throw new Error('expected passing local Phase 5 assessment with external block');
+    }
+    const assurancePackage = await assuranceService.createReleasePackage({
+      policyId: assurancePolicy.policy_id,
+      assessmentKey: assuranceAssessment.assessment_key,
+      packageKey: 'pg-smoke-phase5-package-000001',
+      actor: 'Leoz',
+      reviewerCredential: assuranceReviewerCredential,
+    });
+    if (assurancePackage.release_status !== 'blocked_external') {
+      throw new Error('expected Phase 5 release package to remain blocked external');
+    }
+    const assuranceEvent = (await assuranceRepository.listEvents(assurancePolicyRecord.id))[0];
     const actionEvent = (await actionRepository.listEvents(actionProposal.id))[0];
     for (const mutation of [
       db('source_snapshots').where({ id: accepted.snapshot.id }).update({ record_count: 1 }),
@@ -705,6 +797,10 @@ async function main(): Promise<void> {
       db(G7_TABLES.incidentEvents).where({ id: incident.incident.id }).delete(),
       db(G7_TABLES.attempts).where({ id: autonomyRun.attempt!.id }).update({ result_code: 'rewritten' }),
       db(G7_TABLES.attempts).where({ id: recovery.attempt.id }).delete(),
+      db(PHASE5_TABLES.policies).where({ id: assurancePolicyRecord.id }).delete(),
+      db(PHASE5_TABLES.assessments).where({ id: assuranceAssessment.id }).update({ local_status: 'fail' }),
+      db(PHASE5_TABLES.releasePackages).where({ id: assurancePackage.id }).delete(),
+      db(PHASE5_TABLES.events).where({ id: assuranceEvent.id }).update({ reason_code: 'rewritten' }),
     ]) {
       let rejected = false;
       try {
@@ -714,7 +810,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, shadow, supervised-action, and bounded-autonomy immutability verified.');
+    console.log('  source, shadow, supervised-action, bounded-autonomy, and operational-assurance immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

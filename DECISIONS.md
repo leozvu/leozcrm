@@ -486,3 +486,29 @@ Decision:
   injected test adapter may prove local mechanics, but no RepositoryRealms
   command, network request, deployment, or external mutation is authorized.
 Owner: Leoz. Recorded by Codex before Phase 4 implementation.
+
+DECISION-002 addendum 16 — 2026-07-30 — Phase 5 operational assurance authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to build Phase 5 as approval for an inert
+  operational-assurance and release-evidence control plane on a branch based on
+  the completed Phase 4 work.
+- Phase 5 does not create G8 or broaden G7 action authority. It may derive and
+  persist deterministic safety assessments from existing immutable G5/G6/G7
+  records, but it must never convert local rehearsal facts into production
+  evidence.
+- Bind one exact assurance policy to one accepted G7 policy and require
+  separate assurance-authority, assessor, and release-reviewer credential
+  fingerprints, all distinct from every G7 and G6 credential.
+- Evaluate local policy integrity, current upstream decisions, simulation,
+  kill-switch state, incidents, bounded execution outcomes, recovery drills,
+  and incident/halt drills from database facts only. Operator-supplied success
+  booleans, arbitrary evidence claims, or waivers are not accepted.
+- Every Phase 5 release package must remain `blocked_external` while production
+  G5/G6/G7 evidence is absent. Local tests, injected adapters, synthetic dates,
+  or a local Product Owner identity cannot satisfy external deployment,
+  monitoring, canary, supervised-history, drill, or release requirements.
+- Keep production adapter composition empty and add no network request,
+  scheduler, daemon, background loop, HTTP mutation route, credential, provider
+  resource, deployment, or external system change.
+Owner: Leoz. Recorded by Codex before Phase 5 implementation.

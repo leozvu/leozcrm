@@ -163,6 +163,11 @@ human recovery controls. It adds no deployed runtime profile, production
 adapter, scheduler, or HTTP action surface. The bounded-operator row therefore
 remains future until a separate G7 release passes.
 
+The local Phase 5 branch adds no deployment profile. It is an assurance layer
+that derives a safety assessment from immutable G5/G6/G7 records and creates an
+always-`blocked_external` review package. It cannot release, schedule, waive, or
+execute anything, and does not change the bounded-operator boundary above.
+
 ## 8. Product decision rule
 
 When a proposed feature conflicts with speed, choose the smallest vertical

@@ -657,6 +657,14 @@ export class BoundedAutonomyRepository {
     return [...latest.values()].filter((row) => row.kind === 'opened');
   }
 
+  async listIncidentEvents(policyRecordId: string): Promise<AutonomyIncidentEventRecord[]> {
+    const rows = await this.knex<AutonomyIncidentEventRecord>(G7_TABLES.incidentEvents)
+      .where({ policy_record_id: policyRecordId })
+      .orderBy('occurred_at', 'asc')
+      .orderBy('sequence', 'asc');
+    return rows.map(normalizedIncident);
+  }
+
   async resolveIncident(input: {
     policy: BoundedAutonomyPolicyRecord;
     incidentId: string;

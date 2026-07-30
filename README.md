@@ -23,6 +23,7 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 2 implementation | S2.A accepted; local S2.B–S2.D authorization, poll evidence, shadow ledger, G5 evaluator, and release-decision control plane implemented on `codex/leozops-phase2`; P1/external execution still blocked |
 | Phase 3 implementation | Local G6 policy, proposal, dry-run, approval, idempotent execution, immutable audit, limits, and separately approved rollback implemented on `codex/leozops-phase3-supervised-action`; adapter registry intentionally empty |
 | Phase 4 implementation | Local G7 simulator, supervised-history gate, blast-radius envelope, kill switch, incidents, one-candidate rehearsal, and human recovery implemented on `codex/leozops-phase4-bounded-autonomy`; no production adapter or scheduler |
+| Phase 5 implementation | Local operational-assurance policy, database-derived safety assessment, freshness/drift recheck, immutable evidence, and always-`blocked_external` release package implemented on `codex/leozops-phase5-operational-assurance` |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -80,6 +81,10 @@ path begin:
     rehearsal contract and acceptance boundary.
 19. [`docs/PHASE_4_OPERATIONS.md`](docs/PHASE_4_OPERATIONS.md) — simulator,
     kill-switch, one-cycle, incident, and human-recovery runbook.
+20. [`docs/SPRINT_5_PLAN.md`](docs/SPRINT_5_PLAN.md) — operational-assurance
+    scope, evidence rules, and external release boundary.
+21. [`docs/PHASE_5_OPERATIONS.md`](docs/PHASE_5_OPERATIONS.md) — assessment,
+    freshness/drift recheck, and blocked-external packaging runbook.
 
 ## Non-negotiable boundaries
 
