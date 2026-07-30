@@ -86,7 +86,7 @@ the S2.A local implementation plus one local disposable PostgreSQL checkpoint.
 P1/P2, managed infrastructure, and deployment require separate Product Owner
 approval.
 
-### Sprint 2 — 🚧 S2.A Accepted; P1 Decision Preflight Local
+### Sprint 2 — 🚧 Local implementation complete; external G5 execution pending
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
@@ -107,15 +107,19 @@ provisional solo-founder defaults in
 [`docs/P1_DECISION_PACKET.md`](docs/P1_DECISION_PACKET.md), accepted through
 [PR #17](https://github.com/leozvu/leozcrm/pull/17) at `main@35ed23c`. Its
 pending example does not approve P1 or any provider/spend.
-Planned contents:
-- Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
-  reconciliation, alerting, operational runbooks.
-- Connector health, reconciliation evidence, and operator runbooks; the
-  existing authenticated CEO Brief remains the only product read route.
-- Hosting decision; LeozOps deployed with independent Postgres + secrets;
-  readiness/canary.
-- Ten-business-day read-only production shadow per
-  `docs/EGORIC_INTEGRATION.md` §11, then CEO go/extend/revoke decision.
+The remaining S2.B–S2.D repository control plane is implemented on
+`codex/leozops-phase2`: environment-bound Checkpoint B/P2 manifests, public
+integration readiness, a manifest-gated command-and-exit worker, immutable
+poll/daily evidence, exact daily reconciliation, a ten-consecutive-business-
+day evaluator, and fail-closed go/extend/revoke decisions. Operational usage
+and rollback are defined in
+[`docs/PHASE_2_OPERATIONS.md`](docs/PHASE_2_OPERATIONS.md).
+
+Still pending as external facts:
+- accepted exact P1 values and the named test infrastructure;
+- networked Checkpoint B evidence and accepted P2;
+- production canary plus ten elapsed, qualifying business days;
+- the final Product Owner go/extend/revoke decision.
 
 Evidence gates: all 12 Codex release gates (contract §15) before any
 production key/flag; contract §11 pilot criteria for the shadow.

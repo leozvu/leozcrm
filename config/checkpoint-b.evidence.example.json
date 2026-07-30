@@ -1,0 +1,42 @@
+{
+  "schema_version": "leozops_checkpoint_b_v1",
+  "evidence_id": "pending",
+  "environment": "test",
+  "recorded_by": "Leoz",
+  "started_at": "pending",
+  "completed_at": "pending",
+  "p1_decision_id": "pending",
+  "p1_decision_fingerprint": "pending",
+  "deployment": {
+    "runtime_project_id": "pending",
+    "database_id": "pending",
+    "egoric_project_id": "pending",
+    "revision": "pending",
+    "config_fingerprint": "pending"
+  },
+  "checks": {
+    "source_disabled_boot": { "status": "pending", "evidence_ref": "pending" },
+    "public_health": { "status": "pending", "evidence_ref": "pending" },
+    "output_auth_denial": { "status": "pending", "evidence_ref": "pending" },
+    "migrations_current": { "status": "pending", "evidence_ref": "pending" },
+    "postgres_rollback": { "status": "pending", "evidence_ref": "pending" },
+    "network_200": { "status": "pending", "evidence_ref": "pending" },
+    "network_304": { "status": "pending", "evidence_ref": "pending" },
+    "exact_reconciliation": { "status": "pending", "evidence_ref": "pending" },
+    "pii_scan": { "status": "pending", "evidence_ref": "pending" },
+    "cross_instance_denial": { "status": "pending", "evidence_ref": "pending" },
+    "malformed_method_denial": { "status": "pending", "evidence_ref": "pending" },
+    "latency_error_comparison": { "status": "pending", "evidence_ref": "pending" },
+    "key_rotation": { "status": "pending", "evidence_ref": "pending" },
+    "source_flag_shutdown": { "status": "pending", "evidence_ref": "pending" },
+    "deployment_rollback": { "status": "pending", "evidence_ref": "pending" },
+    "secret_scan": { "status": "pending", "evidence_ref": "pending" }
+  },
+  "source_request_methods": ["GET"],
+  "source_request_bodies": 0,
+  "source_mutation_count": 0,
+  "secret_findings": 0,
+  "pii_findings": 0,
+  "rollback_required_source_restore": false,
+  "verdict": "pending"
+}

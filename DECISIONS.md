@@ -408,3 +408,27 @@ Alternatives considered:
 - Rely only on timestamp + row-id ordering (no seq): rejected because it kept display order DB-dependent.
 - Use timestamps alone with retry hacks: rejected because explicit sequence is simpler and deterministic.
 Owner: Claude Code / Codex / Hermes (M9 QA loop)
+DECISION-002 addendum 13 — 2026-07-29 — complete Phase 2 local control plane authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to complete all of Phase 2 as authorization
+  to implement every remaining S2.B–S2.D code, migration, test, manifest,
+  evidence, evaluator, CLI, and runbook artifact that can be completed without
+  creating or changing an external environment.
+- Authorize fail-closed Checkpoint B and P2 decision contracts, an externally
+  scheduled command-and-exit read worker, immutable poll and daily shadow
+  evidence, G5 acceptance evaluation, and go/extend/revoke decision records.
+- Require the worker to validate the exact P1 identity in test and the complete
+  P1 → Checkpoint B → P2 chain in production before any source request.
+- Keep the existing authenticated CEO Brief as the only product read surface;
+  add no dashboard, publishing, write-back, generic Egoric access, employee
+  workflow, or autonomous action.
+- Do not infer that repository implementation creates P1/P2 approval or proves
+  external facts. Managed infrastructure, purchases, deployment, credentials,
+  source flags, network proof, production canary, and ten elapsed business days
+  remain blocked until separately executed against accepted named targets.
+- For this solo-founder pilot Leoz may remain reviewer/on-call/Product Owner,
+  but pending templates and simulated dates must never be recorded as live G5
+  evidence.
+Owner: Leoz. Recorded by Codex from the explicit instruction to complete
+Phase 2 while preserving the plan's authorization wall.

@@ -31,6 +31,9 @@ import { BusinessMemoryRepository } from '../repositories/businessMemoryReposito
 import { SourceOperationsRepository } from '../repositories/sourceOperationsRepository';
 import { EgoricBriefService } from '../services/egoricBriefService';
 import { SourceReconciliationService } from '../services/sourceReconciliationService';
+import { PHASE2_TABLES } from '../domain/shadowTrust';
+import { evidenceFingerprint } from '../domain/phase2Proof';
+import { ShadowTrustRepository } from '../repositories/shadowTrustRepository';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -68,6 +71,9 @@ async function main(): Promise<void> {
       'intelligence_runs',
       'source_poll_states',
       SOURCE_RECONCILIATION_TABLE,
+      PHASE2_TABLES.pollRuns,
+      PHASE2_TABLES.dailyEvidence,
+      PHASE2_TABLES.releaseDecisions,
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -158,9 +164,92 @@ async function main(): Promise<void> {
     if (reconciliation.status !== 'passed') {
       throw new Error('expected source reconciliation to pass');
     }
+    const shadow = new ShadowTrustRepository(db);
+    const pollRun = await shadow.recordPollRun({
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      environment: 'production',
+      authorization_id: 'P2-PG-SMOKE',
+      correlation_id: '11111111-1111-4111-8111-111111111111',
+      started_at: sourceNow.toISOString(),
+      finished_at: sourceNow.toISOString(),
+      latency_ms: 0,
+      outcome: 'accepted',
+      attempt_count: 1,
+      http_status: 200,
+      error_code: null,
+      request_method: 'GET',
+      request_body_present: false,
+      snapshot_id: accepted.snapshot.snapshot_id,
+      intelligence_run_id: accepted.run.id,
+      record_count: accepted.snapshot.record_count,
+      source_generated_at: accepted.snapshot.generated_at,
+      confirmed_fresh_at: sourceNow.toISOString(),
+      source_mutation_count: 0,
+    });
+    const dailyCore = {
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      environment: 'production' as const,
+      authorization_id: 'P2-PG-SMOKE',
+      business_date: '2026-07-29',
+      business_timezone: 'UTC',
+      expected_syncs: 1,
+      scheduled_syncs: 1,
+      successful_syncs: 1,
+      not_modified_syncs: 0,
+      failed_syncs: 0,
+      skipped_invocations: 0,
+      latest_confirmation_age_seconds: 0,
+      stale_after_seconds: 1_800,
+      reconciliation_id: reconciliation.id,
+      reconciliation_status: 'passed' as const,
+      source_total: 0,
+      snapshot_total: 0,
+      brief_total: 0,
+      native_stage_delta_count: 0,
+      safe_source_delta_count: 0,
+      source_mutation_count: 0,
+      employee_workflow_regression: false,
+      source_latency_regression: false,
+      source_error_regression: false,
+      formula_version: reconciliation.formula_version,
+      snapshot_id: accepted.snapshot.snapshot_id,
+      intelligence_run_id: accepted.run.id,
+      reviewer: 'Leoz',
+      reviewer_score: 4,
+      material_false_claim: false,
+      incident_count: 0,
+      rollback_event_count: 0,
+      status: 'passed' as const,
+      failure_codes_json: '[]',
+      reviewed_at: sourceNow.toISOString(),
+    };
+    const daily = await shadow.recordDailyEvidence({
+      ...dailyCore,
+      evidence_key: evidenceFingerprint(dailyCore),
+    });
+    const releaseCore = {
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      authorization_id: 'P2-PG-SMOKE',
+      decision: 'revoke' as const,
+      decided_by: 'Leoz',
+      decided_at: sourceNow.toISOString(),
+      evaluation_fingerprint: evidenceFingerprint({ verdict: 'blocked' }),
+      reason_code: 'pg_smoke_revoke',
+      extend_until_business_date: null,
+    };
+    const release = await shadow.recordReleaseDecision({
+      ...releaseCore,
+      evidence_key: evidenceFingerprint(releaseCore),
+    });
     for (const mutation of [
       db('source_snapshots').where({ id: accepted.snapshot.id }).update({ record_count: 1 }),
       db(SOURCE_RECONCILIATION_TABLE).where({ id: reconciliation.id }).update({ status: 'failed' }),
+      db(PHASE2_TABLES.pollRuns).where({ id: pollRun.id }).update({ latency_ms: 1 }),
+      db(PHASE2_TABLES.dailyEvidence).where({ id: daily.id }).update({ reviewer_score: 5 }),
+      db(PHASE2_TABLES.releaseDecisions).where({ id: release.id }).delete(),
     ]) {
       let rejected = false;
       try {
@@ -170,7 +259,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source snapshot + reconciliation immutability verified.');
+    console.log('  source, reconciliation, poll, daily, and release immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

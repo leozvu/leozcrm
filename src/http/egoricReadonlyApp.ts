@@ -18,13 +18,44 @@ export interface EgoricReadonlyAppOptions {
 /** G3 runtime: health plus one authenticated tenant brief route, nothing else. */
 export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) {
   const app = express();
+  const knex = options.knex ?? db;
   app.disable('x-powered-by');
   app.get('/health', (_req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.json({ ok: true, profile: 'egoric-readonly' });
   });
+  app.get('/ready', async (_req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    try {
+      const requiredTables = [
+        'tenants',
+        'source_connections',
+        'source_snapshots',
+        'intelligence_runs',
+        'source_poll_states',
+        'source_reconciliations',
+        'source_poll_runs',
+        'shadow_daily_evidence',
+        'phase2_release_decisions',
+      ];
+      const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
+      const [, pending] = await knex.migrate.list();
+      const migrationsCurrent = present.every(Boolean) && pending.length === 0;
+      res.status(migrationsCurrent ? 200 : 503).json({
+        ok: migrationsCurrent,
+        profile: 'egoric-readonly',
+        checks: { db: 'ok', migrations_current: migrationsCurrent },
+      });
+    } catch {
+      res.status(503).json({
+        ok: false,
+        profile: 'egoric-readonly',
+        checks: { db: 'unreachable', migrations_current: false },
+      });
+    }
+  });
 
-  const repository = new BusinessMemoryRepository(options.knex ?? db);
+  const repository = new BusinessMemoryRepository(knex);
   const brief = new EgoricBriefService(repository);
   const auth = resolveIntegrationReadAuthConfig(options.integrationReadAuth);
   app.use('/v1', authenticateIntegrationRead(auth));

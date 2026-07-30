@@ -1,6 +1,6 @@
 # Sprint 2 / G5 — Shadow Trust Plan
 
-Status: **S2.A CHECKPOINT A TECHNICAL PASS; P1 BLOCKED**
+Status: **PHASE 2 LOCAL CONTROL PLANE COMPLETE; P1/EXTERNAL EXECUTION BLOCKED**
 
 Authority: DECISION-002 addenda 7–11 authorize and accept the complete S2.A
 local/test code cut plus one local disposable PostgreSQL checkpoint. Managed
@@ -208,6 +208,37 @@ At the end of the evidence window, the Product Owner chooses exactly one:
 
 The decision is recorded in `DECISIONS.md`. G5 does not unlock G6 supervised
 actions; G6 is a separate project and approval.
+
+### Local S2.B–S2.D implementation package
+
+DECISION-002 addendum 13 authorizes the complete remaining Phase 2 code cut in
+local/test scope without inferring external authority. The implementation on
+`codex/leozops-phase2` provides:
+
+- [x] Checkpoint B and P2 schemas with exact-key validation, non-secret
+  evidence references, environment identity matching, and cryptographic
+  binding to the accepted P1 decision.
+- [x] A command-and-exit shadow worker whose test/production execution fails
+  closed unless the appropriate P1 → Checkpoint B → P2 chain validates.
+- [x] Public read-only readiness that proves DB/current-schema availability
+  without mounting an operator or mutation route.
+- [x] Immutable poll-run evidence for outcome, retries, latency, GET/no-body,
+  snapshot/run provenance, freshness confirmation, and zero source mutation.
+- [x] Immutable daily evidence with business-calendar schedule coverage,
+  exact reconciliation, regression/false-claim review, and safe incident
+  counts.
+- [x] A ten-consecutive-business-day G5 evaluator and immutable
+  go/extend/revoke record. `go` fails closed until every acceptance criterion
+  represented by the ledger passes.
+- [x] Pending-by-default P1, Checkpoint B, and P2 templates plus the complete
+  solo-founder operational/rollback runbook in
+  [`PHASE_2_OPERATIONS.md`](PHASE_2_OPERATIONS.md).
+
+This completes the repository implementation required to execute S2.B–S2.D;
+it does not mark their external evidence gates complete. Provisioning,
+deployment, real keys/flags, the network checkpoint, production canary, and
+ten elapsed business days remain facts that can only be produced against the
+exact approved environments.
 
 ## 5. Failure policy
 

@@ -20,7 +20,7 @@ Autopilot, with human authority and evidence gates at every step.
 | LeozOps ingestion / Business Memory | G2 complete: [PR #4](https://github.com/leozvu/leozcrm/pull/4) merged to `main@d1d34c5`; Product Owner accepted local S1.C continuation |
 | Snapshot-based CEO Brief | G3 complete: [PR #6](https://github.com/leozvu/leozcrm/pull/6) merged to `main@3a5fb9e`; Product Owner accepted local S1.D continuation |
 | Local end-to-end proof | G4 complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged to `main@5ef3fd5`; Sprint 1 accepted |
-| S2.A reliability hardening | T1–T8 and PostgreSQL Checkpoint A accepted; local P1 decision preflight accepted through [PR #17](https://github.com/leozvu/leozcrm/pull/17) at `main@35ed23c`; P1 blocked |
+| Phase 2 implementation | S2.A accepted; local S2.B–S2.D authorization, poll evidence, shadow ledger, G5 evaluator, and release-decision control plane implemented on `codex/leozops-phase2`; P1/external execution still blocked |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -58,7 +58,9 @@ requires a named Product Owner decision for the exact external environment:
     founder decision manifest and provisional P1 defaults.
 13. [`docs/S2A_OPERATIONS_RUNBOOK.md`](docs/S2A_OPERATIONS_RUNBOOK.md) — local
     failure, recovery, replay, and rollback procedures.
-14. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+14. [`docs/PHASE_2_OPERATIONS.md`](docs/PHASE_2_OPERATIONS.md) — P1 → network
+    proof → P2 → ten-day shadow → go/extend/revoke operations.
+15. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
 
 ## Non-negotiable boundaries
 
@@ -111,6 +113,8 @@ npm start
 | `npm run migrate:rollback` | Roll back the last migration batch |
 | `npm run seed` | Seed and verify historical demo data |
 | `npm run db:reset` | Roll back, migrate, and seed |
+| `npm run phase2:preflight` | Validate Checkpoint B or P2 manifest chains without external actions |
+| `npm run source:shadow` | Run one manifest-gated poll, daily close, status, or release-decision command |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 Do not configure an Egoric production key, enable a production feature flag, or

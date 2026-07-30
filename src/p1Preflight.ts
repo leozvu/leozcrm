@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { p1DecisionSummary, validateP1Decision } from './domain/p1Decision';
+import { p1DecisionFingerprint } from './domain/phase2Proof';
 
 function blocked(reason: string, issues: string[] = []): never {
   console.error('P1 preflight: BLOCKED');
@@ -30,7 +31,10 @@ function main(): void {
   }
 
   console.log('P1 preflight: PASS');
-  console.log(JSON.stringify(p1DecisionSummary(result.manifest), null, 2));
+  console.log(JSON.stringify({
+    ...p1DecisionSummary(result.manifest),
+    decision_fingerprint: p1DecisionFingerprint(result.manifest),
+  }, null, 2));
   console.log('This validates the recorded decision only; it does not perform or authorize external actions.');
 }
 

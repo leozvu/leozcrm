@@ -931,3 +931,71 @@ No provider choice, purchase, managed infrastructure, P1/P2 approval,
 deployment, credential or flag, scheduler activation, production-data access,
 write-back, publishing, employee workflow change, or autonomy is authorized by
 this verdict.
+# Phase 2 Local Control Plane Review — S2.B to S2.D
+
+Review date: 2026-07-29
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase2`
+
+Baseline: `main@71176d1`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — P1/P2/EXTERNAL G5 EVIDENCE BLOCKED**
+
+## A. Implemented scope
+
+- Checkpoint B and P2 manifests are exact-key, pending-by-default, non-secret,
+  environment-bound, and fingerprint-bound to the validated P1 decision.
+- Test execution requires P1; production execution requires the complete
+  P1 → Checkpoint B → P2 chain plus exact runtime/database/Egoric/tenant/source
+  endpoint identities.
+- The shadow worker is command-and-exit and is never mounted by the HTTP
+  server. Failed polls, unsafe skips, and failed daily closes return a non-zero
+  process result after recording safe evidence so platform alerting can fire.
+- Public `egoric-readonly` readiness verifies database access, every required
+  table, and no pending migration; it exposes no operator or mutation route.
+- Poll, daily-shadow, and release-decision evidence is tenant-scoped,
+  non-PII, idempotent/conflict-detecting, and immutable in SQLite/PostgreSQL.
+- Daily closure runs exact reconciliation and fails on insufficient schedule
+  coverage, failed sync, stale confirmation, count/stage/source drift,
+  mutation, authorization mixing, workflow/latency/error regression, or a
+  material false claim.
+- `go` requires ten consecutive qualifying business days, at least 99.5%
+  successful scheduled syncs, and average reviewer usefulness of at least
+  4/5. Incomplete/unsafe evidence may only produce `extend` or `revoke`.
+- The existing authenticated CEO Brief remains the only product read route.
+  No dashboard, delivery, publishing, write-back, employee workflow, generic
+  Egoric access, or autonomous action was added.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **222/222 PASS**, 0 skipped, 0 failed.
+- Strict TypeScript check: **PASS**.
+- Focused Phase 2/authorization/shadow/profile/P1 suite: **20/20 PASS**.
+- Disposable SQLite migration apply/status/rollback: **PASS**.
+- Disposable PostgreSQL 16 migrate/seed/immutability/rollback: **PASS** for
+  snapshots, reconciliation, poll runs, daily evidence, and release decisions.
+- Actual canonical RepositoryRealms handler E2E against
+  `main@98c0eca`: **PASS** — 200/304, three GETs, zero bodies, zero source
+  mutations, exact 4/4 brief reconciliation, legacy write route 404.
+- Pending P1, Checkpoint B, and P2 template drills: **BLOCKED AS EXPECTED**,
+  all exit 2 and perform no external action.
+- Local Markdown links: **PASS**, 33 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; the pre-existing low `body-parser` and moderate `uuid` advisories
+  are unchanged and no dependency was added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 2 control plane is ready for execution. G5 is not
+earned: the P1 example is pending, so no named test infrastructure, networked
+Checkpoint B, accepted P2, production canary, or ten elapsed business days
+exist. Those facts cannot be simulated or inferred from local tests.
+
+No provider purchase, deployment, managed database, credential, feature flag,
+scheduler activation, production-data access, write-back, publishing, employee
+workflow change, or autonomy was performed or authorized by this review.
+
+---

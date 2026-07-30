@@ -13,14 +13,15 @@ Against the configured PostgreSQL database the script:
 1. applies every migration;
 2. verifies the legacy and LeozOps tables exist, including `tenants`,
    `source_connections`, `source_snapshots`, `intelligence_runs`,
-   `source_poll_states`, and `source_reconciliations`;
+   `source_poll_states`, `source_reconciliations`, `source_poll_runs`,
+   `shadow_daily_evidence`, and `phase2_release_decisions`;
 3. seeds and verifies the nine canonical funnel stages;
 4. exercises the task lifecycle and monotonic audit sequence;
 5. creates an Egoric tenant/connection, accepts a valid content-hashed
    snapshot/run, generates the deterministic brief, and records a passing exact
    reconciliation;
-6. proves PostgreSQL rejects direct mutation of both the source snapshot and
-   reconciliation evidence;
+6. proves PostgreSQL rejects direct mutation of source snapshot,
+   reconciliation, poll, daily-shadow, and release-decision evidence;
 7. rolls back the complete batch; and
 8. verifies every expected table is gone.
 
@@ -65,6 +66,39 @@ Cleanup evidence:
 This closes the technical PostgreSQL requirement in S2.A Checkpoint A. It does
 not authorize P1, choose a managed provider, prove a networked test deployment,
 or authorize any production/external action.
+
+## Phase 2 migration checkpoint — 2026-07-29
+
+The Phase 2 branch reran the complete lifecycle after adding the three shadow
+trust tables and their PostgreSQL immutability triggers:
+
+- branch: `codex/leozops-phase2`;
+- engine: Docker Desktop `29.6.2`, returned to stopped state afterward;
+- image: `postgres:16-alpine`;
+- container: `leozops-phase2-pg-qa`;
+- endpoint: loopback only, final verification used ephemeral port
+  `127.0.0.1:62682`;
+- database: `leozops_phase2`;
+- storage: disposable container filesystem, no named/shared volume;
+- external/cloud resources: none.
+
+Observed result:
+
+```text
+Postgres smoke: applying migrations…
+Postgres smoke: seeding reference data…
+  seeded 9 funnel stages, 9 present.
+Postgres smoke: exercising the task lifecycle…
+  task lifecycle + monotonic audit seq verified.
+Postgres smoke: exercising immutable source evidence…
+  source, reconciliation, poll, daily, and release immutability verified.
+Postgres smoke: rolling back…
+Postgres migrate/seed/rollback smoke PASSED.
+```
+
+The exact container auto-removed after shutdown. This proves the new migration
+and rollback on PostgreSQL; it is not Checkpoint B because no networked test
+deployment, managed database, external key/flag, or source request was used.
 
 ## Running on another approved disposable target
 

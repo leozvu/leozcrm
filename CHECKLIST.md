@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / G4 ACCEPTED / S2.A CHECKPOINT A ACCEPTED / P1 DECISION PREFLIGHT LOCAL
+Status: SPRINT 1 COMPLETE / PHASE 2 LOCAL CONTROL PLANE COMPLETE / P1 EXTERNAL GATE BLOCKED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -39,6 +39,12 @@ P1 decision packet: docs/P1_DECISION_PACKET.md — local fail-closed manifest
 validator accepted through PR #17 at leozcrm/main@35ed23c under DECISION-002
 addendum 12; the checked-in example is intentionally pending and P1 remains
 blocked.
+Phase 2 operations: docs/PHASE_2_OPERATIONS.md — local S2.B–S2.D manifest
+chain, readiness, one-shot worker, immutable poll/daily evidence, ten-business-
+day evaluator, and go/extend/revoke control plane implemented on
+codex/leozops-phase2 under DECISION-002 addendum 13. This is implementation
+readiness only; P1/P2, deployment, credentials/flags, network proof, production
+canary, and elapsed shadow evidence remain blocked/pending.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in

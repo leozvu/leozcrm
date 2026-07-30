@@ -44,6 +44,7 @@ export type SourcePollCycleResult =
       error_code: string;
       http_status: number | null;
       attempts: number;
+      correlation_id: string;
       disabled: boolean;
       state: SourcePollState;
     };
@@ -223,6 +224,7 @@ export class SourcePollCoordinator {
           error_code: classified.code,
           http_status: classified.httpStatus,
           attempts,
+          correlation_id: correlationId,
           disabled: classified.permanent,
           state,
         };
