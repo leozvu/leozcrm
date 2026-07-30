@@ -416,3 +416,24 @@ Eight valid rows remain `complete_unreleased` and
 `blocked_external_activation`. Real trust enrollment, external evidence,
 deployment, named production infrastructure, and activation are not completed
 or authorized.
+
+17. PHASE 7 ACTIVATION CEREMONY — LOCAL PASS
+---------------------------------------------
+Status: COMPLETE ON `codex/leozops-phase7-activation-ceremony`; EXECUTION ABSENT
+
+[x] Exact fresh Phase 6 assessment and eight-attestation target binding.
+[x] Named target plus artifact/configuration/credential-reference/canary/
+    rollback fingerprints; no wildcard, placeholder, URL, waiver, or secret.
+[x] Separate authority, verifier, and operator credentials for solo operation.
+[x] Immutable dossier, verification, sealed handoff, additive recall, events.
+[x] Recheck plus transactional Phase 6 snapshot lock before accept/create/seal.
+[x] File-only command-and-exit operator and deliberately blocking preflight.
+[x] Focused Phase 7 suite 13/13, SQLite up/down/up, TypeScript, full regression
+    285/285, PostgreSQL 16 eleven-migration lifecycle, dependency audit, and
+    documentation verification.
+[x] No executor, provider SDK, production adapter, target credential, network,
+    scheduler, daemon, background loop, HTTP mutation, deploy, or activation.
+
+Every sealed handoff remains `not_executed` with
+`external_execution_required=true`. Real external execution requires a future
+explicit authorization and implementation.

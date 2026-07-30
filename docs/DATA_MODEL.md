@@ -270,3 +270,28 @@ correctly (see the seed snapshot).
   real social/email adapters.
 - **Content queue, KPI dashboard, agents** — all read from these four tables;
   none required schema changes here.
+
+---
+
+## 8. Phase 7 activation-ceremony evidence
+
+The integration control plane adds six append-only tables. They are separate
+from the legacy funnel model and never store a provider secret or execution
+result:
+
+- `activation_ceremony_policies` binds one exact Phase 6 policy/assessment and
+  exact target contract;
+- `activation_ceremony_dossiers` stores database-derived eight-row evidence,
+  target, canary, and rollback fingerprints;
+- `activation_ceremony_verifications` records one approve/reject decision per
+  dossier with an explicit expiry;
+- `activation_ceremony_handoffs` stores at most one sealed external-only
+  package per policy, always `activation_status=not_executed`;
+- `activation_ceremony_recalls` appends at most one dual-authenticated recall
+  fact per handoff; and
+- `activation_ceremony_events` provides the per-policy monotonic audit chain.
+
+Foreign keys use `RESTRICT`, idempotency keys are unique within the policy, and
+SQLite/PostgreSQL triggers reject every update and delete. Policy, dossier, and
+handoff transactions lock and recheck the exact latest Phase 6 snapshot before
+committing, closing the drift window between service validation and storage.

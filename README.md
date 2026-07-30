@@ -89,6 +89,10 @@ path begin:
     admission contract and explicit non-goals.
 23. [`docs/PHASE_6_OPERATIONS.md`](docs/PHASE_6_OPERATIONS.md) — pinned issuer,
     signing, replay, revocation, assessment, and key-rotation runbook.
+24. [`docs/SPRINT_7_PLAN.md`](docs/SPRINT_7_PLAN.md) — activation-ceremony scope,
+    immutable dossier contract, and explicit execution boundary.
+25. [`docs/PHASE_7_OPERATIONS.md`](docs/PHASE_7_OPERATIONS.md) — exact target,
+    verification, sealing, recall, and incident runbook.
 
 ## Non-negotiable boundaries
 
@@ -145,6 +149,8 @@ npm start
 | `npm run source:shadow` | Run one manifest-gated poll, daily close, status, or release-decision command |
 | `npm run phase6:preflight` | Validate exact Phase 6 trust/runtime bindings while keeping activation blocked |
 | `npm run evidence:operator` | Admit one signed envelope or assess/read the immutable evidence matrix |
+| `npm run phase7:preflight` | Recheck an accepted ceremony policy while keeping execution blocked |
+| `npm run ceremony:operator` | Create, verify, seal, recall, or inspect an immutable external handoff |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 Do not configure an Egoric production key, enable a production feature flag, or

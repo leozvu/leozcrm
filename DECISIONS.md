@@ -539,3 +539,28 @@ Decision:
   network call. Real trust-root enrollment and any production activation require
   a separately authorized phase against named infrastructure.
 Owner: Leoz. Recorded by Codex before Phase 6 implementation.
+
+DECISION-002 addendum 18 — 2026-07-30 — Phase 7 activation ceremony authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to start Phase 7 as approval to implement a
+  local production-activation ceremony and sealed external handoff on a branch
+  based on the completed Phase 6 work.
+- Bind one exact Phase 7 policy to a fresh, current `complete_unreleased`
+  Phase 6 assessment and its complete signed evidence set. Require one named
+  target plus exact artifact, configuration, credential-reference, canary, and
+  rollback fingerprints; placeholders, URLs, raw credentials, wildcard scope,
+  inferred evidence, and waivers remain invalid.
+- Require distinct ceremony-authority, independent-verifier, and activation-
+  operator credential fingerprints. Leoz may perform all three solo-founder
+  roles, but each ceremony step remains separately authenticated and recorded.
+- Persist immutable candidate dossiers, approve/reject verifications, sealed
+  handoff packages, recalls, and ordered events. Revalidate Phase 6 evidence,
+  upstream G5/G6/G7/Phase 5 state, target consistency, expiry, and event drift
+  before sealing. A recall is additive and must never rewrite prior evidence.
+- Phase 7 is handoff-only. Even a sealed production package remains
+  `not_executed` and requires a separately authorized external executor. Add no
+  deploy/activate/promote method, production adapter registration, scheduler,
+  daemon, HTTP mutation route, provider credential, private key, network call,
+  managed resource, or external system change.
+Owner: Leoz. Recorded by Codex before Phase 7 implementation.

@@ -3,6 +3,7 @@ import {
   ExternalEvidenceError,
   ExternalEvidenceMatrixRow,
   externalEvidenceCredentialMatches,
+  externalEvidenceFingerprint,
   externalEvidencePolicyIsActive,
   validateExternalEvidenceEnvelope,
   verifyExternalEvidenceEnvelope,
@@ -86,37 +87,19 @@ export class ExternalEvidenceService {
     const assessmentKey = actionIdempotencyKey(input.assessmentKey);
     const existing = await this.repository.findAssessmentIfExists(found.record.id, assessmentKey);
     if (existing) return existing;
-    await this.assertUpstream(found.manifest, found.phase5);
-    const assessedAt = actionIso(this.now());
-    const latest = await this.repository.latestAttestations(found.record.id, found.manifest);
-    const matrix: ExternalEvidenceMatrixRow[] = PHASE6_EVIDENCE_MATRIX.map((expected) => {
-      const item = latest.get(expected.evidence_type);
-      if (!item) {
-        return { ...expected, status: 'missing', attestation_id: null, envelope_fingerprint: null };
-      }
-      const attestation = item.envelope.attestation;
-      let status: ExternalEvidenceMatrixRow['status'];
-      if (attestation.statement === 'revoke') status = 'revoked';
-      else if (!this.envelopeIsCurrent(item.envelope, found.manifest, assessedAt)) status = 'expired';
-      else status = 'satisfied';
-      return {
-        ...expected,
-        status,
-        attestation_id: item.record.attestation_id,
-        envelope_fingerprint: item.record.envelope_fingerprint,
-      };
-    });
-    const status = matrix.every((item) => item.status === 'satisfied')
-      ? 'complete_unreleased' as const
-      : 'incomplete' as const;
+    const readiness = await this.deriveReadiness(found);
     return this.repository.recordAssessment({
       policy: found.record,
       assessmentKey,
-      matrix,
-      status,
+      matrix: readiness.matrix,
+      status: readiness.status,
       assessedBy: input.actor,
-      assessedAt,
+      assessedAt: readiness.assessed_at,
     });
+  }
+
+  async readiness(policyId: string) {
+    return this.deriveReadiness(await this.repository.findPolicy(policyId));
   }
 
   async status(policyId: string) {
@@ -203,6 +186,45 @@ export class ExternalEvidenceService {
     if (!externalEvidenceCredentialMatches(credential, policy.identities.assessor_credential_sha256)) {
       throw new ExternalEvidenceError('external_evidence_assessor_credential_rejected', 'assessor credential does not match', 403);
     }
+  }
+
+  private async deriveReadiness(found: Awaited<ReturnType<ExternalEvidenceRepository['findPolicy']>>) {
+    await this.assertUpstream(found.manifest, found.phase5);
+    const assessedAt = actionIso(this.now());
+    const latest = await this.repository.latestAttestations(found.record.id, found.manifest);
+    const matrix: ExternalEvidenceMatrixRow[] = PHASE6_EVIDENCE_MATRIX.map((expected) => {
+      const item = latest.get(expected.evidence_type);
+      if (!item) return { ...expected, status: 'missing', attestation_id: null, envelope_fingerprint: null };
+      const attestation = item.envelope.attestation;
+      let status: ExternalEvidenceMatrixRow['status'];
+      if (attestation.statement === 'revoke') status = 'revoked';
+      else if (!this.envelopeIsCurrent(item.envelope, found.manifest, assessedAt)) status = 'expired';
+      else status = 'satisfied';
+      return {
+        ...expected,
+        status,
+        attestation_id: item.record.attestation_id,
+        envelope_fingerprint: item.record.envelope_fingerprint,
+      };
+    });
+    const status = matrix.every((item) => item.status === 'satisfied')
+      ? 'complete_unreleased' as const
+      : 'incomplete' as const;
+    return {
+      ...found,
+      assessed_at: assessedAt,
+      matrix,
+      status,
+      evidence_set_fingerprint: externalEvidenceFingerprint(matrix.map((item) => ({
+        evidence_type: item.evidence_type,
+        status: item.status,
+        attestation_id: item.attestation_id,
+        envelope_fingerprint: item.envelope_fingerprint,
+      }))),
+      attestations: [...latest.values()].map((item) => ({ record: item.record, envelope: item.envelope })),
+      release_status: 'blocked_external_activation' as const,
+      activation_possible: false,
+    };
   }
 
   private assertCurrentEnvelope(

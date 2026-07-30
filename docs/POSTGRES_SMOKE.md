@@ -249,6 +249,42 @@ across all four new tables, and rolled back all ten migrations. This proves
 SQL dialect and local control-plane behavior only; it does not enroll external
 issuers or authorize activation.
 
+## Phase 7 migration checkpoint — 2026-07-30
+
+The Phase 7 branch reran the full lifecycle after adding activation-ceremony
+policy, dossier, verification, handoff, recall, and ordered event tables:
+
+- branch: `codex/leozops-phase7-activation-ceremony`;
+- engine: Docker Desktop `29.6.2`, returned to its original stopped state;
+- image: `postgres:16-alpine`;
+- container: `leozops-phase7-pg` (auto-removed);
+- endpoint: loopback-only `127.0.0.1:51672`;
+- database: `leozops_phase7_qa`;
+- storage: disposable container filesystem, no named/shared volume;
+- adapter: deterministic in-process G6/G7 smoke adapter only; Phase 6 and
+  Phase 7 used empty production registries and made no network call;
+- external/cloud resources and target credentials: none.
+
+Observed result:
+
+```text
+Postgres smoke: applying migrations…
+Postgres smoke: seeding reference data…
+  seeded 9 funnel stages, 9 present.
+Postgres smoke: exercising the task lifecycle…
+  task lifecycle + monotonic audit seq verified.
+Postgres smoke: exercising immutable source evidence…
+  source, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, and activation-ceremony immutability verified.
+Postgres smoke: rolling back…
+Postgres migrate/seed/rollback smoke PASSED.
+```
+
+The smoke created an exact Phase 7 policy, database-derived dossier,
+independent approval, one sealed handoff, and dual-authenticated recall. The
+handoff remained `not_executed`; rewrites were rejected across all six new
+tables; all eleven migrations rolled back. This proves SQL dialect and local
+ceremony behavior only, not deployment or activation.
+
 ## Running on another approved disposable target
 
 Set either one connection string:

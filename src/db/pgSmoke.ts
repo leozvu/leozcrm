@@ -76,6 +76,10 @@ import {
 } from '../domain/externalEvidencePolicy';
 import { ExternalEvidenceRepository } from '../repositories/externalEvidenceRepository';
 import { ExternalEvidenceService } from '../services/externalEvidenceService';
+import { PHASE7_TABLES } from '../domain/activationCeremony';
+import { ActivationCeremonyPolicyManifest } from '../domain/activationCeremonyPolicy';
+import { ActivationCeremonyRepository } from '../repositories/activationCeremonyRepository';
+import { ActivationCeremonyService } from '../services/activationCeremonyService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -139,6 +143,12 @@ async function main(): Promise<void> {
       PHASE6_TABLES.attestations,
       PHASE6_TABLES.assessments,
       PHASE6_TABLES.events,
+      PHASE7_TABLES.policies,
+      PHASE7_TABLES.dossiers,
+      PHASE7_TABLES.verifications,
+      PHASE7_TABLES.handoffs,
+      PHASE7_TABLES.recalls,
+      PHASE7_TABLES.events,
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -930,6 +940,122 @@ async function main(): Promise<void> {
       throw new Error('expected complete but unreleased Phase 6 assessment');
     }
     const externalEvent = (await externalRepository.listEvents(externalPolicyRecord.id))[0];
+
+    const ceremonyAuthorityCredential = 'pg-smoke-phase7-authority-credential';
+    const ceremonyVerifierCredential = 'pg-smoke-phase7-verifier-credential';
+    const ceremonyOperatorCredential = 'pg-smoke-phase7-operator-credential';
+    const ceremonyPolicy: ActivationCeremonyPolicyManifest = {
+      schema_version: 'leozops_phase7_activation_ceremony_policy_v1',
+      policy_id: 'P7-PG-SMOKE',
+      status: 'accepted',
+      ceremony_mode: 'sealed_external_handoff',
+      environment: 'test',
+      approved_by: 'Leoz',
+      approved_at: sourceNow.toISOString(),
+      valid_from: sourceNow.toISOString(),
+      valid_until: '2026-07-30T00:20:00.000Z',
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      phase6: {
+        policy_id: externalPolicy.policy_id,
+        policy_fingerprint: externalPolicyRecord.policy_fingerprint,
+        assessment_fingerprint: externalAssessment.assessment_fingerprint,
+      },
+      identities: {
+        ceremony_authority: 'Leoz',
+        authority_credential_sha256: credentialFingerprint(ceremonyAuthorityCredential),
+        independent_verifier: 'Leoz',
+        verifier_credential_sha256: credentialFingerprint(ceremonyVerifierCredential),
+        activation_operator: 'Leoz',
+        operator_credential_sha256: credentialFingerprint(ceremonyOperatorCredential),
+      },
+      target: {
+        deployment_id: 'pg-smoke-test-deployment',
+        target_fingerprint: externalEvidenceFingerprint({ target: 'pg-smoke' }),
+        provider: 'pg-smoke-provider',
+        region: 'pg-smoke-region',
+        project_id: 'pg-smoke-project',
+        service_id: 'leozops-control-plane',
+        adapter_id: actionPolicy.command.adapter_id,
+        adapter_version: actionAdapter.descriptor.adapter_version,
+        command_key: actionPolicy.command.key,
+        adapter_artifact_digest: externalEvidenceFingerprint({ artifact: 'pg-smoke-adapter' }),
+        configuration_digest: externalEvidenceFingerprint({ configuration: 'pg-smoke' }),
+        credential_reference_sha256: externalEvidenceFingerprint({ credentialReference: 'pg-smoke' }),
+      },
+      canary: {
+        cohort_size: 1,
+        max_mutations: 1,
+        observation_minutes: 30,
+        success_metric_fingerprint: externalEvidenceFingerprint({ metric: 'pg-smoke-success' }),
+        abort_metric_fingerprint: externalEvidenceFingerprint({ metric: 'pg-smoke-abort' }),
+        manual_start_required: true,
+        manual_continue_required: true,
+      },
+      rollback: {
+        rollback_artifact_digest: externalEvidenceFingerprint({ rollback: 'pg-smoke-artifact' }),
+        procedure_digest: externalEvidenceFingerprint({ rollback: 'pg-smoke-procedure' }),
+        max_recovery_minutes: 15,
+        kill_switch_must_start_engaged: true,
+        manual_recovery_only: true,
+      },
+      limits: {
+        max_phase6_assessment_age_minutes: 30,
+        max_verification_age_minutes: 15,
+      },
+      safety: {
+        handoff_only: true,
+        activation_executor_not_implemented: true,
+        external_execution_requires_new_authority: true,
+        production_adapter_registry_must_remain_empty: true,
+        waivers_allowed: false,
+      },
+      verdict: 'accepted',
+    };
+    const ceremonyRepository = new ActivationCeremonyRepository(db);
+    const ceremonyService = new ActivationCeremonyService(
+      ceremonyRepository,
+      externalService,
+      new ActionAdapterRegistry(),
+      () => sourceNow,
+    );
+    const ceremonyPolicyRecord = await ceremonyService.acceptPolicy(ceremonyPolicy, ceremonyAuthorityCredential);
+    const ceremonyDossier = await ceremonyService.createDossier({
+      policyId: ceremonyPolicy.policy_id,
+      dossierKey: 'pg-smoke-phase7-dossier-0001',
+      actor: 'Leoz',
+      authorityCredential: ceremonyAuthorityCredential,
+    });
+    const ceremonyVerification = await ceremonyService.verifyDossier({
+      policyId: ceremonyPolicy.policy_id,
+      dossierKey: ceremonyDossier.dossier_key,
+      verificationKey: 'pg-smoke-phase7-verification-0001',
+      decision: 'approved',
+      reasonCode: 'pg_smoke_independent_verification',
+      actor: 'Leoz',
+      verifierCredential: ceremonyVerifierCredential,
+    });
+    const ceremonyHandoff = await ceremonyService.sealHandoff({
+      policyId: ceremonyPolicy.policy_id,
+      dossierKey: ceremonyDossier.dossier_key,
+      handoffKey: 'pg-smoke-phase7-handoff-0001',
+      actor: 'Leoz',
+      operatorCredential: ceremonyOperatorCredential,
+    });
+    if (ceremonyHandoff.activation_status !== 'not_executed' || !ceremonyHandoff.external_execution_required) {
+      throw new Error('expected Phase 7 handoff to remain unexecuted and external-only');
+    }
+    const ceremonyRecall = await ceremonyService.recallHandoff({
+      policyId: ceremonyPolicy.policy_id,
+      recallKey: 'pg-smoke-phase7-recall-0001',
+      reasonCode: 'pg_smoke_recall_drill',
+      evidenceFingerprint: ceremonyHandoff.handoff_fingerprint,
+      authorityActor: 'Leoz',
+      authorityCredential: ceremonyAuthorityCredential,
+      verifierActor: 'Leoz',
+      verifierCredential: ceremonyVerifierCredential,
+    });
+    const ceremonyEvent = (await ceremonyRepository.listEvents(ceremonyPolicyRecord.id))[0];
     const actionEvent = (await actionRepository.listEvents(actionProposal.id))[0];
     for (const mutation of [
       db('source_snapshots').where({ id: accepted.snapshot.id }).update({ record_count: 1 }),
@@ -961,6 +1087,12 @@ async function main(): Promise<void> {
       db(PHASE6_TABLES.attestations).where({ id: firstExternalAttestation!.id }).update({ statement: 'revoke' }),
       db(PHASE6_TABLES.assessments).where({ id: externalAssessment.id }).delete(),
       db(PHASE6_TABLES.events).where({ id: externalEvent.id }).update({ reason_code: 'rewritten' }),
+      db(PHASE7_TABLES.policies).where({ id: ceremonyPolicyRecord.id }).delete(),
+      db(PHASE7_TABLES.dossiers).where({ id: ceremonyDossier.id }).update({ status: 'approved' }),
+      db(PHASE7_TABLES.verifications).where({ id: ceremonyVerification.id }).delete(),
+      db(PHASE7_TABLES.handoffs).where({ id: ceremonyHandoff.id }).update({ activation_status: 'executed' }),
+      db(PHASE7_TABLES.recalls).where({ id: ceremonyRecall.id }).delete(),
+      db(PHASE7_TABLES.events).where({ id: ceremonyEvent.id }).update({ reason_code: 'rewritten' }),
     ]) {
       let rejected = false;
       try {
@@ -970,7 +1102,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, shadow, supervised-action, bounded-autonomy, assurance, and external-evidence immutability verified.');
+    console.log('  source, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, and activation-ceremony immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

@@ -253,6 +253,37 @@ capability is present.
 
 ---
 
+### Sprint 7 — ✅ Local activation ceremony complete; external execution absent
+
+Goal:
+Fresh Phase 6 Evidence → Exact Target Dossier → Independent Verification →
+Sealed External Handoff / Additive Recall.
+
+Plan: [`docs/SPRINT_7_PLAN.md`](docs/SPRINT_7_PLAN.md). DECISION-002 addendum 18
+authorizes only the local ceremony package on
+`codex/leozops-phase7-activation-ceremony`. It provides:
+
+- one exact policy bound to the latest fresh Phase 6 assessment and all eight
+  currently effective signed attestations;
+- named deployment/provider/region/project/service plus exact artifact,
+  configuration, non-secret credential-reference, canary, and rollback hashes;
+- three separately authenticated solo-founder roles: authority, verifier, and
+  operator;
+- immutable dossiers, approve/reject verifications, sealed handoffs, additive
+  recalls, and monotonic events;
+- current upstream/expiry/revocation/target drift checks plus transactional
+  Phase 6 snapshot locking at every persistence boundary; and
+- a fail-closed pending template, preflight, one-shot operator, SQLite /
+  PostgreSQL guards, tests, and operations runbook.
+
+Every handoff remains `not_executed` and requires new external authority. Real
+infrastructure, artifacts, credentials, adapter registration, canary,
+monitoring, deployment, activation, rollback, and incident operations remain
+external. No executor, provider SDK, network call, scheduler, daemon,
+background loop, HTTP mutation route, or production capability is present.
+
+---
+
 ## Legacy Foundation (historical — completion evidence intact)
 
 The standalone LeozOps application track. Preserved as history per

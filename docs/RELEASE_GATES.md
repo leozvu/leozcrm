@@ -23,6 +23,12 @@ Phase 5 is an assurance layer for G7, not a new gate and not G8. Its local
 assessment and release package remain `blocked_external`; they do not change
 the G7 row above or satisfy any external evidence requirement.
 
+Phases 6 and 7 are trust and handoff layers for the same G7 boundary, not new
+gates. Phase 6 admits signed external evidence; Phase 7 binds a complete set to
+an exact target and seals a package. Neither grants or implements activation.
+Every Phase 7 package remains `not_executed` until separately authorized
+external infrastructure performs and proves the real G7 activation.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.
@@ -96,3 +102,10 @@ recompute and package immutable rehearsal evidence but provides no waiver,
 promote, approve, schedule, execute, or release path. The package must retain
 every canonical external blocker until a future separately authorized phase
 defines proof against named production infrastructure.
+
+DECISION-002 addenda 17 and 18 permit only signed-evidence admission and an
+immutable local activation ceremony. They do not relax G5/G6/G7, authorize an
+executor, or turn hashes and signatures into deployment facts. Production
+composition must remain adapter-free and network-free; any activation requires
+new Product Owner authority and independent evidence against the exact named
+target.

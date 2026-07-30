@@ -669,3 +669,25 @@ or action runtime.
 Issuer private keys and raw proof material stay outside LeozOps. The database
 contains only public keys, metadata, SHA-256 digests, detached signatures, and
 canonical evidence bindings.
+
+---
+
+## 16. Phase 7 activation-ceremony control plane
+
+Phase 7 consumes only a fresh, exact Phase 6 `complete_unreleased` snapshot and
+still provides no production runtime capability.
+
+- `activationCeremonyPolicy.ts` validates exact upstream, target, artifact,
+  configuration, credential-reference, canary, rollback, identity, validity,
+  and safety bindings.
+- `activationCeremonyService.ts` derives dossiers from current database and
+  signed-envelope facts. It rechecks upstream state before approval/sealing and
+  can only emit an external handoff with `activation_status=not_executed`.
+- `activationCeremonyRepository.ts` locks the Phase 6 policy row and rechecks
+  the exact assessment/attestation snapshot in the same transaction as every
+  policy, dossier, or handoff write. All six Phase 7 tables are immutable.
+- Recall is a new immutable fact requiring both authority and verifier
+  credentials; it never rewrites evidence or invokes provider recovery.
+- `activationCeremonyOperator.ts` and `phase7Preflight.ts` are one-shot local
+  boundaries. No HTTP route, executor, adapter registration, target secret,
+  provider SDK, scheduler, daemon, timer, or network request is composed.
