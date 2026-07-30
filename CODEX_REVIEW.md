@@ -1075,3 +1075,77 @@ credential, feature flag, scheduler, production-data access, generic write
 surface, employee workflow change, or G7 autonomy was performed or authorized.
 
 ---
+
+# Phase 4 Local Rehearsal Review — G7 Bounded Autonomy
+
+Review date: 2026-07-29
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase4-bounded-autonomy`
+
+Baseline: Phase 3 commit `9dd5a99`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — G5/G6/REAL ADAPTER/G7 RELEASE BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_g7_bounded_autonomy_policy_v1` binds one low-risk command
+  and target to an unchanged G6 policy, distinct release/executor/kill-switch
+  credentials, qualifying history, validity, freshness, rate, cost, cooldown,
+  lease, one-mutation, and fail-closed safety rules.
+- The deterministic 13-scenario simulator covers current G5/G6, supervised
+  history, kill switch, freshness, incidents, hourly/daily limits, cooldown,
+  action/daily cost, dry-run mutation, and happy path. Exact results are
+  immutable and fingerprint-bound before policy acceptance.
+- Policy acceptance and every candidate use actual immutable G6 attempts: at
+  least five successes, zero non-successful executions in the window, and one
+  successful rollback drill. No simulated boolean can manufacture history.
+- One candidate per command-and-exit invocation is recursively safe, adapter-
+  validated, zero-mutation previewed, immutable allow/deny evaluated, and
+  atomically claimed with current prerequisite/limit checks before execution.
+- The kill switch starts engaged. Release requires separate release and
+  kill-switch credentials. Any failed, invalid, crashed, or unknown result opens
+  an incident and engages it atomically; replay never calls the adapter again.
+- Recovery is not autonomous. A successful candidate has one bounded 24-hour
+  human path with engaged kill switch, exact preview, dual-credential approval,
+  explicit executor invocation, idempotency, and expired-lease reconciliation.
+  It stays available after G5 revoke so revocation cannot disable remediation.
+- Policy, simulation, switch, evaluation, recovery preview/approval, incident,
+  and event facts are immutable. Execute/recovery attempts allow exactly one
+  guarded in-progress-to-terminal transition in SQLite and PostgreSQL.
+- Production composition remains empty. No HTTP mutation route, fetch client,
+  scheduler, timer, daemon, background loop, provider SDK, credential, or
+  external request was added.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **247/247 PASS**, 0 skipped, 0 failed.
+- Focused G7 bounded-autonomy suite: **13/13 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable SQLite migrate/latest/rollback through the G7 migration: **PASS**.
+- Disposable PostgreSQL 16 migrate/five supervised successes/rollback drill/
+  G7 simulation/fake action/human recovery/immutability/full rollback: **PASS**
+  on loopback `127.0.0.1:57118`; container auto-removed and Docker Desktop
+  returned to stopped state.
+- Pending G7 policy template preflight: **BLOCKED AS EXPECTED**, exit 2.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Local Markdown link scan: **PASS**, 36 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; unchanged low `body-parser` and moderate `uuid` advisories remain.
+- No dependencies were added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 4 rehearsal/control plane is ready for a future
+command-specific external project. G7 is not earned: G5/G6 are not externally
+released, no production supervised history exists, the production adapter
+registry is empty, and no deployed kill switch, monitoring, canary, incident /
+recovery drill, credential, or explicit Product Owner G7 release exists.
+
+No external mutation, provider purchase, deployment, managed resource,
+credential, feature flag, scheduler, production-data access, employee workflow
+change, or actual autonomy was performed or authorized.
+
+---

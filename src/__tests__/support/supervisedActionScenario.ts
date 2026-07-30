@@ -10,6 +10,7 @@ import {
   supervisedRollbackRequestFingerprint,
   supervisedTargetFingerprint,
 } from '../../services/supervisedActionService';
+import { autonomyRecoveryRequestFingerprint } from '../../services/boundedAutonomyService';
 import { seedEgoricMemory } from './egoricMemoryScenario';
 
 export const APPROVAL_CREDENTIAL = 'test-approval-credential-0001';
@@ -22,6 +23,8 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
   rollbackCalls = 0;
   previewCalls = 0;
   rollbackPreviewCalls = 0;
+  recoveryPreviewCalls = 0;
+  recoveryCalls = 0;
   throwOnExecute = false;
   mismatchPreview = false;
   actualCostMinor = 25;
@@ -140,6 +143,53 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
         result: 'restored',
       }),
       result_code: 'lead_status_restored',
+      actual_cost_minor: 0,
+      currency: 'USD',
+      external_mutation_count: 1 as const,
+    };
+  }
+
+  async previewRecovery(input: Parameters<NonNullable<SupervisedActionAdapter['previewRecovery']>>[0]) {
+    this.recoveryPreviewCalls += 1;
+    return {
+      summary_code: 'lead_status_will_recover',
+      request_fingerprint: autonomyRecoveryRequestFingerprint({
+        commandKey: this.descriptor.command_key,
+        commandVersion: this.descriptor.command_version,
+        targetProjectId: input.targetProjectId,
+        targetTenantKey: input.targetTenantKey,
+        targetEndpointUrl: input.targetEndpointUrl,
+        targetCredentialFingerprint: input.targetCredentialFingerprint,
+        originalRequestFingerprint: input.subject.original_request_fingerprint,
+        originalResultFingerprint: input.subject.original_result_fingerprint,
+        originalExternalRequestId: input.subject.original_external_request_id,
+        originalIdempotencyKey: input.subject.original_idempotency_key,
+        recoveryIdempotencyKey: input.idempotencyKey,
+      }),
+      target_fingerprint: supervisedTargetFingerprint({
+        projectId: input.targetProjectId,
+        tenantKey: input.targetTenantKey,
+        endpointUrl: input.targetEndpointUrl,
+        credentialFingerprint: input.targetCredentialFingerprint,
+      }),
+      effect_fingerprint: actionFingerprint({ from: 'contacted', to: 'new', kind: 'human_recovery' }),
+      rollback_strategy_code: 'restore_previous_status',
+      estimated_cost_minor: 0,
+      currency: 'USD',
+      external_mutation_count: 0 as const,
+    };
+  }
+
+  async recover(input: Parameters<NonNullable<SupervisedActionAdapter['recover']>>[0]) {
+    this.recoveryCalls += 1;
+    return {
+      outcome: 'succeeded' as const,
+      external_request_id: `recovery_request_${String(this.recoveryCalls).padStart(4, '0')}`,
+      result_fingerprint: actionFingerprint({
+        request: input.preview.request_fingerprint,
+        result: 'recovered',
+      }),
+      result_code: 'lead_status_recovered',
       actual_cost_minor: 0,
       currency: 'USD',
       external_mutation_count: 1 as const,

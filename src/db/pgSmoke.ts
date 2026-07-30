@@ -48,6 +48,13 @@ import {
   supervisedRollbackRequestFingerprint,
   supervisedTargetFingerprint,
 } from '../services/supervisedActionService';
+import { G7_TABLES } from '../domain/boundedAutonomy';
+import { G7BoundedAutonomyPolicyManifest, g7TargetFingerprint } from '../domain/g7Policy';
+import { BoundedAutonomyRepository } from '../repositories/boundedAutonomyRepository';
+import {
+  BoundedAutonomyService,
+  autonomyRecoveryRequestFingerprint,
+} from '../services/boundedAutonomyService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -94,6 +101,15 @@ async function main(): Promise<void> {
       G6_TABLES.approvals,
       G6_TABLES.attempts,
       G6_TABLES.events,
+      G7_TABLES.simulations,
+      G7_TABLES.policies,
+      G7_TABLES.killSwitchEvents,
+      G7_TABLES.evaluations,
+      G7_TABLES.attempts,
+      G7_TABLES.recoveryPreviews,
+      G7_TABLES.recoveryApprovals,
+      G7_TABLES.incidentEvents,
+      G7_TABLES.events,
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -357,6 +373,46 @@ async function main(): Promise<void> {
           external_mutation_count: 1,
         };
       },
+      async previewRecovery(input) {
+        return {
+          summary_code: 'pg_smoke_recovery_preview',
+          request_fingerprint: autonomyRecoveryRequestFingerprint({
+            commandKey: this.descriptor.command_key,
+            commandVersion: this.descriptor.command_version,
+            targetProjectId: input.targetProjectId,
+            targetTenantKey: input.targetTenantKey,
+            targetEndpointUrl: input.targetEndpointUrl,
+            targetCredentialFingerprint: input.targetCredentialFingerprint,
+            originalRequestFingerprint: input.subject.original_request_fingerprint,
+            originalResultFingerprint: input.subject.original_result_fingerprint,
+            originalExternalRequestId: input.subject.original_external_request_id,
+            originalIdempotencyKey: input.subject.original_idempotency_key,
+            recoveryIdempotencyKey: input.idempotencyKey,
+          }),
+          target_fingerprint: supervisedTargetFingerprint({
+            projectId: input.targetProjectId,
+            tenantKey: input.targetTenantKey,
+            endpointUrl: input.targetEndpointUrl,
+            credentialFingerprint: input.targetCredentialFingerprint,
+          }),
+          effect_fingerprint: actionFingerprint({ pg_smoke: 'human_recovery' }),
+          rollback_strategy_code: 'pg_smoke_restore',
+          estimated_cost_minor: 0,
+          currency: 'USD',
+          external_mutation_count: 0,
+        };
+      },
+      async recover(input) {
+        return {
+          outcome: 'succeeded',
+          external_request_id: 'pg_smoke_recovery_0001',
+          result_fingerprint: actionFingerprint({ request: input.preview.request_fingerprint }),
+          result_code: 'pg_smoke_recovery_succeeded',
+          actual_cost_minor: 0,
+          currency: 'USD',
+          external_mutation_count: 1,
+        };
+      },
     };
     const approvalCredential = 'pg-smoke-approval-credential';
     const operatorCredential = 'pg-smoke-operator-credential';
@@ -403,8 +459,8 @@ async function main(): Promise<void> {
       limits: {
         max_cost_minor: 100,
         currency: 'USD',
-        max_executions_per_hour: 2,
-        max_executions_per_day: 4,
+        max_executions_per_hour: 10,
+        max_executions_per_day: 20,
         approval_ttl_minutes: 30,
         execution_lease_seconds: 60,
       },
@@ -452,6 +508,180 @@ async function main(): Promise<void> {
     if (actionExecution.attempt.status !== 'succeeded') {
       throw new Error('expected supervised PG smoke action to succeed');
     }
+    for (let index = 2; index <= 5; index += 1) {
+      const suffix = String(index).padStart(2, '0');
+      const proposal = await actionService.propose({
+        policyId: actionPolicy.policy_id,
+        payload: { lead_id: `pg_smoke_lead_${suffix}`, status_code: 'contacted' },
+        reasonCode: 'pg_smoke_action_reason',
+        expectedImpactCode: 'pg_smoke_action_impact',
+        evidenceRefs: ['brief.pg_smoke'],
+        estimatedCostMinor: 0,
+        currency: 'USD',
+        idempotencyKey: `pg-smoke-action-${suffix}-000001`,
+        requestedBy: 'Leoz',
+        expiresAt: '2026-07-29T02:00:00.000Z',
+      });
+      await actionService.preview({ proposalId: proposal.id, operator: 'Leoz', operatorCredential });
+      await actionService.decide({
+        proposalId: proposal.id,
+        kind: 'execute',
+        decision: 'approved',
+        approver: 'Leoz',
+        approvalCredential,
+        reasonCode: 'pg_smoke_action_approved',
+        nonce: `pg-smoke-approval-${suffix}-00001`,
+        maxCostMinor: 0,
+      });
+      const execution = await actionService.execute({
+        proposalId: proposal.id,
+        operator: 'Leoz',
+        operatorCredential,
+      });
+      if (execution.attempt.status !== 'succeeded') throw new Error('expected qualifying supervised history');
+    }
+    const rollbackPreview = await actionService.previewRollback({
+      proposalId: actionProposal.id,
+      operator: 'Leoz',
+      operatorCredential,
+    });
+    await actionService.decide({
+      proposalId: actionProposal.id,
+      kind: 'rollback',
+      decision: 'approved',
+      approver: 'Leoz',
+      approvalCredential,
+      reasonCode: 'pg_smoke_rollback_approved',
+      nonce: 'pg-smoke-rollback-approval-01',
+      maxCostMinor: rollbackPreview.estimated_cost_minor,
+    });
+    const rollback = await actionService.rollback({
+      proposalId: actionProposal.id,
+      operator: 'Leoz',
+      operatorCredential,
+    });
+    if (rollback.attempt.status !== 'succeeded') throw new Error('expected supervised rollback drill to succeed');
+
+    const g7ReleaseCredential = 'pg-smoke-g7-release-credential';
+    const g7ExecutorCredential = 'pg-smoke-g7-executor-credential';
+    const g7KillCredential = 'pg-smoke-g7-kill-credential';
+    const autonomyPolicy: G7BoundedAutonomyPolicyManifest = {
+      schema_version: 'leozops_g7_bounded_autonomy_policy_v1',
+      policy_id: 'G7-PG-SMOKE',
+      status: 'accepted',
+      environment: 'test',
+      approved_by: 'Leoz',
+      approved_at: '2026-07-29T00:56:00.000Z',
+      valid_from: '2026-07-29T00:57:00.000Z',
+      valid_until: '2026-07-30T00:50:00.000Z',
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      g6_policy: {
+        policy_id: actionPolicy.policy_id,
+        policy_fingerprint: actionPolicyRecord.policy_fingerprint,
+        command_key: actionPolicy.command.key,
+        command_version: actionPolicy.command.version,
+        adapter_id: actionPolicy.command.adapter_id,
+        target_fingerprint: g7TargetFingerprint(actionPolicy),
+      },
+      identities: {
+        release_authority: 'Leoz',
+        release_credential_sha256: credentialFingerprint(g7ReleaseCredential),
+        executor: 'Leoz',
+        executor_credential_sha256: credentialFingerprint(g7ExecutorCredential),
+        kill_switch_operator: 'Leoz',
+        kill_switch_credential_sha256: credentialFingerprint(g7KillCredential),
+      },
+      history: {
+        window_days: 30,
+        min_successful_executions: 5,
+        require_successful_rollback_drill: true,
+        max_non_successful_executions: 0,
+      },
+      limits: {
+        max_cost_minor_per_action: 0,
+        max_cost_minor_per_day: 0,
+        currency: 'USD',
+        max_executions_per_hour: 2,
+        max_executions_per_day: 4,
+        cooldown_seconds: 60,
+        max_source_age_minutes: 30,
+        execution_lease_seconds: 60,
+        mutation_count_max: 1,
+      },
+      safety: {
+        scenario_set_version: 'g7-core-v1',
+        initial_kill_switch_state: 'engaged',
+        require_no_open_incident: true,
+        halt_on_any_failure: true,
+        halt_on_unknown_outcome: true,
+      },
+      verdict: 'accepted',
+    };
+    const autonomyRepository = new BoundedAutonomyRepository(db);
+    const autonomyService = new BoundedAutonomyService(
+      autonomyRepository,
+      new ActionAdapterRegistry([actionAdapter]),
+      () => sourceNow,
+    );
+    const autonomySimulation = await autonomyService.simulatePolicy(autonomyPolicy, 'Leoz');
+    const autonomyPolicyRecord = await autonomyService.acceptPolicy(autonomyPolicy, g7ReleaseCredential);
+    const autonomyKill = await autonomyService.releaseKillSwitch({
+      policyId: autonomyPolicy.policy_id,
+      actor: 'Leoz',
+      releaseCredential: g7ReleaseCredential,
+      killSwitchCredential: g7KillCredential,
+      reasonCode: 'pg_smoke_g7_released',
+    });
+    const autonomyRun = await autonomyService.runCandidate({
+      policyId: autonomyPolicy.policy_id,
+      payload: { lead_id: 'pg_smoke_autonomy_lead', status_code: 'contacted' },
+      reasonCode: 'pg_smoke_bounded_candidate',
+      evidenceRefs: ['brief.pg_smoke'],
+      idempotencyKey: 'pg-smoke-autonomy-0000001',
+      executor: 'Leoz',
+      executorCredential: g7ExecutorCredential,
+    });
+    if (autonomyRun.attempt?.status !== 'succeeded') throw new Error('expected bounded-autonomy PG smoke action to succeed');
+    await autonomyService.engageKillSwitch({
+      policyId: autonomyPolicy.policy_id,
+      actor: 'Leoz',
+      killSwitchCredential: g7KillCredential,
+      reasonCode: 'pg_smoke_prepare_recovery',
+    });
+    const recoveryPreview = await autonomyService.previewRecovery({
+      policyId: autonomyPolicy.policy_id,
+      subjectAttemptId: autonomyRun.attempt.id,
+      actor: 'Leoz',
+      executorCredential: g7ExecutorCredential,
+    });
+    const recoveryApproval = await autonomyService.decideRecovery({
+      policyId: autonomyPolicy.policy_id,
+      subjectAttemptId: autonomyRun.attempt.id,
+      decision: 'approved',
+      actor: 'Leoz',
+      releaseCredential: g7ReleaseCredential,
+      killSwitchCredential: g7KillCredential,
+      reasonCode: 'pg_smoke_recovery_approved',
+      nonce: 'pg-smoke-g7-recovery-approval-01',
+      maxCostMinor: recoveryPreview.estimated_cost_minor,
+    });
+    const recovery = await autonomyService.recover({
+      policyId: autonomyPolicy.policy_id,
+      subjectAttemptId: autonomyRun.attempt.id,
+      actor: 'Leoz',
+      executorCredential: g7ExecutorCredential,
+    });
+    if (recovery.attempt.status !== 'succeeded') throw new Error('expected human G7 recovery to succeed');
+    const autonomyEvent = (await autonomyRepository.listEvents(autonomyPolicyRecord.id))[0];
+    const incidentEvidence = actionFingerprint({ drill: 'pg_smoke_control_incident' });
+    const incident = await autonomyRepository.openControlIncident({
+      policy: autonomyPolicyRecord,
+      actor: 'leozops_control_plane',
+      reasonCode: 'pg_smoke_incident_drill',
+      evidenceFingerprint: incidentEvidence,
+      occurredAt: sourceNow.toISOString(),
+    });
     const actionEvent = (await actionRepository.listEvents(actionProposal.id))[0];
     for (const mutation of [
       db('source_snapshots').where({ id: accepted.snapshot.id }).update({ record_count: 1 }),
@@ -465,6 +695,16 @@ async function main(): Promise<void> {
       db(G6_TABLES.approvals).where({ id: actionApproval.id }).delete(),
       db(G6_TABLES.events).where({ id: actionEvent.id }).update({ reason_code: 'rewritten' }),
       db(G6_TABLES.attempts).where({ id: actionExecution.attempt.id }).update({ result_code: 'rewritten' }),
+      db(G7_TABLES.simulations).where({ id: autonomySimulation.record.id }).update({ passed: false }),
+      db(G7_TABLES.policies).where({ id: autonomyPolicyRecord.id }).delete(),
+      db(G7_TABLES.killSwitchEvents).where({ id: autonomyKill.id }).update({ reason_code: 'rewritten' }),
+      db(G7_TABLES.evaluations).where({ id: autonomyRun.evaluation.id }).delete(),
+      db(G7_TABLES.recoveryPreviews).where({ id: recoveryPreview.id }).update({ summary_code: 'rewritten' }),
+      db(G7_TABLES.recoveryApprovals).where({ id: recoveryApproval.id }).delete(),
+      db(G7_TABLES.events).where({ id: autonomyEvent.id }).update({ reason_code: 'rewritten' }),
+      db(G7_TABLES.incidentEvents).where({ id: incident.incident.id }).delete(),
+      db(G7_TABLES.attempts).where({ id: autonomyRun.attempt!.id }).update({ result_code: 'rewritten' }),
+      db(G7_TABLES.attempts).where({ id: recovery.attempt.id }).delete(),
     ]) {
       let rejected = false;
       try {
@@ -474,7 +714,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, shadow, and supervised-action immutability verified.');
+    console.log('  source, shadow, supervised-action, and bounded-autonomy immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

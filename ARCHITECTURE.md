@@ -590,3 +590,28 @@ probe to monitor it — **without a schema change**, reusing the M7 auth model.
   against the deployed DB so an operator can create and verify the first pilot
   tenant; it mirrors `server.ts` for secret resolution (production must set
   `AUTH_SECRET`). See `docs/PILOT_RUNBOOK.md` for the full launch/support runbook.
+
+---
+
+## 13. Phase 4 local bounded-autonomy control plane (G7 rehearsal)
+
+This is an inert integration-track package, not part of the legacy application
+surface and not a deployed runtime profile.
+
+- `domain/g7Policy.ts` validates one exact low-risk G6-bound standing policy;
+  `domain/boundedAutonomy.ts` supplies deterministic simulation and envelope
+  decisions.
+- `boundedAutonomyRepository.ts` persists immutable policy, simulation,
+  kill-switch, evaluation, recovery approval, incident, and ordered event facts.
+  Attempt coordination allows one guarded terminal transition only.
+- `boundedAutonomyService.ts` evaluates one candidate per invocation. It checks
+  current G5/G6 evidence, real supervised history, source freshness, simulator,
+  kill switch, incidents, cooldown, rolling rates/cost, and exact adapter before
+  a zero-mutation preview and atomic claim.
+- Failed, invalid, expired-lease, or unknown results open an incident and engage
+  the kill switch. A successful action can be reversed only by an explicit
+  24-hour human recovery path: kill switch → preview → separate approval →
+  invocation. There is no autonomous rollback.
+- `autonomyOperator.ts` is command-and-exit. The checked-in adapter registry is
+  empty; no scheduler, timer, background loop, HTTP mutation route, provider
+  SDK, source credential, or external request is composed.

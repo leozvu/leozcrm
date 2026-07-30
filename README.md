@@ -22,6 +22,7 @@ Autopilot, with human authority and evidence gates at every step.
 | Local end-to-end proof | G4 complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged to `main@5ef3fd5`; Sprint 1 accepted |
 | Phase 2 implementation | S2.A accepted; local S2.B–S2.D authorization, poll evidence, shadow ledger, G5 evaluator, and release-decision control plane implemented on `codex/leozops-phase2`; P1/external execution still blocked |
 | Phase 3 implementation | Local G6 policy, proposal, dry-run, approval, idempotent execution, immutable audit, limits, and separately approved rollback implemented on `codex/leozops-phase3-supervised-action`; adapter registry intentionally empty |
+| Phase 4 implementation | Local G7 simulator, supervised-history gate, blast-radius envelope, kill switch, incidents, one-candidate rehearsal, and human recovery implemented on `codex/leozops-phase4-bounded-autonomy`; no production adapter or scheduler |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -36,6 +37,11 @@ requires a named Product Owner decision for the exact external environment:
 Only after a real G5 `go` may the next external path begin:
 
 `Narrow command contract → G6 policy → Dry-run → Human approval → One action`
+
+Only after real supervised history and a separate G7 release may this external
+path begin:
+
+`Policy simulation → Kill-switch release → One bounded candidate → Monitor → Human recovery if needed`
 
 ## Start here
 
@@ -70,6 +76,10 @@ Only after a real G5 `go` may the next external path begin:
     contract and acceptance boundary.
 17. [`docs/PHASE_3_OPERATIONS.md`](docs/PHASE_3_OPERATIONS.md) — fail-closed
     preflight, manual operator flow, evidence, incident, and rollback runbook.
+18. [`docs/SPRINT_4_PLAN.md`](docs/SPRINT_4_PLAN.md) — G7 bounded-autonomy
+    rehearsal contract and acceptance boundary.
+19. [`docs/PHASE_4_OPERATIONS.md`](docs/PHASE_4_OPERATIONS.md) — simulator,
+    kill-switch, one-cycle, incident, and human-recovery runbook.
 
 ## Non-negotiable boundaries
 

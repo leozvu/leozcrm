@@ -183,6 +183,13 @@ export interface ActionExecutionEvidence {
   external_mutation_count: 0 | 1;
 }
 
+export interface ActionRecoverySubject {
+  original_request_fingerprint: string;
+  original_result_fingerprint: string;
+  original_external_request_id: string;
+  original_idempotency_key: string;
+}
+
 export interface SupervisedActionAdapter {
   readonly descriptor: {
     adapter_id: string;
@@ -211,7 +218,7 @@ export interface SupervisedActionAdapter {
     targetEndpointUrl: string;
     targetCredentialFingerprint: string;
     idempotencyKey: string;
-    preview: SupervisedActionPreview;
+    preview: ActionPreviewEvidence;
   }): Promise<ActionExecutionEvidence>;
   previewRollback(input: {
     proposal: SupervisedActionProposal;
@@ -231,6 +238,23 @@ export interface SupervisedActionAdapter {
     targetCredentialFingerprint: string;
     idempotencyKey: string;
     preview: SupervisedActionPreview;
+  }): Promise<ActionExecutionEvidence>;
+  previewRecovery?(input: {
+    subject: ActionRecoverySubject;
+    targetProjectId: string;
+    targetTenantKey: string;
+    targetEndpointUrl: string;
+    targetCredentialFingerprint: string;
+    idempotencyKey: string;
+  }): Promise<ActionPreviewEvidence>;
+  recover?(input: {
+    subject: ActionRecoverySubject;
+    targetProjectId: string;
+    targetTenantKey: string;
+    targetEndpointUrl: string;
+    targetCredentialFingerprint: string;
+    idempotencyKey: string;
+    preview: ActionPreviewEvidence;
   }): Promise<ActionExecutionEvidence>;
 }
 

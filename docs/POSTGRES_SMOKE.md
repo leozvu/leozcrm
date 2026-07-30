@@ -136,6 +136,44 @@ migration. The exact container was stopped and auto-removed; Docker Desktop
 was shut down afterward. This is dialect/control-plane evidence only and does
 not prove or authorize an external command.
 
+## Phase 4 migration checkpoint — 2026-07-29
+
+The Phase 4 branch reran the complete lifecycle after adding bounded-autonomy
+simulation, policy, kill-switch, evaluation, attempt, human-recovery, incident,
+and ordered event tables:
+
+- branch: `codex/leozops-phase4-bounded-autonomy`;
+- engine: Docker Desktop `29.6.2`, returned to its original stopped state;
+- image: `postgres:16-alpine`;
+- container: `leozops-phase4-pg-qa`;
+- endpoint: loopback-only ephemeral port `127.0.0.1:57118`;
+- database: `leozops_phase4`;
+- storage: disposable container filesystem, no named/shared volume;
+- adapter: deterministic in-process smoke adapter only; no network call;
+- external/cloud resources: none.
+
+Observed result:
+
+```text
+Postgres smoke: applying migrations…
+Postgres smoke: seeding reference data…
+  seeded 9 funnel stages, 9 present.
+Postgres smoke: exercising the task lifecycle…
+  task lifecycle + monotonic audit seq verified.
+Postgres smoke: exercising immutable source evidence…
+  source, shadow, supervised-action, and bounded-autonomy immutability verified.
+Postgres smoke: rolling back…
+Postgres migrate/seed/rollback smoke PASSED.
+```
+
+The smoke created five real in-database supervised successes plus one rollback
+drill, simulated and accepted one G7 policy, released its kill switch, executed
+one fake bounded candidate, performed one separately approved human recovery,
+opened an incident drill, rejected rewrites across every Phase 4 fact class, and
+rolled back the full migration chain. The exact container auto-removed and
+Docker Desktop was stopped. This is dialect/control-plane proof only; it does
+not establish production history or authorize G7.
+
 ## Running on another approved disposable target
 
 Set either one connection string:

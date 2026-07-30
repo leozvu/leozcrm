@@ -458,3 +458,31 @@ Decision:
   dry-run and rollback implementation, command-specific QA, and Product Owner
   release decision before registration in a deployed operator.
 Owner: Leoz. Recorded by Codex before Phase 3 implementation.
+
+DECISION-002 addendum 15 — 2026-07-29 — Phase 4/G7 local rehearsal authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to continue to the next step as approval to
+  implement an inert Phase 4/G7 bounded-autonomy rehearsal and control plane on
+  a branch based on the completed Phase 3 work.
+- Preserve G5 and G6 as hard external prerequisites. Local code may simulate,
+  validate, persist, and adversarially test a G7 policy, but it must not assert
+  that G7 is earned or manufacture supervised production history.
+- Limit the first autonomy envelope to one exact low-risk G6 command, one
+  candidate per command-and-exit cycle, one mutation at most, tighter hourly,
+  daily, cost, cooldown, freshness, and validity bounds, and no wildcard scope.
+- Require a passing deterministic policy simulation, qualifying immutable G6
+  supervised history, a current G5 `go`, an active exact G6 policy, a fresh
+  source snapshot, no open incident, and a released kill switch before an
+  injected adapter can be called.
+- Start and fail closed with the kill switch engaged. Any failed, invalid,
+  over-envelope, crashed, or unknown action result must create immutable
+  incident evidence and engage the kill switch before another cycle can run.
+- Keep human release, executor, and kill-switch credentials distinct even when
+  Leoz performs all roles. Recovery remains human-controlled; no autonomous
+  rollback, self-resolution, scheduler, daemon, HTTP action route, external
+  credential, or background loop is authorized.
+- Keep the checked-in production action-adapter registry empty. A deterministic
+  injected test adapter may prove local mechanics, but no RepositoryRealms
+  command, network request, deployment, or external mutation is authorized.
+Owner: Leoz. Recorded by Codex before Phase 4 implementation.

@@ -158,6 +158,41 @@ autonomy is authorized or present.
 
 ---
 
+### Sprint 4 — 🚧 Local G7 rehearsal complete; bounded-autonomy release blocked
+
+Goal:
+Proven Supervised History → Policy Simulation → Explicit Kill-switch Release →
+One Bounded Candidate → Monitor / Incident → Human-controlled Recovery.
+
+Plan: [`docs/SPRINT_4_PLAN.md`](docs/SPRINT_4_PLAN.md). DECISION-002 addendum 15
+authorizes only the inert local package on
+`codex/leozops-phase4-bounded-autonomy`. It provides:
+
+- an exact low-risk G6-bound standing policy and deterministic safety simulator;
+- real supervised-history, source-freshness, current-G5/G6, and adapter gates;
+- an initially engaged dual-credential kill switch and immutable incidents;
+- one-candidate dry-run/evaluate/atomic-claim/execute orchestration;
+- rolling rate, daily cost, cooldown, one-mutation, and lease limits;
+- automatic halt on every failed or uncertain result;
+- a separately previewed, dual-credential-approved, explicitly invoked human
+  recovery within 24 hours; and
+- immutable SQLite/PostgreSQL evidence plus a fail-closed CLI/preflight.
+
+Still pending as external facts:
+
+- genuine G5 and command-specific G6 releases;
+- sufficient qualifying production supervised history;
+- a deployed exact adapter, least-privilege credentials, and verified kill
+  switch/monitoring;
+- production simulator replay, canary, incident/recovery drill, and explicit G7
+  Product Owner release.
+
+The production adapter registry remains empty. No external request, scheduler,
+HTTP mutation route, autonomous rollback, deployment, credential, or real G7
+authority is present.
+
+---
+
 ## Legacy Foundation (historical — completion evidence intact)
 
 The standalone LeozOps application track. Preserved as history per

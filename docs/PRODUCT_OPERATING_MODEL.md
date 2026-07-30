@@ -145,6 +145,7 @@ transitions.
 | Legacy local | Preserve and test the historical standalone foundation | Existing routes; not an Egoric deployment target |
 | `egoric-readonly` | Current canonical integration | Health plus approved tenant intelligence read routes |
 | Supervised operator | Future, after G6 approval | Read routes plus individually allowlisted approved commands |
+| Bounded operator | Future, after G7 approval | One exact reversible low-risk policy within a verified blast-radius envelope |
 
 The `egoric-readonly` runtime profile is implemented on `main` through PR #6
 with health plus one authenticated tenant brief route. It remains unapproved
@@ -155,6 +156,12 @@ The local Phase 3 branch implements the future gateway's policy, evidence, and
 command-and-exit orchestration primitives, but no HTTP operator profile or real
 command adapter is registered. The table above therefore remains a future
 deployed profile until a command-specific G6 release passes.
+
+The local Phase 4 branch adds an inert bounded-policy simulator, fail-closed
+kill switch, incident ledger, one-candidate command-and-exit orchestration, and
+human recovery controls. It adds no deployed runtime profile, production
+adapter, scheduler, or HTTP action surface. The bounded-operator row therefore
+remains future until a separate G7 release passes.
 
 ## 8. Product decision rule
 

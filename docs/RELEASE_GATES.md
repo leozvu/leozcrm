@@ -17,7 +17,7 @@ require explicit Product Owner approval in addition to technical evidence.
 | **G4 — Local End-to-End** | Sprint 1 may be accepted | Actual canonical handler + local test facts → stored memory → brief; exact reconciliation; no-mutation proof; flag/key revocation drill; CEO acceptance recorded | **Complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged as `main@5ef3fd5`; Product Owner accepted Sprint 1** |
 | **G5 — Shadow Trust** | Read-only CEO pilot may be released | Independent deployment, production canary, ten business days of read-only shadow, freshness/reliability targets, useful output, no material false claims or workflow regression | **Complete local execution/control plane on `codex/leozops-phase2`; P1 is still pending, so no external checkpoint or elapsed shadow evidence exists and G5 remains blocked** |
 | **G6 — Supervised Action** | Individually allowlisted actions may be proposed and executed after approval | Action/approval contract; dry-run; idempotency; audit; expiry; risk/budget/rate controls; rollback; command-specific QA and CEO approval | **Local control plane complete on `codex/leozops-phase3-supervised-action`; G5 and every real command/adapter/release remain blocked** |
-| **G7 — Bounded Autonomy** | A reversible low-risk policy may execute without per-action approval | Proven supervised history; policy simulator; blast-radius limit; kill switch; monitoring; incident drill; revocation; explicit scope and CEO approval | Future separate project |
+| **G7 — Bounded Autonomy** | A reversible low-risk policy may execute without per-action approval | Proven supervised history; policy simulator; blast-radius limit; kill switch; monitoring; incident drill; revocation; explicit scope and CEO approval | **Local inert rehearsal complete on `codex/leozops-phase4-bounded-autonomy`; G5/G6, production history, deployed adapter/monitoring, external drills, and G7 release remain blocked** |
 
 ## Gate ownership
 
@@ -79,3 +79,10 @@ G5 is open: the deployed adapter registry must remain empty and no external
 command, credential, route, scheduler, or mutation may exist. This preparation
 does not unlock or exercise G6; the stop rule still applies to every real
 command capability.
+
+DECISION-002 addendum 15 permits an inert local G7 rehearsal while external G5
+and G6 remain open. It does not waive either prerequisite: production
+composition stays adapter-free and scheduler-free, the kill switch defaults to
+engaged, and only injected deterministic adapters may exercise the local path.
+No local simulation, fake execution, or database evidence can count as
+production supervised history or a G7 release.
