@@ -13,6 +13,7 @@
  * Run: npm run db:smoke:pg     (with DATABASE_URL or PG* env set)
  * See: docs/POSTGRES_SMOKE.md
  */
+import { generateKeyPairSync, sign } from 'node:crypto';
 import knexFactory from 'knex';
 import config from '../../knexfile';
 import { seedFunnelStages } from './fixtures';
@@ -24,6 +25,7 @@ import {
   EGORIC_FUNNEL_ID,
   EGORIC_SCHEMA_VERSION,
   EGORIC_TERMINAL_OUTCOMES,
+  canonicalStringify,
   computeEgoricSnapshotId,
 } from '../domain/businessMemory';
 import { SOURCE_RECONCILIATION_TABLE } from '../domain/sourceOperations';
@@ -59,6 +61,21 @@ import { PHASE5_TABLES } from '../domain/operationalAssurance';
 import { OperationalAssurancePolicyManifest } from '../domain/operationalAssurancePolicy';
 import { OperationalAssuranceRepository } from '../repositories/operationalAssuranceRepository';
 import { OperationalAssuranceService } from '../services/operationalAssuranceService';
+import {
+  ExternalEvidenceAttestation,
+  ExternalEvidenceEnvelope,
+  PHASE6_TABLES,
+  externalEvidenceFingerprint,
+} from '../domain/externalEvidence';
+import {
+  ExternalEvidenceIssuerRole,
+  ExternalEvidencePolicyManifest,
+  PHASE6_EVIDENCE_MATRIX,
+  PHASE6_ISSUER_ROLES,
+  externalPublicKeyFingerprint,
+} from '../domain/externalEvidencePolicy';
+import { ExternalEvidenceRepository } from '../repositories/externalEvidenceRepository';
+import { ExternalEvidenceService } from '../services/externalEvidenceService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -118,6 +135,10 @@ async function main(): Promise<void> {
       PHASE5_TABLES.assessments,
       PHASE5_TABLES.releasePackages,
       PHASE5_TABLES.events,
+      PHASE6_TABLES.policies,
+      PHASE6_TABLES.attestations,
+      PHASE6_TABLES.assessments,
+      PHASE6_TABLES.events,
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -774,6 +795,141 @@ async function main(): Promise<void> {
       throw new Error('expected Phase 5 release package to remain blocked external');
     }
     const assuranceEvent = (await assuranceRepository.listEvents(assurancePolicyRecord.id))[0];
+
+    const externalAuthorityCredential = 'pg-smoke-phase6-authority-credential';
+    const externalAssessorCredential = 'pg-smoke-phase6-assessor-credential';
+    const externalKeys = Object.fromEntries(PHASE6_ISSUER_ROLES.map((role) => [
+      role,
+      generateKeyPairSync('ed25519'),
+    ])) as Record<ExternalEvidenceIssuerRole, ReturnType<typeof generateKeyPairSync>>;
+    const externalPolicy: ExternalEvidencePolicyManifest = {
+      schema_version: 'leozops_phase6_external_evidence_policy_v1',
+      policy_id: 'P6-PG-SMOKE',
+      status: 'accepted',
+      admission_mode: 'local_trust_bridge',
+      environment: 'test',
+      approved_by: 'Leoz',
+      approved_at: '2026-07-29T00:59:00.000Z',
+      valid_from: '2026-07-29T00:59:00.000Z',
+      valid_until: '2026-07-30T00:30:00.000Z',
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      phase5: {
+        policy_id: assurancePolicy.policy_id,
+        policy_fingerprint: assurancePolicyRecord.policy_fingerprint,
+        assessment_fingerprint: assuranceAssessment.assessment_fingerprint,
+        release_package_fingerprint: assurancePackage.package_fingerprint,
+      },
+      identities: {
+        trust_authority: 'Leoz',
+        authority_credential_sha256: credentialFingerprint(externalAuthorityCredential),
+        assessor: 'Leoz',
+        assessor_credential_sha256: credentialFingerprint(externalAssessorCredential),
+      },
+      issuers: Object.fromEntries(PHASE6_ISSUER_ROLES.map((role) => {
+        const pem = externalKeys[role].publicKey.export({ type: 'spki', format: 'pem' }).toString();
+        return [role, {
+          issuer_id: `pg-smoke-${role}-issuer`,
+          key_id: `pg-smoke-${role}-key-2026-01`,
+          algorithm: 'ed25519',
+          public_key_pem: pem,
+          public_key_sha256: externalPublicKeyFingerprint(pem),
+        }];
+      })) as ExternalEvidencePolicyManifest['issuers'],
+      limits: {
+        max_clock_skew_seconds: 300,
+        max_attestation_age_hours: 168,
+        max_attestation_validity_hours: 168,
+      },
+      safety: {
+        evidence_matrix_version: 'phase6-eight-blockers-v1',
+        require_all_eight: true,
+        reject_unknown_issuer: true,
+        reject_replay_and_non_monotonic_statements: true,
+        release_authority_not_granted: true,
+        production_adapter_registry_must_remain_empty: true,
+        waivers_allowed: false,
+      },
+      verdict: 'accepted',
+    };
+    const externalRepository = new ExternalEvidenceRepository(db);
+    const externalService = new ExternalEvidenceService(
+      externalRepository,
+      new ActionAdapterRegistry(),
+      () => sourceNow,
+    );
+    const externalPolicyRecord = await externalService.acceptPolicy(externalPolicy, externalAuthorityCredential);
+    const attestationIds = [
+      '41000000-0000-4000-8000-000000000001',
+      '41000000-0000-4000-8000-000000000002',
+      '41000000-0000-4000-8000-000000000003',
+      '41000000-0000-4000-8000-000000000004',
+      '41000000-0000-4000-8000-000000000005',
+      '41000000-0000-4000-8000-000000000006',
+      '41000000-0000-4000-8000-000000000007',
+      '41000000-0000-4000-8000-000000000008',
+    ];
+    let firstExternalAttestation;
+    for (const [index, item] of PHASE6_EVIDENCE_MATRIX.entries()) {
+      const issuer = externalPolicy.issuers[item.issuer_role];
+      const attestation: ExternalEvidenceAttestation = {
+        schema_version: 'leozops_phase6_external_attestation_v1',
+        attestation_id: attestationIds[index],
+        policy_id: externalPolicy.policy_id,
+        environment: 'test',
+        tenant_id: tenant.id,
+        source_connection_id: connection.id,
+        phase5_release_package_fingerprint: assurancePackage.package_fingerprint,
+        evidence_type: item.evidence_type,
+        statement: 'pass',
+        supersedes_attestation_id: null,
+        issuer: {
+          role: item.issuer_role,
+          issuer_id: issuer.issuer_id,
+          key_id: issuer.key_id,
+          algorithm: 'ed25519',
+        },
+        subject: {
+          system: 'leozops',
+          deployment_id: 'pg-smoke-test-deployment',
+          target_fingerprint: externalEvidenceFingerprint({ target: 'pg-smoke' }),
+        },
+        evidence_digest: externalEvidenceFingerprint({ evidence: item.evidence_type }),
+        observed_from: '2026-07-29T00:40:00.000Z',
+        observed_until: '2026-07-29T00:59:00.000Z',
+        issued_at: sourceNow.toISOString(),
+        expires_at: '2026-07-29T20:00:00.000Z',
+        nonce: `nonce:pg-smoke:${item.evidence_type}:0001`,
+      };
+      const envelope: ExternalEvidenceEnvelope = {
+        attestation,
+        signature: {
+          algorithm: 'ed25519',
+          value_base64: sign(
+            null,
+            Buffer.from(canonicalStringify(attestation)),
+            externalKeys[item.issuer_role].privateKey,
+          ).toString('base64'),
+        },
+      };
+      const admitted = await externalService.admit({
+        policyId: externalPolicy.policy_id,
+        envelope,
+        actor: 'Leoz',
+        assessorCredential: externalAssessorCredential,
+      });
+      firstExternalAttestation ??= admitted;
+    }
+    const externalAssessment = await externalService.assess({
+      policyId: externalPolicy.policy_id,
+      assessmentKey: 'pg-smoke-phase6-assessment-0001',
+      actor: 'Leoz',
+      assessorCredential: externalAssessorCredential,
+    });
+    if (externalAssessment.status !== 'complete_unreleased' || externalAssessment.release_status !== 'blocked_external_activation') {
+      throw new Error('expected complete but unreleased Phase 6 assessment');
+    }
+    const externalEvent = (await externalRepository.listEvents(externalPolicyRecord.id))[0];
     const actionEvent = (await actionRepository.listEvents(actionProposal.id))[0];
     for (const mutation of [
       db('source_snapshots').where({ id: accepted.snapshot.id }).update({ record_count: 1 }),
@@ -801,6 +957,10 @@ async function main(): Promise<void> {
       db(PHASE5_TABLES.assessments).where({ id: assuranceAssessment.id }).update({ local_status: 'fail' }),
       db(PHASE5_TABLES.releasePackages).where({ id: assurancePackage.id }).delete(),
       db(PHASE5_TABLES.events).where({ id: assuranceEvent.id }).update({ reason_code: 'rewritten' }),
+      db(PHASE6_TABLES.policies).where({ id: externalPolicyRecord.id }).delete(),
+      db(PHASE6_TABLES.attestations).where({ id: firstExternalAttestation!.id }).update({ statement: 'revoke' }),
+      db(PHASE6_TABLES.assessments).where({ id: externalAssessment.id }).delete(),
+      db(PHASE6_TABLES.events).where({ id: externalEvent.id }).update({ reason_code: 'rewritten' }),
     ]) {
       let rejected = false;
       try {
@@ -810,7 +970,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, shadow, supervised-action, bounded-autonomy, and operational-assurance immutability verified.');
+    console.log('  source, shadow, supervised-action, bounded-autonomy, assurance, and external-evidence immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

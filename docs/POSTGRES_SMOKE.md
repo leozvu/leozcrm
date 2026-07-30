@@ -210,6 +210,45 @@ assessment and a `blocked_external` package, rejected rewrites across all four
 Phase 5 tables, and rolled back all nine migrations. The container auto-removed
 and Docker Desktop stopped. This is dialect/control-plane evidence only.
 
+## Phase 6 migration checkpoint — 2026-07-30
+
+The Phase 6 branch reran the full lifecycle after adding signed external-
+evidence policy, attestation, assessment, and ordered event tables:
+
+- branch: `codex/leozops-phase6-external-evidence`;
+- engine: Docker Desktop `29.6.2`, returned to its original stopped state;
+- image: `postgres:16-alpine`;
+- container: `leozops-phase6-pg` (auto-removed);
+- endpoint: loopback-only `127.0.0.1:51662`;
+- database: `leozops_phase6_qa`;
+- storage: disposable container filesystem, no named/shared volume;
+- keys: ephemeral in-process Ed25519 QA keys; private keys were neither logged
+  nor persisted;
+- adapter: deterministic in-process G6/G7 smoke adapter only; Phase 6 used an
+  empty production registry and made no network call;
+- external/cloud resources: none.
+
+Observed result:
+
+```text
+Postgres smoke: applying migrations…
+Postgres smoke: seeding reference data…
+  seeded 9 funnel stages, 9 present.
+Postgres smoke: exercising the task lifecycle…
+  task lifecycle + monotonic audit seq verified.
+Postgres smoke: exercising immutable source evidence…
+  source, shadow, supervised-action, bounded-autonomy, assurance, and external-evidence immutability verified.
+Postgres smoke: rolling back…
+Postgres migrate/seed/rollback smoke PASSED.
+```
+
+The smoke accepted one Phase 6 policy bound to the exact passing Phase 5
+assessment/package, admitted all eight correctly signed rows, derived
+`complete_unreleased` plus `blocked_external_activation`, rejected rewrites
+across all four new tables, and rolled back all ten migrations. This proves
+SQL dialect and local control-plane behavior only; it does not enroll external
+issuers or authorize activation.
+
 ## Running on another approved disposable target
 
 Set either one connection string:

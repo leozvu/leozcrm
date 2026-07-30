@@ -85,6 +85,10 @@ path begin:
     scope, evidence rules, and external release boundary.
 21. [`docs/PHASE_5_OPERATIONS.md`](docs/PHASE_5_OPERATIONS.md) — assessment,
     freshness/drift recheck, and blocked-external packaging runbook.
+22. [`docs/SPRINT_6_PLAN.md`](docs/SPRINT_6_PLAN.md) — signed external-evidence
+    admission contract and explicit non-goals.
+23. [`docs/PHASE_6_OPERATIONS.md`](docs/PHASE_6_OPERATIONS.md) — pinned issuer,
+    signing, replay, revocation, assessment, and key-rotation runbook.
 
 ## Non-negotiable boundaries
 
@@ -139,6 +143,8 @@ npm start
 | `npm run db:reset` | Roll back, migrate, and seed |
 | `npm run phase2:preflight` | Validate Checkpoint B or P2 manifest chains without external actions |
 | `npm run source:shadow` | Run one manifest-gated poll, daily close, status, or release-decision command |
+| `npm run phase6:preflight` | Validate exact Phase 6 trust/runtime bindings while keeping activation blocked |
+| `npm run evidence:operator` | Admit one signed envelope or assess/read the immutable evidence matrix |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 Do not configure an Egoric production key, enable a production feature flag, or

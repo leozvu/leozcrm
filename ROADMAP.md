@@ -221,6 +221,38 @@ and no external capability.
 
 ---
 
+### Sprint 6 — ✅ Signed external-evidence admission complete; activation blocked
+
+Goal:
+Exact Phase 5 Package → Pinned Issuers → Signed Evidence Admission → Eight-row
+Assessment → Complete-but-Unreleased Candidate.
+
+Plan: [`docs/SPRINT_6_PLAN.md`](docs/SPRINT_6_PLAN.md). DECISION-002 addendum 17
+authorizes only a local trust bridge on
+`codex/leozops-phase6-external-evidence`. It provides:
+
+- an exact Phase 5 package-bound policy with separate authority/assessor
+  credentials and four unique pinned Ed25519 public keys;
+- the canonical eight-blocker matrix with no wildcard, waiver, or inferred
+  evidence path;
+- canonical signed envelopes bound to tenant, source, environment, package,
+  subject, issuer, timestamps, digest, and nonce;
+- signature, issuer, expiry, freshness, clock-skew, replay, nonce, ordering, and
+  signed-revocation enforcement;
+- immutable SQLite/PostgreSQL policies, attestations, assessments, and monotonic
+  events; and
+- a file-only operator, fail-closed preflight, templates, and incident/key
+  rotation runbook.
+
+Even eight valid rows produce only `complete_unreleased` with
+`blocked_external_activation`. Real issuer enrollment, raw evidence collection,
+named production infrastructure, adapter registration, deployment, and any G7
+activation/release act remain pending a separately authorized phase. No G8,
+network call, scheduler, daemon, HTTP mutation route, private key, or production
+capability is present.
+
+---
+
 ## Legacy Foundation (historical — completion evidence intact)
 
 The standalone LeozOps application track. Preserved as history per

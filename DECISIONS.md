@@ -512,3 +512,30 @@ Decision:
   scheduler, daemon, background loop, HTTP mutation route, credential, provider
   resource, deployment, or external system change.
 Owner: Leoz. Recorded by Codex before Phase 5 implementation.
+
+DECISION-002 addendum 17 — 2026-07-30 — Phase 6 signed external-evidence admission authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to continue to the next phase as approval to
+  implement a local trust bridge for the eight external blockers named by the
+  immutable Phase 5 release package.
+- Bind one exact Phase 6 policy to one passing Phase 5 assessment and its exact
+  `blocked_external` package. Pin four Ed25519 issuer identities and public keys;
+  accept only canonical, signed, time-bounded attestations for the fixed evidence
+  matrix. Operator booleans, untrusted keys, unknown evidence types, inferred
+  evidence, wildcard scope, and waivers remain invalid.
+- Store accepted attestations and assessments as immutable evidence. Reject
+  invalid signatures, wrong issuers, wrong tenant/source/package bindings,
+  stale or future evidence, conflicting replay, and non-monotonic statements.
+  A signed revocation supersedes the latest pass for its evidence type and
+  immediately makes the matrix incomplete.
+- Leoz may perform the local trust-authority and assessor roles, but their
+  credential fingerprints remain separate from each other and from all Phase 5,
+  G7, and G6 credentials. Issuer private keys and raw external evidence are never
+  persisted; only pinned public keys, signatures, digests, and metadata are kept.
+- A complete eight-of-eight matrix is `complete_unreleased`, never a production
+  release. Phase 6 creates no G8, activation endpoint, adapter registration,
+  scheduler, daemon, HTTP mutation route, external credential, deployment, or
+  network call. Real trust-root enrollment and any production activation require
+  a separately authorized phase against named infrastructure.
+Owner: Leoz. Recorded by Codex before Phase 6 implementation.

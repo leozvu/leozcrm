@@ -639,3 +639,33 @@ not add a deployed runtime profile or action capability.
   `phase5Preflight.ts` is read-only/fail-closed. Production adapter composition
   remains empty; no network client, timer, daemon, or HTTP mutation route is
   added.
+
+---
+
+## 15. Phase 6 signed external-evidence control plane
+
+Phase 6 turns the eight named Phase 5 blockers into a fixed, cryptographically
+verifiable matrix. It is an admission and assessment layer, not an activation
+or action runtime.
+
+- `domain/externalEvidencePolicy.ts` validates exact Phase 5 package binding,
+  four unique Ed25519 trust roots, two new separated runtime credential
+  fingerprints, bounded validity, and invariant safety flags.
+- `domain/externalEvidence.ts` defines canonical pass/revoke envelopes, detached
+  Ed25519 verification, exact issuer/type assignment, and the eight-row matrix.
+- `externalEvidenceRepository.ts` stores immutable policies, attestations,
+  assessments, and monotonic events. It rejects attestation-ID conflicts,
+  nonce reuse, non-increasing statements, and invalid revocation ancestry.
+- `externalEvidenceService.ts` revalidates the complete local G5/G6/G7/Phase 5
+  chain and empty production registry before admission and assessment. It
+  re-verifies every stored signature while deriving current matrix status.
+- `externalEvidenceOperator.ts` is file-based and command-and-exit;
+  `phase6Preflight.ts` is read-only and deliberately non-zero because release
+  authority is absent.
+- Eight satisfied rows yield only `complete_unreleased` and
+  `blocked_external_activation`. There is no adapter registration, release,
+  promote, activate, scheduler, network, daemon, or HTTP mutation path.
+
+Issuer private keys and raw proof material stay outside LeozOps. The database
+contains only public keys, metadata, SHA-256 digests, detached signatures, and
+canonical evidence bindings.

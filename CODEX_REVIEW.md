@@ -1213,3 +1213,70 @@ credential, feature flag, scheduler, production-data access, employee workflow
 change, waiver, or actual autonomy was performed or authorized.
 
 ---
+
+# Phase 6 Local Review — Signed External-Evidence Admission
+
+Review date: 2026-07-30
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase6-external-evidence`
+
+Baseline: Phase 5 commit `c407761`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — EXTERNAL ACTIVATION BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_phase6_external_evidence_policy_v1` binds one policy to
+  the exact latest passing Phase 5 assessment and immutable
+  `blocked_external` package. Authority/assessor credentials differ from each
+  other and all Phase 5/G7/G6 credentials.
+- Four unique Ed25519 issuer IDs, key IDs, SPKI public keys, and fingerprints
+  are pinned. Each of eight evidence types has exactly one assigned role.
+- Canonical detached-signature envelopes bind policy, environment, tenant,
+  source, Phase 5 package, subject, digest, observation/issuance/expiry times,
+  statement, supersession, issuer, and nonce.
+- Admission rejects invalid signatures, unpinned/wrong issuers, wrong scope,
+  future/stale/expired evidence, ID conflicts, nonce reuse, non-monotonic
+  statements, bad revocation ancestry, and any changed upstream G5/G6/G7/
+  Phase 5 state.
+- The repository re-verifies stored signatures and canonical bindings on read.
+  Immutable signed revocations and expiry reopen their matrix blocker.
+- Eight satisfied rows produce only `complete_unreleased` with
+  `blocked_external_activation`. There is no release, promote, activate, G8,
+  network, scheduler, daemon, HTTP mutation, adapter-registration, or private-
+  key path.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **272/272 PASS**, 0 skipped, 0 failed.
+- Focused Phase 6 external-evidence suite: **13/13 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable SQLite all-ten-migration `up → down → up`: **PASS**.
+- Disposable PostgreSQL 16 full lifecycle, eight signed admissions,
+  complete-unreleased assessment, immutability, and rollback: **PASS** on
+  loopback `127.0.0.1:51662`; container auto-removed and Docker Desktop stopped.
+- Example Phase 6 policy preflight: **BLOCKED AS EXPECTED**, exit 2, with both
+  `release_possible` and `activation_possible` false.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Phase 6 network/scheduler/release primitive scan: **PASS**, zero matches.
+- Local Markdown target scan: **PASS**, 55 links checked, 0 broken.
+- `git diff --check`: **PASS**.
+- `npm audit --audit-level=high`: **PASS** with no high/critical finding; two
+  low advisories (`body-parser`, dev-only `esbuild`) and one moderate `uuid`
+  advisory remain. No dependency was added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 6 trust bridge is ready to receive future evidence
+from separately enrolled named issuers. It does not activate G7 and cannot turn
+its own output into release authority. The checked-in public keys and unsigned
+template are examples, not external proof.
+
+No external mutation, issuer enrollment, provider purchase, deployment,
+managed resource, credential/private key, feature flag, production-data access,
+employee workflow change, waiver, or actual autonomy was performed or
+authorized.
+
+---

@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / PHASE 2–5 LOCAL CONTROL PLANES COMPLETE / EXTERNAL G5/G6/G7 BLOCKED
+Status: SPRINT 1 COMPLETE / PHASE 2–6 LOCAL CONTROL PLANES COMPLETE / EXTERNAL ACTIVATION BLOCKED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -68,6 +68,14 @@ are implemented on codex/leozops-phase5-operational-assurance under
 DECISION-002 addendum 16. Operations: docs/PHASE_5_OPERATIONS.md. Phase 5 does
 not create G8 or release G7; every external evidence requirement remains
 explicitly blocked and production composition remains adapter-free.
+Sprint 6 signed-evidence plan: docs/SPRINT_6_PLAN.md. Exact Phase 5 binding,
+four pinned Ed25519 issuer keys, canonical eight-row matrix, signature/freshness/
+replay/revocation enforcement, immutable admission and assessments, preflight,
+and command-and-exit operator are implemented on
+codex/leozops-phase6-external-evidence under DECISION-002 addendum 17.
+Operations: docs/PHASE_6_OPERATIONS.md. A complete matrix is only
+`complete_unreleased`; real issuer enrollment, infrastructure, deployment, and
+activation remain outside repository authority.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in
@@ -386,3 +394,25 @@ Integration) per GOVERNANCE change-control. Options retained as history:
 - M8B: Facebook + Instagram Publishing
 - Operational monitoring/alerting expansion
 - Any scope requested by Leoz after pilot feedback (per GOVERNANCE change-control)
+
+16. PHASE 6 SIGNED EXTERNAL-EVIDENCE ADMISSION — LOCAL PASS
+-----------------------------------------------------------
+Status: COMPLETE ON `codex/leozops-phase6-external-evidence`; ACTIVATION BLOCKED
+
+[x] Exact Phase 5 assessment/package binding and separated credentials.
+[x] Four unique pinned Ed25519 issuer identities/public keys.
+[x] Canonical eight-row evidence matrix; no wildcard, waiver, or inference.
+[x] Signature, identity, binding, freshness, expiry, skew, nonce, replay, and
+    monotonic-order validation.
+[x] Signed revocation of the exact latest pass and derived expired/revoked state.
+[x] Immutable SQLite/PostgreSQL policies, attestations, assessments, and events.
+[x] File-only command-and-exit operator and deliberately blocking preflight.
+[x] Full regression 272/272; focused Phase 6 suite 13/13; TypeScript PASS.
+[x] SQLite up/down/up and PostgreSQL 16 full lifecycle/rollback PASS.
+[x] No high/critical npm advisory; no new dependency; no production adapter,
+    private key, network call, scheduler, daemon, HTTP mutation, or release path.
+
+Eight valid rows remain `complete_unreleased` and
+`blocked_external_activation`. Real trust enrollment, external evidence,
+deployment, named production infrastructure, and activation are not completed
+or authorized.
