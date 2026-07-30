@@ -16,7 +16,7 @@ require explicit Product Owner approval in addition to technical evidence.
 | **G3 — Deterministic Brief** | Jarvis Observer may produce a local CEO Brief | Native Egoric funnel; exact metrics; provenance and limitations; integration profile denies legacy mutation routes; independent QA PASS | **Complete: [PR #6](https://github.com/leozvu/leozcrm/pull/6) merged as `main@3a5fb9e`; Product Owner accepted local S1.D continuation** |
 | **G4 — Local End-to-End** | Sprint 1 may be accepted | Actual canonical handler + local test facts → stored memory → brief; exact reconciliation; no-mutation proof; flag/key revocation drill; CEO acceptance recorded | **Complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged as `main@5ef3fd5`; Product Owner accepted Sprint 1** |
 | **G5 — Shadow Trust** | Read-only CEO pilot may be released | Independent deployment, production canary, ten business days of read-only shadow, freshness/reliability targets, useful output, no material false claims or workflow regression | **Complete local execution/control plane on `codex/leozops-phase2`; P1 is still pending, so no external checkpoint or elapsed shadow evidence exists and G5 remains blocked** |
-| **G6 — Supervised Action** | Individually allowlisted actions may be proposed and executed after approval | Action/approval contract; dry-run; idempotency; audit; expiry; risk/budget/rate controls; rollback; command-specific QA and CEO approval | Future separate project |
+| **G6 — Supervised Action** | Individually allowlisted actions may be proposed and executed after approval | Action/approval contract; dry-run; idempotency; audit; expiry; risk/budget/rate controls; rollback; command-specific QA and CEO approval | **Local control plane complete on `codex/leozops-phase3-supervised-action`; G5 and every real command/adapter/release remain blocked** |
 | **G7 — Bounded Autonomy** | A reversible low-risk policy may execute without per-action approval | Proven supervised history; policy simulator; blast-radius limit; kill switch; monitoring; incident drill; revocation; explicit scope and CEO approval | Future separate project |
 
 ## Gate ownership
@@ -73,3 +73,9 @@ decision.
 When a gate fails, work is limited to the smallest corrective scope for that
 gate. Do not start the next capability, expose production data, or broaden
 permissions while the gate is open.
+
+DECISION-002 addendum 14 permits only inert, local G6 control-plane code while
+G5 is open: the deployed adapter registry must remain empty and no external
+command, credential, route, scheduler, or mutation may exist. This preparation
+does not unlock or exercise G6; the stop rule still applies to every real
+command capability.

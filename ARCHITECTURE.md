@@ -10,7 +10,10 @@
 > [`docs/LEGACY_FOUNDATION.md`](docs/LEGACY_FOUNDATION.md) before reusing a
 > component. The S1.C `egoric-readonly` profile is implemented separately and
 > does not mount CRM mutations, onboarding, tasks, or email publishing; it is
-> still gated and undeployed.
+> still gated and undeployed. Phase 2 and Phase 3 add command-and-exit evidence
+> control planes documented in `docs/PHASE_2_OPERATIONS.md` and
+> `docs/PHASE_3_OPERATIONS.md`; they add no mutation route to this legacy app or
+> the `egoric-readonly` HTTP profile.
 
 This document describes the architecture that **currently exists** in the
 repository. It is descriptive, not aspirational: it records the stack, patterns,

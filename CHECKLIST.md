@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / PHASE 2 LOCAL CONTROL PLANE COMPLETE / P1 EXTERNAL GATE BLOCKED
+Status: SPRINT 1 COMPLETE / PHASE 2 + PHASE 3 LOCAL CONTROL PLANES COMPLETE / EXTERNAL G5/G6 BLOCKED
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -45,6 +45,14 @@ day evaluator, and go/extend/revoke control plane implemented on
 codex/leozops-phase2 under DECISION-002 addendum 13. This is implementation
 readiness only; P1/P2, deployment, credentials/flags, network proof, production
 canary, and elapsed shadow evidence remain blocked/pending.
+Sprint 3/G6 plan: docs/SPRINT_3_PLAN.md. Local exact policy, safe proposal,
+dry-run, separate approval/operator authentication, idempotent claim,
+risk/budget/rate enforcement, immutable audit, unknown-outcome reconciliation,
+and separately approved rollback are implemented on
+codex/leozops-phase3-supervised-action under DECISION-002 addendum 14.
+Operations: docs/PHASE_3_OPERATIONS.md. The production adapter registry is
+intentionally empty; real G5 go, one narrow RepositoryRealms command contract,
+command-specific QA, deployment, credential, and G6 release remain blocked.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in
@@ -86,9 +94,10 @@ Evidence gates (ALL required before Sprint 2):
   key-revocation drill. Codex PASS in CODEX_REVIEW.md; Leoz acceptance
   recorded in DECISIONS.md.
 
-G4 HARD STOP SATISFIED. Sprint 2 planning is authorized; implementation and
-deployment remain blocked until the resulting plan receives explicit Product
-Owner approval.
+G4 HARD STOP SATISFIED. Local Sprint 2 and Sprint 3 control-plane
+implementation is now separately authorized by DECISION-002 addenda 13–14.
+External deployment, G5 evidence, real command registration, and G6 release
+remain blocked by their named gates.
 
 SPRINT 2 — Goal (planning authorization only):
   Deployment -> Test Instance -> Production Shadow -> Read-only Pilot

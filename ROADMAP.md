@@ -126,6 +126,38 @@ production key/flag; contract §11 pilot criteria for the shadow.
 
 ---
 
+### Sprint 3 — 🚧 Local G6 control plane complete; real command release blocked
+
+Goal:
+Recommendation → Safe Proposal → Exact Dry-run → Human Approval → One
+Idempotent Action → Auditable Result / Separately Approved Rollback.
+
+Plan: [`docs/SPRINT_3_PLAN.md`](docs/SPRINT_3_PLAN.md). DECISION-002 addendum 14
+authorizes the local repository package only. The implementation on
+`codex/leozops-phase3-supervised-action` provides:
+
+- an exact one-command G6 policy bound to a still-current G5 `go`;
+- recursively safe payloads and immutable evidence-bound proposals;
+- zero-mutation dry-runs plus separate approval/operator credentials;
+- atomic rate/budget/idempotency claims and unknown-outcome reconciliation;
+- immutable SQLite/PostgreSQL audit evidence;
+- one separately previewed/approved rollback in a bounded safety window;
+- a fail-closed CLI/preflight and intentionally empty production adapter
+  registry.
+
+Still pending as external facts:
+
+- the real G5 `go` prerequisite;
+- a narrow RepositoryRealms command contract and source-side idempotency;
+- one named test/production target and least-privilege command credential;
+- command-specific network, dry-run parity, rollback, incident, and CEO QA;
+- explicit G6 release for that command.
+
+No real adapter, external write, deployment, credential, scheduler, or G7
+autonomy is authorized or present.
+
+---
+
 ## Legacy Foundation (historical — completion evidence intact)
 
 The standalone LeozOps application track. Preserved as history per

@@ -151,6 +151,11 @@ with health plus one authenticated tenant brief route. It remains unapproved
 for deployment until G4 and the later deployment gates pass. The default legacy
 app must never be deployed as the Egoric LeozOps integration.
 
+The local Phase 3 branch implements the future gateway's policy, evidence, and
+command-and-exit orchestration primitives, but no HTTP operator profile or real
+command adapter is registered. The table above therefore remains a future
+deployed profile until a command-specific G6 release passes.
+
 ## 8. Product decision rule
 
 When a proposed feature conflicts with speed, choose the smallest vertical

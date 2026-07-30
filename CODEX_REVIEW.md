@@ -999,3 +999,79 @@ scheduler activation, production-data access, write-back, publishing, employee
 workflow change, or autonomy was performed or authorized by this review.
 
 ---
+
+# Phase 3 Local Control Plane Review — G6 Supervised Action
+
+Review date: 2026-07-29
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase3-supervised-action`
+
+Baseline: Phase 2 commit `3f10a89`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — G5/REAL COMMAND/G6 RELEASE BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_g6_action_policy_v1` binds one command to immutable G5
+  `go` evidence, tenant/source/target, least-privilege command credential
+  fingerprint, adapter descriptor, validity window, separate approver/operator
+  credential fingerprints, and bounded limits.
+- A later G5 `extend` or `revoke`, inactive policy, runtime identity mismatch,
+  unknown adapter, schema drift, changed payload/preview/approval, or expiry
+  blocks every new action before an adapter call.
+- Proposals reject recursively sensitive/secret-shaped fields and retain only
+  bounded canonical command payload plus safe codes, IDs, evidence refs, cost,
+  expiry, and fingerprints.
+- Execute and rollback dry-runs require zero mutation and exact request/target
+  fingerprints. Human decisions are immutable, nonce-protected, separately
+  authenticated, cost-bounded, and bound to the exact preview.
+- Execution claims enforce one proposal/kind attempt, idempotency, a bounded
+  lease, rolling-hour/day rate limits, and a rolling-day cost reservation in
+  the same database transaction before the adapter call.
+- A known zero-mutation failure is terminal. A thrown/invalid/over-budget or
+  crashed outcome becomes `reconciliation_required` and is never retried.
+- Rollback has a distinct dry-run, approval, idempotency key, attempt, and
+  evidence trail. One bounded 24-hour recovery remains available after G5
+  revoke so revocation cannot disable remediation.
+- Policy, proposal, preview, approval, and ordered event facts are immutable.
+  Attempt rows permit exactly one guarded in-progress-to-terminal transition
+  and reject deletion/rewrite in SQLite and PostgreSQL.
+- The operator is command-and-exit only. The checked-in production adapter
+  registry is empty, and no HTTP mutation route, fetch client, timer, scheduler,
+  source credential, provider SDK, or external command is present.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **234/234 PASS**, 0 skipped, 0 failed.
+- Focused G6 supervised-action suite: **12/12 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable SQLite migrate/status/rollback through the G6 migration: **PASS**.
+- Disposable PostgreSQL 16 migrate/seed/fake supervised action/immutability/
+  rollback: **PASS** using loopback-only `127.0.0.1:50409`; the exact container
+  auto-removed and Docker Desktop returned to stopped state.
+- Pending G6 policy template preflight: **BLOCKED AS EXPECTED** before DB,
+  adapter, credential, or external action.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Network/timer/HTTP-mutation primitive scan over all new G6 runtime files:
+  **PASS**, no match.
+- Local Markdown link scan: **PASS**, 35 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; unchanged low `body-parser` and moderate `uuid` advisories remain.
+  No dependency was added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 3 control plane is ready for a future
+command-specific integration. G6 is not earned: G5 has no real `go`, the
+production adapter registry is empty, and no RepositoryRealms write command,
+named credential, network proof, deployment, rollback drill, or CEO release
+exists.
+
+No external mutation, provider purchase, deployment, managed resource,
+credential, feature flag, scheduler, production-data access, generic write
+surface, employee workflow change, or G7 autonomy was performed or authorized.
+
+---

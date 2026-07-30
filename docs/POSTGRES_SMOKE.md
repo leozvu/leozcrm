@@ -100,6 +100,42 @@ The exact container auto-removed after shutdown. This proves the new migration
 and rollback on PostgreSQL; it is not Checkpoint B because no networked test
 deployment, managed database, external key/flag, or source request was used.
 
+## Phase 3 migration checkpoint — 2026-07-29
+
+The Phase 3 branch reran the complete lifecycle after adding the supervised
+action policy, proposal, preview, approval, attempt, and event tables:
+
+- branch: `codex/leozops-phase3-supervised-action`;
+- engine: Docker Desktop `29.6.2`, returned to its original stopped state;
+- image: `postgres:16-alpine`;
+- container: `leozops-phase3-pg-qa`;
+- endpoint: loopback-only ephemeral port `127.0.0.1:50409`;
+- database: `leozops_phase3`;
+- storage: disposable container filesystem, no named/shared volume;
+- adapter: deterministic in-process smoke adapter only; no network call;
+- external/cloud resources: none.
+
+Observed result:
+
+```text
+Postgres smoke: applying migrations…
+Postgres smoke: seeding reference data…
+  seeded 9 funnel stages, 9 present.
+Postgres smoke: exercising the task lifecycle…
+  task lifecycle + monotonic audit seq verified.
+Postgres smoke: exercising immutable source evidence…
+  source, shadow, and supervised-action immutability verified.
+Postgres smoke: rolling back…
+Postgres migrate/seed/rollback smoke PASSED.
+```
+
+The smoke exercised one complete fake proposal → preview → approval →
+idempotent execution, immutable policy/proposal/preview/approval/event guards,
+the guarded one-time attempt terminal transition, and full rollback of every
+migration. The exact container was stopped and auto-removed; Docker Desktop
+was shut down afterward. This is dialect/control-plane evidence only and does
+not prove or authorize an external command.
+
 ## Running on another approved disposable target
 
 Set either one connection string:

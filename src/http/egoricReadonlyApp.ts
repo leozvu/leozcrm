@@ -37,6 +37,12 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         'source_poll_runs',
         'shadow_daily_evidence',
         'phase2_release_decisions',
+        'supervised_action_policies',
+        'supervised_action_proposals',
+        'supervised_action_previews',
+        'supervised_action_approvals',
+        'supervised_action_attempts',
+        'supervised_action_events',
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();

@@ -432,3 +432,29 @@ Decision:
   evidence.
 Owner: Leoz. Recorded by Codex from the explicit instruction to complete
 Phase 2 while preserving the plan's authorization wall.
+
+DECISION-002 addendum 14 — 2026-07-29 — Phase 3/G6 local control plane authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to continue to the next phase as approval to
+  implement the complete local Phase 3/G6 Supervised Action control plane on a
+  branch based on the completed Phase 2 work.
+- Authorize exact, fail-closed contracts for one-command-at-a-time policy,
+  proposal, dry-run preview, human approval, idempotent execution, immutable
+  evidence, expiry, risk/budget/rate limits, and separately approved rollback.
+- Preserve G5 as a hard prerequisite. Every G6 policy and every new execution
+  must bind to an immutable, still-current Phase 2 `go` decision; a later
+  `extend` or `revoke` immediately blocks new action. A separately approved,
+  idempotent rollback of an already successful action remains available for a
+  bounded 24-hour safety window so revocation cannot disable recovery.
+- For the solo-founder workflow, Leoz may hold proposer, approver, and operator
+  roles, but approval and execution use separate credential fingerprints and
+  no proposal may self-approve or execute automatically.
+- Add only an injected command-adapter boundary and deterministic test adapter.
+  Do not invent or call a RepositoryRealms write endpoint, create a production
+  credential, enable a command, deploy, purchase infrastructure, or mutate any
+  external system under this authorization.
+- Require each future real command to receive its own accepted policy, schema,
+  dry-run and rollback implementation, command-specific QA, and Product Owner
+  release decision before registration in a deployed operator.
+Owner: Leoz. Recorded by Codex before Phase 3 implementation.

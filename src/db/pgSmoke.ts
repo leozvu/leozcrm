@@ -34,6 +34,20 @@ import { SourceReconciliationService } from '../services/sourceReconciliationSer
 import { PHASE2_TABLES } from '../domain/shadowTrust';
 import { evidenceFingerprint } from '../domain/phase2Proof';
 import { ShadowTrustRepository } from '../repositories/shadowTrustRepository';
+import { credentialFingerprint, G6ActionPolicyManifest } from '../domain/g6Policy';
+import {
+  G6_TABLES,
+  SupervisedActionAdapter,
+  actionFingerprint,
+} from '../domain/supervisedAction';
+import { ActionAdapterRegistry } from '../integrations/actions/actionAdapterRegistry';
+import { SupervisedActionRepository } from '../repositories/supervisedActionRepository';
+import {
+  SupervisedActionService,
+  supervisedRequestFingerprint,
+  supervisedRollbackRequestFingerprint,
+  supervisedTargetFingerprint,
+} from '../services/supervisedActionService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -74,6 +88,12 @@ async function main(): Promise<void> {
       PHASE2_TABLES.pollRuns,
       PHASE2_TABLES.dailyEvidence,
       PHASE2_TABLES.releaseDecisions,
+      G6_TABLES.policies,
+      G6_TABLES.proposals,
+      G6_TABLES.previews,
+      G6_TABLES.approvals,
+      G6_TABLES.attempts,
+      G6_TABLES.events,
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -233,23 +253,218 @@ async function main(): Promise<void> {
       tenant_id: tenant.id,
       source_connection_id: connection.id,
       authorization_id: 'P2-PG-SMOKE',
-      decision: 'revoke' as const,
+      decision: 'go' as const,
       decided_by: 'Leoz',
       decided_at: sourceNow.toISOString(),
       evaluation_fingerprint: evidenceFingerprint({ verdict: 'blocked' }),
-      reason_code: 'pg_smoke_revoke',
+      reason_code: 'pg_smoke_g5_go',
       extend_until_business_date: null,
     };
     const release = await shadow.recordReleaseDecision({
       ...releaseCore,
       evidence_key: evidenceFingerprint(releaseCore),
     });
+
+    const actionAdapter: SupervisedActionAdapter = {
+      descriptor: {
+        adapter_id: 'pg-smoke-action-adapter',
+        adapter_version: 'pg_smoke_adapter_v1',
+        command_key: 'egoric.lead.set_status.v1',
+        command_version: 'v1',
+        environment: 'test',
+        target_endpoint_url: 'https://pg-smoke.example/api/integrations/leozops/v1/commands/set-lead-status',
+        supports_dry_run: true,
+        supports_idempotency: true,
+        supports_rollback: true,
+      },
+      validatePayload(payload: unknown) {
+        if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
+          throw new Error('invalid PG smoke action payload');
+        }
+      },
+      async preview(input) {
+        return {
+          summary_code: 'pg_smoke_action_preview',
+          request_fingerprint: supervisedRequestFingerprint({
+            commandKey: this.descriptor.command_key,
+            commandVersion: this.descriptor.command_version,
+            targetProjectId: input.targetProjectId,
+            targetTenantKey: input.targetTenantKey,
+            targetEndpointUrl: input.targetEndpointUrl,
+            targetCredentialFingerprint: input.targetCredentialFingerprint,
+            payload: input.payload,
+            idempotencyKey: input.idempotencyKey,
+          }),
+          target_fingerprint: supervisedTargetFingerprint({
+            projectId: input.targetProjectId,
+            tenantKey: input.targetTenantKey,
+            endpointUrl: input.targetEndpointUrl,
+            credentialFingerprint: input.targetCredentialFingerprint,
+          }),
+          effect_fingerprint: actionFingerprint({ pg_smoke: 'change' }),
+          rollback_strategy_code: 'pg_smoke_restore',
+          estimated_cost_minor: 0,
+          currency: 'USD',
+          external_mutation_count: 0,
+        };
+      },
+      async execute(input) {
+        return {
+          outcome: 'succeeded',
+          external_request_id: 'pg_smoke_request_0001',
+          result_fingerprint: actionFingerprint({ request: input.preview.request_fingerprint }),
+          result_code: 'pg_smoke_action_succeeded',
+          actual_cost_minor: 0,
+          currency: 'USD',
+          external_mutation_count: 1,
+        };
+      },
+      async previewRollback(input) {
+        return {
+          summary_code: 'pg_smoke_rollback_preview',
+          request_fingerprint: supervisedRollbackRequestFingerprint({
+            commandKey: this.descriptor.command_key,
+            commandVersion: this.descriptor.command_version,
+            targetProjectId: input.targetProjectId,
+            targetTenantKey: input.targetTenantKey,
+            targetEndpointUrl: input.targetEndpointUrl,
+            targetCredentialFingerprint: input.targetCredentialFingerprint,
+            proposalFingerprint: input.proposal.proposal_fingerprint,
+            executionResultFingerprint: input.execution.result_fingerprint!,
+            idempotencyKey: input.idempotencyKey,
+          }),
+          target_fingerprint: supervisedTargetFingerprint({
+            projectId: input.targetProjectId,
+            tenantKey: input.targetTenantKey,
+            endpointUrl: input.targetEndpointUrl,
+            credentialFingerprint: input.targetCredentialFingerprint,
+          }),
+          effect_fingerprint: actionFingerprint({ pg_smoke: 'restore' }),
+          rollback_strategy_code: 'pg_smoke_restore',
+          estimated_cost_minor: 0,
+          currency: 'USD',
+          external_mutation_count: 0,
+        };
+      },
+      async rollback(input) {
+        return {
+          outcome: 'succeeded',
+          external_request_id: 'pg_smoke_rollback_0001',
+          result_fingerprint: actionFingerprint({ request: input.preview.request_fingerprint }),
+          result_code: 'pg_smoke_rollback_succeeded',
+          actual_cost_minor: 0,
+          currency: 'USD',
+          external_mutation_count: 1,
+        };
+      },
+    };
+    const approvalCredential = 'pg-smoke-approval-credential';
+    const operatorCredential = 'pg-smoke-operator-credential';
+    const actionPolicy: G6ActionPolicyManifest = {
+      schema_version: 'leozops_g6_action_policy_v1',
+      policy_id: 'G6-PG-SMOKE',
+      status: 'accepted',
+      environment: 'test',
+      approved_by: 'Leoz',
+      approved_at: '2026-07-29T00:50:00.000Z',
+      valid_from: '2026-07-29T00:55:00.000Z',
+      valid_until: '2026-07-30T00:55:00.000Z',
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      g5_release: {
+        decision_id: release.id,
+        evidence_key: release.evidence_key,
+        evaluation_fingerprint: release.evaluation_fingerprint,
+        decision: 'go',
+      },
+      target: {
+        system: 'egoric',
+        project_id: 'pg-smoke-egoric-project',
+        tenant_key: connection.source_tenant_key,
+        command_endpoint_url: actionAdapter.descriptor.target_endpoint_url,
+        command_credential_sha256: credentialFingerprint('pg-smoke-command-credential'),
+      },
+      command: {
+        key: actionAdapter.descriptor.command_key,
+        version: actionAdapter.descriptor.command_version,
+        adapter_id: actionAdapter.descriptor.adapter_id,
+        risk_tier: 'low',
+        supports_dry_run: true,
+        supports_idempotency: true,
+        supports_rollback: true,
+        mutation_count_max: 1,
+      },
+      identities: {
+        approver: 'Leoz',
+        approval_credential_sha256: credentialFingerprint(approvalCredential),
+        operator: 'Leoz',
+        operator_credential_sha256: credentialFingerprint(operatorCredential),
+      },
+      limits: {
+        max_cost_minor: 100,
+        currency: 'USD',
+        max_executions_per_hour: 2,
+        max_executions_per_day: 4,
+        approval_ttl_minutes: 30,
+        execution_lease_seconds: 60,
+      },
+      verdict: 'accepted',
+    };
+    const actionRepository = new SupervisedActionRepository(db);
+    const actionService = new SupervisedActionService(
+      actionRepository,
+      new ActionAdapterRegistry([actionAdapter]),
+      () => sourceNow,
+    );
+    const actionPolicyRecord = await actionService.acceptPolicy(actionPolicy);
+    const actionProposal = await actionService.propose({
+      policyId: actionPolicy.policy_id,
+      payload: { lead_id: 'pg_smoke_lead', status_code: 'contacted' },
+      reasonCode: 'pg_smoke_action_reason',
+      expectedImpactCode: 'pg_smoke_action_impact',
+      evidenceRefs: ['brief.pg_smoke'],
+      estimatedCostMinor: 0,
+      currency: 'USD',
+      idempotencyKey: 'pg-smoke-action-00000001',
+      requestedBy: 'Leoz',
+      expiresAt: '2026-07-29T02:00:00.000Z',
+    });
+    const actionPreview = await actionService.preview({
+      proposalId: actionProposal.id,
+      operator: 'Leoz',
+      operatorCredential,
+    });
+    const actionApproval = await actionService.decide({
+      proposalId: actionProposal.id,
+      kind: 'execute',
+      decision: 'approved',
+      approver: 'Leoz',
+      approvalCredential,
+      reasonCode: 'pg_smoke_action_approved',
+      nonce: 'pg-smoke-approval-0000001',
+      maxCostMinor: 0,
+    });
+    const actionExecution = await actionService.execute({
+      proposalId: actionProposal.id,
+      operator: 'Leoz',
+      operatorCredential,
+    });
+    if (actionExecution.attempt.status !== 'succeeded') {
+      throw new Error('expected supervised PG smoke action to succeed');
+    }
+    const actionEvent = (await actionRepository.listEvents(actionProposal.id))[0];
     for (const mutation of [
       db('source_snapshots').where({ id: accepted.snapshot.id }).update({ record_count: 1 }),
       db(SOURCE_RECONCILIATION_TABLE).where({ id: reconciliation.id }).update({ status: 'failed' }),
       db(PHASE2_TABLES.pollRuns).where({ id: pollRun.id }).update({ latency_ms: 1 }),
       db(PHASE2_TABLES.dailyEvidence).where({ id: daily.id }).update({ reviewer_score: 5 }),
       db(PHASE2_TABLES.releaseDecisions).where({ id: release.id }).delete(),
+      db(G6_TABLES.policies).where({ id: actionPolicyRecord.id }).update({ risk_tier: 'medium' }),
+      db(G6_TABLES.proposals).where({ id: actionProposal.id }).delete(),
+      db(G6_TABLES.previews).where({ id: actionPreview.id }).update({ summary_code: 'rewritten' }),
+      db(G6_TABLES.approvals).where({ id: actionApproval.id }).delete(),
+      db(G6_TABLES.events).where({ id: actionEvent.id }).update({ reason_code: 'rewritten' }),
+      db(G6_TABLES.attempts).where({ id: actionExecution.attempt.id }).update({ result_code: 'rewritten' }),
     ]) {
       let rejected = false;
       try {
@@ -259,7 +474,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, reconciliation, poll, daily, and release immutability verified.');
+    console.log('  source, shadow, and supervised-action immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

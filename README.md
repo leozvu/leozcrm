@@ -21,6 +21,7 @@ Autopilot, with human authority and evidence gates at every step.
 | Snapshot-based CEO Brief | G3 complete: [PR #6](https://github.com/leozvu/leozcrm/pull/6) merged to `main@3a5fb9e`; Product Owner accepted local S1.D continuation |
 | Local end-to-end proof | G4 complete: [PR #8](https://github.com/leozvu/leozcrm/pull/8) merged to `main@5ef3fd5`; Sprint 1 accepted |
 | Phase 2 implementation | S2.A accepted; local S2.B–S2.D authorization, poll evidence, shadow ledger, G5 evaluator, and release-decision control plane implemented on `codex/leozops-phase2`; P1/external execution still blocked |
+| Phase 3 implementation | Local G6 policy, proposal, dry-run, approval, idempotent execution, immutable audit, limits, and separately approved rollback implemented on `codex/leozops-phase3-supervised-action`; adapter registry intentionally empty |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -31,6 +32,10 @@ The local disposable PostgreSQL checkpoint is complete. The next blocked path
 requires a named Product Owner decision for the exact external environment:
 
 `P1 named-environment decision → Networked Test → P2 → Production Shadow → G5 Decision`
+
+Only after a real G5 `go` may the next external path begin:
+
+`Narrow command contract → G6 policy → Dry-run → Human approval → One action`
 
 ## Start here
 
@@ -61,6 +66,10 @@ requires a named Product Owner decision for the exact external environment:
 14. [`docs/PHASE_2_OPERATIONS.md`](docs/PHASE_2_OPERATIONS.md) — P1 → network
     proof → P2 → ten-day shadow → go/extend/revoke operations.
 15. [`ROADMAP.md`](ROADMAP.md) — current milestone status and build order.
+16. [`docs/SPRINT_3_PLAN.md`](docs/SPRINT_3_PLAN.md) — G6 supervised-action
+    contract and acceptance boundary.
+17. [`docs/PHASE_3_OPERATIONS.md`](docs/PHASE_3_OPERATIONS.md) — fail-closed
+    preflight, manual operator flow, evidence, incident, and rollback runbook.
 
 ## Non-negotiable boundaries
 
