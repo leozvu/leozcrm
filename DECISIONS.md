@@ -626,3 +626,29 @@ Decision:
   existing release gate. Conversation, a medieval interface, voice, or Jarvis
   language must never be interpreted as execution authority.
 Owner: Leoz. Recorded by Codex from the explicit request to plan and continue.
+
+DECISION-002 addendum 21 — 2026-08-01 — Phase 9A grounded conversation core authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to plan and continue as approval to implement
+  the Phase 9A repository increment defined by addendum 20 on a branch based on
+  the completed Jarvis roadmap commit.
+- Authorize append-only, tenant-scoped conversations, ordered messages,
+  provider claims/results, exact citations, versioned goals/constraints/
+  decisions, and immutable feedback in the LeozOps database. These are
+  analytical/advisory records and never operational Egoric records.
+- Require a PII-minimized evidence pack derived from the deterministic CEO
+  Brief, six fixed read projections, an exact fact/inference/recommendation/
+  limitation answer contract, citations for every material claim, explicit
+  insufficient-data behavior, input/output/cost/time budgets, and terminal
+  failure evidence.
+- Permit only a deterministic bilingual provider and injected test providers
+  in checked-in composition. The provider has no network, secret, generic SQL,
+  HTTP, filesystem, browser, code-execution, scheduler, or action capability.
+- Permit authenticated POST routes only for LeozOps-owned conversation,
+  context, and feedback evidence. Preserve the `egoric-readonly` source
+  boundary and every G5/G6/G7 action gate.
+- Do not infer authorization for a production language-model SDK, API key,
+  model selection, external deployment, notification loop, UI, voice, or
+  action adapter. These remain Phase 9B or later decisions.
+Owner: Leoz. Recorded by Codex before Phase 9A implementation completion.

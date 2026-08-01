@@ -93,6 +93,11 @@ import { ActivationExecutionPolicyManifest } from '../domain/activationExecution
 import { ActivationExecutionAdapterRegistry } from '../integrations/actions/activationExecutionAdapterRegistry';
 import { ActivationExecutionRepository } from '../repositories/activationExecutionRepository';
 import { ActivationExecutionService } from '../services/activationExecutionService';
+import { ADVISOR_TABLES } from '../domain/advisorConversation';
+import { DeterministicAdvisorProvider } from '../integrations/advisor/deterministicAdvisorProvider';
+import { AdvisorConversationRepository } from '../repositories/advisorConversationRepository';
+import { AdvisorConversationService, DEFAULT_ADVISOR_LIMITS } from '../services/advisorConversationService';
+import { AdvisorEvidenceService } from '../services/advisorEvidenceService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -163,6 +168,7 @@ async function main(): Promise<void> {
       PHASE7_TABLES.recalls,
       PHASE7_TABLES.events,
       ...Object.values(PHASE8_TABLES),
+      ...Object.values(ADVISOR_TABLES),
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -253,6 +259,55 @@ async function main(): Promise<void> {
     if (reconciliation.status !== 'passed') {
       throw new Error('expected source reconciliation to pass');
     }
+
+    console.log('Postgres smoke: exercising evidence-grounded Advisor conversation…');
+    const advisorRepository = new AdvisorConversationRepository(db, () => sourceNow);
+    const advisorBrief = new EgoricBriefService(memory);
+    const advisorService = new AdvisorConversationService(
+      memory,
+      advisorRepository,
+      new AdvisorEvidenceService(memory, advisorBrief, advisorRepository),
+      new DeterministicAdvisorProvider(),
+      DEFAULT_ADVISOR_LIMITS,
+      () => sourceNow,
+    );
+    const advisorContext = await advisorService.appendContext(tenant.tenant_key, {
+      kind: 'goal',
+      contextKey: 'pg_smoke_goal',
+      content: 'Keep the operating loop evidence-grounded.',
+      effectiveAt: sourceNow.toISOString(),
+    });
+    const advisorConversation = await advisorService.createConversation(
+      tenant.tenant_key,
+      'PostgreSQL smoke conversation',
+    );
+    const advisorResponse = await advisorService.ask(tenant.tenant_key, {
+      conversationId: advisorConversation.id,
+      idempotencyKey: 'pg-smoke-advisor-0001',
+      question: 'How many total leads are there?',
+    });
+    const advisorFeedback = await advisorService.recordFeedback(tenant.tenant_key, {
+      runId: advisorResponse.run.id,
+      rating: 'useful',
+      note: 'Grounded PostgreSQL smoke answer.',
+    });
+    if (
+      advisorResponse.answer.cannot_answer
+      || advisorResponse.citations.length !== 1
+      || advisorResponse.citations[0].evidence_key !== 'brief.headline.total_leads'
+    ) {
+      throw new Error('expected a grounded Advisor answer with one exact citation');
+    }
+    const advisorReplay = await advisorService.ask(tenant.tenant_key, {
+      conversationId: advisorConversation.id,
+      idempotencyKey: 'pg-smoke-advisor-0001',
+      question: 'How many total leads are there?',
+    });
+    if (!advisorReplay.replayed || advisorReplay.run.id !== advisorResponse.run.id) {
+      throw new Error('expected Advisor idempotent replay on PostgreSQL');
+    }
+    console.log('  conversation, context, citation, feedback, and idempotent replay verified.');
+
     const shadow = new ShadowTrustRepository(db);
     const pollRun = await shadow.recordPollRun({
       tenant_id: tenant.id,
@@ -1321,6 +1376,13 @@ async function main(): Promise<void> {
       db(PHASE8_TABLES.rollbacks).where({ id: executionRollback.id }).delete(),
       db(PHASE8_TABLES.incidents).where({ id: executionStatus.incidents[0].id }).update({ reason_code: 'rewritten' }),
       db(PHASE8_TABLES.events).where({ id: executionStatus.events[0].id }).delete(),
+      db(ADVISOR_TABLES.conversations).where({ id: advisorConversation.id }).update({ title: 'rewritten' }),
+      db(ADVISOR_TABLES.contextEntries).where({ id: advisorContext.id }).delete(),
+      db(ADVISOR_TABLES.messages).where({ id: advisorResponse.assistant_message.id }).update({ content: '{}' }),
+      db(ADVISOR_TABLES.runs).where({ id: advisorResponse.run.id }).delete(),
+      db(ADVISOR_TABLES.runResults).where({ id: advisorResponse.result.id }).update({ status: 'failed' }),
+      db(ADVISOR_TABLES.citations).where({ id: advisorResponse.citations[0].id }).delete(),
+      db(ADVISOR_TABLES.feedback).where({ id: advisorFeedback.id }).update({ rating: 'not_useful' }),
     ]) {
       let rejected = false;
       try {
@@ -1330,7 +1392,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
+    console.log('  source, Advisor, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

@@ -147,10 +147,13 @@ transitions.
 | Supervised operator | Future, after G6 approval | Read routes plus individually allowlisted approved commands |
 | Bounded operator | Future, after G7 approval | One exact reversible low-risk policy within a verified blast-radius envelope |
 
-The `egoric-readonly` runtime profile is implemented on `main` through PR #6
-with health plus one authenticated tenant brief route. It remains unapproved
-for deployment until G4 and the later deployment gates pass. The default legacy
-app must never be deployed as the Egoric LeozOps integration.
+The `egoric-readonly` runtime profile was implemented on `main` through PR #6
+with health plus one authenticated tenant brief route. The local Phase 9A
+branch adds authenticated LeozOps-owned conversation, founder-context,
+citation, and feedback routes. These additions do not change the Egoric
+read-only boundary. The profile remains unapproved for deployment until the
+later deployment gates pass. The default legacy app must never be deployed as
+the Egoric LeozOps integration.
 
 The local Phase 3 branch implements the future gateway's policy, evidence, and
 command-and-exit orchestration primitives, but no HTTP operator profile or real
@@ -167,6 +170,12 @@ The local Phase 5 branch adds no deployment profile. It is an assurance layer
 that derives a safety assessment from immutable G5/G6/G7 records and creates an
 always-`blocked_external` review package. It cannot release, schedule, waive, or
 execute anything, and does not change the bounded-operator boundary above.
+
+The local Phase 9A branch uses six fixed evidence projections and a
+deterministic bilingual Advisor provider with no network, credential, generic
+tool, scheduler, or action capability. It writes only append-only LeozOps
+conversation and advisory evidence. A production language-model adapter and J1
+live acceptance remain future gate-bound work.
 
 ## 8. Product decision rule
 

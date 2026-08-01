@@ -1386,3 +1386,71 @@ Canonical detailed evidence and blocker list:
 [`docs/PHASE_8_COMPLETION_EVIDENCE.md`](docs/PHASE_8_COMPLETION_EVIDENCE.md).
 
 ---
+
+# Phase 9A Local Review — Evidence-Grade Ask LeozOps
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase9a-conversation-core`
+
+Verdict: **REPOSITORY-LOCAL PASS — PRODUCTION LANGUAGE MODEL ABSENT**
+
+## A. Implemented scope
+
+- `advisor_evidence_v1` converts the accepted deterministic CEO Brief and
+  active founder context into a bounded PII-minimized evidence pack with one
+  hash per value and no raw lead identity or payload.
+- Six fixed read projections expose pipeline headline, current funnel, safe
+  sources, freshness, known limitations, and active goals/constraints/
+  decisions. There is no generic SQL, HTTP, filesystem, browser, code, or
+  action tool.
+- `advisor_answer_v1` separates summary, fact, inference, recommendation, and
+  limitation. Every material statement is evidence-bound; numeric text without
+  a citation is rejected before persistence.
+- Seven tenant-scoped tables store conversations, ordered messages, one
+  pre-provider run claim, one terminal result, exact citations, versioned
+  context, and feedback. Every table rejects UPDATE and DELETE on SQLite and
+  PostgreSQL.
+- Idempotent replay returns the original run/message/answer/citations. A
+  concurrent caller cannot invoke the provider twice; a failed run is terminal
+  for its key.
+- Authenticated create/read/ask/context/feedback routes are mounted only in the
+  `egoric-readonly` profile. JSON parsing is route-local so forbidden legacy
+  surfaces remain true 404s, even for malformed bodies.
+- The only checked-in provider is deterministic and bilingual. It refuses
+  unsupported history, action-shaped requests, prompt injection, and unknown
+  questions, and has no network or credential primitive.
+
+## B. Verification evidence
+
+- Focused Phase 9A suite: **18/18 PASS**.
+- Full repository regression: **320/320 PASS**.
+- Strict TypeScript: **PASS**.
+- SQLite latest → rollback → latest and seven-table immutability: **PASS**.
+- Disposable PostgreSQL 16 thirteen-migration lifecycle; conversation,
+  context, answer, exact citation, feedback, idempotent replay, seven-table
+  immutability, and full rollback: **PASS**.
+- `egoric-readonly` profile and legacy-route isolation: **PASS**.
+- Local documentation targets: **71/71 PASS**.
+- `git diff --check`: **PASS**.
+- High-severity production dependency gate: **PASS**, no high/critical
+  finding. `npm audit` reports the pre-existing one low and one moderate
+  advisory; neither is introduced by Phase 9A and no dependency was added.
+- Docker PostgreSQL container was removed and Docker Desktop was restored to
+  its prior stopped state after verification.
+
+## C. Gate result
+
+Phase 9A is a local J1 contract and regression baseline, not live J1 acceptance.
+No production model SDK, API key, model selection, network transport,
+streaming, UI, notification scheduler, deployment, or action capability is
+present. Phase 9B must separately review a production model adapter, run an
+expanded evaluation threshold, and produce cost/latency evidence. Real G5/G6/
+G7 remain externally blocked.
+
+Canonical contract and operations:
+[`docs/PHASE_9A_ASK_LEOZOPS.md`](docs/PHASE_9A_ASK_LEOZOPS.md).
+
+---

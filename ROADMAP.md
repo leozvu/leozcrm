@@ -324,7 +324,7 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 
 | Phase | Product increment | Status | Release gate |
 |---|---|---|---|
-| 9 | Evidence-grade Ask LeozOps | ⏳ Planned next | J1 grounded conversation |
+| 9 | Evidence-grade Ask LeozOps | 🚧 Phase 9A local core complete; production model/evals pending | J1 grounded conversation |
 | 10 | Medieval CEO Cockpit | ⏳ Planned | J2 usable evidence cockpit |
 | 11 | Proactive Nervous System | ⏳ Planned | J3 trustworthy alerts |
 | 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
@@ -333,10 +333,13 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 | 15 | Bounded Autopilot | ⏳ Gate-bound | J7 / real G7 canary |
 | 16 | Ambient Jarvis and v1 | ⏳ Planned | J8 / 30-day release acceptance |
 
-Phase 9A is the immediate repository task: conversation evidence contracts,
-durable CEO context, typed read tools, an evidence-pack builder, authenticated
-Ask endpoints, deterministic provider tests, and golden evaluations. It adds no
-production model credential, action capability, or external deployment.
+Phase 9A is implemented on `codex/leozops-phase9a-conversation-core`:
+conversation evidence contracts, durable CEO context, six fixed read tools, an
+evidence-pack builder, authenticated Ask endpoints, deterministic provider,
+golden evaluations, budgets, failure evidence, and SQLite/PostgreSQL lifecycle
+coverage. It adds no production model credential, action capability, or
+external deployment. Phase 9B must add and evaluate a separately reviewed
+production model adapter before J1 is accepted for a live deployment.
 
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.

@@ -52,6 +52,13 @@ Passing J1, J2, J3, or J5 grants no write capability. A conversational model,
 interface approval, plan acceptance, or proactive trigger may only create a
 proposal; execution continues through G6/G7 and the Phase 8 controls.
 
+Phase 9A implements the local J1 contract, fixed evidence projections,
+append-only conversation/context/citation evidence, authenticated Ask routes,
+and deterministic golden tests on
+`codex/leozops-phase9a-conversation-core`. J1 is not accepted for live use: no
+production model adapter, model credential, expanded model evaluation, or
+cost/latency SLO evidence exists, and G5 remains externally blocked.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.

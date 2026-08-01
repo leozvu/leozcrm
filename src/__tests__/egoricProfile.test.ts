@@ -38,7 +38,7 @@ function authHeaders(tenantKey: string): Record<string, string> {
   return { authorization: `Bearer ${signTenantReadToken(tenantKey, AUTH.secret)}` };
 }
 
-test('egoric-readonly profile exposes public health and one authenticated tenant brief', async () => {
+test('egoric-readonly profile exposes public health and an authenticated tenant brief', async () => {
   const health = await fetch(`${baseUrl}/health`);
   assert.equal(health.status, 200);
   assert.deepEqual(await health.json(), { ok: true, profile: 'egoric-readonly' });

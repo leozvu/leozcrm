@@ -3,19 +3,28 @@ import type { Knex } from '../db/knex';
 import { db } from '../db/knex';
 import { BusinessMemoryError, BusinessMemoryRepository } from '../repositories/businessMemoryRepository';
 import { EgoricBriefError, EgoricBriefService } from '../services/egoricBriefService';
+import type { AdvisorModelProvider } from '../domain/advisorConversation';
+import { DeterministicAdvisorProvider } from '../integrations/advisor/deterministicAdvisorProvider';
+import { AdvisorConversationRepository, AdvisorRepositoryError } from '../repositories/advisorConversationRepository';
+import { AdvisorConversationService, AdvisorServiceError, AdvisorServiceLimits } from '../services/advisorConversationService';
+import { AdvisorEvidenceError, AdvisorEvidenceService } from '../services/advisorEvidenceService';
 import {
   authenticateIntegrationRead,
   IntegrationReadAuthConfig,
   resolveIntegrationReadAuthConfig,
 } from './integrationReadAuth';
 import { createEgoricBriefRouter } from './routes/egoricBrief';
+import { createAdvisorConversationRouter } from './routes/advisorConversation';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
   integrationReadAuth?: IntegrationReadAuthConfig;
+  advisorProvider?: AdvisorModelProvider;
+  advisorLimits?: AdvisorServiceLimits;
+  advisorClock?: () => Date;
 }
 
-/** G3 runtime: health plus one authenticated tenant brief route, nothing else. */
+/** Read-only-to-Egoric runtime: health, brief, and tenant-scoped Advisor memory. */
 export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) {
   const app = express();
   const knex = options.knex ?? db;
@@ -56,6 +65,13 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         'operational_assurance_assessments',
         'operational_assurance_release_packages',
         'operational_assurance_events',
+        'advisor_conversations',
+        'advisor_context_entries',
+        'advisor_messages',
+        'advisor_runs',
+        'advisor_run_results',
+        'advisor_citations',
+        'advisor_feedback',
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();
@@ -74,19 +90,45 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     }
   });
 
-  const repository = new BusinessMemoryRepository(knex);
+  const clock = options.advisorClock ?? (() => new Date());
+  const repository = new BusinessMemoryRepository(knex, clock);
   const brief = new EgoricBriefService(repository);
+  const advisorRepository = new AdvisorConversationRepository(knex, clock);
+  const advisorEvidence = new AdvisorEvidenceService(repository, brief, advisorRepository);
+  const advisor = new AdvisorConversationService(
+    repository,
+    advisorRepository,
+    advisorEvidence,
+    options.advisorProvider ?? new DeterministicAdvisorProvider(),
+    options.advisorLimits,
+    clock,
+  );
   const auth = resolveIntegrationReadAuthConfig(options.integrationReadAuth);
   app.use('/v1', authenticateIntegrationRead(auth));
   app.use('/v1/tenants', createEgoricBriefRouter(brief));
+  app.use('/v1/tenants', createAdvisorConversationRouter(advisor));
 
-  app.use((error: Error, _req: Request, res: Response, _next: NextFunction) => {
+  app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
+    if (error.type === 'entity.too.large') {
+      res.status(413).json({ error: 'request body exceeds 32 KiB', code: 'request_too_large' });
+      return;
+    }
+    if (error instanceof SyntaxError && error.type === 'entity.parse.failed') {
+      res.status(400).json({ error: 'request body is invalid JSON', code: 'invalid_json' });
+      return;
+    }
+    if (error instanceof AdvisorServiceError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
     if (error instanceof EgoricBriefError && error.status < 500) {
       res.status(error.status).json({ error: error.message, code: error.code });
       return;
     }
     if (error instanceof BusinessMemoryError) {
       console.error('[egoric-readonly] business memory request failed', { code: error.code });
+    } else if (error instanceof AdvisorRepositoryError || error instanceof AdvisorEvidenceError) {
+      console.error('[egoric-readonly] advisor request failed', { code: error.code });
     } else {
       console.error('[egoric-readonly] request failed', { code: 'internal_error' });
     }

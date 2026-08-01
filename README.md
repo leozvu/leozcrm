@@ -27,7 +27,8 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
-| Jarvis product track | Phases 9-16 and J1-J8 product checkpoints planned on `codex/leozops-jarvis-roadmap`; Phase 9A evidence-grade conversation is next |
+| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned on `codex/leozops-jarvis-roadmap`; Phase 9A is implemented locally and Phase 9B production-model work is next |
+| Phase 9A implementation | Evidence packs, fixed read tools, append-only conversation/context/citation/feedback, deterministic bilingual Advisor, budgets, failure evidence, and authenticated Ask routes implemented on `codex/leozops-phase9a-conversation-core`; production model absent |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -105,6 +106,8 @@ path begin:
     — final local QA evidence and the exact external blocker boundary.
 29. [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md) — the
     product, production, and evidence path from Phase 8 to Jarvis v1.
+30. [`docs/PHASE_9A_ASK_LEOZOPS.md`](docs/PHASE_9A_ASK_LEOZOPS.md) — grounded
+    answer contract, typed read tools, APIs, persistence, budgets, and QA.
 
 ## Non-negotiable boundaries
 
@@ -166,6 +169,12 @@ npm start
 | `npm run phase8:preflight` | Recheck exact Phase 8 runtime bindings and adapter registration fail-closed |
 | `npm run activation:operator` | Operate the one-attempt activation control plane when an exact adapter is separately installed |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
+
+With `INTEGRATION_MODE=egoric-readonly`, Phase 9A adds authenticated LeozOps-
+owned conversation and context routes documented in
+[`docs/PHASE_9A_ASK_LEOZOPS.md`](docs/PHASE_9A_ASK_LEOZOPS.md). They never
+mutate Egoric; the only checked-in Advisor provider is deterministic and
+network-free.
 
 Do not configure an Egoric production key, enable a production feature flag, or
 deploy this default profile as LeozOps.

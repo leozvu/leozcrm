@@ -318,9 +318,9 @@ Exit gate J8 / Jarvis v1:
 
 Estimated solo effort: **7-12 development days plus a 30-day release window**.
 
-## 6. Immediate next sprint: Phase 9A
+## 6. Phase 9A repository baseline
 
-Do next, on a branch based on the Phase 8 tip:
+Implemented on `codex/leozops-phase9a-conversation-core`:
 
 1. define the answer contract and fact/inference/recommendation/limitation
    taxonomy;
@@ -338,6 +338,12 @@ Do next, on a branch based on the Phase 8 tip:
 
 Phase 9A explicitly excludes UI, voice, notifications, a production language
 model credential, generic tool use, action execution, and external deployment.
+
+The immediate follow-up is Phase 9B: select and review the production model
+provider, implement its adapter against the frozen answer contract, expand the
+golden evaluation threshold, add cost/latency evidence, and decide whether
+streaming belongs in the provider boundary or the Phase 10 cockpit transport.
+No production key is installed by the repository implementation.
 
 ## 7. Schedule and critical path
 

@@ -29,6 +29,8 @@ import { authenticate, resolveAuthConfig, AuthConfig } from './auth';
 import { db, type Knex } from '../db/knex';
 import { createEgoricReadonlyApp } from './egoricReadonlyApp';
 import type { IntegrationReadAuthConfig } from './integrationReadAuth';
+import type { AdvisorModelProvider } from '../domain/advisorConversation';
+import type { AdvisorServiceLimits } from '../services/advisorConversationService';
 
 export type RuntimeProfile = 'legacy' | 'egoric-readonly';
 
@@ -63,8 +65,12 @@ export interface CreateAppOptions {
    * deterministic clock so no real email is sent.
    */
   emailPublisher?: EmailPublishService;
-  /** Separate output credential for the egoric-readonly tenant brief surface. */
+  /** Separate output credential for the egoric-readonly tenant intelligence surfaces. */
   integrationReadAuth?: IntegrationReadAuthConfig;
+  /** Optional Phase 9A provider boundary; defaults to deterministic read-only rules. */
+  advisorProvider?: AdvisorModelProvider;
+  advisorLimits?: AdvisorServiceLimits;
+  advisorClock?: () => Date;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -84,6 +90,9 @@ export function createApp(options: CreateAppOptions = {}) {
     return createEgoricReadonlyApp({
       knex: options.knex,
       integrationReadAuth: options.integrationReadAuth,
+      advisorProvider: options.advisorProvider,
+      advisorLimits: options.advisorLimits,
+      advisorClock: options.advisorClock,
     });
   }
   const app = express();

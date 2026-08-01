@@ -468,7 +468,7 @@ external G5/G6/G7 evidence gates remain separately blocked.
 
 19. JARVIS PRODUCT TRACK — PLAN ACCEPTED; PHASE 9A NEXT
 -------------------------------------------------------
-Status: PLANNED ON `codex/leozops-jarvis-roadmap`; NO NEW RUNTIME CAPABILITY
+Status: PHASE 9A LOCAL CORE COMPLETE ON `codex/leozops-phase9a-conversation-core`; PRODUCTION MODEL ABSENT
 
 [x] Define the bounded Jarvis v1 outcome and explicit non-goals.
 [x] Record the honest Phase 8 repository/production baseline.
@@ -481,17 +481,24 @@ Status: PLANNED ON `codex/leozops-jarvis-roadmap`; NO NEW RUNTIME CAPABILITY
 
 Phase 9A implementation checklist:
 
-[ ] Fact/inference/recommendation/limitation answer contract.
-[ ] Tenant-scoped conversation, message, run, citation, feedback, goal,
+[x] Fact/inference/recommendation/limitation answer contract.
+[x] Tenant-scoped conversation, message, run, citation, feedback, goal,
     constraint, and decision schemas.
-[ ] Evidence-pack builder over approved Business Memory and CEO Brief facts.
-[ ] Typed read-only tool registry and deterministic model-provider double.
-[ ] Authenticated, idempotent conversation create/read/ask routes.
-[ ] Golden factual/comparative/insufficient/stale/adversarial question set.
-[ ] Tenant isolation, prompt-injection, replay, budget, timeout, and provider-
+[x] Evidence-pack builder over approved Business Memory and CEO Brief facts.
+[x] Typed read-only tool registry and deterministic model-provider double.
+[x] Authenticated, idempotent conversation create/read/ask routes.
+[x] Golden factual/comparative/insufficient/stale/adversarial question set.
+[x] Tenant isolation, prompt-injection, replay, budget, timeout, and provider-
     failure tests.
-[ ] SQLite/PostgreSQL migrations, immutability proof, full regression,
-    TypeScript, dependency, and documentation QA.
+[x] SQLite migration lifecycle and seven-table immutability proof.
+[x] Disposable PostgreSQL 16 thirteen-migration lifecycle, conversation,
+    context, citation, feedback, replay, seven-table immutability, and rollback.
+[x] Focused Phase 9A suite 18/18, full regression 320/320, TypeScript PASS,
+    71/71 local documentation links, and no high/critical dependency advisory.
 
 Phase 9A adds no production model credential, generic SQL/HTTP/filesystem tool,
 action execution, notification scheduler, voice, or external deployment.
+
+Phase 9B remains pending: official production model adapter review, secret
+reference, streaming if required by the cockpit, expanded evaluation threshold,
+and cost/latency SLO evidence. J1 is not a live release until those pass.
