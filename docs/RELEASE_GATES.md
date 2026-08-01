@@ -63,6 +63,13 @@ model credential/revocation proof, live eval result, repeated p95 latency/cost
 sample, privacy approval, provider monitoring, or Product Owner SLO acceptance
 exists, and G5 remains externally blocked.
 
+Phase 10 implements the local J2 cockpit candidate on
+`codex/leozops-phase10-medieval-cockpit`: five evidence surfaces, a data-free
+shell, tenant-scoped projection, citation drill-down, accessible responsive
+states, and an explicitly blocked Command Deck. Local QA cannot accept live
+J2. The named-deployment founder usability run, live J1 acceptance, and real
+G5 Observer evidence remain required; no cockpit state grants write authority.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.

@@ -526,3 +526,31 @@ Phase 9B installs no key, makes no live request, and performs no deployment.
 J1 remains open for live use until credential/revocation proof, privacy review,
 accepted live eval, repeated p95 latency/cost, monitoring, named deployment,
 Product Owner SLO acceptance, and real G5 evidence exist.
+
+20. PHASE 10 MEDIEVAL CEO COCKPIT — LOCAL PASS CANDIDATE
+--------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase10-medieval-cockpit`; LIVE J2 OPEN
+
+[x] Canonical Realm v2 tokens and page contract recorded under `design-system/`.
+[x] Versioned, tenant-scoped, PII-minimized cockpit projection.
+[x] Public data-free connection chamber with strict same-origin CSP.
+[x] Today, Ask LeozOps, Business, Recommendations, and Command Deck surfaces.
+[x] Full answer validation before progressive reveal and exact citation drawer.
+[x] Read credential held only in page memory and cleared on disconnect/pagehide.
+[x] Keyboard tabs, Ctrl/Cmd+K, skip link, focus states, 44 px targets, reduced
+    motion, high contrast, and responsive desktop/tablet/mobile layouts.
+[x] Loading, freshness, partial context, empty queue, blocked, auth, network,
+    and recovery states.
+[x] Command Deck reports read-only/not-connected/blocked/not-available truth;
+    no execution route or direct Egoric post exists.
+[x] In-app browser QA: five surfaces, Ask/citations, Ctrl+K, 1280 desktop,
+    390 mobile, no horizontal overflow, 56 px mobile targets, and zero console
+    warning/error.
+[x] Focused Phase 10 suite 4/4, full regression 336/336, TypeScript, 56 local
+    links, diff check, changed-file secret scan, and high/critical dependency
+    audit PASS.
+[ ] Live J2: founder under-five-minute run on named deployment with accepted
+    live J1/G5 evidence.
+
+Phase 10 adds no dependency, migration, model key, production adapter,
+deployment, scheduler, notification, generic tool, or operational authority.

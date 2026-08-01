@@ -686,3 +686,29 @@ Decision:
   acceptance evidence exist. G5/G6/G7 and all action authority remain
   unchanged.
 Owner: Leoz. Recorded by Codex before Phase 9B implementation completion.
+
+DECISION-002 addendum 23 — 2026-08-01 — Phase 10 medieval CEO cockpit authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to continue development as approval to build
+  the Phase 10 repository increment on a new branch based on completed Phase
+  9B. This covers the local web experience, deterministic fixtures, browser
+  QA, tests, and documentation; it does not authorize deployment or a live
+  provider call.
+- Apply the approved Realm v2 medieval language to the CEO cockpit while
+  preserving semantic state clarity, keyboard operation, AA-oriented
+  contrast, reduced motion, high contrast, and responsive layouts.
+- Expose Today, Ask LeozOps, Business, Recommendations, and a Command Deck.
+  The shell must contain no tenant data. Evidence arrives only through the
+  exact tenant-authenticated LeozOps API.
+- Permit progressive visual reveal only after the complete Phase 9 answer has
+  passed server-side grounding and citation validation. Partial generated text
+  must never be presented or persisted as accepted evidence.
+- Keep every command state observational. Approval, execution, receipt,
+  rollback, incident, and kill-switch labels must report unavailable/blocked
+  truth and expose no action adapter, direct Egoric post, credential, generic
+  tool, scheduler, notification loop, or mutation route.
+- Treat local automated/browser QA as a J2 candidate only. Live J2 still needs
+  a recorded founder usability run against a named deployment after live J1
+  and G5 evidence are accepted.
+Owner: Leoz. Recorded by Codex before Phase 10 implementation completion.

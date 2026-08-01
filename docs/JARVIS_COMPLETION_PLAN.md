@@ -32,9 +32,9 @@ unrestricted computer control, or a general employee replacement.
 | Read-only Egoric contract | Implemented and locally proven | Not deployed against an accepted named environment |
 | Business Memory and CEO Brief | Implemented and deterministic | No live recurring source feed |
 | Shadow, supervised action, autonomy, assurance, evidence, activation | Control planes implemented through Phase 8 | No production adapter, real action, or elapsed shadow evidence |
-| Conversation and durable CEO context | Not implemented | Not available |
+| Conversation and durable CEO context | Phase 9A/9B implemented locally | No accepted live model/deployment evidence |
 | Proactive event loop and notifications | Not implemented | Not available |
-| Jarvis cockpit | Product surfaces defined; no current-track UI in this branch | Not available |
+| Jarvis cockpit | Phase 10 implemented locally on its feature branch | Not deployed; founder/live J2 run absent |
 | Voice / ambient access | Deliberately deferred | Not available |
 
 The repository has a strong safety and evidence spine. The remaining distance
@@ -347,6 +347,30 @@ reporting plus a pre-call budget guard are present. Durable provider streaming
 is rejected; any ephemeral stream belongs to the separately reviewed Phase 10
 cockpit transport. No production key is installed and no live eval or request
 is claimed, so live J1 remains open.
+
+## 6A. Phase 10 repository baseline
+
+Implemented on `codex/leozops-phase10-medieval-cockpit`:
+
+1. project the deterministic CEO Brief into a versioned, tenant-scoped,
+   PII-minimized cockpit snapshot;
+2. serve a data-free medieval connection chamber and same-origin external
+   assets under a strict CSP;
+3. deliver Today, Ask LeozOps, Business, Recommendations, and Command Deck as
+   responsive semantic surfaces with evidence drill-down;
+4. reveal generated language progressively only after the existing Phase 9
+   server validation and persistence contract accepts the complete answer;
+5. keep the credential in page memory only and preserve exact tenant auth;
+6. label approval, execution, receipt, rollback, incident, and kill-switch
+   states without implying authority that does not exist; and
+7. prove the shell, projection, auth, DOM safety, responsive behavior,
+   keyboard path, citation drawer, and no-execution boundary locally.
+
+The repository-local implementation is a J2 candidate. Live J2 remains open
+until the founder records the under-five-minute usability run against a named
+deployment after live J1 and G5 evidence is accepted. Phase 10 adds no action
+adapter, provider credential, deployment, scheduler, notification, or Egoric
+mutation route.
 
 ## 7. Schedule and critical path
 

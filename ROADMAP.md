@@ -316,7 +316,7 @@ sequence; real G5/G6/G7 evidence and production activation remain external.
 
 ---
 
-## Jarvis Product Track — ⏳ Planned
+## Jarvis Product Track — 🚧 In Progress
 
 Phase 8 completes the local safety spine; it does not complete the product
 experience or production rollout. The approved plan from this point to Jarvis
@@ -325,7 +325,7 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 | Phase | Product increment | Status | Release gate |
 |---|---|---|---|
 | 9 | Evidence-grade Ask LeozOps | 🚧 Phase 9A core + Phase 9B OpenAI adapter complete locally; live eval/SLO pending | J1 grounded conversation |
-| 10 | Medieval CEO Cockpit | ⏳ Planned | J2 usable evidence cockpit |
+| 10 | Medieval CEO Cockpit | ✅ Complete locally; founder/live acceptance pending | J2 usable evidence cockpit |
 | 11 | Proactive Nervous System | ⏳ Planned | J3 trustworthy alerts |
 | 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
 | 13 | Goal-aware Planner | ⏳ Planned | J5 reproducible plans |
@@ -347,6 +347,15 @@ and a 12-case eval runner. Deterministic mode remains the default. No key or
 live request was used, so credential/revocation proof, live eval quality,
 repeated p95 latency/cost, provider monitoring, privacy review, and Product
 Owner SLO acceptance still block live J1.
+
+Phase 10 is implemented on `codex/leozops-phase10-medieval-cockpit`: a
+responsive medieval CEO cockpit exposes Today, Ask LeozOps, Business,
+Recommendations, and a deliberately sealed Command Deck. The public shell is
+data-free; tenant evidence arrives only through authenticated same-origin APIs.
+The UI progressively reveals only a fully validated Phase 9 answer, keeps
+citations inspectable, supports keyboard/reduced-motion/high-contrast use, and
+adds no execution route. Repository QA is complete, but the named-deployment
+founder usability run and accepted live J1/G5 evidence still block live J2.
 
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.

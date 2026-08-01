@@ -1528,3 +1528,67 @@ Canonical adapter and operations contract:
 [`docs/PHASE_9B_OPENAI_ADAPTER.md`](docs/PHASE_9B_OPENAI_ADAPTER.md).
 
 ---
+
+# Phase 10 Local Review — Medieval CEO Cockpit
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase10-medieval-cockpit`
+
+Verdict: **REPOSITORY-LOCAL PASS — LIVE J2 ACCEPTANCE ABSENT**
+
+## A. Implemented scope
+
+- One versioned `leozops_cockpit_v1` service projects the accepted CEO Brief
+  into a tenant-scoped, PII-minimized headline, freshness state, three-priority
+  ceiling, business quality view, limitations, provenance, and sealed command
+  state.
+- The `egoric-readonly` profile serves a public data-free `/cockpit` chamber,
+  same-origin external assets, and one authenticated GET projection. There is
+  no cockpit POST or action-adapter route.
+- Today, Ask LeozOps, Business, Recommendations, and Command Deck use the
+  canonical Realm v2 obsidian/gold/emerald language with semantic state text,
+  evidence drill-down, keyboard navigation, reduced motion, increased
+  contrast, and responsive desktop/tablet/mobile layouts.
+- Ask creates only LeozOps-owned Phase 9 conversation evidence. The complete
+  answer must pass server grounding/citation validation before progressive
+  visual reveal; citation chips open exact stored provenance. No partial claim
+  is persisted or presented as accepted evidence.
+- The read credential is kept in page memory, cleared from the input after
+  connection, and discarded on disconnect/pagehide. CSP, same-origin fetches,
+  omitted ambient credentials, no inline execution, and DOM-safe construction
+  protect the shell boundary.
+- Command Deck states remain explicit: read-only, approval not connected,
+  execution blocked, receipt/rollback/incident unavailable, and kill switch
+  not exposed. “Approval is not execution.” is the authoritative UI claim.
+
+## B. Verification evidence
+
+- Focused Phase 10 suite: **4/4 PASS**.
+- Full repository regression: **336/336 PASS**.
+- Strict TypeScript: **PASS**.
+- In-app browser QA: **PASS** across all five surfaces, Ask/citation drawer,
+  Ctrl+K focus, 1280 desktop, and 390 mobile; no horizontal overflow, mobile
+  targets measured 56 px high, and no console warning/error was recorded.
+- Local links across changed documentation: **56 PASS**.
+- `git diff --check` and changed-file secret-pattern scan: **PASS**.
+- High/critical production dependency gate: **PASS**. The pre-existing one low
+  `body-parser` and one moderate `uuid` advisory remain; Phase 10 adds no
+  dependency.
+- No database migration, model credential, live provider request, deployment,
+  scheduler, notification loop, production adapter, or external mutation was
+  added or claimed.
+
+## C. Gate result
+
+Phase 10 completes the codeable medieval evidence cockpit and is a
+repository-local J2 candidate. It does not accept live J2 or widen G5/G6/G7.
+The founder must still record the North Star run in under five minutes against
+a named deployment after live J1 and real G5 Observer evidence are accepted.
+
+Canonical contract and operations:
+[`docs/PHASE_10_MEDIEVAL_COCKPIT.md`](docs/PHASE_10_MEDIEVAL_COCKPIT.md).
+
+---

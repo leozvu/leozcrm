@@ -8,6 +8,7 @@ import { buildAdvisorProviderFromEnv } from '../integrations/advisor/advisorProv
 import { AdvisorConversationRepository, AdvisorRepositoryError } from '../repositories/advisorConversationRepository';
 import { AdvisorConversationService, AdvisorServiceError, AdvisorServiceLimits } from '../services/advisorConversationService';
 import { AdvisorEvidenceError, AdvisorEvidenceService } from '../services/advisorEvidenceService';
+import { CockpitService } from '../services/cockpitService';
 import {
   authenticateIntegrationRead,
   IntegrationReadAuthConfig,
@@ -15,6 +16,8 @@ import {
 } from './integrationReadAuth';
 import { createEgoricBriefRouter } from './routes/egoricBrief';
 import { createAdvisorConversationRouter } from './routes/advisorConversation';
+import { createCockpitApiRouter } from './routes/cockpit';
+import { createCockpitExperienceRouter } from './routes/cockpitExperience';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -24,7 +27,7 @@ export interface EgoricReadonlyAppOptions {
   advisorClock?: () => Date;
 }
 
-/** Read-only-to-Egoric runtime: health, brief, and tenant-scoped Advisor memory. */
+/** Read-only-to-Egoric runtime: health, cockpit, brief, and tenant-scoped Advisor memory. */
 export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) {
   const app = express();
   const knex = options.knex ?? db;
@@ -95,6 +98,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   const brief = new EgoricBriefService(repository);
   const advisorRepository = new AdvisorConversationRepository(knex, clock);
   const advisorEvidence = new AdvisorEvidenceService(repository, brief, advisorRepository);
+  const cockpit = new CockpitService(brief);
   const advisor = new AdvisorConversationService(
     repository,
     advisorRepository,
@@ -104,8 +108,12 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     clock,
   );
   const auth = resolveIntegrationReadAuthConfig(options.integrationReadAuth);
+  // The public shell contains no tenant data or credential. Every cockpit data
+  // request still crosses the separately authenticated /v1 boundary below.
+  app.use('/cockpit', createCockpitExperienceRouter());
   app.use('/v1', authenticateIntegrationRead(auth));
   app.use('/v1/tenants', createEgoricBriefRouter(brief));
+  app.use('/v1/tenants', createCockpitApiRouter(cockpit));
   app.use('/v1/tenants', createAdvisorConversationRouter(advisor));
 
   app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
