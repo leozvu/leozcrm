@@ -564,3 +564,39 @@ Decision:
   daemon, HTTP mutation route, provider credential, private key, network call,
   managed resource, or external system change.
 Owner: Leoz. Recorded by Codex before Phase 7 implementation.
+
+DECISION-002 addendum 19 — 2026-08-01 — Phase 8 controlled activation authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to build the final phase as approval to
+  implement the final controlled-activation control plane on a branch based on
+  the completed Phase 7 ceremony. This authorizes code, deterministic injected
+  test adapters, and disposable local database evidence; it does not authorize
+  use of a real target credential, provider account, deployment, or external
+  mutation from this workstation.
+- Bind one exact Phase 8 policy to one current, unrecalled Phase 7 sealed
+  handoff and its exact target, adapter artifact, configuration,
+  credential-reference, canary, and rollback fingerprints. Placeholders,
+  wildcard scope, inferred readiness, raw credentials, waivers, and retargeting
+  remain invalid.
+- Require distinct activation-release, executor, safety-observer, and rollback
+  credential fingerprints, separate from every Phase 7/6/5/G7/G6 credential.
+  Leoz may perform all solo-founder roles, but every transition remains
+  independently authenticated and audit-recorded.
+- Start with the kill switch engaged. Release requires authority plus safety
+  observer authentication. Permit one explicit command-and-exit activation
+  attempt for the policy, with one external mutation at most and exact adapter
+  evidence. Unknown adapter outcomes become terminal incident evidence; an
+  expired orphan claim is reconciled to terminal unknown without another
+  adapter call. Neither path may be automatically retried.
+- Require an explicit later observation against the same adapter and provider
+  receipt. Success may close the local control plane as `activated_healthy`;
+  unhealthy or unknown evidence requires an explicit human recovery decision.
+  Rollback is separately authenticated, idempotent, evidence-bound, and never
+  automatic.
+- Keep the checked-in production activation-adapter registry empty. Add no real
+  provider adapter, target credential, scheduler, daemon, background loop, HTTP
+  mutation route, managed resource, infrastructure purchase, or live external
+  call. A real activation remains a separate deployment/configuration act using
+  a reviewed adapter and least-privilege secret outside this implementation.
+Owner: Leoz. Recorded by Codex before Phase 8 implementation.

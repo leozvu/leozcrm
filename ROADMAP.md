@@ -284,6 +284,37 @@ background loop, HTTP mutation route, or production capability is present.
 
 ---
 
+### Sprint 8 — ✅ Local controlled-activation control plane complete; adapter absent
+
+Goal:
+Exact Phase 7 Handoff → Zero-mutation Preview → Dual Release → One Persisted
+Claim / One Adapter Call → Explicit Observation → Manual Rollback if required.
+
+Plan: [`docs/SPRINT_8_PLAN.md`](docs/SPRINT_8_PLAN.md). DECISION-002 addendum 19
+authorizes the local control plane on
+`codex/leozops-phase8-controlled-activation`. It provides:
+
+- an exact policy bound to one unrecalled Phase 7 handoff and its target,
+  artifact, configuration, canary, and rollback contracts;
+- four separately hashed solo-founder credentials for release, execution,
+  observation, and rollback, distinct from every upstream credential;
+- an initially engaged switch, short dual-credential release, zero-mutation
+  preview, and one atomic pre-invocation claim;
+- terminal unknown handling for lost responses and crash reconciliation with no
+  second adapter invocation;
+- explicit receipt-bound observation, immutable incidents, and explicit
+  dual-authorized manual rollback; and
+- ten append-only SQLite/PostgreSQL tables, a fail-closed preflight, one-shot
+  operator, pending template, adversarial tests, and operations runbook.
+
+The production activation registry is intentionally empty. No provider SDK,
+real target secret, external call, deployment, scheduler, daemon, background
+loop, HTTP mutation route, automatic retry, observation, or rollback is
+installed or authorized. Phase 8 completes the repository-local control-plane
+sequence; real G5/G6/G7 evidence and production activation remain external.
+
+---
+
 ## Legacy Foundation (historical — completion evidence intact)
 
 The standalone LeozOps application track. Preserved as history per

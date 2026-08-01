@@ -1,0 +1,72 @@
+{
+  "schema_version": "leozops_phase8_activation_execution_policy_v1",
+  "policy_id": "P8-pending-replace_me",
+  "status": "pending",
+  "execution_mode": "controlled_single_activation",
+  "environment": "test",
+  "approved_by": "pending",
+  "approved_at": "2099-01-01T00:00:00.000Z",
+  "valid_from": "2099-01-01T00:05:00.000Z",
+  "valid_until": "2099-01-02T00:00:00.000Z",
+  "tenant_id": "11111111-1111-4111-8111-111111111111",
+  "source_connection_id": "22222222-2222-4222-8222-222222222222",
+  "phase7": {
+    "policy_id": "P7-pending-replace_me",
+    "policy_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "handoff_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "dossier_fingerprint": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "verification_fingerprint": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "phase6_evidence_set_fingerprint": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "identities": {
+    "release_authority": "pending",
+    "release_credential_sha256": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "executor": "pending",
+    "executor_credential_sha256": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+    "safety_observer": "pending",
+    "observer_credential_sha256": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "rollback_operator": "pending",
+    "rollback_credential_sha256": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+  },
+  "target": {
+    "deployment_id": "pending-deployment",
+    "target_fingerprint": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "target_contract_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "adapter_id": "pending-adapter",
+    "adapter_version": "pending-version",
+    "adapter_artifact_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "configuration_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "credential_reference_sha256": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "canary": {
+    "contract_fingerprint": "sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "cohort_size": 1,
+    "max_activation_mutations": 1,
+    "observation_minutes": 30,
+    "success_metric_fingerprint": "sha256:ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "abort_metric_fingerprint": "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+  },
+  "rollback": {
+    "contract_fingerprint": "sha256:123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef0",
+    "rollback_artifact_digest": "sha256:23456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef01",
+    "procedure_digest": "sha256:3456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef012",
+    "max_recovery_minutes": 15,
+    "max_rollback_mutations": 1
+  },
+  "limits": {
+    "release_validity_minutes": 5,
+    "claim_lease_seconds": 60,
+    "observation_deadline_minutes": 60,
+    "rollback_window_minutes": 120
+  },
+  "safety": {
+    "kill_switch_starts_engaged": true,
+    "dual_credential_release_required": true,
+    "source_idempotency_required": true,
+    "automatic_retry_forbidden": true,
+    "automatic_rollback_forbidden": true,
+    "production_adapter_registry_empty_by_default": true,
+    "waivers_allowed": false
+  },
+  "verdict": "pending"
+}

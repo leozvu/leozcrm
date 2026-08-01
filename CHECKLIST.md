@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / PHASE 2–6 LOCAL CONTROL PLANES COMPLETE / EXTERNAL ACTIVATION BLOCKED
+Status: SPRINT 1 COMPLETE / PHASE 2–8 LOCAL CONTROL PLANES COMPLETE / PRODUCTION ADAPTER ABSENT
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -437,3 +437,27 @@ Status: COMPLETE ON `codex/leozops-phase7-activation-ceremony`; EXECUTION ABSENT
 Every sealed handoff remains `not_executed` with
 `external_execution_required=true`. Real external execution requires a future
 explicit authorization and implementation.
+
+18. PHASE 8 CONTROLLED SINGLE ACTIVATION — LOCAL PASS
+-----------------------------------------------------
+Status: COMPLETE ON `codex/leozops-phase8-controlled-activation`; PRODUCTION ADAPTER ABSENT
+
+[x] Exact unrecalled Phase 7 handoff and target/canary/rollback binding.
+[x] Four new separate release/executor/observer/rollback credentials.
+[x] Initially engaged switch and short dual-credential release.
+[x] Zero-mutation preview and one persisted claim before one adapter call.
+[x] Lost response and expired orphan claim become terminal unknown with no retry.
+[x] Explicit receipt-bound observation; unhealthy/unknown opens an incident.
+[x] Explicit dual-authorized idempotent rollback; no automatic rollback.
+[x] Ten append-only SQLite/PostgreSQL tables and monotonic audit events.
+[x] Fail-closed preflight, exact-key one-shot operator, pending template,
+    adversarial tests, migration lifecycle, and operations runbook.
+[x] Focused Phase 8 suite 17/17, full regression 302/302, TypeScript PASS,
+    SQLite up/down/up, PostgreSQL 16 twelve-migration lifecycle/rollback,
+    61/61 local documentation links, and no high/critical dependency advisory.
+[x] Production activation registry empty; no provider SDK, real secret, network,
+    scheduler, daemon, background loop, HTTP mutation route, or deployment.
+
+Phase 8 completes the local control-plane implementation. Real provider
+adapter/credential, target deployment, live canary/monitoring/drills, and the
+external G5/G6/G7 evidence gates remain separately blocked.

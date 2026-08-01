@@ -448,6 +448,12 @@ export class ActivationCeremonyRepository {
     return normalizeDossier(row);
   }
 
+  async findDossierById(dossierId: string) {
+    const row = await this.knex<ActivationCeremonyDossierRecord>(PHASE7_TABLES.dossiers)
+      .where({ id: actionUuid(dossierId, 'invalid_activation_dossier_id') }).first();
+    return normalizeDossier(row);
+  }
+
   async recordVerification(input: {
     policy: ActivationCeremonyPolicyRecord;
     dossier: ActivationCeremonyDossierRecord;

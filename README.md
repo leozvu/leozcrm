@@ -24,6 +24,9 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 3 implementation | Local G6 policy, proposal, dry-run, approval, idempotent execution, immutable audit, limits, and separately approved rollback implemented on `codex/leozops-phase3-supervised-action`; adapter registry intentionally empty |
 | Phase 4 implementation | Local G7 simulator, supervised-history gate, blast-radius envelope, kill switch, incidents, one-candidate rehearsal, and human recovery implemented on `codex/leozops-phase4-bounded-autonomy`; no production adapter or scheduler |
 | Phase 5 implementation | Local operational-assurance policy, database-derived safety assessment, freshness/drift recheck, immutable evidence, and always-`blocked_external` release package implemented on `codex/leozops-phase5-operational-assurance` |
+| Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
+| Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
+| Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -93,6 +96,10 @@ path begin:
     immutable dossier contract, and explicit execution boundary.
 25. [`docs/PHASE_7_OPERATIONS.md`](docs/PHASE_7_OPERATIONS.md) — exact target,
     verification, sealing, recall, and incident runbook.
+26. [`docs/SPRINT_8_PLAN.md`](docs/SPRINT_8_PLAN.md) — controlled single-
+    activation contract and final local proof boundary.
+27. [`docs/PHASE_8_OPERATIONS.md`](docs/PHASE_8_OPERATIONS.md) — release,
+    one-attempt claim, observation, incident, and manual rollback runbook.
 
 ## Non-negotiable boundaries
 
@@ -151,6 +158,8 @@ npm start
 | `npm run evidence:operator` | Admit one signed envelope or assess/read the immutable evidence matrix |
 | `npm run phase7:preflight` | Recheck an accepted ceremony policy while keeping execution blocked |
 | `npm run ceremony:operator` | Create, verify, seal, recall, or inspect an immutable external handoff |
+| `npm run phase8:preflight` | Recheck exact Phase 8 runtime bindings and adapter registration fail-closed |
+| `npm run activation:operator` | Operate the one-attempt activation control plane when an exact adapter is separately installed |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 Do not configure an Egoric production key, enable a production feature flag, or

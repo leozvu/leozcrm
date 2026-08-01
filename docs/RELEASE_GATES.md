@@ -23,11 +23,12 @@ Phase 5 is an assurance layer for G7, not a new gate and not G8. Its local
 assessment and release package remain `blocked_external`; they do not change
 the G7 row above or satisfy any external evidence requirement.
 
-Phases 6 and 7 are trust and handoff layers for the same G7 boundary, not new
-gates. Phase 6 admits signed external evidence; Phase 7 binds a complete set to
-an exact target and seals a package. Neither grants or implements activation.
-Every Phase 7 package remains `not_executed` until separately authorized
-external infrastructure performs and proves the real G7 activation.
+Phases 6–8 are trust, handoff, and controlled-execution layers for the same G7
+boundary, not new gates. Phase 6 admits signed external evidence; Phase 7 binds
+a complete set to an exact target and seals a package; Phase 8 implements a
+one-attempt control plane with explicit observation and manual rollback. The
+checked-in production activation registry remains empty, so no real target can
+be invoked and no local result satisfies the external G7 evidence gate.
 
 ## Gate ownership
 
@@ -109,3 +110,9 @@ executor, or turn hashes and signatures into deployment facts. Production
 composition must remain adapter-free and network-free; any activation requires
 new Product Owner authority and independent evidence against the exact named
 target.
+
+DECISION-002 addendum 19 authorizes the local Phase 8 one-attempt execution
+control plane and deterministic injected test adapters. It does not authorize
+a provider SDK, real credential, deployment, live call, scheduler, automatic
+retry, automatic observation, or automatic rollback. A production adapter must
+arrive through a separately reviewed and explicitly authorized change.

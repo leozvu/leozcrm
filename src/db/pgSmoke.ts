@@ -76,10 +76,23 @@ import {
 } from '../domain/externalEvidencePolicy';
 import { ExternalEvidenceRepository } from '../repositories/externalEvidenceRepository';
 import { ExternalEvidenceService } from '../services/externalEvidenceService';
-import { PHASE7_TABLES } from '../domain/activationCeremony';
+import { PHASE7_TABLES, activationCeremonyFingerprint } from '../domain/activationCeremony';
 import { ActivationCeremonyPolicyManifest } from '../domain/activationCeremonyPolicy';
 import { ActivationCeremonyRepository } from '../repositories/activationCeremonyRepository';
 import { ActivationCeremonyService } from '../services/activationCeremonyService';
+import {
+  PHASE8_OBSERVATION_SCHEMA,
+  PHASE8_PREVIEW_SCHEMA,
+  PHASE8_RESULT_SCHEMA,
+  PHASE8_ROLLBACK_SCHEMA,
+  PHASE8_TABLES,
+  ActivationExecutionAdapter,
+  activationExecutionFingerprint,
+} from '../domain/activationExecution';
+import { ActivationExecutionPolicyManifest } from '../domain/activationExecutionPolicy';
+import { ActivationExecutionAdapterRegistry } from '../integrations/actions/activationExecutionAdapterRegistry';
+import { ActivationExecutionRepository } from '../repositories/activationExecutionRepository';
+import { ActivationExecutionService } from '../services/activationExecutionService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -149,6 +162,7 @@ async function main(): Promise<void> {
       PHASE7_TABLES.handoffs,
       PHASE7_TABLES.recalls,
       PHASE7_TABLES.events,
+      ...Object.values(PHASE8_TABLES),
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -1045,6 +1059,210 @@ async function main(): Promise<void> {
     if (ceremonyHandoff.activation_status !== 'not_executed' || !ceremonyHandoff.external_execution_required) {
       throw new Error('expected Phase 7 handoff to remain unexecuted and external-only');
     }
+
+    const executionReleaseCredential = 'pg-smoke-phase8-release-credential';
+    const executionExecutorCredential = 'pg-smoke-phase8-executor-credential';
+    const executionObserverCredential = 'pg-smoke-phase8-observer-credential';
+    const executionRollbackCredential = 'pg-smoke-phase8-rollback-credential';
+    const executionPolicy: ActivationExecutionPolicyManifest = {
+      schema_version: 'leozops_phase8_activation_execution_policy_v1',
+      policy_id: 'P8-PG-SMOKE',
+      status: 'accepted',
+      execution_mode: 'controlled_single_activation',
+      environment: 'test',
+      approved_by: 'Leoz',
+      approved_at: sourceNow.toISOString(),
+      valid_from: sourceNow.toISOString(),
+      valid_until: '2026-07-29T23:00:00.000Z',
+      tenant_id: tenant.id,
+      source_connection_id: connection.id,
+      phase7: {
+        policy_id: ceremonyPolicy.policy_id,
+        policy_fingerprint: activationCeremonyFingerprint(ceremonyPolicy),
+        handoff_fingerprint: ceremonyHandoff.handoff_fingerprint,
+        dossier_fingerprint: ceremonyDossier.dossier_fingerprint,
+        verification_fingerprint: ceremonyVerification.verification_fingerprint,
+        phase6_evidence_set_fingerprint: ceremonyHandoff.phase6_evidence_set_fingerprint,
+      },
+      identities: {
+        release_authority: 'Leoz',
+        release_credential_sha256: credentialFingerprint(executionReleaseCredential),
+        executor: 'Leoz',
+        executor_credential_sha256: credentialFingerprint(executionExecutorCredential),
+        safety_observer: 'Leoz',
+        observer_credential_sha256: credentialFingerprint(executionObserverCredential),
+        rollback_operator: 'Leoz',
+        rollback_credential_sha256: credentialFingerprint(executionRollbackCredential),
+      },
+      target: {
+        deployment_id: ceremonyPolicy.target.deployment_id,
+        target_fingerprint: ceremonyPolicy.target.target_fingerprint,
+        target_contract_fingerprint: activationCeremonyFingerprint(ceremonyPolicy.target),
+        adapter_id: ceremonyPolicy.target.adapter_id,
+        adapter_version: ceremonyPolicy.target.adapter_version,
+        adapter_artifact_digest: ceremonyPolicy.target.adapter_artifact_digest,
+        configuration_digest: ceremonyPolicy.target.configuration_digest,
+        credential_reference_sha256: ceremonyPolicy.target.credential_reference_sha256,
+      },
+      canary: {
+        contract_fingerprint: activationCeremonyFingerprint(ceremonyPolicy.canary),
+        cohort_size: 1,
+        max_activation_mutations: 1,
+        observation_minutes: ceremonyPolicy.canary.observation_minutes,
+        success_metric_fingerprint: ceremonyPolicy.canary.success_metric_fingerprint,
+        abort_metric_fingerprint: ceremonyPolicy.canary.abort_metric_fingerprint,
+      },
+      rollback: {
+        contract_fingerprint: activationCeremonyFingerprint(ceremonyPolicy.rollback),
+        rollback_artifact_digest: ceremonyPolicy.rollback.rollback_artifact_digest,
+        procedure_digest: ceremonyPolicy.rollback.procedure_digest,
+        max_recovery_minutes: ceremonyPolicy.rollback.max_recovery_minutes,
+        max_rollback_mutations: 1,
+      },
+      limits: {
+        release_validity_minutes: 5,
+        claim_lease_seconds: 60,
+        observation_deadline_minutes: 60,
+        rollback_window_minutes: 120,
+      },
+      safety: {
+        kill_switch_starts_engaged: true,
+        dual_credential_release_required: true,
+        source_idempotency_required: true,
+        automatic_retry_forbidden: true,
+        automatic_rollback_forbidden: true,
+        production_adapter_registry_empty_by_default: true,
+        waivers_allowed: false,
+      },
+      verdict: 'accepted',
+    };
+    const executionAdapter: ActivationExecutionAdapter = {
+      descriptor: {
+        environment: executionPolicy.environment,
+        adapter_id: executionPolicy.target.adapter_id,
+        adapter_version: executionPolicy.target.adapter_version,
+        target_fingerprint: executionPolicy.target.target_fingerprint,
+        adapter_artifact_digest: executionPolicy.target.adapter_artifact_digest,
+        configuration_digest: executionPolicy.target.configuration_digest,
+        credential_reference_sha256: executionPolicy.target.credential_reference_sha256,
+        supports_idempotency: true,
+        supports_observation: true,
+        supports_rollback: true,
+      },
+      async preview(input) {
+        return {
+          schema_version: PHASE8_PREVIEW_SCHEMA,
+          policy_id: executionPolicy.policy_id,
+          handoff_fingerprint: executionPolicy.phase7.handoff_fingerprint,
+          target_fingerprint: executionPolicy.target.target_fingerprint,
+          mutation_count: 0,
+          readiness_fingerprint: activationExecutionFingerprint({ preview: input.previewKey }),
+          summary_code: 'pg_smoke_target_ready',
+          generated_at: input.requestedAt,
+          expires_at: new Date(Date.parse(input.requestedAt) + 10 * 60_000).toISOString(),
+        };
+      },
+      async activate(input) {
+        return {
+          schema_version: PHASE8_RESULT_SCHEMA,
+          policy_id: executionPolicy.policy_id,
+          handoff_fingerprint: executionPolicy.phase7.handoff_fingerprint,
+          target_fingerprint: executionPolicy.target.target_fingerprint,
+          activation_idempotency_key: input.activationIdempotencyKey,
+          outcome: 'succeeded',
+          mutation_count: 1,
+          provider_receipt_fingerprint: activationExecutionFingerprint({ receipt: input.activationIdempotencyKey }),
+          external_state_fingerprint: activationExecutionFingerprint({ state: 'pg-smoke-activated' }),
+          result_code: 'pg_smoke_activation_confirmed',
+          completed_at: input.requestedAt,
+        };
+      },
+      async observe(input) {
+        return {
+          schema_version: PHASE8_OBSERVATION_SCHEMA,
+          policy_id: executionPolicy.policy_id,
+          target_fingerprint: executionPolicy.target.target_fingerprint,
+          provider_receipt_fingerprint: input.activation.provider_receipt_fingerprint!,
+          verdict: 'unhealthy',
+          metric_fingerprint: executionPolicy.canary.abort_metric_fingerprint,
+          external_state_fingerprint: activationExecutionFingerprint({ state: 'pg-smoke-unhealthy' }),
+          result_code: 'pg_smoke_abort_threshold_reached',
+          observed_at: input.requestedAt,
+        };
+      },
+      async rollback(input) {
+        return {
+          schema_version: PHASE8_ROLLBACK_SCHEMA,
+          policy_id: executionPolicy.policy_id,
+          target_fingerprint: executionPolicy.target.target_fingerprint,
+          activation_receipt_fingerprint: input.activation.provider_receipt_fingerprint!,
+          rollback_idempotency_key: input.rollbackKey,
+          outcome: 'succeeded',
+          mutation_count: 1,
+          rollback_receipt_fingerprint: activationExecutionFingerprint({ rollback: input.rollbackKey }),
+          restored_state_fingerprint: activationExecutionFingerprint({ state: 'pg-smoke-restored' }),
+          result_code: 'pg_smoke_rollback_confirmed',
+          completed_at: input.requestedAt,
+        };
+      },
+    };
+    let executionNow = new Date(sourceNow);
+    const executionRepository = new ActivationExecutionRepository(db);
+    const executionService = new ActivationExecutionService(
+      executionRepository,
+      ceremonyService,
+      new ActivationExecutionAdapterRegistry([executionAdapter]),
+      () => new Date(executionNow),
+    );
+    const executionPolicyRecord = await executionService.acceptPolicy(executionPolicy, executionReleaseCredential);
+    const executionPreview = await executionService.preview({
+      policyId: executionPolicy.policy_id,
+      previewKey: 'pg-smoke-phase8-preview-0001',
+      actor: 'Leoz',
+      executorCredential: executionExecutorCredential,
+    });
+    const executionRelease = await executionService.release({
+      policyId: executionPolicy.policy_id,
+      releaseKey: 'pg-smoke-phase8-release-0001',
+      reasonCode: 'pg_smoke_controlled_activation_approved',
+      releaseActor: 'Leoz',
+      releaseCredential: executionReleaseCredential,
+      observerActor: 'Leoz',
+      observerCredential: executionObserverCredential,
+    });
+    const execution = await executionService.activate({
+      policyId: executionPolicy.policy_id,
+      activationKey: 'pg-smoke-phase8-activation-0001',
+      actor: 'Leoz',
+      executorCredential: executionExecutorCredential,
+    });
+    if (!execution.outcome || execution.outcome.outcome !== 'succeeded') {
+      throw new Error('expected Phase 8 controlled activation to succeed');
+    }
+    executionNow = new Date(sourceNow.getTime() + 30 * 60_000);
+    const executionObservation = await executionService.observe({
+      policyId: executionPolicy.policy_id,
+      observationKey: 'pg-smoke-phase8-observation-0001',
+      actor: 'Leoz',
+      observerCredential: executionObserverCredential,
+    });
+    const executionRollback = await executionService.rollback({
+      policyId: executionPolicy.policy_id,
+      rollbackKey: 'pg-smoke-phase8-rollback-0001',
+      reasonCode: 'pg_smoke_manual_safety_recovery',
+      authorityActor: 'Leoz',
+      authorityCredential: executionReleaseCredential,
+      rollbackActor: 'Leoz',
+      rollbackCredential: executionRollbackCredential,
+    });
+    const executionStatus = await executionService.status(executionPolicy.policy_id);
+    if (
+      executionObservation.verdict !== 'unhealthy'
+      || executionRollback.outcome !== 'succeeded'
+      || executionStatus.activation_status !== 'rolled_back'
+      || executionStatus.incidents.length !== 1
+    ) throw new Error('expected Phase 8 observation, incident, and rollback evidence');
+
     const ceremonyRecall = await ceremonyService.recallHandoff({
       policyId: ceremonyPolicy.policy_id,
       recallKey: 'pg-smoke-phase7-recall-0001',
@@ -1093,6 +1311,16 @@ async function main(): Promise<void> {
       db(PHASE7_TABLES.handoffs).where({ id: ceremonyHandoff.id }).update({ activation_status: 'executed' }),
       db(PHASE7_TABLES.recalls).where({ id: ceremonyRecall.id }).delete(),
       db(PHASE7_TABLES.events).where({ id: ceremonyEvent.id }).update({ reason_code: 'rewritten' }),
+      db(PHASE8_TABLES.policies).where({ id: executionPolicyRecord.id }).delete(),
+      db(PHASE8_TABLES.killSwitchEvents).where({ id: executionStatus.kill_switch!.id }).update({ state: 'released' }),
+      db(PHASE8_TABLES.previews).where({ id: executionPreview.id }).update({ requested_by: 'rewritten' }),
+      db(PHASE8_TABLES.releases).where({ id: executionRelease.id }).delete(),
+      db(PHASE8_TABLES.claims).where({ id: execution.claim.id }).update({ claimed_by: 'rewritten' }),
+      db(PHASE8_TABLES.outcomes).where({ id: execution.outcome.id }).delete(),
+      db(PHASE8_TABLES.observations).where({ id: executionObservation.id }).update({ verdict: 'healthy' }),
+      db(PHASE8_TABLES.rollbacks).where({ id: executionRollback.id }).delete(),
+      db(PHASE8_TABLES.incidents).where({ id: executionStatus.incidents[0].id }).update({ reason_code: 'rewritten' }),
+      db(PHASE8_TABLES.events).where({ id: executionStatus.events[0].id }).delete(),
     ]) {
       let rejected = false;
       try {
@@ -1102,7 +1330,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, and activation-ceremony immutability verified.');
+    console.log('  source, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();
