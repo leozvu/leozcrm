@@ -31,6 +31,7 @@ import { createEgoricReadonlyApp } from './egoricReadonlyApp';
 import type { IntegrationReadAuthConfig } from './integrationReadAuth';
 import type { AdvisorModelProvider } from '../domain/advisorConversation';
 import type { AdvisorServiceLimits } from '../services/advisorConversationService';
+import type { NotificationDeliveryRegistry } from '../integrations/notifications/notificationDeliveryRegistry';
 
 export type RuntimeProfile = 'legacy' | 'egoric-readonly';
 
@@ -71,6 +72,8 @@ export interface CreateAppOptions {
   advisorProvider?: AdvisorModelProvider;
   advisorLimits?: AdvisorServiceLimits;
   advisorClock?: () => Date;
+  proactiveClock?: () => Date;
+  notificationDeliveryRegistry?: NotificationDeliveryRegistry;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -93,6 +96,8 @@ export function createApp(options: CreateAppOptions = {}) {
       advisorProvider: options.advisorProvider,
       advisorLimits: options.advisorLimits,
       advisorClock: options.advisorClock,
+      proactiveClock: options.proactiveClock,
+      notificationDeliveryRegistry: options.notificationDeliveryRegistry,
     });
   }
   const app = express();

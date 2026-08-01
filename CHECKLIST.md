@@ -554,3 +554,36 @@ Status: IMPLEMENTED ON `codex/leozops-phase10-medieval-cockpit`; LIVE J2 OPEN
 
 Phase 10 adds no dependency, migration, model key, production adapter,
 deployment, scheduler, notification, generic tool, or operational authority.
+
+21. PHASE 11 PROACTIVE NERVOUS SYSTEM — LOCAL PASS CANDIDATE
+------------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase11-proactive-nervous-system`; LIVE J3 OPEN
+
+[x] Versioned deterministic overdue-close and active-owner-gap rules.
+[x] Stale, future, and partial source evidence suppresses confirmed alerts.
+[x] Append-only cycles, evaluations, alerts, state events, outbox, attempts,
+    and results with SQLite lifecycle and dialect-portable PostgreSQL guards.
+[x] Snapshot/cycle/episode deduplication, worsening-only re-alert, four-hour
+    cooldown, UTC quiet hours, seven-day maximum snooze, and resolution.
+[x] Daily brief and urgent adapter contracts behind an empty production registry.
+[x] Stable logical delivery key, definitive-failure retry, delivered replay,
+    and unknown-outcome automatic-retry block.
+[x] Tenant-scoped alert/delivery APIs plus idempotent acknowledgement, snooze,
+    immutable useful/false-positive outcome, and J3 shadow evaluator.
+[x] Medieval cockpit alert panel with trigger facts, evidence drawer, explicit
+    severity/state text, delivery truth, and 44 px controls.
+[x] Exact-credential command-and-exit evaluate, daily-brief, deliver, status,
+    and shadow-status operator; no daemon or HTTP execution route.
+[x] Atomic cycle rollback/retry and one in-flight delivery claim per logical
+    notification, including injected-failure and concurrent-attempt tests.
+[x] Focused Phase 11 + cockpit suite 20/20; full regression 348/348;
+    TypeScript, in-app browser desktop/mobile, 59 local links, diff check,
+    changed-file secret scan, and high/critical dependency audit PASS.
+[ ] Execute the registered Phase 11 PostgreSQL lifecycle on a disposable real
+    PostgreSQL target; this workstation had no Docker, server, or DB credential.
+[ ] Live J3: named scheduler/channel, 20 genuine reviews, <=10% false positives,
+    <=3 alerts/day, accepted delivery SLO/incidents, named deployment, real G5,
+    and Product Owner acceptance.
+
+Phase 11 adds no Egoric mutation, background agent, production delivery
+adapter, scheduler, provider credential, deployment, or action authority.

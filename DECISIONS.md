@@ -712,3 +712,25 @@ Decision:
   a recorded founder usability run against a named deployment after live J1
   and G5 evidence are accepted.
 Owner: Leoz. Recorded by Codex before Phase 10 implementation completion.
+
+DECISION-002 addendum 24 — 2026-08-01 — Phase 11 proactive nervous system authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit request to implement Phase 11 as approval for the local
+  deterministic alert, outbox, founder-state, quality-baseline, cockpit, test,
+  and documentation increment on a new branch based on completed Phase 10.
+- Derive alerts only from accepted Business Memory and deterministic CEO Brief
+  facts. Version thresholds and fail closed for stale, future, or partial data.
+- Require append-only tenant evidence, cycle/episode idempotency, worsening-only
+  re-alert, cooldown, quiet hours, bounded snooze, resolution, stable logical
+  delivery keys, receipts, and unknown-outcome replay blocking.
+- Permit authenticated acknowledgement, snooze, and immutable useful/false-
+  positive evidence because they belong to LeozOps; do not mutate Egoric.
+- Permit a command-and-exit operator and injected test adapters. Do not install
+  a scheduler, daemon, background loop, production channel, provider secret,
+  deployment, generic tool, or action authority.
+- Treat local tests and simulated outcomes only as a J3 candidate. Live J3
+  requires a deployed reviewed channel/scheduler, at least 20 genuine founder
+  reviews, accepted <=10% false positives and <=3 alerts/day, delivery SLO and
+  incident evidence, named deployment, real G5, and Product Owner acceptance.
+Owner: Leoz. Recorded by Codex before Phase 11 implementation completion.

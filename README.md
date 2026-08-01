@@ -27,10 +27,11 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
-| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned on `codex/leozops-jarvis-roadmap`; Phase 9A/9B and the Phase 10 cockpit are implemented locally |
+| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned; Phase 9A/9B, Phase 10, and the Phase 11 proactive nervous system are implemented locally |
 | Phase 9A implementation | Evidence packs, fixed read tools, append-only conversation/context/citation/feedback, deterministic bilingual Advisor, budgets, failure evidence, and authenticated Ask routes implemented on `codex/leozops-phase9a-conversation-core`; production model absent |
 | Phase 9B implementation | Pinned `gpt-5.6-sol` Responses adapter, strict structured output, no-tool/stateless request, pre-call cost guard, and 12-case eval implemented on `codex/leozops-phase9b-openai-adapter`; live key/eval/deployment absent |
 | Phase 10 implementation | Responsive medieval CEO cockpit, evidence drill-down, validated Ask reveal, and sealed Command Deck implemented on `codex/leozops-phase10-medieval-cockpit`; founder/live J2 acceptance absent |
+| Phase 11 implementation | Deterministic alerts, append-only state/outbox evidence, replay-safe delivery boundary, founder outcomes, shadow evaluator, and one-shot operator implemented on `codex/leozops-phase11-proactive-nervous-system`; live channel/scheduler/baseline and J3 acceptance absent |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -115,6 +116,9 @@ path begin:
 32. [`docs/PHASE_10_MEDIEVAL_COCKPIT.md`](docs/PHASE_10_MEDIEVAL_COCKPIT.md) —
     five cockpit surfaces, design/security contract, local operation, QA, and
     the remaining live J2 blocker.
+33. [`docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md`](docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md)
+    — alert policy, evidence/state model, operator and delivery contracts,
+    replay rules, QA, and the non-fabricable live J3 boundary.
 
 ## Non-negotiable boundaries
 
@@ -176,6 +180,7 @@ npm start
 | `npm run phase8:preflight` | Recheck exact Phase 8 runtime bindings and adapter registration fail-closed |
 | `npm run activation:operator` | Operate the one-attempt activation control plane when an exact adapter is separately installed |
 | `npm run advisor:eval:openai` | Run the explicitly acknowledged, billable Phase 9B live model eval; blocked by default |
+| `npm run proactive:operator -- <command> <input.json>` | Run one authenticated Phase 11 evaluate, daily brief, deliver, status, or shadow-status command and exit |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 With `INTEGRATION_MODE=egoric-readonly`, Phase 9A adds authenticated LeozOps-
@@ -187,6 +192,10 @@ in [`docs/PHASE_9B_OPENAI_ADAPTER.md`](docs/PHASE_9B_OPENAI_ADAPTER.md).
 The data-free `/cockpit` shell and authenticated Phase 10 projection are
 documented in
 [`docs/PHASE_10_MEDIEVAL_COCKPIT.md`](docs/PHASE_10_MEDIEVAL_COCKPIT.md).
+Phase 11 adds evidence-backed alert views and founder-owned acknowledgement,
+snooze, and outcome evidence to that cockpit; evaluation and delivery remain
+one-shot operator commands documented in
+[`docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md`](docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md).
 
 Do not configure an Egoric production key, enable a production feature flag, or
 deploy this default profile as LeozOps.

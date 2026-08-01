@@ -326,7 +326,7 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 |---|---|---|---|
 | 9 | Evidence-grade Ask LeozOps | 🚧 Phase 9A core + Phase 9B OpenAI adapter complete locally; live eval/SLO pending | J1 grounded conversation |
 | 10 | Medieval CEO Cockpit | ✅ Complete locally; founder/live acceptance pending | J2 usable evidence cockpit |
-| 11 | Proactive Nervous System | ⏳ Planned | J3 trustworthy alerts |
+| 11 | Proactive Nervous System | ✅ Complete locally; live baseline/channel acceptance pending | J3 trustworthy alerts |
 | 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
 | 13 | Goal-aware Planner | ⏳ Planned | J5 reproducible plans |
 | 14 | One real supervised hand | ⏳ Gate-bound | J6 / real G6 history |
@@ -356,6 +356,16 @@ The UI progressively reveals only a fully validated Phase 9 answer, keeps
 citations inspectable, supports keyboard/reduced-motion/high-contrast use, and
 adds no execution route. Repository QA is complete, but the named-deployment
 founder usability run and accepted live J1/G5 evidence still block live J2.
+
+Phase 11 is implemented on
+`codex/leozops-phase11-proactive-nervous-system`: accepted snapshots feed two
+versioned deterministic rules, append-only evaluations and alert state, quiet
+hours/cooldown/deduplication, daily and urgent outbox intents, replay-safe
+delivery evidence, immutable founder quality outcomes, a J3 shadow evaluator,
+and a command-and-exit operator. The production delivery registry and
+scheduler remain absent. A named deployment, at least 20 genuine reviews,
+accepted volume/FPR, delivery SLO evidence, and Product Owner acceptance still
+block live J3.
 
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.

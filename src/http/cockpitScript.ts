@@ -7,6 +7,8 @@ export const COCKPIT_SCRIPT = String.raw`
     tenant: '',
     snapshot: null,
     context: [],
+    alerts: [],
+    deliveries: [],
     conversationId: null,
     activeView: 'today',
     requestController: null
@@ -117,6 +119,8 @@ export const COCKPIT_SCRIPT = String.raw`
     state.tenant = '';
     state.snapshot = null;
     state.context = [];
+    state.alerts = [];
+    state.deliveries = [];
     state.conversationId = null;
     if (state.requestController) state.requestController.abort();
     state.requestController = null;
@@ -230,6 +234,124 @@ export const COCKPIT_SCRIPT = String.raw`
     snapshot.limitations.forEach(function (limitation) {
       var card = element('article', 'limitation-item');
       card.append(element('strong', '', titleCase(limitation.code)), element('p', '', limitation.message));
+      target.append(card);
+    });
+  }
+
+  function alertDelivery(alertId) {
+    return state.deliveries.find(function (delivery) { return delivery.alert_id === alertId; }) || null;
+  }
+
+  function alertEvidence(alert) {
+    var items = Object.keys(alert.evidence || {}).map(function (keyValue) {
+      return { label: titleCase(keyValue), value: alert.evidence[keyValue] };
+    });
+    items.push({ label: 'Evidence hash', value: alert.evidence_hash });
+    var delivery = alertDelivery(alert.id);
+    if (delivery) {
+      items.push({ label: 'Delivery kind', value: titleCase(delivery.kind) });
+      items.push({ label: 'Delivery status', value: titleCase(delivery.status) });
+      items.push({ label: 'Available at', value: formatDate(delivery.available_at) });
+      items.push({ label: 'Receipt', value: delivery.receipt_id || 'Unavailable' });
+    }
+    return items;
+  }
+
+  async function mutateAlert(alert, action, button) {
+    var original = button.textContent;
+    button.disabled = true;
+    button.textContent = action === 'acknowledgements' ? 'Acknowledging…' : 'Snoozing…';
+    setError(id('alert-error'), '');
+    try {
+      var body = action === 'snoozes'
+        ? JSON.stringify({ until: new Date(Date.now() + 4 * 60 * 60 * 1000).toISOString() })
+        : JSON.stringify({});
+      await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/alerts/' + encodeURIComponent(alert.id) + '/' + action, {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey() },
+        body: body
+      });
+      await loadAlertState();
+      announce(action === 'acknowledgements' ? 'Alert acknowledged in LeozOps.' : 'Alert snoozed for four hours in LeozOps.');
+    } catch (error) {
+      setError(id('alert-error'), friendlyError(error));
+      button.disabled = false;
+      button.textContent = original;
+    }
+  }
+
+  async function rateAlert(alert, outcome, buttons) {
+    buttons.forEach(function (button) { button.disabled = true; });
+    setError(id('alert-error'), '');
+    try {
+      await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/alerts/' + encodeURIComponent(alert.id) + '/outcomes', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey() },
+        body: JSON.stringify({ outcome: outcome })
+      });
+      await loadAlertState();
+      announce(outcome === 'useful' ? 'Alert marked useful for the shadow baseline.' : 'Alert marked as a false positive for the shadow baseline.');
+    } catch (error) {
+      setError(id('alert-error'), friendlyError(error));
+      buttons.forEach(function (button) { button.disabled = false; });
+    }
+  }
+
+  function renderAlerts() {
+    var target = id('alert-list');
+    clear(target);
+    var active = state.alerts.filter(function (alert) { return alert.state !== 'resolved'; });
+    id('alert-count').textContent = String(active.length);
+    if (!active.length) {
+      target.append(element('div', 'empty-state', 'No active signal has passed the freshness, completeness, change, cooldown, and snooze gates.'));
+      return;
+    }
+    active.forEach(function (alert) {
+      var card = element('article', 'alert-card alert-' + alert.severity);
+      var meta = element('div', 'alert-meta');
+      meta.append(
+        element('span', 'alert-severity', alert.severity),
+        element('span', 'alert-state', titleCase(alert.state)),
+        element('time', '', formatDate(alert.created_at))
+      );
+      if (alert.outcome) meta.insertBefore(element('span', 'alert-outcome', titleCase(alert.outcome)), meta.lastChild);
+      var copy = element('div', 'alert-copy');
+      copy.append(
+        element('h3', '', alert.title),
+        element('p', '', alert.rationale),
+        element('strong', '', 'Recommended review'),
+        element('p', '', alert.recommendation)
+      );
+      if (alert.state === 'snoozed' && alert.snoozed_until) {
+        copy.append(element('small', 'alert-snooze-copy', 'Snoozed until ' + formatDate(alert.snoozed_until)));
+      }
+      var actions = element('div', 'alert-actions');
+      var evidence = element('button', 'evidence-button', 'Inspect evidence');
+      evidence.type = 'button';
+      evidence.addEventListener('click', function () {
+        openEvidence(alert.title, 'Trigger → fact → recommendation → delivery evidence.', alertEvidence(alert));
+      });
+      var acknowledge = element('button', 'feedback-button', alert.state === 'acknowledged' ? 'Acknowledged' : 'Acknowledge');
+      acknowledge.type = 'button';
+      acknowledge.disabled = alert.state === 'acknowledged';
+      acknowledge.addEventListener('click', function () { mutateAlert(alert, 'acknowledgements', acknowledge); });
+      var snooze = element('button', 'feedback-button', alert.state === 'snoozed' ? 'Snoozed' : 'Snooze 4h');
+      snooze.type = 'button';
+      snooze.disabled = alert.state === 'snoozed';
+      snooze.addEventListener('click', function () { mutateAlert(alert, 'snoozes', snooze); });
+      actions.append(evidence, acknowledge, snooze);
+      if (alert.state === 'acknowledged' || alert.outcome) {
+        var useful = element('button', 'feedback-button', alert.outcome === 'useful' ? 'Useful recorded' : 'Useful signal');
+        var falsePositive = element('button', 'feedback-button', alert.outcome === 'false_positive' ? 'False positive recorded' : 'False positive');
+        useful.type = 'button';
+        falsePositive.type = 'button';
+        useful.disabled = Boolean(alert.outcome);
+        falsePositive.disabled = Boolean(alert.outcome);
+        useful.addEventListener('click', function () { rateAlert(alert, 'useful', [useful, falsePositive]); });
+        falsePositive.addEventListener('click', function () { rateAlert(alert, 'false_positive', [useful, falsePositive]); });
+        actions.append(useful, falsePositive);
+      }
+      card.append(meta, copy, actions);
       target.append(card);
     });
   }
@@ -375,6 +497,7 @@ export const COCKPIT_SCRIPT = String.raw`
     renderPriorities(snapshot);
     renderTruth(snapshot);
     renderLimitations(snapshot);
+    renderAlerts();
     renderFunnel(snapshot);
     renderSources(snapshot);
     renderQuality(snapshot);
@@ -401,20 +524,42 @@ export const COCKPIT_SCRIPT = String.raw`
     var tenant = encodeURIComponent(state.tenant);
     var results = await Promise.allSettled([
       api('/v1/tenants/' + tenant + '/cockpit', { signal: state.requestController.signal }),
-      api('/v1/tenants/' + tenant + '/context', { signal: state.requestController.signal })
+      api('/v1/tenants/' + tenant + '/context', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/alerts', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/notification-deliveries', { signal: state.requestController.signal })
     ]);
     if (results[0].status === 'rejected') throw results[0].reason;
     state.context = results[1].status === 'fulfilled' && Array.isArray(results[1].value.entries)
       ? results[1].value.entries : [];
+    state.alerts = results[2].status === 'fulfilled' && Array.isArray(results[2].value.alerts)
+      ? results[2].value.alerts : [];
+    state.deliveries = results[3].status === 'fulfilled' && Array.isArray(results[3].value.deliveries)
+      ? results[3].value.deliveries : [];
+    setError(id('alert-error'), results[2].status === 'fulfilled' ? '' : 'Proactive alert state is temporarily unavailable. Refresh to retry.');
     renderSnapshot(results[0].value);
     setHidden(id('connection-chamber'), true);
     setHidden(id('cockpit-workspace'), false);
     enableWorkspace(true);
     setConnectionChip('Connected', 'state-fresh');
     showView(state.activeView, false);
-    announce(results[1].status === 'fulfilled'
-      ? 'Cockpit evidence loaded.'
-      : 'Cockpit evidence loaded; CEO context is temporarily unavailable.');
+    var partials = [];
+    if (results[1].status === 'rejected') partials.push('CEO context');
+    if (results[2].status === 'rejected') partials.push('proactive alerts');
+    if (results[3].status === 'rejected') partials.push('delivery evidence');
+    announce(partials.length ? 'Cockpit evidence loaded; ' + partials.join(', ') + ' temporarily unavailable.' : 'Cockpit evidence loaded.');
+  }
+
+  async function loadAlertState() {
+    var tenant = encodeURIComponent(state.tenant);
+    var results = await Promise.allSettled([
+      api('/v1/tenants/' + tenant + '/alerts'),
+      api('/v1/tenants/' + tenant + '/notification-deliveries')
+    ]);
+    if (results[0].status === 'rejected') throw results[0].reason;
+    state.alerts = Array.isArray(results[0].value.alerts) ? results[0].value.alerts : [];
+    state.deliveries = results[1].status === 'fulfilled' && Array.isArray(results[1].value.deliveries)
+      ? results[1].value.deliveries : [];
+    renderAlerts();
   }
 
   function appendUserMessage(question) {

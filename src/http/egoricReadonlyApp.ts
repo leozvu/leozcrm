@@ -4,11 +4,18 @@ import { db } from '../db/knex';
 import { BusinessMemoryError, BusinessMemoryRepository } from '../repositories/businessMemoryRepository';
 import { EgoricBriefError, EgoricBriefService } from '../services/egoricBriefService';
 import type { AdvisorModelProvider } from '../domain/advisorConversation';
+import { ProactiveAlertError } from '../domain/proactiveAlerts';
 import { buildAdvisorProviderFromEnv } from '../integrations/advisor/advisorProviderFactory';
 import { AdvisorConversationRepository, AdvisorRepositoryError } from '../repositories/advisorConversationRepository';
 import { AdvisorConversationService, AdvisorServiceError, AdvisorServiceLimits } from '../services/advisorConversationService';
 import { AdvisorEvidenceError, AdvisorEvidenceService } from '../services/advisorEvidenceService';
 import { CockpitService } from '../services/cockpitService';
+import { ProactiveAlertRepository } from '../repositories/proactiveAlertRepository';
+import { ProactiveAlertService } from '../services/proactiveAlertService';
+import {
+  buildNotificationDeliveryRegistry,
+  NotificationDeliveryRegistry,
+} from '../integrations/notifications/notificationDeliveryRegistry';
 import {
   authenticateIntegrationRead,
   IntegrationReadAuthConfig,
@@ -18,6 +25,7 @@ import { createEgoricBriefRouter } from './routes/egoricBrief';
 import { createAdvisorConversationRouter } from './routes/advisorConversation';
 import { createCockpitApiRouter } from './routes/cockpit';
 import { createCockpitExperienceRouter } from './routes/cockpitExperience';
+import { createProactiveAlertRouter } from './routes/proactiveAlerts';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -25,6 +33,8 @@ export interface EgoricReadonlyAppOptions {
   advisorProvider?: AdvisorModelProvider;
   advisorLimits?: AdvisorServiceLimits;
   advisorClock?: () => Date;
+  proactiveClock?: () => Date;
+  notificationDeliveryRegistry?: NotificationDeliveryRegistry;
 }
 
 /** Read-only-to-Egoric runtime: health, cockpit, brief, and tenant-scoped Advisor memory. */
@@ -75,6 +85,13 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         'advisor_run_results',
         'advisor_citations',
         'advisor_feedback',
+        'proactive_cycles',
+        'proactive_rule_evaluations',
+        'proactive_alerts',
+        'proactive_alert_events',
+        'proactive_delivery_outbox',
+        'proactive_delivery_attempts',
+        'proactive_delivery_results',
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();
@@ -99,6 +116,14 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   const advisorRepository = new AdvisorConversationRepository(knex, clock);
   const advisorEvidence = new AdvisorEvidenceService(repository, brief, advisorRepository);
   const cockpit = new CockpitService(brief);
+  const proactiveClock = options.proactiveClock ?? clock;
+  const proactive = new ProactiveAlertService(
+    new ProactiveAlertRepository(knex, proactiveClock),
+    repository,
+    brief,
+    options.notificationDeliveryRegistry ?? buildNotificationDeliveryRegistry(),
+    proactiveClock,
+  );
   const advisor = new AdvisorConversationService(
     repository,
     advisorRepository,
@@ -115,6 +140,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   app.use('/v1/tenants', createEgoricBriefRouter(brief));
   app.use('/v1/tenants', createCockpitApiRouter(cockpit));
   app.use('/v1/tenants', createAdvisorConversationRouter(advisor));
+  app.use('/v1/tenants', createProactiveAlertRouter(proactive));
 
   app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
     if (error.type === 'entity.too.large') {
@@ -126,6 +152,10 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
       return;
     }
     if (error instanceof AdvisorServiceError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+    if (error instanceof ProactiveAlertError) {
       res.status(error.status).json({ error: error.message, code: error.code });
       return;
     }

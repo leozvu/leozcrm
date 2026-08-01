@@ -1,0 +1,5 @@
+{
+  "tenant_key": "replace-with-exact-tenant-key",
+  "outbox_id": "replace-with-due-outbox-uuid",
+  "attempt_key": "replace-with-unique-provider-attempt-key"
+}

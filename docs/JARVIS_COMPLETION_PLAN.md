@@ -6,7 +6,7 @@ Approved by: Leoz, Product Owner
 
 Effective: 2026-08-01
 
-Current baseline: `codex/leozops-phase8-controlled-activation@30c5cb6`
+Current repository baseline: `codex/leozops-phase11-proactive-nervous-system`
 
 ## 1. Outcome
 
@@ -33,7 +33,7 @@ unrestricted computer control, or a general employee replacement.
 | Business Memory and CEO Brief | Implemented and deterministic | No live recurring source feed |
 | Shadow, supervised action, autonomy, assurance, evidence, activation | Control planes implemented through Phase 8 | No production adapter, real action, or elapsed shadow evidence |
 | Conversation and durable CEO context | Phase 9A/9B implemented locally | No accepted live model/deployment evidence |
-| Proactive event loop and notifications | Not implemented | Not available |
+| Proactive event loop and notifications | Phase 11 deterministic one-shot loop and delivery boundary implemented locally | No scheduler, channel adapter, measured baseline, or accepted J3 evidence |
 | Jarvis cockpit | Phase 10 implemented locally on its feature branch | Not deployed; founder/live J2 run absent |
 | Voice / ambient access | Deliberately deferred | Not available |
 
@@ -371,6 +371,32 @@ until the founder records the under-five-minute usability run against a named
 deployment after live J1 and G5 evidence is accepted. Phase 10 adds no action
 adapter, provider credential, deployment, scheduler, notification, or Egoric
 mutation route.
+
+## 6B. Phase 11 repository baseline
+
+Implemented on `codex/leozops-phase11-proactive-nervous-system`:
+
+1. consume only accepted Business Memory/CEO Brief evidence through a one-shot,
+   idempotent evaluate or daily-brief cycle;
+2. apply versioned deterministic overdue-close and owner-gap rules while stale,
+   future, or partial facts fail closed;
+3. derive open, acknowledged, snoozed, resolved, and immutable quality outcome
+   state from seven append-only tables;
+4. enforce logical alert deduplication, worsening-only re-alerts, cooldown,
+   quiet hours, one daily brief per UTC day, and bounded snooze;
+5. isolate delivery adapters behind an empty-by-default registry with stable
+   logical keys, attempt evidence, receipts, safe definitive-failure retry, and
+   unknown-outcome replay blocking;
+6. expose tenant-authenticated alert/delivery/shadow views and founder-owned
+   acknowledgement, snooze, and quality evidence in the medieval cockpit; and
+7. calculate the explicit 20-review, 10% FPR, and 3-alert/day J3 candidate
+   threshold without claiming simulated evidence as live acceptance.
+
+The repository-local implementation is a J3 candidate. Live J3 remains open
+until a named scheduler and reviewed channel are deployed and genuine founder
+reviews, delivery operations, J1/J2, real G5 Observer evidence, and Product
+Owner acceptance satisfy the measured baseline. Phase 11 adds no Egoric
+mutation, action authority, hidden daemon, or production credential.
 
 ## 7. Schedule and critical path
 

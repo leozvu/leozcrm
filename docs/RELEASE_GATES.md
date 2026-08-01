@@ -70,6 +70,14 @@ states, and an explicitly blocked Command Deck. Local QA cannot accept live
 J2. The named-deployment founder usability run, live J1 acceptance, and real
 G5 Observer evidence remain required; no cockpit state grants write authority.
 
+Phase 11 implements the local J3 control-plane candidate on
+`codex/leozops-phase11-proactive-nervous-system`: deterministic rules,
+freshness/partial suppression, logical deduplication, cooldown, quiet hours,
+append-only alert/delivery evidence, replay controls, founder outcomes, and a
+versioned shadow evaluator. J3 is not accepted: there is no deployed scheduler
+or delivery adapter and no genuine 20-review volume/FPR baseline, delivery SLO,
+named deployment, or Product Owner acceptance.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.

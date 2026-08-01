@@ -93,6 +93,7 @@ import { ActivationExecutionPolicyManifest } from '../domain/activationExecution
 import { ActivationExecutionAdapterRegistry } from '../integrations/actions/activationExecutionAdapterRegistry';
 import { ActivationExecutionRepository } from '../repositories/activationExecutionRepository';
 import { ActivationExecutionService } from '../services/activationExecutionService';
+import { PROACTIVE_TABLES } from '../domain/proactiveAlerts';
 import { ADVISOR_TABLES } from '../domain/advisorConversation';
 import { DeterministicAdvisorProvider } from '../integrations/advisor/deterministicAdvisorProvider';
 import { AdvisorConversationRepository } from '../repositories/advisorConversationRepository';
@@ -169,6 +170,7 @@ async function main(): Promise<void> {
       PHASE7_TABLES.events,
       ...Object.values(PHASE8_TABLES),
       ...Object.values(ADVISOR_TABLES),
+      ...Object.values(PROACTIVE_TABLES),
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {

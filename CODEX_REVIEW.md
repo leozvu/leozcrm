@@ -1592,3 +1592,77 @@ Canonical contract and operations:
 [`docs/PHASE_10_MEDIEVAL_COCKPIT.md`](docs/PHASE_10_MEDIEVAL_COCKPIT.md).
 
 ---
+
+# Phase 11 Local Review — Proactive Nervous System
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase11-proactive-nervous-system`
+
+Verdict: **REPOSITORY-LOCAL PASS — POSTGRES EXECUTION AND LIVE J3 ABSENT**
+
+## A. Implemented scope
+
+- `proactive_alert_policy_v1` deterministically evaluates overdue expected-
+  close and active-owner-gap facts from the accepted CEO Brief. Stale, future,
+  and partial evidence fails closed; a later fresh accepted snapshot still
+  evaluates against the last alert, not against a suppressed observation.
+- Seven tenant-scoped append-only tables preserve cycles, every rule decision,
+  alert episodes/events, delivery intent, attempts, and results. Cycle writes
+  are atomic, so a mid-cycle failure rolls back and the same command can retry.
+- Logical deduplication, worsening-only re-alerts, four-hour cooldown, UTC
+  quiet hours, bounded snooze, acknowledgement, resolution, and one immutable
+  useful/false-positive outcome derive alert state without rewriting history.
+- Daily and urgent intents use stable logical keys behind a versioned adapter
+  registry. The outbox claim serializes in-flight delivery, definitive failure
+  may retry, delivered replays its receipt, and unknown blocks automatic retry.
+- The exact-credential operator runs one evaluate, daily-brief, delivery,
+  status, or shadow-status command and exits. Checked-in production composition
+  has no adapter, scheduler, daemon, loop, provider credential, or network call.
+- The tenant-authenticated cockpit displays explicit severity/state text,
+  recommendation, evidence and delivery provenance, acknowledgement, four-hour
+  snooze, and founder quality outcomes. It does not expose evaluation,
+  delivery, action, or direct Egoric mutation routes.
+- The shadow evaluator freezes the candidate gate at 20 genuine reviews,
+  <=10% false positives, <=3 alerts/day, and no unknown delivery result.
+
+## B. Verification evidence
+
+- Phase 11 suite plus cockpit suite: **20/20 PASS**.
+- Full repository regression: **348/348 PASS**.
+- Strict TypeScript: **PASS**.
+- Fault/replay proof: injected mid-cycle failure rolled back cycle, alert, and
+  outbox rows; retry completed. An in-flight attempt admitted one provider call
+  and rejected the concurrent second attempt.
+- SQLite latest/rollback/latest and all seven table immutability checks:
+  **PASS**.
+- In-app Codex browser QA: **PASS** at 1280 desktop and 390 mobile. Alert cards
+  stack to one column, body width does not overflow, controls measure 44 px,
+  evidence drawer and acknowledge -> outcome flow work, and console has zero
+  warning/error.
+- Changed-document local links: **59/59 PASS**. `git diff --check`, Phase 11
+  TODO scan, and changed-code secret-pattern scan: **PASS**.
+- High/critical production dependency gate: **PASS**. The pre-existing one low
+  `body-parser` and one moderate `uuid` advisory remain; Phase 11 adds no
+  dependency.
+- `npm run db:smoke:pg` is registered with all Phase 11 tables but **SKIPPED**:
+  this workstation exposed no Docker server, local PostgreSQL executable, or
+  database credential. No PostgreSQL result is claimed.
+
+## C. Gate result
+
+Phase 11 completes the codeable Proactive Nervous System and is a local J3
+candidate. It does not accept live J3, J1/J2, G5, or any write authority.
+
+Repository follow-up is one real disposable PostgreSQL lifecycle run. Live J3
+additionally requires a named deployment, reviewed channel adapter and external
+scheduler, at least 20 genuine founder reviews, accepted volume/FPR, delivery
+SLO/reconciliation/incident evidence, real G5 Observer evidence, and Product
+Owner acceptance. Fixtures and simulated clocks cannot satisfy those facts.
+
+Canonical contract and operations:
+[`docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md`](docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md).
+
+---

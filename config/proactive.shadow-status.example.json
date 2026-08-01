@@ -1,0 +1,5 @@
+{
+  "tenant_key": "replace-with-exact-tenant-key",
+  "from": "2026-08-01T00:00:00.000Z",
+  "to": "2026-08-31T23:59:59.999Z"
+}

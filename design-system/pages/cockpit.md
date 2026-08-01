@@ -20,6 +20,13 @@ The Command Deck uses a visible sealed state. `Approval is not execution` is
 permanent copy until a later gate replaces the read-only capability contract.
 Unknown kill-switch state must be labelled `Not exposed`, never `Safe`.
 
+Phase 11 adds a Proactive Nervous System panel to Today. It uses text-labelled
+`warning` and `urgent` severity, an explicit open/acknowledged/snoozed state,
+and trigger → fact → recommendation → delivery evidence. Acknowledge and
+Snooze are 44px LeozOps-only controls; neither resembles an operational
+approval or changes Egoric. The empty state names the freshness, completeness,
+change, cooldown, and snooze gates instead of implying monitoring failed.
+
 ## State coverage
 
 - Disconnected: credential chamber with no business content.

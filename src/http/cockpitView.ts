@@ -111,6 +111,15 @@ export function renderCockpitHtml(): string {
               <dl id="provenance-summary" class="provenance-list"></dl>
             </article>
           </div>
+          <article class="realm-panel signal-panel" aria-labelledby="signal-title">
+            <div class="panel-heading">
+              <div><p class="eyebrow">PROACTIVE NERVOUS SYSTEM</p><h2 id="signal-title">Signals that changed</h2></div>
+              <span id="alert-count" class="count-seal" aria-label="Active alert count">0</span>
+            </div>
+            <p class="panel-intro">Deduplicated alerts from fresh, complete evidence. Acknowledgement and snooze affect LeozOps only.</p>
+            <p id="alert-error" class="form-error" role="alert" hidden></p>
+            <div id="alert-list" class="alert-list" aria-live="polite"></div>
+          </article>
           <article class="realm-panel limitation-panel">
             <div class="panel-heading"><div><p class="eyebrow">KNOWN BOUNDARIES</p><h2>Limitations before decisions</h2></div></div>
             <div id="today-limitations" class="limitation-grid"></div>
