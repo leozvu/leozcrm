@@ -10,6 +10,7 @@ import {
   AdvisorProviderResult,
 } from '../domain/advisorConversation';
 import { DeterministicAdvisorProvider } from '../integrations/advisor/deterministicAdvisorProvider';
+import { OpenAIResponsesAdvisorProvider } from '../integrations/advisor/openaiResponsesAdvisorProvider';
 import { AdvisorReadToolRegistry } from '../integrations/advisor/advisorReadToolRegistry';
 import { AdvisorConversationRepository } from '../repositories/advisorConversationRepository';
 import {
@@ -125,6 +126,55 @@ test('Ask LeozOps persists an evidence-cited answer and a readable thread', asyn
   assert.equal(thread.messages[0].role, 'user');
   assert.equal(thread.messages[1].role, 'assistant');
   assert.equal(thread.messages[1].answer?.summary.statement, output.answer.summary.statement);
+});
+
+test('Phase 9B OpenAI adapter fits the default budget and completes through the Phase 9A trust boundary', async () => {
+  let transportCalls = 0;
+  const provider = new OpenAIResponsesAdvisorProvider({
+    apiKey: 'test-api-key-not-a-real-secret',
+    transport: async () => {
+      transportCalls += 1;
+      return {
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          status: 'completed',
+          error: null,
+          incomplete_details: null,
+          model: 'gpt-5.6-sol',
+          output: [{
+            type: 'message',
+            role: 'assistant',
+            content: [{
+              type: 'output_text',
+              text: JSON.stringify({
+                answer_version: ADVISOR_ANSWER_VERSION,
+                summary: { statement: 'There are 5 leads.', evidence_keys: ['brief.headline.total_leads'] },
+                facts: [],
+                inferences: [],
+                recommendations: [],
+                limitations: [],
+                cannot_answer: false,
+                advisory_only: true,
+              }),
+            }],
+          }],
+          usage: { input_tokens: 1_000, output_tokens: 100 },
+        }),
+      };
+    },
+  });
+  const { service } = await harness('advisor-openai-boundary', provider);
+  const conversation = await service.createConversation('advisor-openai-boundary');
+  const output = await service.ask('advisor-openai-boundary', {
+    conversationId: conversation.id,
+    idempotencyKey: 'openai-boundary',
+    question: 'How many total leads are there?',
+  });
+  assert.equal(transportCalls, 1);
+  assert.equal(output.run.provider_key, 'openai_responses_grounded');
+  assert.equal(output.answer.summary.statement, 'There are 5 leads.');
+  assert.equal(output.result.cost_microunits, 8_000);
 });
 
 test('idempotent replay returns stored evidence and never calls the provider twice', async () => {
@@ -398,6 +448,41 @@ test('timeout and usage budgets fail safely with immutable terminal evidence', a
     }),
     (error: unknown) => error instanceof AdvisorServiceError && error.code === 'provider_budget_exceeded',
   );
+  const expensiveResult = await db(ADVISOR_TABLES.runResults)
+    .where({ tenant_id: expensiveHarness.seeded.tenant.id })
+    .first();
+  assert.equal(Number(expensiveResult.cost_microunits), 50_001);
+});
+
+test('provider maximum-cost preflight blocks a billable call and seals the run', async () => {
+  let calls = 0;
+  const provider: AdvisorModelProvider = {
+    key: 'preflight-budget-provider',
+    version: '1.0.0',
+    estimateMaximumCostMicrounits: () => DEFAULT_ADVISOR_LIMITS.maxCostMicrounits + 1,
+    async answer() {
+      calls += 1;
+      throw new Error('cost preflight must prevent this call');
+    },
+  };
+  const { service } = await harness('advisor-preflight-budget', provider);
+  const conversation = await service.createConversation('advisor-preflight-budget');
+  const request = {
+    conversationId: conversation.id,
+    idempotencyKey: 'preflight-budget',
+    question: 'Give me an overview',
+  };
+  await assert.rejects(
+    service.ask('advisor-preflight-budget', request),
+    (error: unknown) => error instanceof AdvisorServiceError
+      && error.code === 'provider_budget_preflight_exceeded',
+  );
+  await assert.rejects(
+    service.ask('advisor-preflight-budget', request),
+    (error: unknown) => error instanceof AdvisorServiceError
+      && error.code === 'provider_budget_preflight_exceeded',
+  );
+  assert.equal(calls, 0);
 });
 
 test('credentials and unsupported personal identifiers are rejected before persistence', async () => {
@@ -493,6 +578,7 @@ test('authenticated HTTP surface creates, asks, replays, reads context, and enfo
     knex: db,
     integrationReadAuth: auth,
     advisorClock: clock,
+    advisorProvider: new DeterministicAdvisorProvider(),
   });
   const server = app.listen(0);
   await new Promise<void>((resolve) => server.once('listening', resolve));

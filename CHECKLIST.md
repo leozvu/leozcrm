@@ -466,9 +466,9 @@ Phase 8 completes the local control-plane implementation. Real provider
 adapter/credential, target deployment, live canary/monitoring/drills, and the
 external G5/G6/G7 evidence gates remain separately blocked.
 
-19. JARVIS PRODUCT TRACK — PLAN ACCEPTED; PHASE 9A NEXT
--------------------------------------------------------
-Status: PHASE 9A LOCAL CORE COMPLETE ON `codex/leozops-phase9a-conversation-core`; PRODUCTION MODEL ABSENT
+19. JARVIS PRODUCT TRACK — PHASE 9B LOCAL ADAPTER COMPLETE
+----------------------------------------------------------
+Status: PHASE 9A CORE + PHASE 9B ADAPTER COMPLETE LOCALLY; LIVE MODEL EVIDENCE ABSENT
 
 [x] Define the bounded Jarvis v1 outcome and explicit non-goals.
 [x] Record the honest Phase 8 repository/production baseline.
@@ -499,6 +499,30 @@ Phase 9A implementation checklist:
 Phase 9A adds no production model credential, generic SQL/HTTP/filesystem tool,
 action execution, notification scheduler, voice, or external deployment.
 
-Phase 9B remains pending: official production model adapter review, secret
-reference, streaming if required by the cockpit, expanded evaluation threshold,
-and cost/latency SLO evidence. J1 is not a live release until those pass.
+Phase 9B implementation checklist:
+
+[x] Official current model/Responses/Structured Outputs contract reviewed.
+[x] One pinned `gpt-5.6-sol` adapter with fixed official endpoint.
+[x] Strict `advisor_answer_v1` schema plus existing domain/citation validation.
+[x] `store:false`, no tools, no retry, current-turn reasoning, bounded output.
+[x] Deterministic provider remains the default; explicit OpenAI opt-in fails
+    startup without a runtime key.
+[x] Provider body/key redaction and malformed/refused/incomplete/model-drift/
+    usage/content-type/response-size failure handling.
+[x] Versioned input/cached/cache-write/output cost policy and pre-call maximum-
+    cost guard before transport.
+[x] Expanded 12-case eval with 100% contract and 90% behavior thresholds plus
+    per-case latency/token/cost evidence.
+[x] Billable live-eval command requires an exact acknowledgement and key; the
+    unconfigured guard exits nonzero before transport.
+[x] Durable streaming deferred to Phase 10 so partial unvalidated claims cannot
+    become conversation evidence.
+[x] Phase 9B-specific provider/eval and trust-boundary suites 11/11; Phase 9
+    conversation suite 20/20; full regression 332/332; TypeScript PASS.
+[x] 55/55 local links across changed documentation, `git diff --check`, secret scan, and
+    high/critical production dependency audit PASS; no dependency added.
+
+Phase 9B installs no key, makes no live request, and performs no deployment.
+J1 remains open for live use until credential/revocation proof, privacy review,
+accepted live eval, repeated p95 latency/cost, monitoring, named deployment,
+Product Owner SLO acceptance, and real G5 evidence exist.

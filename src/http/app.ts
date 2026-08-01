@@ -67,7 +67,7 @@ export interface CreateAppOptions {
   emailPublisher?: EmailPublishService;
   /** Separate output credential for the egoric-readonly tenant intelligence surfaces. */
   integrationReadAuth?: IntegrationReadAuthConfig;
-  /** Optional Phase 9A provider boundary; defaults to deterministic read-only rules. */
+  /** Optional Advisor provider boundary; environment composition defaults to deterministic rules. */
   advisorProvider?: AdvisorModelProvider;
   advisorLimits?: AdvisorServiceLimits;
   advisorClock?: () => Date;

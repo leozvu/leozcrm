@@ -4,7 +4,7 @@ import { db } from '../db/knex';
 import { BusinessMemoryError, BusinessMemoryRepository } from '../repositories/businessMemoryRepository';
 import { EgoricBriefError, EgoricBriefService } from '../services/egoricBriefService';
 import type { AdvisorModelProvider } from '../domain/advisorConversation';
-import { DeterministicAdvisorProvider } from '../integrations/advisor/deterministicAdvisorProvider';
+import { buildAdvisorProviderFromEnv } from '../integrations/advisor/advisorProviderFactory';
 import { AdvisorConversationRepository, AdvisorRepositoryError } from '../repositories/advisorConversationRepository';
 import { AdvisorConversationService, AdvisorServiceError, AdvisorServiceLimits } from '../services/advisorConversationService';
 import { AdvisorEvidenceError, AdvisorEvidenceService } from '../services/advisorEvidenceService';
@@ -99,7 +99,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     repository,
     advisorRepository,
     advisorEvidence,
-    options.advisorProvider ?? new DeterministicAdvisorProvider(),
+    options.advisorProvider ?? buildAdvisorProviderFromEnv(),
     options.advisorLimits,
     clock,
   );

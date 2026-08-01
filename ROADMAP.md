@@ -324,7 +324,7 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 
 | Phase | Product increment | Status | Release gate |
 |---|---|---|---|
-| 9 | Evidence-grade Ask LeozOps | 🚧 Phase 9A local core complete; production model/evals pending | J1 grounded conversation |
+| 9 | Evidence-grade Ask LeozOps | 🚧 Phase 9A core + Phase 9B OpenAI adapter complete locally; live eval/SLO pending | J1 grounded conversation |
 | 10 | Medieval CEO Cockpit | ⏳ Planned | J2 usable evidence cockpit |
 | 11 | Proactive Nervous System | ⏳ Planned | J3 trustworthy alerts |
 | 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
@@ -338,8 +338,15 @@ conversation evidence contracts, durable CEO context, six fixed read tools, an
 evidence-pack builder, authenticated Ask endpoints, deterministic provider,
 golden evaluations, budgets, failure evidence, and SQLite/PostgreSQL lifecycle
 coverage. It adds no production model credential, action capability, or
-external deployment. Phase 9B must add and evaluate a separately reviewed
-production model adapter before J1 is accepted for a live deployment.
+external deployment.
+
+Phase 9B is implemented on `codex/leozops-phase9b-openai-adapter`: one pinned
+`gpt-5.6-sol` Responses adapter, strict no-tool structured output, stateless
+request semantics, versioned token-cost accounting, billable-call preflight,
+and a 12-case eval runner. Deterministic mode remains the default. No key or
+live request was used, so credential/revocation proof, live eval quality,
+repeated p95 latency/cost, provider monitoring, privacy review, and Product
+Owner SLO acceptance still block live J1.
 
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.

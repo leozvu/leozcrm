@@ -55,9 +55,13 @@ proposal; execution continues through G6/G7 and the Phase 8 controls.
 Phase 9A implements the local J1 contract, fixed evidence projections,
 append-only conversation/context/citation evidence, authenticated Ask routes,
 and deterministic golden tests on
-`codex/leozops-phase9a-conversation-core`. J1 is not accepted for live use: no
-production model adapter, model credential, expanded model evaluation, or
-cost/latency SLO evidence exists, and G5 remains externally blocked.
+`codex/leozops-phase9a-conversation-core`. Phase 9B adds a reviewed, pinned,
+no-tool OpenAI Responses adapter, strict structured output, versioned cost
+policy, pre-call budget guard, and expanded eval runner on
+`codex/leozops-phase9b-openai-adapter`. J1 is not accepted for live use: no
+model credential/revocation proof, live eval result, repeated p95 latency/cost
+sample, privacy approval, provider monitoring, or Product Owner SLO acceptance
+exists, and G5 remains externally blocked.
 
 ## Gate ownership
 
@@ -150,3 +154,8 @@ DECISION-002 addendum 20 defines the Jarvis v1 product checkpoints and permits
 Phase 9A planning. It does not authorize production model access, external
 deployment, source credentials, generic tools, a scheduler, or an action
 adapter. The G-series capability stop rule remains authoritative.
+
+DECISION-002 addendum 22 permits one local, pinned OpenAI Responses adapter and
+frozen evaluation harness. It does not authorize installing a key, making a
+live call, accepting a model/SLO, deploying the adapter, adding model tools, or
+changing any G5/G6/G7 action authority. Default composition remains offline.

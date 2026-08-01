@@ -176,3 +176,8 @@ PostgreSQL when a disposable target is configured.
 - satisfying real G5/G6/G7 or production Jarvis evidence.
 
 Phase 9B model/evaluation work and Phase 10 cockpit work remain separate.
+
+The separately reviewed Phase 9B implementation now lives in
+[`PHASE_9B_OPENAI_ADAPTER.md`](PHASE_9B_OPENAI_ADAPTER.md). It preserves this
+contract and does not retroactively turn Phase 9A local evidence into live J1
+acceptance.

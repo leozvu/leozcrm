@@ -1454,3 +1454,77 @@ Canonical contract and operations:
 [`docs/PHASE_9A_ASK_LEOZOPS.md`](docs/PHASE_9A_ASK_LEOZOPS.md).
 
 ---
+
+# Phase 9B Local Review — OpenAI Responses Advisor Adapter
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase9b-openai-adapter`
+
+Verdict: **REPOSITORY-LOCAL PASS — LIVE MODEL EVIDENCE ABSENT**
+
+## A. Implemented scope
+
+- One fixed `gpt-5.6-sol` adapter calls only the official Responses endpoint
+  through an injected, testable HTTPS boundary. The model and endpoint cannot
+  be redirected by environment configuration.
+- Requests are stateless and non-streaming, use none/current-turn reasoning and
+  strict `advisor_answer_v1` Structured Outputs, expose an empty tool list, and
+  explicitly deny tool choice and parallel tool calls.
+- Only the existing PII-minimized evidence pack and question enter the model
+  input. Evidence and user content are untrusted data. The Phase 9A domain
+  validator remains authoritative for exact fields, citations, numeric claims,
+  PII, and answer size before persistence.
+- Deterministic mode remains the default. OpenAI composition requires an
+  explicit selector and out-of-band key. Unsupported providers/models, missing
+  keys, malformed output limits, wrong response models, incomplete/refused/
+  malformed responses, invalid usage, and provider errors fail closed.
+- The standard 2026-08-01 rate card is versioned in provider identity. Actual
+  response units calculate a persisted microunit estimate; estimated input,
+  a fixed system/schema allowance, and maximum output must fit the run budget
+  before the transport is called.
+- The frozen eval expands to 12 factual, missing-data, action, injection,
+  exfiltration, and PII cases. Acceptance is 100% valid grounded contract and
+  at least 90% expected behavior, with per-case latency/tokens/cost.
+- Live evaluation is a separately acknowledged, billable command. Streaming is
+  deferred to the Phase 10 cockpit boundary so no partial claim is persisted or
+  displayed as accepted evidence.
+
+## B. Verification evidence
+
+- Phase 9B provider/eval and trust-boundary suites: **11/11 PASS**.
+- Phase 9 conversation/evidence suite after cost-preflight addition:
+  **20/20 PASS**.
+- Full repository regression: **332/332 PASS**.
+- Strict TypeScript: **PASS**.
+- Unconfigured live-eval guard: **BLOCKED AS EXPECTED**, exit 1 before any
+  provider call.
+- Local links across changed documentation: **55/55 PASS**.
+- `git diff --check` and repository secret-pattern scan: **PASS**.
+- High-severity production dependency gate: **PASS**, no high/critical
+  finding. The pre-existing one low `body-parser` and one moderate `uuid`
+  advisory remain; Phase 9B adds no dependency.
+- No database migration changed, so the already-passing Phase 9A SQLite and
+  PostgreSQL append-only lifecycle is unchanged. The full SQLite regression
+  reran; no new persistence claim relies on an unexecuted database proof.
+- No real `OPENAI_API_KEY` was installed, no live eval/API request was made, and
+  no cost, latency, quality, or rate-limit result was fabricated.
+
+## C. Gate result
+
+The repository now has a production-shaped, narrow language-model edge without
+expanding data or action authority. This completes the codeable Phase 9B
+adapter/eval boundary, not live J1.
+
+Live J1 still requires a named OpenAI project and deployment, secret injection
+and revocation drill, privacy/data-retention acceptance, passing live eval,
+repeated p95 latency and cost measurements, provider monitoring, Product Owner
+SLO acceptance, and real G5 Observer evidence. G6/G7 action authority is
+unchanged.
+
+Canonical adapter and operations contract:
+[`docs/PHASE_9B_OPENAI_ADAPTER.md`](docs/PHASE_9B_OPENAI_ADAPTER.md).
+
+---

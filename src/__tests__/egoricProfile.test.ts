@@ -5,6 +5,7 @@ import config from '../../knexfile';
 import { createApp, resolveRuntimeProfile } from '../http/app';
 import { signTenantReadToken } from '../http/integrationReadAuth';
 import { seedEgoricMemory } from './support/egoricMemoryScenario';
+import { DeterministicAdvisorProvider } from '../integrations/advisor/deterministicAdvisorProvider';
 
 const db = knexFactory(config.test);
 const AUTH = { secret: 'separate-output-secret', adminKey: 'separate-output-admin' };
@@ -19,6 +20,7 @@ before(async () => {
     profile: 'egoric-readonly',
     knex: db,
     integrationReadAuth: AUTH,
+    advisorProvider: new DeterministicAdvisorProvider(),
   });
   const server = app.listen(0);
   await new Promise<void>((resolve) => server.once('listening', resolve));

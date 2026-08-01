@@ -27,8 +27,9 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
-| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned on `codex/leozops-jarvis-roadmap`; Phase 9A is implemented locally and Phase 9B production-model work is next |
+| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned on `codex/leozops-jarvis-roadmap`; Phase 9A core and the Phase 9B provider boundary are implemented locally |
 | Phase 9A implementation | Evidence packs, fixed read tools, append-only conversation/context/citation/feedback, deterministic bilingual Advisor, budgets, failure evidence, and authenticated Ask routes implemented on `codex/leozops-phase9a-conversation-core`; production model absent |
+| Phase 9B implementation | Pinned `gpt-5.6-sol` Responses adapter, strict structured output, no-tool/stateless request, pre-call cost guard, and 12-case eval implemented on `codex/leozops-phase9b-openai-adapter`; live key/eval/deployment absent |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -108,6 +109,8 @@ path begin:
     product, production, and evidence path from Phase 8 to Jarvis v1.
 30. [`docs/PHASE_9A_ASK_LEOZOPS.md`](docs/PHASE_9A_ASK_LEOZOPS.md) — grounded
     answer contract, typed read tools, APIs, persistence, budgets, and QA.
+31. [`docs/PHASE_9B_OPENAI_ADAPTER.md`](docs/PHASE_9B_OPENAI_ADAPTER.md) — pinned
+    Responses request, cost policy, eval gate, configuration, and live blockers.
 
 ## Non-negotiable boundaries
 
@@ -168,13 +171,15 @@ npm start
 | `npm run ceremony:operator` | Create, verify, seal, recall, or inspect an immutable external handoff |
 | `npm run phase8:preflight` | Recheck exact Phase 8 runtime bindings and adapter registration fail-closed |
 | `npm run activation:operator` | Operate the one-attempt activation control plane when an exact adapter is separately installed |
+| `npm run advisor:eval:openai` | Run the explicitly acknowledged, billable Phase 9B live model eval; blocked by default |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 With `INTEGRATION_MODE=egoric-readonly`, Phase 9A adds authenticated LeozOps-
 owned conversation and context routes documented in
 [`docs/PHASE_9A_ASK_LEOZOPS.md`](docs/PHASE_9A_ASK_LEOZOPS.md). They never
-mutate Egoric; the only checked-in Advisor provider is deterministic and
-network-free.
+mutate Egoric. Composition remains deterministic and network-free unless an
+operator explicitly selects the separately reviewed Phase 9B adapter described
+in [`docs/PHASE_9B_OPENAI_ADAPTER.md`](docs/PHASE_9B_OPENAI_ADAPTER.md).
 
 Do not configure an Egoric production key, enable a production feature flag, or
 deploy this default profile as LeozOps.

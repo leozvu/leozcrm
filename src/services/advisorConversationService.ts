@@ -108,11 +108,23 @@ function validIso(value: unknown, path: string): string {
   return date.toISOString();
 }
 
-function assertUsage(usage: AdvisorProviderUsage, limits: AdvisorServiceLimits): void {
-  const values = [usage.input_units, usage.output_units, usage.cost_microunits];
-  if (values.some((value) => !Number.isSafeInteger(value) || value < 0)) {
+function normalizeUsage(usage: unknown): AdvisorProviderUsage {
+  if (usage === null || typeof usage !== 'object' || Array.isArray(usage)) {
     throw new AdvisorServiceError('provider_usage_invalid', 502, 'provider returned invalid usage');
   }
+  const row = usage as Record<string, unknown>;
+  const values = [row.input_units, row.output_units, row.cost_microunits];
+  if (values.some((value) => typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0)) {
+    throw new AdvisorServiceError('provider_usage_invalid', 502, 'provider returned invalid usage');
+  }
+  return {
+    input_units: Number(row.input_units),
+    output_units: Number(row.output_units),
+    cost_microunits: Number(row.cost_microunits),
+  };
+}
+
+function assertUsageBudget(usage: AdvisorProviderUsage, limits: AdvisorServiceLimits): void {
   if (
     usage.input_units > limits.maxInputUnits
     || usage.output_units > limits.maxOutputUnits
@@ -269,6 +281,7 @@ export class AdvisorConversationService {
     }
 
     let evidencePackHash: string | undefined;
+    let observedUsage: AdvisorProviderUsage | undefined;
     try {
       const evidencePack = await this.evidence.build(tenantKey, requestedAsOf);
       evidencePackHash = evidencePack.hash;
@@ -278,6 +291,23 @@ export class AdvisorConversationService {
       const estimatedInput = Math.ceil((question.length + JSON.stringify(evidencePack).length) / 4);
       if (estimatedInput > this.limits.maxInputUnits) {
         throw new AdvisorServiceError('input_budget_exceeded', 422, 'advisor input exceeds the run budget');
+      }
+      const estimatedMaximumCost = this.provider.estimateMaximumCostMicrounits?.(estimatedInput);
+      if (estimatedMaximumCost !== undefined) {
+        if (!Number.isSafeInteger(estimatedMaximumCost) || estimatedMaximumCost < 0) {
+          throw new AdvisorServiceError(
+            'provider_cost_estimate_invalid',
+            502,
+            'advisor provider returned an invalid cost estimate',
+          );
+        }
+        if (estimatedMaximumCost > this.limits.maxCostMicrounits) {
+          throw new AdvisorServiceError(
+            'provider_budget_preflight_exceeded',
+            422,
+            'advisor provider cannot fit this request inside the run cost budget',
+          );
+        }
       }
 
       const controller = new AbortController();
@@ -301,7 +331,9 @@ export class AdvisorConversationService {
       } finally {
         if (timer) clearTimeout(timer);
       }
-      assertUsage(providerResult.usage, this.limits);
+      const providerUsage = normalizeUsage(providerResult?.usage);
+      observedUsage = providerUsage;
+      assertUsageBudget(providerUsage, this.limits);
       const evidenceKeys = new Set(evidencePack.items.map((item) => item.key));
       const validated = validateAdvisorAnswer(
         providerResult.answer,
@@ -321,7 +353,7 @@ export class AdvisorConversationService {
         evidencePackHash: evidencePack.hash,
         answer: validated,
         evidenceItems: evidencePack.items,
-        usage: providerResult.usage,
+        usage: providerUsage,
       });
       return { ...response, replayed: false };
     } catch (error) {
@@ -335,6 +367,7 @@ export class AdvisorConversationService {
         runId: claim.run.id,
         failureCode: SAFE_FAILURE_RE.test(failureCode) ? failureCode : 'provider_failure',
         evidencePackHash,
+        usage: observedUsage,
       });
       if (error instanceof AdvisorServiceError) throw error;
       if (error instanceof AdvisorContractError) {

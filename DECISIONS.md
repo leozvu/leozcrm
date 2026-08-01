@@ -652,3 +652,37 @@ Decision:
   model selection, external deployment, notification loop, UI, voice, or
   action adapter. These remain Phase 9B or later decisions.
 Owner: Leoz. Recorded by Codex before Phase 9A implementation completion.
+
+DECISION-002 addendum 22 — 2026-08-01 — Phase 9B OpenAI Advisor adapter authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit instruction to continue implementation as approval to add
+  one reviewed OpenAI Responses API adapter behind the frozen Phase 9A
+  provider, evidence, answer, citation, idempotency, and failure contracts on a
+  new branch. This approval covers code, injected transports, frozen evals, and
+  documentation; it does not authorize installing or using a real API key in
+  this session or deploying the adapter.
+- Pin the adapter to the official `gpt-5.6-sol` model and
+  `https://api.openai.com/v1/responses`. Require strict Structured Outputs,
+  stateless storage, current-turn reasoning, one bounded response, no retry,
+  and no configurable endpoint or unreviewed model.
+- Send only the existing PII-minimized structured evidence pack. Expose no
+  function, web, file, browser, SQL, code-execution, scheduler, or action tool.
+  Generated language remains advisory and every persisted claim must pass the
+  existing domain citation validator.
+- Keep deterministic composition as the default. OpenAI requires explicit
+  provider selection plus a runtime `OPENAI_API_KEY`; missing or invalid
+  configuration fails startup. Secrets never enter provider identity,
+  persistence, eval output, logs, fixtures, or errors.
+- Version the reviewed cost rate card and reject a request before transport
+  when its conservative maximum cannot fit the run budget. Add a 12-case eval
+  with 100% contract and 90% behavior thresholds, but require a separately
+  acknowledged billable command before any live evaluation.
+- Keep Phase 9 durable answers non-streaming. Phase 10 may separately design an
+  ephemeral cockpit stream, but it may not persist or present unvalidated
+  partial claims as accepted evidence.
+- J1 remains open for live use until credential revocation, privacy, live eval,
+  repeated cost/latency, monitoring, named deployment, and Product Owner SLO
+  acceptance evidence exist. G5/G6/G7 and all action authority remain
+  unchanged.
+Owner: Leoz. Recorded by Codex before Phase 9B implementation completion.

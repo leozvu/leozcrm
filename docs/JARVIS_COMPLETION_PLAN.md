@@ -339,11 +339,14 @@ Implemented on `codex/leozops-phase9a-conversation-core`:
 Phase 9A explicitly excludes UI, voice, notifications, a production language
 model credential, generic tool use, action execution, and external deployment.
 
-The immediate follow-up is Phase 9B: select and review the production model
-provider, implement its adapter against the frozen answer contract, expand the
-golden evaluation threshold, add cost/latency evidence, and decide whether
-streaming belongs in the provider boundary or the Phase 10 cockpit transport.
-No production key is installed by the repository implementation.
+Phase 9B is implemented locally on
+`codex/leozops-phase9b-openai-adapter`: the provider is pinned to OpenAI
+`gpt-5.6-sol` through the Responses API, the answer contract remains frozen,
+the golden set expands to 12 cases with explicit thresholds, and cost/latency
+reporting plus a pre-call budget guard are present. Durable provider streaming
+is rejected; any ephemeral stream belongs to the separately reviewed Phase 10
+cockpit transport. No production key is installed and no live eval or request
+is claimed, so live J1 remains open.
 
 ## 7. Schedule and critical path
 

@@ -162,6 +162,12 @@ export interface AdvisorProviderInput {
 export interface AdvisorModelProvider {
   readonly key: string;
   readonly version: string;
+  /**
+   * Optional conservative preflight. Network providers use this to reject a
+   * configured maximum response that cannot fit the per-run cost envelope
+   * before any billable request leaves LeozOps.
+   */
+  estimateMaximumCostMicrounits?(estimatedInputUnits: number): number;
   answer(input: AdvisorProviderInput, signal: AbortSignal): Promise<AdvisorProviderResult>;
 }
 
