@@ -305,7 +305,8 @@ authorizes the local control plane on
 - explicit receipt-bound observation, immutable incidents, and explicit
   dual-authorized manual rollback; and
 - ten append-only SQLite/PostgreSQL tables, a fail-closed preflight, one-shot
-  operator, pending template, adversarial tests, and operations runbook.
+  operator, pending template, adversarial tests, operations runbook, automated
+  Node 22/24 plus PostgreSQL 16 QA, and a final completion-evidence packet.
 
 The production activation registry is intentionally empty. No provider SDK,
 real target secret, external call, deployment, scheduler, daemon, background

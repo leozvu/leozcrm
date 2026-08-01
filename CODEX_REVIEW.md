@@ -1280,3 +1280,109 @@ employee workflow change, waiver, or actual autonomy was performed or
 authorized.
 
 ---
+
+# Phase 7 Local Review — Activation Ceremony
+
+Review date: 2026-07-30
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase7-activation-ceremony`
+
+Commit: `90f6d3d`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — EXECUTION ABSENT**
+
+## A. Implemented scope
+
+- One exact ceremony policy binds the latest fresh Phase 6 assessment, all
+  eight effective attestations, and one named target/canary/rollback contract.
+- Three separate credentials authenticate authority, independent verification,
+  and sealing while permitting the solo founder to remain the named actor.
+- Database-derived dossiers, approve/reject verification, one sealed handoff,
+  additive recall, and ordered events are immutable.
+- Every persistence boundary rechecks current upstream evidence and locks the
+  Phase 6 snapshot transactionally.
+- Every handoff remains `not_executed` and
+  `external_execution_required=true`; production adapter composition is empty.
+
+## B. Verification evidence
+
+- Focused Phase 7 suite: **13/13 PASS**.
+- Full repository regression: **285/285 PASS**.
+- Strict TypeScript and SQLite latest → rollback → latest: **PASS**.
+- Disposable PostgreSQL 16 eleven-migration lifecycle, ceremony, immutability,
+  and rollback: **PASS**.
+- Local documentation targets: **58/58 PASS**.
+- High-severity dependency gate: **PASS**, no high/critical finding.
+
+## C. Gate result
+
+Phase 7 can seal and recall an exact external handoff but cannot invoke it. It
+contains no executor, provider SDK, target secret, network call, scheduler,
+daemon, background loop, HTTP mutation route, or deployment authority.
+
+---
+
+# Phase 8 Local Review — Controlled Single Activation
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase8-controlled-activation`
+
+Core commit: `424f486`
+
+Verdict: **REPOSITORY-LOCAL PASS — PRODUCTION ADAPTER ABSENT**
+
+## A. Implemented scope
+
+- One exact Phase 8 policy consumes at most one current unrecalled Phase 7
+  handoff and preserves its target, artifact, configuration, canary, and
+  rollback bindings.
+- Four separate credentials authenticate release, execution, safety
+  observation, and rollback; all differ from every upstream credential.
+- The switch begins engaged. Dual release is short-lived, preview reports zero
+  mutations, and an atomic claim is stored before one adapter invocation.
+- Concurrent callers cannot invoke twice. Invalid/lost responses become
+  terminal unknown incidents, and an expired orphan claim reconciles to
+  unknown without another adapter call.
+- Explicit receipt-bound observation and explicit dual-authorized rollback are
+  idempotent. Nothing triggers automatic retry, observation, or rollback.
+- Ten persistence tables and ordered evidence are append-only on SQLite and
+  PostgreSQL. The one-shot operator rejects unknown input keys and raw secrets
+  never enter policy JSON or storage.
+
+## B. Verification evidence
+
+- Focused Phase 8 suite: **17/17 PASS**.
+- Full repository regression on Node 22: **302/302 PASS**.
+- Isolated Node 24 regression: **302/302 PASS**; TypeScript PASS.
+- SQLite latest → rollback → latest: **PASS**.
+- Disposable PostgreSQL 16 twelve-migration lifecycle, controlled activation,
+  unhealthy observation, incident, manual rollback, ten-table immutability,
+  and full rollback: **PASS**.
+- Pending example preflight: **BLOCKED AS EXPECTED**, exit 2.
+- Production registry assertion: **PASS**, zero activation adapters.
+- GitHub Actions workflow definition review: **PASS**, read-only permissions,
+  Node 22/24 SQLite jobs, high-severity audit, and PostgreSQL 16 lifecycle job.
+  It has not run on GitHub because this branch has not been pushed.
+- Local documentation targets: **63/63 PASS**.
+- Staged secret scan and `git diff --check`: **PASS**.
+- High-severity dependency gate: **PASS**, no high/critical finding.
+
+## C. Gate result
+
+All repository-local Phase 8 work is complete. The exact remaining facts are
+external: named P1/P2 infrastructure, reviewed provider adapter and
+least-privilege secret, production monitoring/idempotency, elapsed shadow
+evidence, real G5/G6 decisions, genuine supervised history, explicit G7
+release, and live incident/rollback drills. Local tests cannot honestly create
+those facts. Until they exist, preflight remains blocked and the checked-in
+production registry remains empty.
+
+Canonical detailed evidence and blocker list:
+[`docs/PHASE_8_COMPLETION_EVIDENCE.md`](docs/PHASE_8_COMPLETION_EVIDENCE.md).
+
+---

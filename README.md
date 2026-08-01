@@ -100,6 +100,8 @@ path begin:
     activation contract and final local proof boundary.
 27. [`docs/PHASE_8_OPERATIONS.md`](docs/PHASE_8_OPERATIONS.md) — release,
     one-attempt claim, observation, incident, and manual rollback runbook.
+28. [`docs/PHASE_8_COMPLETION_EVIDENCE.md`](docs/PHASE_8_COMPLETION_EVIDENCE.md)
+    — final local QA evidence and the exact external blocker boundary.
 
 ## Non-negotiable boundaries
 

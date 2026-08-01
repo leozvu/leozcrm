@@ -454,7 +454,11 @@ Status: COMPLETE ON `codex/leozops-phase8-controlled-activation`; PRODUCTION ADA
     adversarial tests, migration lifecycle, and operations runbook.
 [x] Focused Phase 8 suite 17/17, full regression 302/302, TypeScript PASS,
     SQLite up/down/up, PostgreSQL 16 twelve-migration lifecycle/rollback,
-    61/61 local documentation links, and no high/critical dependency advisory.
+    Node 24 isolated compatibility, 63/63 local documentation links, and no
+    high/critical dependency advisory.
+[x] Read-only GitHub Actions QA for Node 22/24, full SQLite regression,
+    high-severity audit, and disposable PostgreSQL 16 lifecycle.
+[x] Final local evidence packet with explicit non-fabricable external blockers.
 [x] Production activation registry empty; no provider SDK, real secret, network,
     scheduler, daemon, background loop, HTTP mutation route, or deployment.
 
