@@ -316,6 +316,33 @@ sequence; real G5/G6/G7 evidence and production activation remain external.
 
 ---
 
+## Jarvis Product Track — ⏳ Planned
+
+Phase 8 completes the local safety spine; it does not complete the product
+experience or production rollout. The approved plan from this point to Jarvis
+v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
+
+| Phase | Product increment | Status | Release gate |
+|---|---|---|---|
+| 9 | Evidence-grade Ask LeozOps | ⏳ Planned next | J1 grounded conversation |
+| 10 | Medieval CEO Cockpit | ⏳ Planned | J2 usable evidence cockpit |
+| 11 | Proactive Nervous System | ⏳ Planned | J3 trustworthy alerts |
+| 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
+| 13 | Goal-aware Planner | ⏳ Planned | J5 reproducible plans |
+| 14 | One real supervised hand | ⏳ Gate-bound | J6 / real G6 history |
+| 15 | Bounded Autopilot | ⏳ Gate-bound | J7 / real G7 canary |
+| 16 | Ambient Jarvis and v1 | ⏳ Planned | J8 / 30-day release acceptance |
+
+Phase 9A is the immediate repository task: conversation evidence contracts,
+durable CEO context, typed read tools, an evidence-pack builder, authenticated
+Ask endpoints, deterministic provider tests, and golden evaluations. It adds no
+production model credential, action capability, or external deployment.
+
+The product and production-truth lanes may overlap while waiting for external
+elapsed evidence, but they must converge before any real command is enabled.
+
+---
+
 ## Legacy Foundation (historical — completion evidence intact)
 
 The standalone LeozOps application track. Preserved as history per

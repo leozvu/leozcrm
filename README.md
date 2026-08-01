@@ -27,6 +27,7 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
+| Jarvis product track | Phases 9-16 and J1-J8 product checkpoints planned on `codex/leozops-jarvis-roadmap`; Phase 9A evidence-grade conversation is next |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -102,6 +103,8 @@ path begin:
     one-attempt claim, observation, incident, and manual rollback runbook.
 28. [`docs/PHASE_8_COMPLETION_EVIDENCE.md`](docs/PHASE_8_COMPLETION_EVIDENCE.md)
     — final local QA evidence and the exact external blocker boundary.
+29. [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md) — the
+    product, production, and evidence path from Phase 8 to Jarvis v1.
 
 ## Non-negotiable boundaries
 

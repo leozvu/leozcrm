@@ -600,3 +600,29 @@ Decision:
   call. A real activation remains a separate deployment/configuration act using
   a reviewed adapter and least-privilege secret outside this implementation.
 Owner: Leoz. Recorded by Codex before Phase 8 implementation.
+
+DECISION-002 addendum 20 — 2026-08-01 — Jarvis completion track approved
+Status: Approved by Leoz (Product Owner) as the planning baseline.
+Decision:
+- Treat the instruction to plan and continue toward an Iron-Man-like Jarvis as
+  approval to define the bounded LeozOps Jarvis v1 outcome and its ordered
+  product/evidence roadmap in `docs/JARVIS_COMPLETION_PLAN.md`.
+- Stop extending abstract activation control planes as the default next move.
+  Prioritize visible vertical product increments: evidence-grade conversation,
+  the CEO cockpit, proactive alerts, live read-only trust, goal-aware planning,
+  one real supervised command, and only then bounded autonomy and ambient
+  access.
+- Run repository product work and external production-truth work as two lanes
+  only where external elapsed evidence would otherwise idle development. Test
+  providers, fixtures, disposable databases, and simulated dates never satisfy
+  live G5/G6/G7 or Jarvis release evidence.
+- Authorize Phase 9A as the immediate proposed repository increment: durable
+  CEO conversation/context contracts, typed read-only tools, grounded evidence
+  packs, authenticated Ask endpoints, deterministic provider tests, and golden
+  evaluations. This planning decision does not authorize a production language
+  model credential, generic tool access, action adapter, deployment, source
+  credential, external mutation, scheduler, or autonomous runtime.
+- Preserve Egoric as the operational system of record and preserve every
+  existing release gate. Conversation, a medieval interface, voice, or Jarvis
+  language must never be interpreted as execution authority.
+Owner: Leoz. Recorded by Codex from the explicit request to plan and continue.

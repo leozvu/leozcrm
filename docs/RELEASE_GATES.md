@@ -30,6 +30,28 @@ one-attempt control plane with explicit observation and manual rollback. The
 checked-in production activation registry remains empty, so no real target can
 be invoked and no local result satisfies the external G7 evidence gate.
 
+## Jarvis product checkpoints
+
+The J-series checkpoints measure whether the product experience is complete;
+they do not replace or waive G0-G7 capability authority. Their detailed scope
+and evidence are defined in
+[`JARVIS_COMPLETION_PLAN.md`](JARVIS_COMPLETION_PLAN.md).
+
+| Checkpoint | Product evidence | Capability dependency |
+|---|---|---|
+| **J1 — Grounded conversation** | Typed read tools, evidence citations, durable context, golden evaluations, isolation and failure safety | Read-only; G1-G4 facts only |
+| **J2 — Evidence cockpit** | North Star usability, drill-down provenance, accessible states, unambiguous approval/execution status | J1 |
+| **J3 — Trustworthy alerts** | Deterministic triggers, deduplication, cooldown, delivery/replay evidence, accepted false-positive baseline | J1-J2 |
+| **J4 — Live Observer** | Named deployment and real G5 `go` after network proof and elapsed shadow | G5 |
+| **J5 — Reproducible plans** | Versioned goals, constraints, assumptions, comparisons, checkpoints, and decision history | J1 and current evidence |
+| **J6 — Supervised hand** | One narrow adapter plus accepted live supervised execution and observation history | G5 and exact G6 release |
+| **J7 — Bounded canary** | Real supervised history, simulation, narrow canary, kill-switch and recovery evidence | G7 |
+| **J8 — Jarvis v1** | Live outcome checklist, 30-day SLO/quality acceptance, no P0/P1 blocker, operable recovery/export | J1-J7 |
+
+Passing J1, J2, J3, or J5 grants no write capability. A conversational model,
+interface approval, plan acceptance, or proactive trigger may only create a
+proposal; execution continues through G6/G7 and the Phase 8 controls.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.
@@ -116,3 +138,8 @@ control plane and deterministic injected test adapters. It does not authorize
 a provider SDK, real credential, deployment, live call, scheduler, automatic
 retry, automatic observation, or automatic rollback. A production adapter must
 arrive through a separately reviewed and explicitly authorized change.
+
+DECISION-002 addendum 20 defines the Jarvis v1 product checkpoints and permits
+Phase 9A planning. It does not authorize production model access, external
+deployment, source credentials, generic tools, a scheduler, or an action
+adapter. The G-series capability stop rule remains authoritative.

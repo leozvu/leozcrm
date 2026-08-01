@@ -465,3 +465,33 @@ Status: COMPLETE ON `codex/leozops-phase8-controlled-activation`; PRODUCTION ADA
 Phase 8 completes the local control-plane implementation. Real provider
 adapter/credential, target deployment, live canary/monitoring/drills, and the
 external G5/G6/G7 evidence gates remain separately blocked.
+
+19. JARVIS PRODUCT TRACK — PLAN ACCEPTED; PHASE 9A NEXT
+-------------------------------------------------------
+Status: PLANNED ON `codex/leozops-jarvis-roadmap`; NO NEW RUNTIME CAPABILITY
+
+[x] Define the bounded Jarvis v1 outcome and explicit non-goals.
+[x] Record the honest Phase 8 repository/production baseline.
+[x] Split product work from non-fabricable production-truth work.
+[x] Define J1-J8 acceptance checkpoints without weakening G0-G7.
+[x] Order Phases 9-16 through conversation, cockpit, proactive delivery, live
+    trust, planning, one supervised hand, bounded autonomy, and v1 release.
+[x] Define the solo-founder critical path, estimate, external elapsed windows,
+    and stop rules.
+
+Phase 9A implementation checklist:
+
+[ ] Fact/inference/recommendation/limitation answer contract.
+[ ] Tenant-scoped conversation, message, run, citation, feedback, goal,
+    constraint, and decision schemas.
+[ ] Evidence-pack builder over approved Business Memory and CEO Brief facts.
+[ ] Typed read-only tool registry and deterministic model-provider double.
+[ ] Authenticated, idempotent conversation create/read/ask routes.
+[ ] Golden factual/comparative/insufficient/stale/adversarial question set.
+[ ] Tenant isolation, prompt-injection, replay, budget, timeout, and provider-
+    failure tests.
+[ ] SQLite/PostgreSQL migrations, immutability proof, full regression,
+    TypeScript, dependency, and documentation QA.
+
+Phase 9A adds no production model credential, generic SQL/HTTP/filesystem tool,
+action execution, notification scheduler, voice, or external deployment.
