@@ -367,6 +367,15 @@ scheduler remain absent. A named deployment, at least 20 genuine reviews,
 accepted volume/FPR, delivery SLO evidence, and Product Owner acceptance still
 block live J3.
 
+Phase 12 is implemented on `codex/leozops-phase12-live-observer`: the compiled
+read-only runtime now has a non-root production image, exact deployment and
+secret-reference preflight, scheduler-owned one-shot poll/evaluate composition,
+append-only operational/recovery evidence, redacted request/trace logs,
+protected aggregate telemetry, and a disposable-only restore drill. This is a
+repository candidate, not a live Observer. The named platform, real network,
+P1/P2, at least ten actual business days, live drills, monitoring acceptance,
+and a real G5 `go` still block J4.
+
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.
 

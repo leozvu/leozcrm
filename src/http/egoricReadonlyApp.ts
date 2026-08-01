@@ -26,6 +26,9 @@ import { createAdvisorConversationRouter } from './routes/advisorConversation';
 import { createCockpitApiRouter } from './routes/cockpit';
 import { createCockpitExperienceRouter } from './routes/cockpitExperience';
 import { createProactiveAlertRouter } from './routes/proactiveAlerts';
+import { createOperationalHealthRouter } from './routes/operationalHealth';
+import { OperationalHealthRepository } from '../repositories/operationalHealthRepository';
+import { requestObservability, StructuredLogger } from '../observability/structuredLogger';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -35,6 +38,10 @@ export interface EgoricReadonlyAppOptions {
   advisorClock?: () => Date;
   proactiveClock?: () => Date;
   notificationDeliveryRegistry?: NotificationDeliveryRegistry;
+  structuredLogger?: StructuredLogger;
+  deploymentFingerprint?: string;
+  observabilityCredentialFingerprint?: string;
+  maxFreshnessSeconds?: number;
 }
 
 /** Read-only-to-Egoric runtime: health, cockpit, brief, and tenant-scoped Advisor memory. */
@@ -42,9 +49,18 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   const app = express();
   const knex = options.knex ?? db;
   app.disable('x-powered-by');
+  if (options.structuredLogger) app.use(requestObservability(options.structuredLogger));
   app.get('/health', (_req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.json({ ok: true, profile: 'egoric-readonly' });
+  });
+  app.get('/startup', (_req, res) => {
+    res.setHeader('Cache-Control', 'no-store');
+    res.json({
+      ok: true,
+      profile: 'egoric-readonly',
+      deployment_fingerprint: options.deploymentFingerprint ?? 'local-unbound',
+    });
   });
   app.get('/ready', async (_req, res) => {
     res.setHeader('Cache-Control', 'no-store');
@@ -92,6 +108,8 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         'proactive_delivery_outbox',
         'proactive_delivery_attempts',
         'proactive_delivery_results',
+        'live_observer_events',
+        'live_recovery_drills',
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();
@@ -99,6 +117,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
       res.status(migrationsCurrent ? 200 : 503).json({
         ok: migrationsCurrent,
         profile: 'egoric-readonly',
+        ...(options.deploymentFingerprint ? { deployment_fingerprint: options.deploymentFingerprint } : {}),
         checks: { db: 'ok', migrations_current: migrationsCurrent },
       });
     } catch {
@@ -136,6 +155,11 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   // The public shell contains no tenant data or credential. Every cockpit data
   // request still crosses the separately authenticated /v1 boundary below.
   app.use('/cockpit', createCockpitExperienceRouter());
+  app.use('/internal/operations', createOperationalHealthRouter(
+    new OperationalHealthRepository(knex, clock),
+    options.observabilityCredentialFingerprint,
+    options.maxFreshnessSeconds ?? 900,
+  ));
   app.use('/v1', authenticateIntegrationRead(auth));
   app.use('/v1/tenants', createEgoricBriefRouter(brief));
   app.use('/v1/tenants', createCockpitApiRouter(cockpit));
@@ -164,11 +188,14 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
       return;
     }
     if (error instanceof BusinessMemoryError) {
-      console.error('[egoric-readonly] business memory request failed', { code: error.code });
+      options.structuredLogger?.log('error', 'business_memory_request_failed', { code: error.code });
+      if (!options.structuredLogger) console.error('[egoric-readonly] business memory request failed', { code: error.code });
     } else if (error instanceof AdvisorRepositoryError || error instanceof AdvisorEvidenceError) {
-      console.error('[egoric-readonly] advisor request failed', { code: error.code });
+      options.structuredLogger?.log('error', 'advisor_request_failed', { code: error.code });
+      if (!options.structuredLogger) console.error('[egoric-readonly] advisor request failed', { code: error.code });
     } else {
-      console.error('[egoric-readonly] request failed', { code: 'internal_error' });
+      options.structuredLogger?.log('error', 'readonly_request_failed', { code: 'internal_error' });
+      if (!options.structuredLogger) console.error('[egoric-readonly] request failed', { code: 'internal_error' });
     }
     res.status(500).json({ error: 'internal error', code: 'internal_error' });
   });

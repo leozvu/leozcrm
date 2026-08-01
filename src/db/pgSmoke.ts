@@ -29,6 +29,7 @@ import {
   computeEgoricSnapshotId,
 } from '../domain/businessMemory';
 import { SOURCE_RECONCILIATION_TABLE } from '../domain/sourceOperations';
+import { PHASE12_TABLES } from './migrations/20260801210000_create_live_observer_control_plane';
 import { BusinessMemoryRepository } from '../repositories/businessMemoryRepository';
 import { SourceOperationsRepository } from '../repositories/sourceOperationsRepository';
 import { EgoricBriefService } from '../services/egoricBriefService';
@@ -171,6 +172,7 @@ async function main(): Promise<void> {
       ...Object.values(PHASE8_TABLES),
       ...Object.values(ADVISOR_TABLES),
       ...Object.values(PROACTIVE_TABLES),
+      ...Object.values(PHASE12_TABLES),
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {

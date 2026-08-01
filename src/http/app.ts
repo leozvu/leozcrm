@@ -32,6 +32,7 @@ import type { IntegrationReadAuthConfig } from './integrationReadAuth';
 import type { AdvisorModelProvider } from '../domain/advisorConversation';
 import type { AdvisorServiceLimits } from '../services/advisorConversationService';
 import type { NotificationDeliveryRegistry } from '../integrations/notifications/notificationDeliveryRegistry';
+import type { StructuredLogger } from '../observability/structuredLogger';
 
 export type RuntimeProfile = 'legacy' | 'egoric-readonly';
 
@@ -74,6 +75,10 @@ export interface CreateAppOptions {
   advisorClock?: () => Date;
   proactiveClock?: () => Date;
   notificationDeliveryRegistry?: NotificationDeliveryRegistry;
+  structuredLogger?: StructuredLogger;
+  deploymentFingerprint?: string;
+  observabilityCredentialFingerprint?: string;
+  maxFreshnessSeconds?: number;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -98,6 +103,10 @@ export function createApp(options: CreateAppOptions = {}) {
       advisorClock: options.advisorClock,
       proactiveClock: options.proactiveClock,
       notificationDeliveryRegistry: options.notificationDeliveryRegistry,
+      structuredLogger: options.structuredLogger,
+      deploymentFingerprint: options.deploymentFingerprint,
+      observabilityCredentialFingerprint: options.observabilityCredentialFingerprint,
+      maxFreshnessSeconds: options.maxFreshnessSeconds,
     });
   }
   const app = express();

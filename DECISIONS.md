@@ -734,3 +734,26 @@ Decision:
   reviews, accepted <=10% false positives and <=3 alerts/day, delivery SLO and
   incident evidence, named deployment, real G5, and Product Owner acceptance.
 Owner: Leoz. Recorded by Codex before Phase 11 implementation completion.
+
+DECISION-002 addendum 25 — 2026-08-01 — Phase 12 live observer authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit request to implement Phase 12 as approval for production
+  packaging, fail-closed deployment configuration, one-shot observer
+  orchestration, operational telemetry, recovery tooling, tests, and docs on a
+  new branch. It does not authorize provisioning or deployment.
+- Preserve the existing P1/P2 and read-only source boundary. The observer may
+  run one source poll followed by one deterministic proactive evaluation; it
+  may not start in the HTTP process, mutate Egoric, or acquire action authority.
+- Require an accepted exact target manifest with secret references only and
+  matching runtime, database, and Egoric identities. Missing target, binding,
+  credential, or migration blocks startup/operator execution.
+- Emit structured redacted logs, request/trace correlation, protected
+  aggregate telemetry, and append-only observer/recovery evidence.
+- Permit backup from the named PostgreSQL service. Permit automated restore
+  only to a differently named disposable service after an exact acknowledgement;
+  production restoration remains an external human incident procedure.
+- Keep J4 open. A container, CI PostgreSQL, fixture, simulated date, or local
+  drill cannot substitute for the named platform, P1/P2, ten elapsed business
+  days, live drills, monitoring evidence, and a real G5 `go`.
+Owner: Leoz. Recorded by Codex before Phase 12 implementation completion.

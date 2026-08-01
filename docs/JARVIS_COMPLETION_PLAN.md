@@ -193,6 +193,12 @@ Estimated solo effort: **6-9 focused development days**.
 
 Goal: replace local proof with a trustworthy recurring production read loop.
 
+Repository status (2026-08-01): implemented on
+`codex/leozops-phase12-live-observer`. The container definition, scoped
+preflight, one-shot observer, immutable evidence, observability, and guarded
+recovery tooling are repository-complete; every external item and live J4
+remain open.
+
 Repository work:
 
 - production container/runtime profile, migration command, readiness probes,

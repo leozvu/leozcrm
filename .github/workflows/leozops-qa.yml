@@ -41,6 +41,9 @@ jobs:
       - name: Strict TypeScript check
         run: npm run typecheck
 
+      - name: Phase 12 live-observer safety suite
+        run: npm run test:phase12
+
       - name: Full SQLite regression
         run: npm test
 
@@ -86,5 +89,20 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
 
+      - name: Compile production runtime
+        run: npm run build
+
       - name: Migrate, exercise, prove immutability, and roll back
         run: npm run db:smoke:pg
+
+  container-build:
+    name: Production container build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build non-publishing production image
+        run: docker build --tag leozops:${{ github.sha }} .

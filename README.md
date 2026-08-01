@@ -27,11 +27,12 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
-| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned; Phase 9A/9B, Phase 10, and the Phase 11 proactive nervous system are implemented locally |
+| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned; Phase 9A/9B, Phase 10, Phase 11, and the Phase 12 live-observer runtime are implemented locally |
 | Phase 9A implementation | Evidence packs, fixed read tools, append-only conversation/context/citation/feedback, deterministic bilingual Advisor, budgets, failure evidence, and authenticated Ask routes implemented on `codex/leozops-phase9a-conversation-core`; production model absent |
 | Phase 9B implementation | Pinned `gpt-5.6-sol` Responses adapter, strict structured output, no-tool/stateless request, pre-call cost guard, and 12-case eval implemented on `codex/leozops-phase9b-openai-adapter`; live key/eval/deployment absent |
 | Phase 10 implementation | Responsive medieval CEO cockpit, evidence drill-down, validated Ask reveal, and sealed Command Deck implemented on `codex/leozops-phase10-medieval-cockpit`; founder/live J2 acceptance absent |
 | Phase 11 implementation | Deterministic alerts, append-only state/outbox evidence, replay-safe delivery boundary, founder outcomes, shadow evaluator, and one-shot operator implemented on `codex/leozops-phase11-proactive-nervous-system`; live channel/scheduler/baseline and J3 acceptance absent |
+| Phase 12 implementation | Production image, fail-closed deployment preflight, one-shot poll/evaluate orchestration, append-only operations/recovery evidence, structured traces/logs, protected aggregate telemetry, and disposable-only restore drill implemented on `codex/leozops-phase12-live-observer`; named platform, elapsed shadow, and J4 absent |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -181,6 +182,9 @@ npm start
 | `npm run activation:operator` | Operate the one-attempt activation control plane when an exact adapter is separately installed |
 | `npm run advisor:eval:openai` | Run the explicitly acknowledged, billable Phase 9B live model eval; blocked by default |
 | `npm run proactive:operator -- <command> <input.json>` | Run one authenticated Phase 11 evaluate, daily brief, deliver, status, or shadow-status command and exit |
+| `npm run live:preflight` | Validate the exact Phase 12 target, identities, secret references, and read-only safety contract |
+| `npm run live:operator -- <input.json>` | Run one scheduler-owned poll → proactive-evaluation cycle and append immutable evidence |
+| `npm run recovery:operator -- <backup\|restore> <key> <path>` | Create a verified backup or restore only into an acknowledged disposable PostgreSQL target |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 With `INTEGRATION_MODE=egoric-readonly`, Phase 9A adds authenticated LeozOps-
@@ -196,6 +200,13 @@ Phase 11 adds evidence-backed alert views and founder-owned acknowledgement,
 snooze, and outcome evidence to that cockpit; evaluation and delivery remain
 one-shot operator commands documented in
 [`docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md`](docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md).
+Phase 12 packages that read path as a production container and one-shot live
+observer with fail-closed deployment identity, structured observability, and a
+disposable-only recovery drill. The code and live acceptance boundary are
+documented in
+[`docs/PHASE_12_LIVE_OBSERVER.md`](docs/PHASE_12_LIVE_OBSERVER.md); J4 remains
+open until a named environment supplies ten real business days and a real G5
+`go`.
 
 Do not configure an Egoric production key, enable a production feature flag, or
 deploy this default profile as LeozOps.

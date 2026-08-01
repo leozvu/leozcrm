@@ -587,3 +587,41 @@ Status: IMPLEMENTED ON `codex/leozops-phase11-proactive-nervous-system`; LIVE J3
 
 Phase 11 adds no Egoric mutation, background agent, production delivery
 adapter, scheduler, provider credential, deployment, or action authority.
+
+22. PHASE 12 LIVE OBSERVER — REPOSITORY PASS CANDIDATE
+------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase12-live-observer`; LIVE J4 OPEN
+
+[x] Multi-stage Node 24 production image, non-root runtime, PostgreSQL client,
+    compiled JavaScript start path, and health probe.
+[x] Compiled/source migration extension selection and production database
+    configuration with no fallback credential.
+[x] Exact production/read-only deployment schema, secret-reference validation,
+    injected-binding check, and runtime/database/Egoric identity preflight.
+[x] Scheduler-owned one-shot source-poll → proactive-evaluation operator with
+    bounded child processes and no web-server loop.
+[x] Append-only observer event and backup/restore drill evidence on SQLite and
+    PostgreSQL-compatible migrations.
+[x] JSON log redaction, request IDs, W3C trace propagation, startup/readiness
+    probes, and separately authenticated aggregate JSON/Prometheus telemetry.
+[x] Telemetry covers freshness, reconciliation, poll failure/latency, Advisor
+    cost/latency, delivery, observer outcomes, incidents, and recovery status.
+[x] Backup hashing and restore guard that requires a distinct disposable
+    PostgreSQL service plus exact acknowledgement.
+[x] Phase 12 unit/integration safety suite and CI build/container/PostgreSQL jobs.
+[x] Focused Phase 12 suite 8/8; full registered regression 348/348; strict
+    TypeScript, production compile, compiled-JavaScript migration, 54 local
+    documentation links, diff check, and high/critical dependency audit PASS.
+[ ] Execute the container-build and Phase 12 PostgreSQL lifecycle jobs. The
+    local Docker CLI exists but its Linux daemon was not running; CI is
+    registered but this branch has not been pushed.
+[ ] Fill and accept the exact provider/project/service/region/database/source
+    deployment manifest; provision runtime, PostgreSQL, scheduler, secrets,
+    dashboard, alert route, and least-privilege Egoric credential.
+[ ] Pass P1/P2, ten actual business days, reconciliation, revocation, restore,
+    incident, cost/latency, delivery, and owner-acceptance evidence.
+[ ] Issue a real evidence-backed G5 `go`; until then J4 remains open.
+
+Phase 12 adds no production environment, credential, scheduler invocation,
+network proof, elapsed evidence, notification adapter, Egoric mutation, or
+action authority in this repository.

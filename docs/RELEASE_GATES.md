@@ -78,6 +78,15 @@ versioned shadow evaluator. J3 is not accepted: there is no deployed scheduler
 or delivery adapter and no genuine 20-review volume/FPR baseline, delivery SLO,
 named deployment, or Product Owner acceptance.
 
+Phase 12 implements the repository-side J4 candidate on
+`codex/leozops-phase12-live-observer`: production packaging, exact target and
+secret-reference preflight, one-shot read observer, immutable cycle/recovery
+evidence, structured observability, protected aggregate telemetry, and a
+disposable-only restore drill. J4 is not accepted. The named platform and
+credentials are not provisioned, no P1/P2 production run or ten elapsed
+business days exist, live revocation/restore/incident drills have not run, and
+no evidence-backed G5 `go` has been issued.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.
