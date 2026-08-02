@@ -1,12 +1,12 @@
 # LeozOps Jarvis Completion Plan
 
-Status: **Approved planning baseline; implementation remains gate-bound**
+Status: **Approved baseline; repository implementation complete through Phase 13, live gates remain gate-bound**
 
 Approved by: Leoz, Product Owner
 
 Effective: 2026-08-01
 
-Current repository baseline: `codex/leozops-phase11-proactive-nervous-system`
+Current repository baseline: `codex/leozops-phase13-goal-aware-planner`
 
 ## 1. Outcome
 
@@ -226,6 +226,13 @@ of elapsed shadow evidence** after the environment is ready.
 ### Phase 13 — Goal-aware Planner
 
 Goal: turn recommendations into explicit, reviewable plans.
+
+Repository status (2026-08-01): implemented on
+`codex/leozops-phase13-goal-aware-planner`. Versioned goal and plan graphs,
+evidence fingerprints, conflicts, simulations/comparison, founder decisions,
+checkpoints/outcomes, tenant APIs, cockpit review, SQLite/PostgreSQL lifecycle,
+and the G6/no-action boundary are repository-complete. Named live review and
+Product Owner J5 acceptance remain open.
 
 Deliverables:
 

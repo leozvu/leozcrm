@@ -757,3 +757,27 @@ Decision:
   drill cannot substitute for the named platform, P1/P2, ten elapsed business
   days, live drills, monitoring evidence, and a real G5 `go`.
 Owner: Leoz. Recorded by Codex before Phase 12 implementation completion.
+
+DECISION-002 addendum 26 — 2026-08-01 — Phase 13 goal-aware Planner authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit request to continue with Phase 13 as approval to implement
+  strict durable goals, deterministic plan versions, conflict detection,
+  simulations/comparison, checkpoints, outcomes, tenant APIs, cockpit review,
+  tests, and documentation on a new branch.
+- Bind each plan to one immutable goal version, accepted source snapshot,
+  intelligence run, formula, cutoff, policy version, and complete graph hash.
+  Goal or source changes create append-only versions; silent mutation is denied.
+- Permit founder accept/reject decisions and useful/not-useful outcomes because
+  they mutate only LeozOps-owned evidence. Acceptance records intent and grants
+  no action authority.
+- Require every action-shaped step to contain no command payload or adapter,
+  remain `not_authorized`, and route only to the existing separately gated G6
+  proposal/preview/approval path.
+- Treat scenarios as deterministic planning heuristics with explicit
+  uncertainty, not causal or revenue forecasts. Blocking evidence, goal,
+  policy, budget, or capacity conflicts prevent acceptance.
+- Keep live J5 open. Local SQLite, PostgreSQL CI, fixtures, or simulated dates
+  cannot replace a named-deployment founder review using accepted live J1
+  evidence and explicit Product Owner acceptance.
+Owner: Leoz. Recorded by Codex before Phase 13 implementation completion.

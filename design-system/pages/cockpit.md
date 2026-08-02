@@ -2,10 +2,11 @@
 
 Inherits `design-system/MASTER.md`.
 
-The cockpit has five destinations: Today, Ask LeozOps, Business,
-Recommendations, and Command Deck. Today is the default and must answer the
-North Star questions without scrolling on a 1440px viewport when representative
-data exists.
+The cockpit has five destinations: Today, Ask LeozOps, Business, Planner, and
+Command Deck. Recommendations remain evidence-bound advisory inputs inside
+Planner rather than consuming a sixth navigation slot. Today is the default and
+must answer the North Star questions without scrolling on a 1440px viewport
+when representative data exists.
 
 ## Hierarchy
 
@@ -13,7 +14,8 @@ data exists.
 2. Current business state and evidence-backed attention items.
 3. Ask LeozOps composer and validated answer/citation stream.
 4. Funnel, source quality, and explicit historical-data limitation.
-5. Advisory recommendations.
+5. Planner: advisory recommendations feed versioned goals, deterministic plans,
+   comparisons, decisions, checkpoints, and outcomes.
 6. Command Deck authority boundary.
 
 The Command Deck uses a visible sealed state. `Approval is not execution` is
@@ -39,3 +41,12 @@ change, cooldown, and snooze gates instead of implying monitoring failed.
 - Ask timeout/failure: keep the question visible and offer retry.
 - Reduced motion/high contrast: no progressive animation requirement and
   stronger system borders/focus colors.
+
+## Phase 13 planner boundary
+
+- The same goal version and evidence set must produce the same plan graph.
+- Accepting a plan records operator intent only; it grants no execution authority.
+- Recommendations appear inside Planner so mobile navigation remains limited to
+  five labelled destinations.
+- Plans expose evidence, conflicts, simulations, comparison, decision state,
+  checkpoints, and outcomes without hiding uncertainty.

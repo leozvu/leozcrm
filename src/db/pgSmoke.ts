@@ -100,6 +100,9 @@ import { DeterministicAdvisorProvider } from '../integrations/advisor/determinis
 import { AdvisorConversationRepository } from '../repositories/advisorConversationRepository';
 import { AdvisorConversationService, DEFAULT_ADVISOR_LIMITS } from '../services/advisorConversationService';
 import { AdvisorEvidenceService } from '../services/advisorEvidenceService';
+import { PLANNER_GOAL_SCHEMA, PLANNER_TABLES, PlannerGoalManifest } from '../domain/planner';
+import { PlannerRepository } from '../repositories/plannerRepository';
+import { PlannerService } from '../services/plannerService';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -173,6 +176,7 @@ async function main(): Promise<void> {
       ...Object.values(ADVISOR_TABLES),
       ...Object.values(PROACTIVE_TABLES),
       ...Object.values(PHASE12_TABLES),
+      ...Object.values(PLANNER_TABLES),
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -311,6 +315,81 @@ async function main(): Promise<void> {
       throw new Error('expected Advisor idempotent replay on PostgreSQL');
     }
     console.log('  conversation, context, citation, feedback, and idempotent replay verified.');
+
+    console.log('Postgres smoke: exercising the goal-aware Planner…');
+    const plannerService = new PlannerService(
+      new PlannerRepository(db, () => sourceNow),
+      memory,
+      advisorBrief,
+      () => sourceNow,
+    );
+    const plannerGoal: PlannerGoalManifest = {
+      schema_version: PLANNER_GOAL_SCHEMA,
+      goal_key: 'pg_smoke_pipeline_goal',
+      title: 'Create an evidence-bound pipeline plan',
+      metric: { key: 'active_pipeline', direction: 'increase', target_value: 1, unit: 'count' },
+      horizon: { starts_on: '2026-07-29', target_on: '2026-08-29' },
+      constraints: { max_steps: 4, max_effort_points: 10, action_candidates_allowed: true },
+      assumptions: [{
+        key: 'snapshot_is_current',
+        statement: 'The admitted snapshot is the accepted current-state boundary.',
+        confidence: 'high',
+        evidence_keys: ['brief.provenance.source_snapshot_id'],
+      }],
+      owner: 'Leoz',
+    };
+    const plannerGoalRecord = await plannerService.createGoal(tenant.tenant_key, {
+      idempotencyKey: 'pg-smoke-planner-goal-0001', goal: plannerGoal,
+    });
+    const plannerPlan = await plannerService.generatePlan(tenant.tenant_key, {
+      goalVersionId: plannerGoalRecord.goal.id,
+      planKey: 'pg-smoke-plan',
+      strategy: 'balanced',
+      asOf: sourceNow.toISOString(),
+      idempotencyKey: 'pg-smoke-planner-plan-0001',
+    });
+    const plannerDecision = await plannerService.decide(tenant.tenant_key, {
+      planId: plannerPlan.view.plan.id,
+      idempotencyKey: 'pg-smoke-planner-decision-0001',
+      decision: 'accepted',
+      reasonCode: 'pg_smoke_founder_review',
+    });
+    const plannerCheckpoint = await plannerService.checkpoint(tenant.tenant_key, {
+      planId: plannerPlan.view.plan.id,
+      idempotencyKey: 'pg-smoke-planner-checkpoint-0001',
+      asOf: sourceNow.toISOString(),
+    });
+    const plannerOutcome = await plannerService.outcome(tenant.tenant_key, {
+      planId: plannerPlan.view.plan.id,
+      idempotencyKey: 'pg-smoke-planner-outcome-0001',
+      outcome: 'useful',
+      note: 'PostgreSQL planner lifecycle verified.',
+    });
+    const blockedPlannerGoal = await plannerService.createGoal(tenant.tenant_key, {
+      idempotencyKey: 'pg-smoke-planner-blocked-goal-0001',
+      goal: {
+        ...plannerGoal,
+        goal_key: 'pg_smoke_blocked_goal',
+        constraints: { ...plannerGoal.constraints, max_steps: 3 },
+      },
+    });
+    const blockedPlannerPlan = await plannerService.generatePlan(tenant.tenant_key, {
+      goalVersionId: blockedPlannerGoal.goal.id,
+      planKey: 'pg-smoke-blocked-plan',
+      strategy: 'balanced',
+      asOf: sourceNow.toISOString(),
+      idempotencyKey: 'pg-smoke-planner-blocked-plan-0001',
+    });
+    if (
+      plannerDecision.record.grants_action_authority !== false
+      || plannerCheckpoint.record.verdict !== 'no_progress'
+      || plannerOutcome.record.outcome !== 'useful'
+      || plannerPlan.view.steps.find((step) => step.kind === 'action_candidate')?.execution_state !== 'not_authorized'
+      || blockedPlannerPlan.view.plan.conflict_status !== 'blocking'
+    ) {
+      throw new Error('expected append-only advisory Planner lifecycle on PostgreSQL');
+    }
+    console.log('  goal, plan graph, conflict, decision, checkpoint, outcome, and no-action boundary verified.');
 
     const shadow = new ShadowTrustRepository(db);
     const pollRun = await shadow.recordPollRun({
@@ -1387,6 +1466,10 @@ async function main(): Promise<void> {
       db(ADVISOR_TABLES.runResults).where({ id: advisorResponse.result.id }).update({ status: 'failed' }),
       db(ADVISOR_TABLES.citations).where({ id: advisorResponse.citations[0].id }).delete(),
       db(ADVISOR_TABLES.feedback).where({ id: advisorFeedback.id }).update({ rating: 'not_useful' }),
+      ...Object.values(PLANNER_TABLES).flatMap((table) => [
+        db(table).where({ tenant_id: tenant.id }).update({ created_at: sourceNow.toISOString() }),
+        db(table).where({ tenant_id: tenant.id }).delete(),
+      ]),
     ]) {
       let rejected = false;
       try {
@@ -1396,7 +1479,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, Advisor, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
+    console.log('  source, Advisor, Planner, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

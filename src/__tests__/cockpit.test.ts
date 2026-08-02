@@ -111,8 +111,11 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(shell, />Today</);
     assert.match(shell, />Ask LeozOps</);
     assert.match(shell, />Business</);
-    assert.match(shell, />Recommendations</);
+    assert.match(shell, /ADVISORY INPUTS/);
+    assert.match(shell, />Planner</);
     assert.match(shell, />Command Deck</);
+    assert.equal(shell.includes('id="nav-recommendations"'), false);
+    assert.match(shell, /Accept plan ≠ execute action/);
     assert.match(shell, /Approval is not execution\./);
     assert.match(shell, /href="#main-content"/);
     assert.equal(shell.includes('<style'), false);
@@ -126,6 +129,8 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(css, /--realm-gold:#c8a96b/);
     assert.match(css, /min-height:44px/);
     assert.match(css, /@media \(max-width:760px\)/);
+    assert.match(css, /grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
+    assert.equal(css.includes('grid-template-columns:repeat(6,minmax(0,1fr))'), false);
     assert.match(css, /@media \(max-width:390px\)/);
     assert.match(css, /prefers-reduced-motion:reduce/);
     assert.match(css, /prefers-contrast:more/);
@@ -140,6 +145,8 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(script, /Authorization/);
     assert.match(script, /credentials: 'omit'/);
     assert.match(script, /pagehide/);
+    assert.match(script, /founder_cockpit_accept/);
+    assert.match(script, /No action authority was granted/);
     assert.match(script, /prefers-reduced-motion/);
   } finally {
     await closeServer(server);

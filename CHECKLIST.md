@@ -625,3 +625,37 @@ Status: IMPLEMENTED ON `codex/leozops-phase12-live-observer`; LIVE J4 OPEN
 Phase 12 adds no production environment, credential, scheduler invocation,
 network proof, elapsed evidence, notification adapter, Egoric mutation, or
 action authority in this repository.
+
+23. PHASE 13 GOAL-AWARE PLANNER — REPOSITORY PASS CANDIDATE
+-----------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase13-goal-aware-planner`; LIVE J5 OPEN
+
+[x] Exact `leozops_planner_goal_v1` schema with supported metrics/units,
+    horizons, constraints, assumptions, owner, and strict unknown-field denial.
+[x] Append-only goal and plan replacement chains; idempotency conflicts and
+    superseded goal/plan acceptance denial.
+[x] Evidence bundle binds source snapshot, intelligence run, formula, cutoff,
+    freshness, goal manifest, recommendations, policy, and SHA-256 fingerprint.
+[x] Deterministic four-step plan with evidence references, effort, confidence,
+    measurable completion, and complete graph fingerprint verification.
+[x] Explicit evidence/goal/budget/capacity/policy conflicts; blocking conflicts
+    prevent founder acceptance.
+[x] Conservative/expected/ambitious simulations and deterministic same-goal
+    comparison with uncertainty and no forecast claim.
+[x] Append-only decisions, checkpoints, and useful/not-useful outcomes; feedback
+    never rewrites original goal, plan, or source evidence.
+[x] Every action candidate routes to G6, contains no command material, remains
+    `not_authorized`, and accepting a plan grants no action authority.
+[x] Eight immutable SQLite/PostgreSQL tables, tenant-scoped authenticated APIs,
+    readiness coverage, sanitized responses, and rollback-safe migration.
+[x] Medieval Planner cockpit with goal/plan counts, conflicts, decisions,
+    evidence drill-down, accept/reject intent, and explicit authority boundary.
+[x] Focused Phase 13 suite 9/9, cockpit regression 4/4, full registered
+    regression 348/348, Node 22/24 CI job, PostgreSQL 16 lifecycle/immutability/
+    rollback coverage, strict TypeScript, and build gate.
+[ ] Run named-deployment founder review against accepted live J1 evidence and
+    record Product Owner usefulness/reproducibility acceptance for live J5.
+
+Phase 13 adds no Egoric mutation, command payload, target endpoint, credential,
+adapter, scheduler, background loop, execution route, G6 release, or action
+authority.

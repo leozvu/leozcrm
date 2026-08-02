@@ -44,6 +44,9 @@ jobs:
       - name: Phase 12 live-observer safety suite
         run: npm run test:phase12
 
+      - name: Phase 13 goal-aware Planner safety suite
+        run: npm run test:phase13
+
       - name: Full SQLite regression
         run: npm test
 

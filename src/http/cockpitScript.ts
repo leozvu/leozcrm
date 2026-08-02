@@ -9,6 +9,8 @@ export const COCKPIT_SCRIPT = String.raw`
     context: [],
     alerts: [],
     deliveries: [],
+    goals: [],
+    plans: [],
     conversationId: null,
     activeView: 'today',
     requestController: null
@@ -121,6 +123,8 @@ export const COCKPIT_SCRIPT = String.raw`
     state.context = [];
     state.alerts = [];
     state.deliveries = [];
+    state.goals = [];
+    state.plans = [];
     state.conversationId = null;
     if (state.requestController) state.requestController.abort();
     state.requestController = null;
@@ -145,7 +149,7 @@ export const COCKPIT_SCRIPT = String.raw`
       today: ['The realm at a glance', 'Verified business state, visible evidence, bounded advice.'],
       ask: ['Ask the realm', 'Grounded answers from the evidence already in LeozOps.'],
       business: ['Pipeline truth', 'Current-state funnel, source quality, and provenance.'],
-      recommendations: ['The advisory queue', 'Evidence-backed priorities without automatic execution.'],
+      planner: ['The goal-aware planner', 'Versioned intent, explicit conflicts, and advisory scenarios.'],
       command: ['The sealed command deck', 'Authority is visible; operational execution remains blocked.']
     };
     id('workspace-title').textContent = titles[name][0];
@@ -444,6 +448,113 @@ export const COCKPIT_SCRIPT = String.raw`
     });
   }
 
+  function plannerMetric(plan) {
+    var unit = plan.metric && plan.metric.unit;
+    var baseline = plan.baseline_value === null ? 'Unavailable'
+      : unit === 'basis_points' ? (Number(plan.baseline_value) / 100).toFixed(1) + '%' : formatNumber(plan.baseline_value);
+    var target = unit === 'basis_points' ? (Number(plan.target_value) / 100).toFixed(1) + '%' : formatNumber(plan.target_value);
+    return titleCase(plan.metric.key) + ': ' + baseline + ' → ' + target;
+  }
+
+  async function inspectPlan(plan, button) {
+    button.disabled = true;
+    setError(id('planner-error'), '');
+    try {
+      var detail = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/plans/' + encodeURIComponent(plan.id));
+      var items = [
+        { label: 'Plan hash', value: detail.plan.plan_hash },
+        { label: 'Goal manifest', value: detail.goal.manifest_hash },
+        { label: 'Source snapshot', value: detail.evidence.source_snapshot_id },
+        { label: 'Intelligence run', value: detail.evidence.intelligence_run_id },
+        { label: 'Evidence hash', value: detail.evidence.hash },
+        { label: 'Steps', value: detail.steps.map(function (step) { return step.ordinal + '. ' + step.title + ' [' + step.action_boundary.execution_state + ']'; }).join(' · ') },
+        { label: 'Conflicts', value: detail.conflicts.length ? detail.conflicts.map(function (row) { return row.severity + ': ' + row.key; }).join(' · ') : 'None' },
+        { label: 'Simulations', value: detail.simulations.map(function (row) { return row.scenario + ': ' + row.feasibility + ' (' + row.progress_basis_points + ' bp progress)'; }).join(' · ') }
+      ];
+      openEvidence(plan.goal_title, 'Immutable goal, evidence, plan, conflict, and simulation fingerprints.', items);
+    } catch (error) {
+      setError(id('planner-error'), friendlyError(error));
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  async function decidePlan(plan, decision, buttons) {
+    buttons.forEach(function (button) { button.disabled = true; });
+    setError(id('planner-error'), '');
+    try {
+      await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/plans/' + encodeURIComponent(plan.id) + '/decisions', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey() },
+        body: JSON.stringify({
+          decision: decision,
+          reason_code: decision === 'accepted' ? 'founder_cockpit_accept' : 'founder_cockpit_reject'
+        })
+      });
+      await loadPlannerState();
+      announce(decision === 'accepted'
+        ? 'Plan accepted as advisory intent. No action authority was granted.'
+        : 'Plan rejected. The immutable decision was recorded.');
+    } catch (error) {
+      setError(id('planner-error'), error && error.code === 'plan_has_blocking_conflicts'
+        ? 'Resolve the recorded blocking conflicts by creating a new goal or plan version before acceptance.'
+        : friendlyError(error));
+      buttons.forEach(function (button) { button.disabled = false; });
+    }
+  }
+
+  function renderPlanner() {
+    var summary = id('planner-summary');
+    var target = id('planner-list');
+    clear(summary);
+    clear(target);
+    var currentGoals = state.goals.filter(function (item) { return item.current; }).length;
+    var blocked = state.plans.filter(function (item) { return item.conflict_status === 'blocking'; }).length;
+    var accepted = state.plans.filter(function (item) { return item.latest_decision === 'accepted'; }).length;
+    summary.append(
+      commandCard('Current goals', currentGoals, 'Append-only goal ledger'),
+      commandCard('Plan versions', state.plans.length, 'Evidence-bound and reproducible'),
+      commandCard('Blocked plans', blocked, 'Cannot be accepted'),
+      commandCard('Accepted intent', accepted, 'Grants no action authority')
+    );
+    if (!state.plans.length) {
+      target.append(element('div', 'empty-state', state.goals.length
+        ? 'Goals exist, but no evidence-bound plan version has been generated yet.'
+        : 'No durable goal or plan version has been recorded yet. Use the tenant Planner API to define the first goal.'));
+      return;
+    }
+    state.plans.forEach(function (plan) {
+      var card = element('article', 'planner-card realm-panel planner-' + plan.conflict_status);
+      var meta = element('div', 'planner-meta');
+      meta.append(
+        element('span', '', titleCase(plan.strategy)),
+        element('span', '', 'Version ' + plan.version),
+        element('span', 'planner-conflict', titleCase(plan.conflict_status)),
+        element('span', '', plan.latest_decision ? titleCase(plan.latest_decision) : 'Awaiting decision')
+      );
+      var copy = element('div', 'planner-copy');
+      copy.append(
+        element('h3', '', plan.goal_title),
+        element('p', '', plannerMetric(plan)),
+        element('small', '', 'Plan ' + plan.plan_key + ' · ' + plan.checkpoint_count + ' checkpoint(s)')
+      );
+      var boundary = element('p', 'planner-authority', 'Advisory only · action authority: none');
+      var actions = element('div', 'planner-actions');
+      var inspect = element('button', 'evidence-button', 'Inspect plan');
+      var accept = element('button', 'feedback-button', plan.latest_decision === 'accepted' ? 'Accepted' : 'Accept intent');
+      var reject = element('button', 'feedback-button', plan.latest_decision === 'rejected' ? 'Rejected' : 'Reject');
+      inspect.type = accept.type = reject.type = 'button';
+      accept.disabled = plan.conflict_status === 'blocking' || plan.latest_decision === 'accepted';
+      reject.disabled = plan.latest_decision === 'rejected';
+      inspect.addEventListener('click', function () { inspectPlan(plan, inspect); });
+      accept.addEventListener('click', function () { decidePlan(plan, 'accepted', [accept, reject]); });
+      reject.addEventListener('click', function () { decidePlan(plan, 'rejected', [accept, reject]); });
+      actions.append(inspect, accept, reject);
+      card.append(meta, copy, boundary, actions);
+      target.append(card);
+    });
+  }
+
   function commandCard(label, value, note) {
     var card = element('article', 'command-card');
     card.append(element('small', '', label), element('strong', '', titleCase(value)), element('span', '', note));
@@ -502,6 +613,7 @@ export const COCKPIT_SCRIPT = String.raw`
     renderSources(snapshot);
     renderQuality(snapshot);
     renderRecommendations(snapshot);
+    renderPlanner();
     renderCommandDeck(snapshot);
     renderContext(state.context);
     id('business-evidence-button').onclick = function () {
@@ -526,7 +638,9 @@ export const COCKPIT_SCRIPT = String.raw`
       api('/v1/tenants/' + tenant + '/cockpit', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/context', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/alerts', { signal: state.requestController.signal }),
-      api('/v1/tenants/' + tenant + '/notification-deliveries', { signal: state.requestController.signal })
+      api('/v1/tenants/' + tenant + '/notification-deliveries', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/goals', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/plans', { signal: state.requestController.signal })
     ]);
     if (results[0].status === 'rejected') throw results[0].reason;
     state.context = results[1].status === 'fulfilled' && Array.isArray(results[1].value.entries)
@@ -535,7 +649,13 @@ export const COCKPIT_SCRIPT = String.raw`
       ? results[2].value.alerts : [];
     state.deliveries = results[3].status === 'fulfilled' && Array.isArray(results[3].value.deliveries)
       ? results[3].value.deliveries : [];
+    state.goals = results[4].status === 'fulfilled' && Array.isArray(results[4].value.goals)
+      ? results[4].value.goals : [];
+    state.plans = results[5].status === 'fulfilled' && Array.isArray(results[5].value.plans)
+      ? results[5].value.plans : [];
     setError(id('alert-error'), results[2].status === 'fulfilled' ? '' : 'Proactive alert state is temporarily unavailable. Refresh to retry.');
+    setError(id('planner-error'), results[4].status === 'fulfilled' && results[5].status === 'fulfilled'
+      ? '' : 'Planner state is temporarily unavailable. Refresh to retry.');
     renderSnapshot(results[0].value);
     setHidden(id('connection-chamber'), true);
     setHidden(id('cockpit-workspace'), false);
@@ -546,6 +666,8 @@ export const COCKPIT_SCRIPT = String.raw`
     if (results[1].status === 'rejected') partials.push('CEO context');
     if (results[2].status === 'rejected') partials.push('proactive alerts');
     if (results[3].status === 'rejected') partials.push('delivery evidence');
+    if (results[4].status === 'rejected') partials.push('goal ledger');
+    if (results[5].status === 'rejected') partials.push('planner state');
     announce(partials.length ? 'Cockpit evidence loaded; ' + partials.join(', ') + ' temporarily unavailable.' : 'Cockpit evidence loaded.');
   }
 
@@ -560,6 +682,17 @@ export const COCKPIT_SCRIPT = String.raw`
     state.deliveries = results[1].status === 'fulfilled' && Array.isArray(results[1].value.deliveries)
       ? results[1].value.deliveries : [];
     renderAlerts();
+  }
+
+  async function loadPlannerState() {
+    var tenant = encodeURIComponent(state.tenant);
+    var results = await Promise.all([
+      api('/v1/tenants/' + tenant + '/goals'),
+      api('/v1/tenants/' + tenant + '/plans')
+    ]);
+    state.goals = Array.isArray(results[0].goals) ? results[0].goals : [];
+    state.plans = Array.isArray(results[1].plans) ? results[1].plans : [];
+    renderPlanner();
   }
 
   function appendUserMessage(question) {

@@ -19,7 +19,7 @@ export function renderCockpitHtml(): string {
     <symbol id="icon-today" viewBox="0 0 24 24"><path d="M4 5h16v15H4z"/><path d="M8 3v4m8-4v4M4 10h16M8 14h3m-3 3h6"/></symbol>
     <symbol id="icon-ask" viewBox="0 0 24 24"><path d="M5 4h14v12H8l-3 3V4Z"/><path d="M9 8h6m-6 4h4"/></symbol>
     <symbol id="icon-business" viewBox="0 0 24 24"><path d="M4 20V10m6 10V4m6 16v-7m4 7H2"/></symbol>
-    <symbol id="icon-recommend" viewBox="0 0 24 24"><path d="m12 3 2.1 4.7L19 10l-4.9 2.3L12 17l-2.1-4.7L5 10l4.9-2.3L12 3Z"/><path d="M5 16v5m-2-2h4m12-4v6m-3-3h6"/></symbol>
+    <symbol id="icon-plan" viewBox="0 0 24 24"><path d="M5 4h14v16H5z"/><path d="m8 9 2 2 3-4m1 3h2M8 15h8"/></symbol>
     <symbol id="icon-command" viewBox="0 0 24 24"><path d="M5 3h14v18H5z"/><path d="m9 8 2 2-2 2m4 0h3m-7 4h7"/></symbol>
     <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 19 6v5c0 5-3 8-7 10-4-2-7-5-7-10V6l7-3Z"/><path d="m9 12 2 2 4-5"/></symbol>
     <symbol id="icon-evidence" viewBox="0 0 24 24"><path d="M6 3h9l3 3v15H6z"/><path d="M14 3v4h4M9 11h6m-6 4h6"/></symbol>
@@ -39,7 +39,7 @@ export function renderCockpitHtml(): string {
         <button id="nav-today" type="button" role="tab" aria-selected="true" aria-controls="view-today" data-view="today" disabled>${icon('today')}<span>Today</span></button>
         <button id="nav-ask" type="button" role="tab" aria-selected="false" aria-controls="view-ask" data-view="ask" disabled>${icon('ask')}<span>Ask LeozOps</span></button>
         <button id="nav-business" type="button" role="tab" aria-selected="false" aria-controls="view-business" data-view="business" disabled>${icon('business')}<span>Business</span></button>
-        <button id="nav-recommendations" type="button" role="tab" aria-selected="false" aria-controls="view-recommendations" data-view="recommendations" disabled>${icon('recommend')}<span>Recommendations</span></button>
+        <button id="nav-planner" type="button" role="tab" aria-selected="false" aria-controls="view-planner" data-view="planner" disabled>${icon('plan')}<span>Planner</span></button>
         <button id="nav-command" type="button" role="tab" aria-selected="false" aria-controls="view-command" data-view="command" disabled>${icon('command')}<span>Command Deck</span></button>
       </nav>
       <div class="rail-seal">
@@ -153,9 +153,19 @@ export function renderCockpitHtml(): string {
           <article class="realm-panel"><div class="panel-heading"><div><p class="eyebrow">DATA QUALITY</p><h3>Evidence condition</h3></div></div><div id="quality-grid" class="quality-grid"></div></article>
         </section>
 
-        <section id="view-recommendations" class="cockpit-view" role="tabpanel" data-panel="recommendations" hidden>
-          <header class="section-heading"><div><p class="eyebrow">ADVISORY QUEUE</p><h2 tabindex="-1">Recommendations</h2><p>Deterministic priorities derived only from warning evidence.</p></div><span class="authority-label">No automatic action</span></header>
-          <div id="recommendation-list" class="recommendation-grid"></div>
+        <section id="view-planner" class="cockpit-view" role="tabpanel" data-panel="planner" hidden>
+          <header class="section-heading"><div><p class="eyebrow">GOAL-AWARE PLANNER</p><h2 tabindex="-1">Plan the next move</h2><p>Versioned goals, reproducible evidence, explicit conflicts, and scenario comparison.</p></div><span class="authority-label">Accept plan ≠ execute action</span></header>
+          <article class="realm-panel planner-inputs">
+            <div class="panel-heading"><div><p class="eyebrow">ADVISORY INPUTS</p><h3>Recommendations</h3><p>Deterministic priorities derived only from warning evidence.</p></div><span class="authority-label">No automatic action</span></div>
+            <div id="recommendation-list" class="recommendation-grid"></div>
+          </article>
+          <article class="planner-boundary realm-panel">
+            <div class="command-crest">${icon('shield')}</div>
+            <div><p class="eyebrow">AUTHORITY BOUNDARY</p><h3>Every plan is advisory.</h3><p>Accepting a plan records founder intent inside LeozOps only. Any action-shaped step remains not authorized and must enter the separate G6 proposal, preview, and approval gateway.</p></div>
+          </article>
+          <p id="planner-error" class="form-error" role="alert" hidden></p>
+          <div id="planner-summary" class="planner-summary" aria-label="Planner summary"></div>
+          <div id="planner-list" class="planner-grid" aria-live="polite"></div>
         </section>
 
         <section id="view-command" class="cockpit-view" role="tabpanel" data-panel="command" hidden>

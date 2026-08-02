@@ -29,6 +29,10 @@ import { createProactiveAlertRouter } from './routes/proactiveAlerts';
 import { createOperationalHealthRouter } from './routes/operationalHealth';
 import { OperationalHealthRepository } from '../repositories/operationalHealthRepository';
 import { requestObservability, StructuredLogger } from '../observability/structuredLogger';
+import { PlannerError, PLANNER_TABLES } from '../domain/planner';
+import { PlannerRepository } from '../repositories/plannerRepository';
+import { PlannerService } from '../services/plannerService';
+import { createPlannerRouter } from './routes/planner';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -42,6 +46,7 @@ export interface EgoricReadonlyAppOptions {
   deploymentFingerprint?: string;
   observabilityCredentialFingerprint?: string;
   maxFreshnessSeconds?: number;
+  plannerClock?: () => Date;
 }
 
 /** Read-only-to-Egoric runtime: health, cockpit, brief, and tenant-scoped Advisor memory. */
@@ -110,6 +115,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         'proactive_delivery_results',
         'live_observer_events',
         'live_recovery_drills',
+        ...Object.values(PLANNER_TABLES),
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();
@@ -143,6 +149,12 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     options.notificationDeliveryRegistry ?? buildNotificationDeliveryRegistry(),
     proactiveClock,
   );
+  const planner = new PlannerService(
+    new PlannerRepository(knex, options.plannerClock ?? clock),
+    repository,
+    brief,
+    options.plannerClock ?? clock,
+  );
   const advisor = new AdvisorConversationService(
     repository,
     advisorRepository,
@@ -165,6 +177,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   app.use('/v1/tenants', createCockpitApiRouter(cockpit));
   app.use('/v1/tenants', createAdvisorConversationRouter(advisor));
   app.use('/v1/tenants', createProactiveAlertRouter(proactive));
+  app.use('/v1/tenants', createPlannerRouter(planner));
 
   app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
     if (error.type === 'entity.too.large') {
@@ -180,6 +193,10 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
       return;
     }
     if (error instanceof ProactiveAlertError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+    if (error instanceof PlannerError) {
       res.status(error.status).json({ error: error.message, code: error.code });
       return;
     }

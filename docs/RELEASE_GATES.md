@@ -87,6 +87,15 @@ credentials are not provisioned, no P1/P2 production run or ten elapsed
 business days exist, live revocation/restore/incident drills have not run, and
 no evidence-backed G5 `go` has been issued.
 
+Phase 13 implements the repository-side J5 candidate on
+`codex/leozops-phase13-goal-aware-planner`: exact immutable goal versions,
+evidence-bound deterministic plan graphs, conflicts, simulations/comparison,
+founder decision/checkpoint/outcome history, and a tenant-scoped Planner
+cockpit. Plan acceptance remains advisory and every action candidate is
+`not_authorized` behind G6. Live J5 is not accepted: no named-deployment review
+using accepted live J1 evidence or Product Owner usefulness/reproducibility
+acceptance exists, and J5 would grant no write authority even if accepted.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.

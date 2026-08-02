@@ -328,7 +328,7 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 | 10 | Medieval CEO Cockpit | ✅ Complete locally; founder/live acceptance pending | J2 usable evidence cockpit |
 | 11 | Proactive Nervous System | ✅ Complete locally; live baseline/channel acceptance pending | J3 trustworthy alerts |
 | 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
-| 13 | Goal-aware Planner | ⏳ Planned | J5 reproducible plans |
+| 13 | Goal-aware Planner | ✅ Complete locally; named live review pending | J5 reproducible plans |
 | 14 | One real supervised hand | ⏳ Gate-bound | J6 / real G6 history |
 | 15 | Bounded Autopilot | ⏳ Gate-bound | J7 / real G7 canary |
 | 16 | Ambient Jarvis and v1 | ⏳ Planned | J8 / 30-day release acceptance |
@@ -375,6 +375,15 @@ protected aggregate telemetry, and a disposable-only restore drill. This is a
 repository candidate, not a live Observer. The named platform, real network,
 P1/P2, at least ten actual business days, live drills, monitoring acceptance,
 and a real G5 `go` still block J4.
+
+Phase 13 is implemented on `codex/leozops-phase13-goal-aware-planner`:
+strict versioned goal manifests feed evidence-bound deterministic plan graphs,
+explicit blocking/advisory conflicts, three uncertainty-labelled simulations,
+same-goal comparison, immutable founder decisions/checkpoints/outcomes, and a
+Planner cockpit review surface. Every action candidate is non-executable and
+routes only to the existing G6 gateway. Repository QA establishes a local J5
+candidate; named-deployment review using accepted live J1 evidence and Product
+Owner acceptance still block live J5.
 
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.

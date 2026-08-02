@@ -79,6 +79,7 @@ export interface CreateAppOptions {
   deploymentFingerprint?: string;
   observabilityCredentialFingerprint?: string;
   maxFreshnessSeconds?: number;
+  plannerClock?: () => Date;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -107,6 +108,7 @@ export function createApp(options: CreateAppOptions = {}) {
       deploymentFingerprint: options.deploymentFingerprint,
       observabilityCredentialFingerprint: options.observabilityCredentialFingerprint,
       maxFreshnessSeconds: options.maxFreshnessSeconds,
+      plannerClock: options.plannerClock,
     });
   }
   const app = express();

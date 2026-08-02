@@ -27,12 +27,13 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
-| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned; Phase 9A/9B, Phase 10, Phase 11, and the Phase 12 live-observer runtime are implemented locally |
+| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned; Phase 9A/9B and Phases 10-13 are implemented locally |
 | Phase 9A implementation | Evidence packs, fixed read tools, append-only conversation/context/citation/feedback, deterministic bilingual Advisor, budgets, failure evidence, and authenticated Ask routes implemented on `codex/leozops-phase9a-conversation-core`; production model absent |
 | Phase 9B implementation | Pinned `gpt-5.6-sol` Responses adapter, strict structured output, no-tool/stateless request, pre-call cost guard, and 12-case eval implemented on `codex/leozops-phase9b-openai-adapter`; live key/eval/deployment absent |
 | Phase 10 implementation | Responsive medieval CEO cockpit, evidence drill-down, validated Ask reveal, and sealed Command Deck implemented on `codex/leozops-phase10-medieval-cockpit`; founder/live J2 acceptance absent |
 | Phase 11 implementation | Deterministic alerts, append-only state/outbox evidence, replay-safe delivery boundary, founder outcomes, shadow evaluator, and one-shot operator implemented on `codex/leozops-phase11-proactive-nervous-system`; live channel/scheduler/baseline and J3 acceptance absent |
 | Phase 12 implementation | Production image, fail-closed deployment preflight, one-shot poll/evaluate orchestration, append-only operations/recovery evidence, structured traces/logs, protected aggregate telemetry, and disposable-only restore drill implemented on `codex/leozops-phase12-live-observer`; named platform, elapsed shadow, and J4 absent |
+| Phase 13 implementation | Versioned goals/plans, evidence-bound deterministic steps, conflicts, simulations/comparison, decision/checkpoint/outcome history, Planner cockpit, and no-action enforcement implemented on `codex/leozops-phase13-goal-aware-planner`; named live review and J5 acceptance absent |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -120,6 +121,12 @@ path begin:
 33. [`docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md`](docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md)
     — alert policy, evidence/state model, operator and delivery contracts,
     replay rules, QA, and the non-fabricable live J3 boundary.
+34. [`docs/PHASE_12_LIVE_OBSERVER.md`](docs/PHASE_12_LIVE_OBSERVER.md) —
+    production packaging, one-shot observer, observability/recovery contract,
+    and the non-fabricable live J4 boundary.
+35. [`docs/PHASE_13_GOAL_AWARE_PLANNER.md`](docs/PHASE_13_GOAL_AWARE_PLANNER.md)
+    — versioned goal/plan contract, conflicts, simulations, feedback loop,
+    cockpit/API, no-action boundary, and local J5 evidence.
 
 ## Non-negotiable boundaries
 
@@ -185,6 +192,7 @@ npm start
 | `npm run live:preflight` | Validate the exact Phase 12 target, identities, secret references, and read-only safety contract |
 | `npm run live:operator -- <input.json>` | Run one scheduler-owned poll → proactive-evaluation cycle and append immutable evidence |
 | `npm run recovery:operator -- <backup\|restore> <key> <path>` | Create a verified backup or restore only into an acknowledged disposable PostgreSQL target |
+| `npm run test:phase13` | Verify the focused Phase 13 Planner contract and no-action boundary |
 | `npm start` / `npm run dev` | Run the selected profile (default: historical `legacy`) |
 
 With `INTEGRATION_MODE=egoric-readonly`, Phase 9A adds authenticated LeozOps-
@@ -207,6 +215,13 @@ documented in
 [`docs/PHASE_12_LIVE_OBSERVER.md`](docs/PHASE_12_LIVE_OBSERVER.md); J4 remains
 open until a named environment supplies ten real business days and a real G5
 `go`.
+
+Phase 13 adds an authenticated Planner surface to the same profile. Goals,
+plans, conflicts, scenario comparisons, founder decisions, checkpoints, and
+outcomes are immutable and evidence-bound. Accepting a plan grants no action
+authority; every action candidate remains `not_authorized` and points only to
+the separately gated G6 control plane. See
+[`docs/PHASE_13_GOAL_AWARE_PLANNER.md`](docs/PHASE_13_GOAL_AWARE_PLANNER.md).
 
 Do not configure an Egoric production key, enable a production feature flag, or
 deploy this default profile as LeozOps.
