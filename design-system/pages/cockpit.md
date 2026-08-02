@@ -50,3 +50,15 @@ change, cooldown, and snooze gates instead of implying monitoring failed.
   five labelled destinations.
 - Plans expose evidence, conflicts, simulations, comparison, decision state,
   checkpoints, and outcomes without hiding uncertainty.
+
+## Phase 14 supervised-hand boundary
+
+- Command Deck remains one of five destinations and remains read-only.
+- Source qualification names the exact command, pinned commit, and explicit
+  blockers; missing capability is never rendered as ready or safe.
+- Approval, execution receipt, rollback, and incident are distinct text-labelled
+  states in one evidence ledger. Approval is never styled as execution.
+- No execution control appears while the dedicated source endpoint,
+  preview/rollback, live G5/G6, or adapter evidence is missing.
+- The responsive ledger becomes one column below 900px and preserves labelled
+  state, keyboard focus, reduced-motion, and high-contrast behavior.

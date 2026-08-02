@@ -33,6 +33,9 @@ import { PlannerError, PLANNER_TABLES } from '../domain/planner';
 import { PlannerRepository } from '../repositories/plannerRepository';
 import { PlannerService } from '../services/plannerService';
 import { createPlannerRouter } from './routes/planner';
+import { SupervisedHandRepository } from '../repositories/supervisedHandRepository';
+import { SupervisedHandError, SupervisedHandService } from '../services/supervisedHandService';
+import { createSupervisedHandRouter } from './routes/supervisedHand';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -47,6 +50,7 @@ export interface EgoricReadonlyAppOptions {
   observabilityCredentialFingerprint?: string;
   maxFreshnessSeconds?: number;
   plannerClock?: () => Date;
+  supervisedHandClock?: () => Date;
 }
 
 /** Read-only-to-Egoric runtime: health, cockpit, brief, and tenant-scoped Advisor memory. */
@@ -155,6 +159,11 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     brief,
     options.plannerClock ?? clock,
   );
+  const supervisedHand = new SupervisedHandService(
+    repository,
+    new SupervisedHandRepository(knex),
+    options.supervisedHandClock ?? clock,
+  );
   const advisor = new AdvisorConversationService(
     repository,
     advisorRepository,
@@ -178,6 +187,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   app.use('/v1/tenants', createAdvisorConversationRouter(advisor));
   app.use('/v1/tenants', createProactiveAlertRouter(proactive));
   app.use('/v1/tenants', createPlannerRouter(planner));
+  app.use('/v1/tenants', createSupervisedHandRouter(supervisedHand));
 
   app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
     if (error.type === 'entity.too.large') {
@@ -197,6 +207,10 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
       return;
     }
     if (error instanceof PlannerError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+    if (error instanceof SupervisedHandError) {
       res.status(error.status).json({ error: error.message, code: error.code });
       return;
     }

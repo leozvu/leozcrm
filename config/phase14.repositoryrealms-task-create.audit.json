@@ -1,0 +1,41 @@
+{
+  "schema_version": "leozops_supervised_hand_qualification_v1",
+  "audited_at": "2026-08-02T00:30:00.000Z",
+  "repository": "leozvu/repositoryrealms",
+  "source_ref": "main",
+  "source_commit": "98c0eca01330cbf101bca8ff93de38cdd8ec4045",
+  "command_key": "egoric.task.create.v1",
+  "source_contract": "repositoryrealms.ceo.command",
+  "source_contract_version": 1,
+  "endpoint_path": "/api/ceo/v1/commands",
+  "receipt_path": "/api/ceo/v1/commands/receipts",
+  "action": "task.create",
+  "scope": "command.task.create",
+  "capability": "delivery",
+  "payload_profile": "unassigned_task_only",
+  "source_files": [
+    {
+      "path": "app/api/ceo/v1/commands/receipts/route.js",
+      "git_blob_sha": "6fec073488bd0eaafd33b320fd78c51e602533e0"
+    },
+    {
+      "path": "app/api/ceo/v1/commands/route.js",
+      "git_blob_sha": "b5a3b05439a686d8d933ff00fcdc23abc29f4fb3"
+    },
+    {
+      "path": "lib/ceo-command-gateway.js",
+      "git_blob_sha": "0066aa83d958ddbbf768558caea9f3bd0a709559"
+    }
+  ],
+  "capabilities": {
+    "exact_payload_schema": true,
+    "provider_idempotency": true,
+    "atomic_receipt": true,
+    "receipt_observation": true,
+    "least_privilege_dispatch_scope": true,
+    "dedicated_leozops_command_endpoint": false,
+    "zero_mutation_preview": false,
+    "separately_approved_rollback": false
+  },
+  "verdict": "blocked"
+}

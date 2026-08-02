@@ -1,12 +1,12 @@
 # LeozOps Jarvis Completion Plan
 
-Status: **Approved baseline; repository implementation complete through Phase 13, live gates remain gate-bound**
+Status: **Approved baseline; repository implementation complete through the Phase 14 qualification slice, live gates remain gate-bound**
 
 Approved by: Leoz, Product Owner
 
 Effective: 2026-08-01
 
-Current repository baseline: `codex/leozops-phase13-goal-aware-planner`
+Current repository baseline: `codex/leozops-phase14-supervised-hand-readiness`
 
 ## 1. Outcome
 
@@ -256,6 +256,15 @@ Estimated solo effort: **6-10 focused development days**.
 ### Phase 14 — One real supervised hand
 
 Goal: earn trust with one reversible, low-risk operational command.
+
+Repository status (2026-08-01): qualification slice implemented on
+`codex/leozops-phase14-supervised-hand-readiness`. The RepositoryRealms
+`task.create` source contract and blob evidence are pinned; strict unassigned
+payload/envelope validation, tenant-scoped evidence projection, fail-closed
+preflight, Command Deck blocker/ledger states, and no-capability tests are
+complete. No real hand exists: a dedicated G6-compatible source endpoint,
+source preview and rollback guarantees, live G5/G6 authority, a production
+adapter, and live execution history are absent.
 
 Default candidate: create or update one CEO-approved follow-up task through an
 explicit RepositoryRealms command contract. The final command must be selected

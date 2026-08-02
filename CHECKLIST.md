@@ -659,3 +659,36 @@ Status: IMPLEMENTED ON `codex/leozops-phase13-goal-aware-planner`; LIVE J5 OPEN
 Phase 13 adds no Egoric mutation, command payload, target endpoint, credential,
 adapter, scheduler, background loop, execution route, G6 release, or action
 authority.
+
+24. PHASE 14 SUPERVISED-HAND READINESS — REPOSITORY PASS CANDIDATE
+------------------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase14-supervised-hand-readiness`; LIVE J6 BLOCKED
+
+[x] Pin RepositoryRealms `main@98c0eca01330cbf101bca8ff93de38cdd8ec4045`
+    plus three reviewed source blob SHAs.
+[x] Record the exact `repositoryrealms.ceo.command` v1 `task.create` action,
+    delivery capability, least-privilege scope, POST, and receipt paths.
+[x] Validate a strict unassigned PII-minimized payload and deterministic source
+    envelope; reject unknown fields and arbitrary target material.
+[x] Keep source qualification blocked for the missing dedicated LeozOps
+    endpoint, zero-mutation preview, and separately approved rollback.
+[x] Keep the production adapter registry empty and add no credential, network
+    transport, scheduler, execution API, or browser execution control.
+[x] Add tenant-scoped sanitized read projection for source, G5, G6 proposal,
+    preview, approval, receipt, rollback, incident, and event-count evidence.
+[x] Ensure the projection never reads or returns stored proposal payload JSON.
+[x] Add a medieval Command Deck qualification panel and immutable read-only
+    approval/receipt/incident ledger without adding a sixth destination.
+[x] Add fail-closed static preflight, focused Phase 14 tests, Node 22/24 CI
+    coverage, strict TypeScript, and cockpit regression assertions.
+[x] Focused Phase 14 suite 7/7, cockpit regression 4/4, full registered
+    regression 348/348, strict TypeScript, production build, and expected
+    fail-closed preflight exit `2` PASS locally.
+[ ] Add reviewed source preview and rollback contracts on a separate
+    RepositoryRealms branch, then re-audit the merged exact commit.
+[ ] Obtain real G5 `go`, exact G6 release, reviewed adapter, named deployment,
+    accepted supervised history, incident closure, and Product Owner J6
+    acceptance.
+
+This slice qualifies a candidate and exposes evidence. It does not execute a
+real command or satisfy G6/J6.

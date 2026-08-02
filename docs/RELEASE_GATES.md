@@ -96,6 +96,16 @@ cockpit. Plan acceptance remains advisory and every action candidate is
 using accepted live J1 evidence or Product Owner usefulness/reproducibility
 acceptance exists, and J5 would grant no write authority even if accepted.
 
+Phase 14 implements only a repository-side J6 qualification slice on
+`codex/leozops-phase14-supervised-hand-readiness`. It pins the audited
+RepositoryRealms `task.create` contract, validates one unassigned PII-minimized
+candidate envelope, and projects source/G5/G6/receipt/incident evidence into a
+read-only Command Deck. The source lacks the dedicated LeozOps endpoint G6
+requires, zero-mutation preview, and a separately approved rollback contract;
+the production adapter registry is empty and live G5/G6 evidence is absent.
+Therefore G6 and J6 remain blocked, and no HTTP/UI state added by this slice
+grants write authority.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.

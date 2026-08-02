@@ -781,3 +781,26 @@ Decision:
   cannot replace a named-deployment founder review using accepted live J1
   evidence and explicit Product Owner acceptance.
 Owner: Leoz. Recorded by Codex before Phase 13 implementation completion.
+
+DECISION-002 addendum 27 — 2026-08-01 — Phase 14 supervised-hand qualification authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the explicit request to continue after Phase 13 as approval to inspect
+  the real RepositoryRealms command boundary and implement a local Phase 14
+  readiness slice on a new branch. This does not authorize changing the source
+  repository, registering an adapter, deploying, or executing a command.
+- Select only `task.create` with the `command.task.create` scope as the candidate.
+  Pin its exact source commit and blob evidence and restrict LeozOps input to an
+  unassigned, PII-minimized task payload.
+- Preserve the existing G6 proposal, preview, approval, execution, rollback,
+  receipt, incident, idempotency, and immutable-evidence boundaries. Expose
+  only sanitized tenant-scoped state through the Command Deck.
+- Fail closed because the audited source has no dedicated G6-compatible LeozOps
+  endpoint, guaranteed zero-mutation preview, or separately approved rollback,
+  and because the production adapter registry and live G5/G6 authority remain
+  absent.
+- Require any RepositoryRealms preview/rollback work to occur on its own branch
+  and pass separate review before the LeozOps source pin or adapter can change.
+- Keep J6 open. Local fixtures, simulated G6 records, UI states, and tests do
+  not constitute a real supervised hand or production execution history.
+Owner: Leoz. Recorded by Codex before Phase 14 readiness completion.

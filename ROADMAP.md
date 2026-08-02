@@ -329,7 +329,7 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 | 11 | Proactive Nervous System | ✅ Complete locally; live baseline/channel acceptance pending | J3 trustworthy alerts |
 | 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
 | 13 | Goal-aware Planner | ✅ Complete locally; named live review pending | J5 reproducible plans |
-| 14 | One real supervised hand | ⏳ Gate-bound | J6 / real G6 history |
+| 14 | One real supervised hand | 🚧 Qualification slice complete locally; preview/rollback/live gates blocked | J6 / real G6 history |
 | 15 | Bounded Autopilot | ⏳ Gate-bound | J7 / real G7 canary |
 | 16 | Ambient Jarvis and v1 | ⏳ Planned | J8 / 30-day release acceptance |
 
@@ -384,6 +384,16 @@ Planner cockpit review surface. Every action candidate is non-executable and
 routes only to the existing G6 gateway. Repository QA establishes a local J5
 candidate; named-deployment review using accepted live J1 evidence and Product
 Owner acceptance still block live J5.
+
+Phase 14 qualification is implemented on
+`codex/leozops-phase14-supervised-hand-readiness`: the real
+RepositoryRealms `task.create` contract is pinned to an audited commit and
+source blobs, the only candidate payload is unassigned and PII-minimized, and
+the Command Deck exposes tenant-scoped G5/G6/receipt/incident evidence without
+an execution route. The production adapter registry remains empty. A dedicated
+LeozOps source endpoint, true zero-mutation preview, separately approved
+rollback, real G5 `go`, command-specific G6 release, exact adapter review, and
+supervised live history still block any real hand and J6.
 
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.

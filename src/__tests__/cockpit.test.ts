@@ -117,6 +117,10 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.equal(shell.includes('id="nav-recommendations"'), false);
     assert.match(shell, /Accept plan ≠ execute action/);
     assert.match(shell, /Approval is not execution\./);
+    assert.match(shell, /PHASE 14 QUALIFICATION/);
+    assert.match(shell, /Approval, receipt, and incident ledger/);
+    assert.match(shell, /id="command-blocker-list"/);
+    assert.match(shell, /Read only/);
     assert.match(shell, /href="#main-content"/);
     assert.equal(shell.includes('<style'), false);
     assert.equal(shell.includes('<script>'), false);
@@ -131,6 +135,8 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(css, /@media \(max-width:760px\)/);
     assert.match(css, /grid-template-columns:repeat\(5,minmax\(0,1fr\)\)/);
     assert.equal(css.includes('grid-template-columns:repeat(6,minmax(0,1fr))'), false);
+    assert.match(css, /\.hand-layout/);
+    assert.match(css, /\.command-blocker-list/);
     assert.match(css, /@media \(max-width:390px\)/);
     assert.match(css, /prefers-reduced-motion:reduce/);
     assert.match(css, /prefers-contrast:more/);
@@ -147,6 +153,8 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(script, /pagehide/);
     assert.match(script, /founder_cockpit_accept/);
     assert.match(script, /No action authority was granted/);
+    assert.match(script, /\/supervised-hand/);
+    assert.match(script, /No command capability is inferred/);
     assert.match(script, /prefers-reduced-motion/);
   } finally {
     await closeServer(server);

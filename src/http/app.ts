@@ -80,6 +80,7 @@ export interface CreateAppOptions {
   observabilityCredentialFingerprint?: string;
   maxFreshnessSeconds?: number;
   plannerClock?: () => Date;
+  supervisedHandClock?: () => Date;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -109,6 +110,7 @@ export function createApp(options: CreateAppOptions = {}) {
       observabilityCredentialFingerprint: options.observabilityCredentialFingerprint,
       maxFreshnessSeconds: options.maxFreshnessSeconds,
       plannerClock: options.plannerClock,
+      supervisedHandClock: options.supervisedHandClock,
     });
   }
   const app = express();

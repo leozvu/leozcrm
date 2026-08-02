@@ -11,6 +11,7 @@ export const COCKPIT_SCRIPT = String.raw`
     deliveries: [],
     goals: [],
     plans: [],
+    hand: null,
     conversationId: null,
     activeView: 'today',
     requestController: null
@@ -125,6 +126,7 @@ export const COCKPIT_SCRIPT = String.raw`
     state.deliveries = [];
     state.goals = [];
     state.plans = [];
+    state.hand = null;
     state.conversationId = null;
     if (state.requestController) state.requestController.abort();
     state.requestController = null;
@@ -563,18 +565,72 @@ export const COCKPIT_SCRIPT = String.raw`
 
   function renderCommandDeck(snapshot) {
     var deck = snapshot.command_deck;
+    var hand = state.hand;
     id('command-notice').textContent = deck.notice;
-    id('command-reason').textContent = deck.reason;
+    id('command-reason').textContent = hand && hand.blockers.length
+      ? 'Execution remains blocked by ' + hand.blockers.length + ' explicit qualification or release gate(s).'
+      : deck.reason;
     var target = id('command-state-grid');
     clear(target);
+    if (!hand) {
+      target.append(
+        commandCard('Authority', deck.authority, 'Cockpit presentation contract'),
+        commandCard('Approval inbox', deck.approval_state, 'Supervised evidence unavailable'),
+        commandCard('Execution', deck.execution_state, 'No route to command transport'),
+        commandCard('Canonical receipt', deck.receipt_state, 'Success cannot be implied'),
+        commandCard('Rollback', deck.rollback_state, 'No executed action to reverse'),
+        commandCard('Kill switch', deck.kill_switch_state, 'Unknown is not reported as safe')
+      );
+      id('command-contract-status').lastChild.textContent = 'Unavailable';
+      id('command-contract-copy').textContent = 'Qualification evidence could not be loaded. No capability is inferred.';
+      clear(id('command-blocker-list'));
+      id('command-blocker-list').append(element('li', '', 'supervised_hand_state_unavailable'));
+      clear(id('command-record-list'));
+      id('command-record-list').append(element('div', 'empty-state', 'No supervised hand evidence is available.'));
+      return;
+    }
     target.append(
-      commandCard('Authority', deck.authority, 'Cockpit presentation contract'),
-      commandCard('Approval inbox', deck.approval_state, 'No approval adapter mounted'),
-      commandCard('Execution', deck.execution_state, 'No route to command transport'),
-      commandCard('Canonical receipt', deck.receipt_state, 'Success cannot be implied'),
-      commandCard('Rollback', deck.rollback_state, 'No executed action to reverse'),
-      commandCard('Kill switch', deck.kill_switch_state, 'Unknown is not reported as safe')
+      commandCard('Authority', hand.authority, 'HTTP execution remains unavailable'),
+      commandCard('Approval inbox', hand.summary.awaiting_approval, 'Previewed proposals awaiting a decision'),
+      commandCard('Execution receipts', hand.summary.succeeded, 'Only canonical successful outcomes'),
+      commandCard('Incidents', hand.summary.incidents, 'Manual reconciliation required'),
+      commandCard('G5 release', hand.gates.g5, 'Live trust gate'),
+      commandCard('G6 policy', hand.gates.g6_policy, 'Command-specific release')
     );
+    var contractStatus = id('command-contract-status');
+    contractStatus.className = 'state-chip ' + (hand.status === 'ready' ? 'state-fresh' : 'state-blocked');
+    contractStatus.lastChild.textContent = titleCase(hand.status);
+    id('command-contract-copy').textContent = hand.source_contract.command_key + ' · pinned to '
+      + hand.source_contract.repository + '@' + hand.source_contract.source_commit.slice(0, 8)
+      + ' · source verdict ' + hand.source_contract.verdict + '.';
+    var blockers = id('command-blocker-list');
+    clear(blockers);
+    if (!hand.blockers.length) blockers.append(element('li', 'command-pass', 'All repository qualification gates are recorded.'));
+    hand.blockers.forEach(function (blocker) { blockers.append(element('li', '', titleCase(blocker))); });
+    var records = id('command-record-list');
+    clear(records);
+    if (!hand.records.length) {
+      records.append(element('div', 'empty-state', 'No G6 proposal exists for this tenant. Source qualification remains visible without implying approval.'));
+      return;
+    }
+    hand.records.slice(0, 8).forEach(function (record) {
+      var card = element('article', 'command-record');
+      var meta = element('div', 'command-record-meta');
+      meta.append(
+        element('span', '', 'Approval: ' + titleCase(record.approval.state)),
+        element('span', '', 'Execution: ' + titleCase(record.execution.state)),
+        element('span', record.incident_state === 'none' ? '' : 'incident-label', 'Incident: ' + titleCase(record.incident_state))
+      );
+      card.append(
+        meta,
+        element('h4', '', record.command_key),
+        element('p', '', titleCase(record.expected_impact_code) + ' · requested ' + formatDate(record.requested_at)),
+        element('small', '', record.execution.receipt_id
+          ? 'Receipt ' + record.execution.receipt_id + ' · ' + titleCase(record.execution.result_code)
+          : 'No canonical execution receipt recorded · ' + record.event_count + ' audit event(s)')
+      );
+      records.append(card);
+    });
   }
 
   function renderContext(entries) {
@@ -640,7 +696,8 @@ export const COCKPIT_SCRIPT = String.raw`
       api('/v1/tenants/' + tenant + '/alerts', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/notification-deliveries', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/goals', { signal: state.requestController.signal }),
-      api('/v1/tenants/' + tenant + '/plans', { signal: state.requestController.signal })
+      api('/v1/tenants/' + tenant + '/plans', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/supervised-hand', { signal: state.requestController.signal })
     ]);
     if (results[0].status === 'rejected') throw results[0].reason;
     state.context = results[1].status === 'fulfilled' && Array.isArray(results[1].value.entries)
@@ -653,9 +710,12 @@ export const COCKPIT_SCRIPT = String.raw`
       ? results[4].value.goals : [];
     state.plans = results[5].status === 'fulfilled' && Array.isArray(results[5].value.plans)
       ? results[5].value.plans : [];
+    state.hand = results[6].status === 'fulfilled' ? results[6].value : null;
     setError(id('alert-error'), results[2].status === 'fulfilled' ? '' : 'Proactive alert state is temporarily unavailable. Refresh to retry.');
     setError(id('planner-error'), results[4].status === 'fulfilled' && results[5].status === 'fulfilled'
       ? '' : 'Planner state is temporarily unavailable. Refresh to retry.');
+    setError(id('command-error'), results[6].status === 'fulfilled'
+      ? '' : 'Supervised hand evidence is temporarily unavailable. No command capability is inferred.');
     renderSnapshot(results[0].value);
     setHidden(id('connection-chamber'), true);
     setHidden(id('cockpit-workspace'), false);
@@ -668,6 +728,7 @@ export const COCKPIT_SCRIPT = String.raw`
     if (results[3].status === 'rejected') partials.push('delivery evidence');
     if (results[4].status === 'rejected') partials.push('goal ledger');
     if (results[5].status === 'rejected') partials.push('planner state');
+    if (results[6].status === 'rejected') partials.push('supervised hand evidence');
     announce(partials.length ? 'Cockpit evidence loaded; ' + partials.join(', ') + ' temporarily unavailable.' : 'Cockpit evidence loaded.');
   }
 

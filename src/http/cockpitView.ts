@@ -174,7 +174,18 @@ export function renderCockpitHtml(): string {
             <div class="command-crest">${icon('shield')}</div>
             <div><p class="eyebrow">CAPABILITY BOUNDARY</p><h3 id="command-notice">Approval is not execution.</h3><p id="command-reason"></p></div>
           </article>
+          <p id="command-error" class="form-error" role="alert" hidden></p>
           <div id="command-state-grid" class="command-state-grid"></div>
+          <div class="hand-layout">
+            <article class="realm-panel hand-readiness">
+              <div class="panel-heading"><div><p class="eyebrow">PHASE 14 QUALIFICATION</p><h3>One supervised hand</h3><p id="command-contract-copy" class="panel-intro"></p></div><span id="command-contract-status" class="state-chip state-blocked"><span></span>Blocked</span></div>
+              <ul id="command-blocker-list" class="command-blocker-list" aria-label="Supervised hand blockers"></ul>
+            </article>
+            <article class="realm-panel hand-ledger">
+              <div class="panel-heading"><div><p class="eyebrow">IMMUTABLE EVIDENCE</p><h3>Approval, receipt, and incident ledger</h3></div><span class="authority-label">Read only</span></div>
+              <div id="command-record-list" class="command-record-list" aria-live="polite"></div>
+            </article>
+          </div>
         </section>
       </section>
     </main>

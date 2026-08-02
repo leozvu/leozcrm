@@ -34,13 +34,16 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
     commandVersion = 'v1',
     adapterId = 'egoric-test-action-adapter',
   ) {
+    const taskCreate = commandKey === 'egoric.task.create.v1';
     this.descriptor = {
       adapter_id: adapterId,
       adapter_version: 'test_adapter_v1',
       command_key: commandKey,
       command_version: commandVersion,
       environment: 'test' as const,
-      target_endpoint_url: 'https://test-actions.example/api/integrations/leozops/v1/commands/set-lead-status',
+      target_endpoint_url: taskCreate
+        ? 'https://test-actions.example/api/integrations/leozops/v1/commands/create-task'
+        : 'https://test-actions.example/api/integrations/leozops/v1/commands/set-lead-status',
       supports_dry_run: true as const,
       supports_idempotency: true as const,
       supports_rollback: true as const,
@@ -48,6 +51,17 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
   }
 
   validatePayload(payload: unknown): void {
+    if (this.descriptor.command_key === 'egoric.task.create.v1') {
+      if (
+        typeof payload !== 'object'
+        || payload === null
+        || Array.isArray(payload)
+        || Object.keys(payload).sort().join(',') !== 'note,title'
+        || typeof (payload as Record<string, unknown>).title !== 'string'
+        || typeof (payload as Record<string, unknown>).note !== 'string'
+      ) throw new Error('payload must contain exact title and note fields');
+      return;
+    }
     if (
       typeof payload !== 'object'
       || payload === null
@@ -60,6 +74,7 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
 
   async preview(input: Parameters<SupervisedActionAdapter['preview']>[0]) {
     this.previewCalls += 1;
+    const taskCreate = this.descriptor.command_key === 'egoric.task.create.v1';
     const request = supervisedRequestFingerprint({
       commandKey: this.descriptor.command_key,
       commandVersion: this.descriptor.command_version,
@@ -71,7 +86,7 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
       idempotencyKey: input.idempotencyKey,
     });
     return {
-      summary_code: 'lead_status_will_change',
+      summary_code: taskCreate ? 'task_will_create' : 'lead_status_will_change',
       request_fingerprint: this.mismatchPreview ? actionFingerprint('wrong-request') : request,
       target_fingerprint: supervisedTargetFingerprint({
         projectId: input.targetProjectId,
@@ -79,8 +94,8 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
         endpointUrl: input.targetEndpointUrl,
         credentialFingerprint: input.targetCredentialFingerprint,
       }),
-      effect_fingerprint: actionFingerprint({ from: 'new', to: 'contacted' }),
-      rollback_strategy_code: 'restore_previous_status',
+      effect_fingerprint: actionFingerprint(taskCreate ? { from: 'absent', to: 'created' } : { from: 'new', to: 'contacted' }),
+      rollback_strategy_code: taskCreate ? 'delete_created_task' : 'restore_previous_status',
       estimated_cost_minor: 25,
       currency: 'USD',
       external_mutation_count: 0 as const,
@@ -97,7 +112,7 @@ export class DeterministicActionAdapter implements SupervisedActionAdapter {
         request: input.preview.request_fingerprint,
         result: 'changed',
       }),
-      result_code: 'lead_status_changed',
+      result_code: this.descriptor.command_key === 'egoric.task.create.v1' ? 'task_created' : 'lead_status_changed',
       actual_cost_minor: this.actualCostMinor,
       currency: 'USD',
       external_mutation_count: 1 as const,
@@ -205,6 +220,8 @@ export async function createSupervisedActionScenario(
     maxPerHour?: number;
     maxPerDay?: number;
     maxCostMinor?: number;
+    commandKey?: string;
+    adapterId?: string;
   } = {},
 ) {
   const clock = { now: options.now ?? new Date('2026-08-17T14:00:00.000Z') };
@@ -230,7 +247,11 @@ export async function createSupervisedActionScenario(
     ...releaseCore,
     evidence_key: actionFingerprint(releaseCore),
   });
-  const adapter = new DeterministicActionAdapter();
+  const adapter = new DeterministicActionAdapter(
+    options.commandKey,
+    'v1',
+    options.adapterId,
+  );
   const policy: G6ActionPolicyManifest = {
     schema_version: 'leozops_g6_action_policy_v1',
     policy_id: `G6-${name}`,
@@ -295,11 +316,14 @@ export async function proposePreviewApprove(
   scenario: Awaited<ReturnType<typeof createSupervisedActionScenario>>,
   suffix = '0000000000000001',
 ) {
+  const taskCreate = scenario.policy.command.key === 'egoric.task.create.v1';
   const proposal = await scenario.service.propose({
     policyId: scenario.policy.policy_id,
-    payload: { lead_id: `lead_${suffix}`, status_code: 'contacted' },
-    reasonCode: 'follow_up_priority_lead',
-    expectedImpactCode: 'advance_qualified_lead',
+    payload: taskCreate
+      ? { title: `Review priority opportunity ${suffix}`, note: 'Founder approved test fixture' }
+      : { lead_id: `lead_${suffix}`, status_code: 'contacted' },
+    reasonCode: taskCreate ? 'create_ceo_follow_up_task' : 'follow_up_priority_lead',
+    expectedImpactCode: taskCreate ? 'record_next_best_action' : 'advance_qualified_lead',
     evidenceRefs: ['brief.current', 'recommendation.follow_up'],
     estimatedCostMinor: 25,
     currency: 'USD',
