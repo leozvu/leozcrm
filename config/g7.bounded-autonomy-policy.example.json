@@ -1,0 +1,53 @@
+{
+  "schema_version": "leozops_g7_bounded_autonomy_policy_v1",
+  "policy_id": "G7-pending-replace_me",
+  "status": "pending",
+  "environment": "test",
+  "approved_by": "pending",
+  "approved_at": "2099-01-01T00:00:00.000Z",
+  "valid_from": "2099-01-01T00:00:00.000Z",
+  "valid_until": "2099-01-02T00:00:00.000Z",
+  "tenant_id": "00000000-0000-4000-8000-000000000000",
+  "source_connection_id": "00000000-0000-4000-8000-000000000000",
+  "g6_policy": {
+    "policy_id": "G6-pending-replace_me",
+    "policy_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "command_key": "egoric.pending.command.v1",
+    "command_version": "v1",
+    "adapter_id": "pending-adapter",
+    "target_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "identities": {
+    "release_authority": "pending",
+    "release_credential_sha256": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+    "executor": "pending",
+    "executor_credential_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "kill_switch_operator": "pending",
+    "kill_switch_credential_sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+  },
+  "history": {
+    "window_days": 30,
+    "min_successful_executions": 5,
+    "require_successful_rollback_drill": true,
+    "max_non_successful_executions": 0
+  },
+  "limits": {
+    "max_cost_minor_per_action": 0,
+    "max_cost_minor_per_day": 0,
+    "currency": "USD",
+    "max_executions_per_hour": 1,
+    "max_executions_per_day": 1,
+    "cooldown_seconds": 3600,
+    "max_source_age_minutes": 5,
+    "execution_lease_seconds": 30,
+    "mutation_count_max": 1
+  },
+  "safety": {
+    "scenario_set_version": "g7-core-v1",
+    "initial_kill_switch_state": "engaged",
+    "require_no_open_incident": true,
+    "halt_on_any_failure": true,
+    "halt_on_unknown_outcome": true
+  },
+  "verdict": "pending"
+}

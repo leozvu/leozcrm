@@ -1,0 +1,5 @@
+{
+  "tenant_key": "replace-with-exact-tenant-key",
+  "idempotency_key": "daily-brief-2026-08-01",
+  "as_of": null
+}

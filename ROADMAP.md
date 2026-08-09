@@ -86,7 +86,7 @@ the S2.A local implementation plus one local disposable PostgreSQL checkpoint.
 P1/P2, managed infrastructure, and deployment require separate Product Owner
 approval.
 
-### Sprint 2 — 🚧 S2.A Accepted; P1 Decision Preflight Local
+### Sprint 2 — 🚧 Local implementation complete; external G5 execution pending
 
 Goal:
 Deployment → Test Instance → Production Shadow → Read-only Pilot.
@@ -107,18 +107,297 @@ provisional solo-founder defaults in
 [`docs/P1_DECISION_PACKET.md`](docs/P1_DECISION_PACKET.md), accepted through
 [PR #17](https://github.com/leozvu/leozcrm/pull/17) at `main@35ed23c`. Its
 pending example does not approve P1 or any provider/spend.
-Planned contents:
-- Scheduled 15-min ETag polling, retry/backoff, circuit breaker, nightly
-  reconciliation, alerting, operational runbooks.
-- Connector health, reconciliation evidence, and operator runbooks; the
-  existing authenticated CEO Brief remains the only product read route.
-- Hosting decision; LeozOps deployed with independent Postgres + secrets;
-  readiness/canary.
-- Ten-business-day read-only production shadow per
-  `docs/EGORIC_INTEGRATION.md` §11, then CEO go/extend/revoke decision.
+The remaining S2.B–S2.D repository control plane is implemented on
+`codex/leozops-phase2`: environment-bound Checkpoint B/P2 manifests, public
+integration readiness, a manifest-gated command-and-exit worker, immutable
+poll/daily evidence, exact daily reconciliation, a ten-consecutive-business-
+day evaluator, and fail-closed go/extend/revoke decisions. Operational usage
+and rollback are defined in
+[`docs/PHASE_2_OPERATIONS.md`](docs/PHASE_2_OPERATIONS.md).
+
+Still pending as external facts:
+- accepted exact P1 values and the named test infrastructure;
+- networked Checkpoint B evidence and accepted P2;
+- production canary plus ten elapsed, qualifying business days;
+- the final Product Owner go/extend/revoke decision.
 
 Evidence gates: all 12 Codex release gates (contract §15) before any
 production key/flag; contract §11 pilot criteria for the shadow.
+
+---
+
+### Sprint 3 — 🚧 Local G6 control plane complete; real command release blocked
+
+Goal:
+Recommendation → Safe Proposal → Exact Dry-run → Human Approval → One
+Idempotent Action → Auditable Result / Separately Approved Rollback.
+
+Plan: [`docs/SPRINT_3_PLAN.md`](docs/SPRINT_3_PLAN.md). DECISION-002 addendum 14
+authorizes the local repository package only. The implementation on
+`codex/leozops-phase3-supervised-action` provides:
+
+- an exact one-command G6 policy bound to a still-current G5 `go`;
+- recursively safe payloads and immutable evidence-bound proposals;
+- zero-mutation dry-runs plus separate approval/operator credentials;
+- atomic rate/budget/idempotency claims and unknown-outcome reconciliation;
+- immutable SQLite/PostgreSQL audit evidence;
+- one separately previewed/approved rollback in a bounded safety window;
+- a fail-closed CLI/preflight and intentionally empty production adapter
+  registry.
+
+Still pending as external facts:
+
+- the real G5 `go` prerequisite;
+- a narrow RepositoryRealms command contract and source-side idempotency;
+- one named test/production target and least-privilege command credential;
+- command-specific network, dry-run parity, rollback, incident, and CEO QA;
+- explicit G6 release for that command.
+
+No real adapter, external write, deployment, credential, scheduler, or G7
+autonomy is authorized or present.
+
+---
+
+### Sprint 4 — 🚧 Local G7 rehearsal complete; bounded-autonomy release blocked
+
+Goal:
+Proven Supervised History → Policy Simulation → Explicit Kill-switch Release →
+One Bounded Candidate → Monitor / Incident → Human-controlled Recovery.
+
+Plan: [`docs/SPRINT_4_PLAN.md`](docs/SPRINT_4_PLAN.md). DECISION-002 addendum 15
+authorizes only the inert local package on
+`codex/leozops-phase4-bounded-autonomy`. It provides:
+
+- an exact low-risk G6-bound standing policy and deterministic safety simulator;
+- real supervised-history, source-freshness, current-G5/G6, and adapter gates;
+- an initially engaged dual-credential kill switch and immutable incidents;
+- one-candidate dry-run/evaluate/atomic-claim/execute orchestration;
+- rolling rate, daily cost, cooldown, one-mutation, and lease limits;
+- automatic halt on every failed or uncertain result;
+- a separately previewed, dual-credential-approved, explicitly invoked human
+  recovery within 24 hours; and
+- immutable SQLite/PostgreSQL evidence plus a fail-closed CLI/preflight.
+
+Still pending as external facts:
+
+- genuine G5 and command-specific G6 releases;
+- sufficient qualifying production supervised history;
+- a deployed exact adapter, least-privilege credentials, and verified kill
+  switch/monitoring;
+- production simulator replay, canary, incident/recovery drill, and explicit G7
+  Product Owner release.
+
+The production adapter registry remains empty. No external request, scheduler,
+HTTP mutation route, autonomous rollback, deployment, credential, or real G7
+authority is present.
+
+---
+
+### Sprint 5 — ✅ Local operational assurance complete; external release blocked
+
+Goal:
+Immutable G5/G6/G7 Facts → Deterministic Safety Assessment → Freshness / Drift
+Recheck → Immutable Release Package → Explicit External Blockers.
+
+Plan: [`docs/SPRINT_5_PLAN.md`](docs/SPRINT_5_PLAN.md). DECISION-002 addendum 16
+authorizes only the local assurance package on
+`codex/leozops-phase5-operational-assurance`. It provides:
+
+- an exact G7-bound policy with three new credential fingerprints separated
+  from all G7/G6 credentials;
+- a 15-check assessment derived from immutable upstream records only;
+- execution, failure, reconciliation, recovery, incident, kill-switch, and
+  event-chain evidence over a bounded window;
+- idempotent immutable assessments and monotonic audit events;
+- latest-assessment TTL plus current-state and event-chain rechecks at review;
+- an immutable release package that can only be `blocked_external`; and
+- a fail-closed pending template, preflight, command-and-exit operator, SQLite /
+  PostgreSQL guards, and operations runbook.
+
+Still pending as external facts are the same G5/G6/G7 deployment, production
+history, exact adapter/credential, monitoring, canary, drills, and explicit
+Product Owner release evidence. Phase 5 creates no G8, no waiver/promote path,
+and no external capability.
+
+---
+
+### Sprint 6 — ✅ Signed external-evidence admission complete; activation blocked
+
+Goal:
+Exact Phase 5 Package → Pinned Issuers → Signed Evidence Admission → Eight-row
+Assessment → Complete-but-Unreleased Candidate.
+
+Plan: [`docs/SPRINT_6_PLAN.md`](docs/SPRINT_6_PLAN.md). DECISION-002 addendum 17
+authorizes only a local trust bridge on
+`codex/leozops-phase6-external-evidence`. It provides:
+
+- an exact Phase 5 package-bound policy with separate authority/assessor
+  credentials and four unique pinned Ed25519 public keys;
+- the canonical eight-blocker matrix with no wildcard, waiver, or inferred
+  evidence path;
+- canonical signed envelopes bound to tenant, source, environment, package,
+  subject, issuer, timestamps, digest, and nonce;
+- signature, issuer, expiry, freshness, clock-skew, replay, nonce, ordering, and
+  signed-revocation enforcement;
+- immutable SQLite/PostgreSQL policies, attestations, assessments, and monotonic
+  events; and
+- a file-only operator, fail-closed preflight, templates, and incident/key
+  rotation runbook.
+
+Even eight valid rows produce only `complete_unreleased` with
+`blocked_external_activation`. Real issuer enrollment, raw evidence collection,
+named production infrastructure, adapter registration, deployment, and any G7
+activation/release act remain pending a separately authorized phase. No G8,
+network call, scheduler, daemon, HTTP mutation route, private key, or production
+capability is present.
+
+---
+
+### Sprint 7 — ✅ Local activation ceremony complete; external execution absent
+
+Goal:
+Fresh Phase 6 Evidence → Exact Target Dossier → Independent Verification →
+Sealed External Handoff / Additive Recall.
+
+Plan: [`docs/SPRINT_7_PLAN.md`](docs/SPRINT_7_PLAN.md). DECISION-002 addendum 18
+authorizes only the local ceremony package on
+`codex/leozops-phase7-activation-ceremony`. It provides:
+
+- one exact policy bound to the latest fresh Phase 6 assessment and all eight
+  currently effective signed attestations;
+- named deployment/provider/region/project/service plus exact artifact,
+  configuration, non-secret credential-reference, canary, and rollback hashes;
+- three separately authenticated solo-founder roles: authority, verifier, and
+  operator;
+- immutable dossiers, approve/reject verifications, sealed handoffs, additive
+  recalls, and monotonic events;
+- current upstream/expiry/revocation/target drift checks plus transactional
+  Phase 6 snapshot locking at every persistence boundary; and
+- a fail-closed pending template, preflight, one-shot operator, SQLite /
+  PostgreSQL guards, tests, and operations runbook.
+
+Every handoff remains `not_executed` and requires new external authority. Real
+infrastructure, artifacts, credentials, adapter registration, canary,
+monitoring, deployment, activation, rollback, and incident operations remain
+external. No executor, provider SDK, network call, scheduler, daemon,
+background loop, HTTP mutation route, or production capability is present.
+
+---
+
+### Sprint 8 — ✅ Local controlled-activation control plane complete; adapter absent
+
+Goal:
+Exact Phase 7 Handoff → Zero-mutation Preview → Dual Release → One Persisted
+Claim / One Adapter Call → Explicit Observation → Manual Rollback if required.
+
+Plan: [`docs/SPRINT_8_PLAN.md`](docs/SPRINT_8_PLAN.md). DECISION-002 addendum 19
+authorizes the local control plane on
+`codex/leozops-phase8-controlled-activation`. It provides:
+
+- an exact policy bound to one unrecalled Phase 7 handoff and its target,
+  artifact, configuration, canary, and rollback contracts;
+- four separately hashed solo-founder credentials for release, execution,
+  observation, and rollback, distinct from every upstream credential;
+- an initially engaged switch, short dual-credential release, zero-mutation
+  preview, and one atomic pre-invocation claim;
+- terminal unknown handling for lost responses and crash reconciliation with no
+  second adapter invocation;
+- explicit receipt-bound observation, immutable incidents, and explicit
+  dual-authorized manual rollback; and
+- ten append-only SQLite/PostgreSQL tables, a fail-closed preflight, one-shot
+  operator, pending template, adversarial tests, operations runbook, automated
+  Node 22/24 plus PostgreSQL 16 QA, and a final completion-evidence packet.
+
+The production activation registry is intentionally empty. No provider SDK,
+real target secret, external call, deployment, scheduler, daemon, background
+loop, HTTP mutation route, automatic retry, observation, or rollback is
+installed or authorized. Phase 8 completes the repository-local control-plane
+sequence; real G5/G6/G7 evidence and production activation remain external.
+
+---
+
+## Jarvis Product Track — 🚧 In Progress
+
+Phase 8 completes the local safety spine; it does not complete the product
+experience or production rollout. The approved plan from this point to Jarvis
+v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
+
+| Phase | Product increment | Status | Release gate |
+|---|---|---|---|
+| 9 | Evidence-grade Ask LeozOps | 🚧 Phase 9A core + Phase 9B OpenAI adapter complete locally; live eval/SLO pending | J1 grounded conversation |
+| 10 | Medieval CEO Cockpit | ✅ Complete locally; founder/live acceptance pending | J2 usable evidence cockpit |
+| 11 | Proactive Nervous System | ✅ Complete locally; live baseline/channel acceptance pending | J3 trustworthy alerts |
+| 12 | Live Observer | ⏳ External critical path | J4 / real G5 `go` |
+| 13 | Goal-aware Planner | ✅ Complete locally; named live review pending | J5 reproducible plans |
+| 14 | One real supervised hand | ✅ Source command contract canonical on RepositoryRealms `main@0c2b3ff`; registration/live gates blocked | J6 / real G6 history |
+| 15 | Exact RepositoryRealms hand | ✅ Adapter and release boundary complete locally; registration/live gates blocked | J6 / real G6 history |
+| 16 | Ambient Jarvis and v1 | ✅ Repository candidate complete; live 30-day acceptance blocked | J8 / 30-day release acceptance |
+
+Phase 9A is implemented on `codex/leozops-phase9a-conversation-core`:
+conversation evidence contracts, durable CEO context, six fixed read tools, an
+evidence-pack builder, authenticated Ask endpoints, deterministic provider,
+golden evaluations, budgets, failure evidence, and SQLite/PostgreSQL lifecycle
+coverage. It adds no production model credential, action capability, or
+external deployment.
+
+Phase 9B is implemented on `codex/leozops-phase9b-openai-adapter`: one pinned
+`gpt-5.6-sol` Responses adapter, strict no-tool structured output, stateless
+request semantics, versioned token-cost accounting, billable-call preflight,
+and a 12-case eval runner. Deterministic mode remains the default. No key or
+live request was used, so credential/revocation proof, live eval quality,
+repeated p95 latency/cost, provider monitoring, privacy review, and Product
+Owner SLO acceptance still block live J1.
+
+Phase 10 is implemented on `codex/leozops-phase10-medieval-cockpit`: a
+responsive medieval CEO cockpit exposes Today, Ask LeozOps, Business,
+Recommendations, and a deliberately sealed Command Deck. The public shell is
+data-free; tenant evidence arrives only through authenticated same-origin APIs.
+The UI progressively reveals only a fully validated Phase 9 answer, keeps
+citations inspectable, supports keyboard/reduced-motion/high-contrast use, and
+adds no execution route. Repository QA is complete, but the named-deployment
+founder usability run and accepted live J1/G5 evidence still block live J2.
+
+Phase 11 is implemented on
+`codex/leozops-phase11-proactive-nervous-system`: accepted snapshots feed two
+versioned deterministic rules, append-only evaluations and alert state, quiet
+hours/cooldown/deduplication, daily and urgent outbox intents, replay-safe
+delivery evidence, immutable founder quality outcomes, a J3 shadow evaluator,
+and a command-and-exit operator. The production delivery registry and
+scheduler remain absent. A named deployment, at least 20 genuine reviews,
+accepted volume/FPR, delivery SLO evidence, and Product Owner acceptance still
+block live J3.
+
+Phase 12 is implemented on `codex/leozops-phase12-live-observer`: the compiled
+read-only runtime now has a non-root production image, exact deployment and
+secret-reference preflight, scheduler-owned one-shot poll/evaluate composition,
+append-only operational/recovery evidence, redacted request/trace logs,
+protected aggregate telemetry, and a disposable-only restore drill. This is a
+repository candidate, not a live Observer. The named platform, real network,
+P1/P2, at least ten actual business days, live drills, monitoring acceptance,
+and a real G5 `go` still block J4.
+
+Phase 13 is implemented on `codex/leozops-phase13-goal-aware-planner`:
+strict versioned goal manifests feed evidence-bound deterministic plan graphs,
+explicit blocking/advisory conflicts, three uncertainty-labelled simulations,
+same-goal comparison, immutable founder decisions/checkpoints/outcomes, and a
+Planner cockpit review surface. Every action candidate is non-executable and
+routes only to the existing G6 gateway. Repository QA establishes a local J5
+candidate; named-deployment review using accepted live J1 evidence and Product
+Owner acceptance still block live J5.
+
+Phase 14 qualification is implemented on
+`codex/leozops-phase14-supervised-hand-readiness`: the real
+RepositoryRealms `task.create` contract is pinned to canonical
+`main@0c2b3ff236d747e87113f7d438d42b6b3caadb7c` and exact source blobs, the only
+candidate payload is unassigned and PII-minimized, and
+the Command Deck exposes tenant-scoped G5/G6/receipt/incident evidence without
+an execution route. The exact adapter is implemented and separately tested,
+but the production registry remains empty. Real G5 `go`, a command-specific G6
+release, named-runtime credentials and registration, supervised live history,
+and J6 acceptance still block any real hand.
+
+The product and production-truth lanes may overlap while waiting for external
+elapsed evidence, but they must converge before any real command is enabled.
 
 ---
 

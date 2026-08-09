@@ -23,7 +23,7 @@ Phase 0 does not authorize production, credentials, write-back, or S1.B.
 
 0. CURRENT APPROVED DIRECTION — LEOZOPS INTELLIGENCE INTEGRATION (DECISION-002)
 ----------------------------------------------------------------------------
-Status: SPRINT 1 COMPLETE / G4 ACCEPTED / S2.A CHECKPOINT A ACCEPTED / P1 DECISION PREFLIGHT LOCAL
+Status: SPRINT 1 COMPLETE / PHASE 2–8 LOCAL CONTROL PLANES COMPLETE / PRODUCTION ADAPTER ABSENT
 Canonical contract: docs/EGORIC_INTEGRATION.md
 Execution plan: .hermes/plans/2026-07-18_egoric-integration-execution-plan.md
 Sprint 1A tasks (Egoric repo): docs/SPRINT_1A_TASKS.md — T1-T6.
@@ -39,6 +39,43 @@ P1 decision packet: docs/P1_DECISION_PACKET.md — local fail-closed manifest
 validator accepted through PR #17 at leozcrm/main@35ed23c under DECISION-002
 addendum 12; the checked-in example is intentionally pending and P1 remains
 blocked.
+Phase 2 operations: docs/PHASE_2_OPERATIONS.md — local S2.B–S2.D manifest
+chain, readiness, one-shot worker, immutable poll/daily evidence, ten-business-
+day evaluator, and go/extend/revoke control plane implemented on
+codex/leozops-phase2 under DECISION-002 addendum 13. This is implementation
+readiness only; P1/P2, deployment, credentials/flags, network proof, production
+canary, and elapsed shadow evidence remain blocked/pending.
+Sprint 3/G6 plan: docs/SPRINT_3_PLAN.md. Local exact policy, safe proposal,
+dry-run, separate approval/operator authentication, idempotent claim,
+risk/budget/rate enforcement, immutable audit, unknown-outcome reconciliation,
+and separately approved rollback are implemented on
+codex/leozops-phase3-supervised-action under DECISION-002 addendum 14.
+Operations: docs/PHASE_3_OPERATIONS.md. The production adapter registry is
+intentionally empty; real G5 go, one narrow RepositoryRealms command contract,
+command-specific QA, deployment, credential, and G6 release remain blocked.
+Sprint 4/G7 plan: docs/SPRINT_4_PLAN.md. Local exact standing policy,
+deterministic simulator, real G6 history gate, fresh-source check, kill switch,
+one-candidate envelope, immutable incidents, atomic limits, and separately
+approved human recovery are implemented on
+codex/leozops-phase4-bounded-autonomy under DECISION-002 addendum 15.
+Operations: docs/PHASE_4_OPERATIONS.md. The production adapter registry remains
+empty; G5/G6 release, production supervised history, deployed monitoring,
+incident drills, and explicit G7 release remain blocked.
+Sprint 5 assurance plan: docs/SPRINT_5_PLAN.md. The exact G7-bound local policy,
+database-derived assessment, 15-check safety case, freshness/event-chain recheck,
+immutable `blocked_external` package, preflight, and command-and-exit operator
+are implemented on codex/leozops-phase5-operational-assurance under
+DECISION-002 addendum 16. Operations: docs/PHASE_5_OPERATIONS.md. Phase 5 does
+not create G8 or release G7; every external evidence requirement remains
+explicitly blocked and production composition remains adapter-free.
+Sprint 6 signed-evidence plan: docs/SPRINT_6_PLAN.md. Exact Phase 5 binding,
+four pinned Ed25519 issuer keys, canonical eight-row matrix, signature/freshness/
+replay/revocation enforcement, immutable admission and assessments, preflight,
+and command-and-exit operator are implemented on
+codex/leozops-phase6-external-evidence under DECISION-002 addendum 17.
+Operations: docs/PHASE_6_OPERATIONS.md. A complete matrix is only
+`complete_unreleased`; real issuer enrollment, infrastructure, deployment, and
+activation remain outside repository authority.
 S2.A reliability contract: docs/POLL_RELIABILITY.md — T1-T4 merged through
 PR #11 at leozcrm/main@5d140a8 and accepted in DECISION-002 addendum 8.
 S2.A operations contract: docs/SOURCE_OPERATIONS.md — T5-T8 accepted in
@@ -80,9 +117,10 @@ Evidence gates (ALL required before Sprint 2):
   key-revocation drill. Codex PASS in CODEX_REVIEW.md; Leoz acceptance
   recorded in DECISIONS.md.
 
-G4 HARD STOP SATISFIED. Sprint 2 planning is authorized; implementation and
-deployment remain blocked until the resulting plan receives explicit Product
-Owner approval.
+G4 HARD STOP SATISFIED. Local Sprint 2–4 control-plane implementation is
+separately authorized by DECISION-002 addenda 13–15. External deployment, G5
+evidence, real command registration, G6 release, and G7 authority remain
+blocked by their named gates.
 
 SPRINT 2 — Goal (planning authorization only):
   Deployment -> Test Instance -> Production Shadow -> Read-only Pilot
@@ -356,3 +394,353 @@ Integration) per GOVERNANCE change-control. Options retained as history:
 - M8B: Facebook + Instagram Publishing
 - Operational monitoring/alerting expansion
 - Any scope requested by Leoz after pilot feedback (per GOVERNANCE change-control)
+
+16. PHASE 6 SIGNED EXTERNAL-EVIDENCE ADMISSION — LOCAL PASS
+-----------------------------------------------------------
+Status: COMPLETE ON `codex/leozops-phase6-external-evidence`; ACTIVATION BLOCKED
+
+[x] Exact Phase 5 assessment/package binding and separated credentials.
+[x] Four unique pinned Ed25519 issuer identities/public keys.
+[x] Canonical eight-row evidence matrix; no wildcard, waiver, or inference.
+[x] Signature, identity, binding, freshness, expiry, skew, nonce, replay, and
+    monotonic-order validation.
+[x] Signed revocation of the exact latest pass and derived expired/revoked state.
+[x] Immutable SQLite/PostgreSQL policies, attestations, assessments, and events.
+[x] File-only command-and-exit operator and deliberately blocking preflight.
+[x] Full regression 272/272; focused Phase 6 suite 13/13; TypeScript PASS.
+[x] SQLite up/down/up and PostgreSQL 16 full lifecycle/rollback PASS.
+[x] No high/critical npm advisory; no new dependency; no production adapter,
+    private key, network call, scheduler, daemon, HTTP mutation, or release path.
+
+Eight valid rows remain `complete_unreleased` and
+`blocked_external_activation`. Real trust enrollment, external evidence,
+deployment, named production infrastructure, and activation are not completed
+or authorized.
+
+17. PHASE 7 ACTIVATION CEREMONY — LOCAL PASS
+---------------------------------------------
+Status: COMPLETE ON `codex/leozops-phase7-activation-ceremony`; EXECUTION ABSENT
+
+[x] Exact fresh Phase 6 assessment and eight-attestation target binding.
+[x] Named target plus artifact/configuration/credential-reference/canary/
+    rollback fingerprints; no wildcard, placeholder, URL, waiver, or secret.
+[x] Separate authority, verifier, and operator credentials for solo operation.
+[x] Immutable dossier, verification, sealed handoff, additive recall, events.
+[x] Recheck plus transactional Phase 6 snapshot lock before accept/create/seal.
+[x] File-only command-and-exit operator and deliberately blocking preflight.
+[x] Focused Phase 7 suite 13/13, SQLite up/down/up, TypeScript, full regression
+    285/285, PostgreSQL 16 eleven-migration lifecycle, dependency audit, and
+    documentation verification.
+[x] No executor, provider SDK, production adapter, target credential, network,
+    scheduler, daemon, background loop, HTTP mutation, deploy, or activation.
+
+Every sealed handoff remains `not_executed` with
+`external_execution_required=true`. Real external execution requires a future
+explicit authorization and implementation.
+
+18. PHASE 8 CONTROLLED SINGLE ACTIVATION — LOCAL PASS
+-----------------------------------------------------
+Status: COMPLETE ON `codex/leozops-phase8-controlled-activation`; PRODUCTION ADAPTER ABSENT
+
+[x] Exact unrecalled Phase 7 handoff and target/canary/rollback binding.
+[x] Four new separate release/executor/observer/rollback credentials.
+[x] Initially engaged switch and short dual-credential release.
+[x] Zero-mutation preview and one persisted claim before one adapter call.
+[x] Lost response and expired orphan claim become terminal unknown with no retry.
+[x] Explicit receipt-bound observation; unhealthy/unknown opens an incident.
+[x] Explicit dual-authorized idempotent rollback; no automatic rollback.
+[x] Ten append-only SQLite/PostgreSQL tables and monotonic audit events.
+[x] Fail-closed preflight, exact-key one-shot operator, pending template,
+    adversarial tests, migration lifecycle, and operations runbook.
+[x] Focused Phase 8 suite 17/17, full regression 302/302, TypeScript PASS,
+    SQLite up/down/up, PostgreSQL 16 twelve-migration lifecycle/rollback,
+    Node 24 isolated compatibility, 63/63 local documentation links, and no
+    high/critical dependency advisory.
+[x] Read-only GitHub Actions QA for Node 22/24, full SQLite regression,
+    high-severity audit, and disposable PostgreSQL 16 lifecycle.
+[x] Final local evidence packet with explicit non-fabricable external blockers.
+[x] Production activation registry empty; no provider SDK, real secret, network,
+    scheduler, daemon, background loop, HTTP mutation route, or deployment.
+
+Phase 8 completes the local control-plane implementation. Real provider
+adapter/credential, target deployment, live canary/monitoring/drills, and the
+external G5/G6/G7 evidence gates remain separately blocked.
+
+19. JARVIS PRODUCT TRACK — PHASE 9B LOCAL ADAPTER COMPLETE
+----------------------------------------------------------
+Status: PHASE 9A CORE + PHASE 9B ADAPTER COMPLETE LOCALLY; LIVE MODEL EVIDENCE ABSENT
+
+[x] Define the bounded Jarvis v1 outcome and explicit non-goals.
+[x] Record the honest Phase 8 repository/production baseline.
+[x] Split product work from non-fabricable production-truth work.
+[x] Define J1-J8 acceptance checkpoints without weakening G0-G7.
+[x] Order Phases 9-16 through conversation, cockpit, proactive delivery, live
+    trust, planning, one supervised hand, bounded autonomy, and v1 release.
+[x] Define the solo-founder critical path, estimate, external elapsed windows,
+    and stop rules.
+
+Phase 9A implementation checklist:
+
+[x] Fact/inference/recommendation/limitation answer contract.
+[x] Tenant-scoped conversation, message, run, citation, feedback, goal,
+    constraint, and decision schemas.
+[x] Evidence-pack builder over approved Business Memory and CEO Brief facts.
+[x] Typed read-only tool registry and deterministic model-provider double.
+[x] Authenticated, idempotent conversation create/read/ask routes.
+[x] Golden factual/comparative/insufficient/stale/adversarial question set.
+[x] Tenant isolation, prompt-injection, replay, budget, timeout, and provider-
+    failure tests.
+[x] SQLite migration lifecycle and seven-table immutability proof.
+[x] Disposable PostgreSQL 16 thirteen-migration lifecycle, conversation,
+    context, citation, feedback, replay, seven-table immutability, and rollback.
+[x] Focused Phase 9A suite 18/18, full regression 320/320, TypeScript PASS,
+    71/71 local documentation links, and no high/critical dependency advisory.
+
+Phase 9A adds no production model credential, generic SQL/HTTP/filesystem tool,
+action execution, notification scheduler, voice, or external deployment.
+
+Phase 9B implementation checklist:
+
+[x] Official current model/Responses/Structured Outputs contract reviewed.
+[x] One pinned `gpt-5.6-sol` adapter with fixed official endpoint.
+[x] Strict `advisor_answer_v1` schema plus existing domain/citation validation.
+[x] `store:false`, no tools, no retry, current-turn reasoning, bounded output.
+[x] Deterministic provider remains the default; explicit OpenAI opt-in fails
+    startup without a runtime key.
+[x] Provider body/key redaction and malformed/refused/incomplete/model-drift/
+    usage/content-type/response-size failure handling.
+[x] Versioned input/cached/cache-write/output cost policy and pre-call maximum-
+    cost guard before transport.
+[x] Expanded 12-case eval with 100% contract and 90% behavior thresholds plus
+    per-case latency/token/cost evidence.
+[x] Billable live-eval command requires an exact acknowledgement and key; the
+    unconfigured guard exits nonzero before transport.
+[x] Durable streaming deferred to Phase 10 so partial unvalidated claims cannot
+    become conversation evidence.
+[x] Phase 9B-specific provider/eval and trust-boundary suites 11/11; Phase 9
+    conversation suite 20/20; full regression 332/332; TypeScript PASS.
+[x] 55/55 local links across changed documentation, `git diff --check`, secret scan, and
+    high/critical production dependency audit PASS; no dependency added.
+
+Phase 9B installs no key, makes no live request, and performs no deployment.
+J1 remains open for live use until credential/revocation proof, privacy review,
+accepted live eval, repeated p95 latency/cost, monitoring, named deployment,
+Product Owner SLO acceptance, and real G5 evidence exist.
+
+20. PHASE 10 MEDIEVAL CEO COCKPIT — LOCAL PASS CANDIDATE
+--------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase10-medieval-cockpit`; LIVE J2 OPEN
+
+[x] Canonical Realm v2 tokens and page contract recorded under `design-system/`.
+[x] Versioned, tenant-scoped, PII-minimized cockpit projection.
+[x] Public data-free connection chamber with strict same-origin CSP.
+[x] Today, Ask LeozOps, Business, Recommendations, and Command Deck surfaces.
+[x] Full answer validation before progressive reveal and exact citation drawer.
+[x] Read credential held only in page memory and cleared on disconnect/pagehide.
+[x] Keyboard tabs, Ctrl/Cmd+K, skip link, focus states, 44 px targets, reduced
+    motion, high contrast, and responsive desktop/tablet/mobile layouts.
+[x] Loading, freshness, partial context, empty queue, blocked, auth, network,
+    and recovery states.
+[x] Command Deck reports read-only/not-connected/blocked/not-available truth;
+    no execution route or direct Egoric post exists.
+[x] In-app browser QA: five surfaces, Ask/citations, Ctrl+K, 1280 desktop,
+    390 mobile, no horizontal overflow, 56 px mobile targets, and zero console
+    warning/error.
+[x] Focused Phase 10 suite 4/4, full regression 336/336, TypeScript, 56 local
+    links, diff check, changed-file secret scan, and high/critical dependency
+    audit PASS.
+[ ] Live J2: founder under-five-minute run on named deployment with accepted
+    live J1/G5 evidence.
+
+Phase 10 adds no dependency, migration, model key, production adapter,
+deployment, scheduler, notification, generic tool, or operational authority.
+
+21. PHASE 11 PROACTIVE NERVOUS SYSTEM — LOCAL PASS CANDIDATE
+------------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase11-proactive-nervous-system`; LIVE J3 OPEN
+
+[x] Versioned deterministic overdue-close and active-owner-gap rules.
+[x] Stale, future, and partial source evidence suppresses confirmed alerts.
+[x] Append-only cycles, evaluations, alerts, state events, outbox, attempts,
+    and results with SQLite lifecycle and dialect-portable PostgreSQL guards.
+[x] Snapshot/cycle/episode deduplication, worsening-only re-alert, four-hour
+    cooldown, UTC quiet hours, seven-day maximum snooze, and resolution.
+[x] Daily brief and urgent adapter contracts behind an empty production registry.
+[x] Stable logical delivery key, definitive-failure retry, delivered replay,
+    and unknown-outcome automatic-retry block.
+[x] Tenant-scoped alert/delivery APIs plus idempotent acknowledgement, snooze,
+    immutable useful/false-positive outcome, and J3 shadow evaluator.
+[x] Medieval cockpit alert panel with trigger facts, evidence drawer, explicit
+    severity/state text, delivery truth, and 44 px controls.
+[x] Exact-credential command-and-exit evaluate, daily-brief, deliver, status,
+    and shadow-status operator; no daemon or HTTP execution route.
+[x] Atomic cycle rollback/retry and one in-flight delivery claim per logical
+    notification, including injected-failure and concurrent-attempt tests.
+[x] Focused Phase 11 + cockpit suite 20/20; full regression 348/348;
+    TypeScript, in-app browser desktop/mobile, 59 local links, diff check,
+    changed-file secret scan, and high/critical dependency audit PASS.
+[ ] Execute the registered Phase 11 PostgreSQL lifecycle on a disposable real
+    PostgreSQL target; this workstation had no Docker, server, or DB credential.
+[ ] Live J3: named scheduler/channel, 20 genuine reviews, <=10% false positives,
+    <=3 alerts/day, accepted delivery SLO/incidents, named deployment, real G5,
+    and Product Owner acceptance.
+
+Phase 11 adds no Egoric mutation, background agent, production delivery
+adapter, scheduler, provider credential, deployment, or action authority.
+
+22. PHASE 12 LIVE OBSERVER — REPOSITORY PASS CANDIDATE
+------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase12-live-observer`; LIVE J4 OPEN
+
+[x] Multi-stage Node 24 production image, non-root runtime, PostgreSQL client,
+    compiled JavaScript start path, and health probe.
+[x] Compiled/source migration extension selection and production database
+    configuration with no fallback credential.
+[x] Exact production/read-only deployment schema, secret-reference validation,
+    injected-binding check, and runtime/database/Egoric identity preflight.
+[x] Scheduler-owned one-shot source-poll → proactive-evaluation operator with
+    bounded child processes and no web-server loop.
+[x] Append-only observer event and backup/restore drill evidence on SQLite and
+    PostgreSQL-compatible migrations.
+[x] JSON log redaction, request IDs, W3C trace propagation, startup/readiness
+    probes, and separately authenticated aggregate JSON/Prometheus telemetry.
+[x] Telemetry covers freshness, reconciliation, poll failure/latency, Advisor
+    cost/latency, delivery, observer outcomes, incidents, and recovery status.
+[x] Backup hashing and restore guard that requires a distinct disposable
+    PostgreSQL service plus exact acknowledgement.
+[x] Phase 12 unit/integration safety suite and CI build/container/PostgreSQL jobs.
+[x] Focused Phase 12 suite 8/8; full registered regression 348/348; strict
+    TypeScript, production compile, compiled-JavaScript migration, 54 local
+    documentation links, diff check, and high/critical dependency audit PASS.
+[ ] Execute the container-build and Phase 12 PostgreSQL lifecycle jobs. The
+    local Docker CLI exists but its Linux daemon was not running; CI is
+    registered but this branch has not been pushed.
+[ ] Fill and accept the exact provider/project/service/region/database/source
+    deployment manifest; provision runtime, PostgreSQL, scheduler, secrets,
+    dashboard, alert route, and least-privilege Egoric credential.
+[ ] Pass P1/P2, ten actual business days, reconciliation, revocation, restore,
+    incident, cost/latency, delivery, and owner-acceptance evidence.
+[ ] Issue a real evidence-backed G5 `go`; until then J4 remains open.
+
+Phase 12 adds no production environment, credential, scheduler invocation,
+network proof, elapsed evidence, notification adapter, Egoric mutation, or
+action authority in this repository.
+
+23. PHASE 13 GOAL-AWARE PLANNER — REPOSITORY PASS CANDIDATE
+-----------------------------------------------------------
+Status: IMPLEMENTED ON `codex/leozops-phase13-goal-aware-planner`; LIVE J5 OPEN
+
+[x] Exact `leozops_planner_goal_v1` schema with supported metrics/units,
+    horizons, constraints, assumptions, owner, and strict unknown-field denial.
+[x] Append-only goal and plan replacement chains; idempotency conflicts and
+    superseded goal/plan acceptance denial.
+[x] Evidence bundle binds source snapshot, intelligence run, formula, cutoff,
+    freshness, goal manifest, recommendations, policy, and SHA-256 fingerprint.
+[x] Deterministic four-step plan with evidence references, effort, confidence,
+    measurable completion, and complete graph fingerprint verification.
+[x] Explicit evidence/goal/budget/capacity/policy conflicts; blocking conflicts
+    prevent founder acceptance.
+[x] Conservative/expected/ambitious simulations and deterministic same-goal
+    comparison with uncertainty and no forecast claim.
+[x] Append-only decisions, checkpoints, and useful/not-useful outcomes; feedback
+    never rewrites original goal, plan, or source evidence.
+[x] Every action candidate routes to G6, contains no command material, remains
+    `not_authorized`, and accepting a plan grants no action authority.
+[x] Eight immutable SQLite/PostgreSQL tables, tenant-scoped authenticated APIs,
+    readiness coverage, sanitized responses, and rollback-safe migration.
+[x] Medieval Planner cockpit with goal/plan counts, conflicts, decisions,
+    evidence drill-down, accept/reject intent, and explicit authority boundary.
+[x] Focused Phase 13 suite 10/10, cockpit regression 4/4, full registered
+    regression 348/348, Node 22/24 CI job, PostgreSQL 16 lifecycle/immutability/
+    rollback coverage, strict TypeScript, and build gate.
+[ ] Run named-deployment founder review against accepted live J1 evidence and
+    record Product Owner usefulness/reproducibility acceptance for live J5.
+
+Phase 13 adds no Egoric mutation, command payload, target endpoint, credential,
+adapter, scheduler, background loop, execution route, G6 release, or action
+authority.
+
+24. PHASE 14 SUPERVISED-HAND READINESS — CANONICAL SOURCE QUALIFIED
+-------------------------------------------------------------------
+Status: SOURCE CONTRACT MERGED AND QUALIFIED; REGISTRATION/LIVE J6 BLOCKED
+
+[x] Pin RepositoryRealms `main@0c2b3ff236d747e87113f7d438d42b6b3caadb7c`,
+    seven exact blob SHAs, aggregate contract fingerprint, and canonical
+    qualification fingerprint `sha256:562f0d73936cea5d46230f01cb58b32a5ac07f4d7b3d635f7c53fc4eaa1f6828`.
+[x] Record the exact `repositoryrealms.leozops.task-command` v1 `task.create`
+    contract, dedicated POST/receipt paths, and least-privilege execute scope.
+[x] Validate a strict unassigned PII-minimized payload and deterministic source
+    envelope; reject unknown fields and arbitrary target material.
+[x] Implement the default-off dedicated source endpoint, zero-business-mutation
+    preview, separate execute approval, durable idempotent receipt, exact-state
+    rollback preview, separate rollback approval, and idempotent rollback.
+[x] Qualify the immutable canonical source only after RepositoryRealms PR #9
+    passed CI and merged; keep runtime authority separately blocked.
+[x] Keep the production adapter registry empty and add no credential, network
+    transport, scheduler, execution API, or browser execution control.
+[x] Add tenant-scoped sanitized read projection for source, G5, G6 proposal,
+    preview, approval, receipt, rollback, incident, and event-count evidence.
+[x] Ensure the projection never reads or returns stored proposal payload JSON.
+[x] Add a medieval Command Deck qualification panel and immutable read-only
+    approval/receipt/incident ledger without adding a sixth destination.
+[x] Add fail-closed static preflight, focused Phase 14 tests, Node 22/24 CI
+    coverage, strict TypeScript, and cockpit regression assertions.
+[x] RepositoryRealms command tests 5/5, full source regression 851/851,
+    production build, Prisma schema validation, and focused Ruflo scans PASS.
+[x] Updated LeozOps Phase 14 suite 7/7, full registered regression 348/348,
+    strict TypeScript, production build, and expected fail-closed preflight
+    exit `2` PASS locally; focused Ruflo domain/service scans report zero issues.
+[x] Review, freeze, re-audit, and merge the RepositoryRealms patch through PR
+    #9; canonical `main` and all seven pinned blobs match the qualification.
+[ ] Obtain real G5 `go`, exact G6 release, reviewed adapter, named deployment,
+    accepted supervised history, incident closure, and Product Owner J6
+    acceptance.
+
+This slice qualifies a candidate and exposes evidence. It does not execute a
+real command or satisfy G6/J6.
+
+25. PHASE 15–16 EXACT HAND + AMBIENT JARVIS V1 — REPOSITORY CANDIDATE
+---------------------------------------------------------------------
+Status: REPOSITORY COMPLETE; LIVE J6/J7/J8 BLOCKED
+
+[x] Implement one exact RepositoryRealms task adapter with source-owned
+    preview, approvals, execution, receipt observation, exact rollback, and
+    bounded human recovery.
+[x] Separate seven source credentials/subjects, bind target and execute
+    credential to G6, cap transport, deny redirects/retries, and reconcile
+    unknown outcomes.
+[x] Require canonical merged source qualification and an immutable release
+    manifest before explicit adapter construction; leave default registry empty.
+[x] Add append-only tenant preferences for language, cadence, timezone, quiet
+    hours, and on-demand voice output.
+[x] Add installable data-free PWA shell whose worker caches only public shell
+    assets and never `/v1`.
+[x] Add push-to-talk transcript review, no audio persistence/auto-send, optional
+    validated read-aloud, and confirmation before action-shaped questions.
+[x] Add measured 1–90-day answer/citation/alert/plan/action/latency/cost/safety
+    evaluation and an explicit J1–J8 `blocked_external` dashboard.
+[x] Add exact-confirmation, idempotent, append-only export/delete requests,
+    sanitized hashed export, candidate 90/365-day policy, and disabled deletion.
+[x] Add Phase 15/16 tests, migration lifecycle/immutability, readiness coverage,
+    operator release/incident/data-rights runbook, and honest live blockers.
+[x] Focused Phase 16 13/13, full registered regression 364/364, strict
+    TypeScript, production build, diff check, and focused Ruflo deep scans of
+    HTTP/domain/action integrations/repositories with zero findings.
+[x] Extend the disposable PostgreSQL smoke to require both Phase 16 tables and
+    prove their update/delete guards before rollback.
+[x] Execute the Phase 16 PostgreSQL smoke on a new loopback-only PostgreSQL 16
+    Docker target. The first run exposed PostgreSQL `Date`/ISO checkpoint hash
+    drift; timestamp normalization plus a focused regression fixed it, and the
+    complete migrate/evidence/immutability/rollback rerun passed before the
+    no-volume container was removed.
+[x] Remediate and review all reported npm advisories in both repositories;
+    full suites/builds and `npm audit --audit-level=low` pass with 0 findings.
+[ ] Merge and re-audit the source contract on canonical RepositoryRealms main;
+    accept exact G5/G6, register runtime credentials/adapter, and earn J6.
+[ ] Earn J7 through real supervised history, canary, kill switch, recovery, and
+    incident evidence.
+[ ] Deploy the exact reviewed revisions, accept J1–J7, complete the 30-day SLO,
+    privacy/security/recovery/export drills, and record Product Owner J8.
+
+The checked-in release remains inert. Voice, PWA, preference, evaluation, and
+data-request surfaces grant no RepositoryRealms mutation authority.

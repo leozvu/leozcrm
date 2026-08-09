@@ -1,0 +1,70 @@
+{
+  "schema_version": "leozops_phase6_external_evidence_policy_v1",
+  "policy_id": "P6-pending-replace_me",
+  "status": "pending",
+  "admission_mode": "local_trust_bridge",
+  "environment": "test",
+  "approved_by": "pending",
+  "approved_at": "2099-01-01T00:00:00.000Z",
+  "valid_from": "2099-01-01T00:05:00.000Z",
+  "valid_until": "2099-01-02T00:00:00.000Z",
+  "tenant_id": "11111111-1111-4111-8111-111111111111",
+  "source_connection_id": "22222222-2222-4222-8222-222222222222",
+  "phase5": {
+    "policy_id": "P5-pending-replace_me",
+    "policy_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "assessment_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "release_package_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "identities": {
+    "trust_authority": "pending",
+    "authority_credential_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "assessor": "pending",
+    "assessor_credential_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "issuers": {
+    "product_owner": {
+      "issuer_id": "pending-product-owner-issuer",
+      "key_id": "pending-product-owner-key",
+      "algorithm": "ed25519",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAFWnJGr8xeQtWFL3+dfQfbzo3w/nLl3yuJFMMlDgMCCk=\n-----END PUBLIC KEY-----\n",
+      "public_key_sha256": "sha256:9adf564b427ad122028ff41c4b14d51986b14d221c5c6e6b16a602556b0eb630"
+    },
+    "implementation": {
+      "issuer_id": "pending-implementation-issuer",
+      "key_id": "pending-implementation-key",
+      "algorithm": "ed25519",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAi/pVPjocVPqpJfv+HSucxUpIJozA+W1PcMxuBVmDKVQ=\n-----END PUBLIC KEY-----\n",
+      "public_key_sha256": "sha256:386297501fbbaba3c2b9d7fb4218ceedaaf7c67300f0a804d4fcc81e0d77050b"
+    },
+    "monitoring": {
+      "issuer_id": "pending-monitoring-issuer",
+      "key_id": "pending-monitoring-key",
+      "algorithm": "ed25519",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAomIA9krMeEsNIBEULDrnqPP8c/vjHnQqCbswgngG4oQ=\n-----END PUBLIC KEY-----\n",
+      "public_key_sha256": "sha256:d0c4492128c96f092d321b186c288525c860b8b8b10c293957036f29140a7fb8"
+    },
+    "independent_qa": {
+      "issuer_id": "pending-independent-qa-issuer",
+      "key_id": "pending-independent-qa-key",
+      "algorithm": "ed25519",
+      "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMCowBQYDK2VwAyEAUqSvZe2QvkSGt4JO2hrjds+LIEfBe3FvCjq10uXfN2E=\n-----END PUBLIC KEY-----\n",
+      "public_key_sha256": "sha256:4977417324d4bdbe82fce72033d4dcbc8d93da51e9d17cf776e69353702fe645"
+    }
+  },
+  "limits": {
+    "max_clock_skew_seconds": 300,
+    "max_attestation_age_hours": 168,
+    "max_attestation_validity_hours": 168
+  },
+  "safety": {
+    "evidence_matrix_version": "phase6-eight-blockers-v1",
+    "require_all_eight": true,
+    "reject_unknown_issuer": true,
+    "reject_replay_and_non_monotonic_statements": true,
+    "release_authority_not_granted": true,
+    "production_adapter_registry_must_remain_empty": true,
+    "waivers_allowed": false
+  },
+  "verdict": "pending"
+}

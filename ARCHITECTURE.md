@@ -10,7 +10,10 @@
 > [`docs/LEGACY_FOUNDATION.md`](docs/LEGACY_FOUNDATION.md) before reusing a
 > component. The S1.C `egoric-readonly` profile is implemented separately and
 > does not mount CRM mutations, onboarding, tasks, or email publishing; it is
-> still gated and undeployed.
+> still gated and undeployed. Phase 2 and Phase 3 add command-and-exit evidence
+> control planes documented in `docs/PHASE_2_OPERATIONS.md` and
+> `docs/PHASE_3_OPERATIONS.md`; they add no mutation route to this legacy app or
+> the `egoric-readonly` HTTP profile.
 
 This document describes the architecture that **currently exists** in the
 repository. It is descriptive, not aspirational: it records the stack, patterns,
@@ -587,3 +590,152 @@ probe to monitor it — **without a schema change**, reusing the M7 auth model.
   against the deployed DB so an operator can create and verify the first pilot
   tenant; it mirrors `server.ts` for secret resolution (production must set
   `AUTH_SECRET`). See `docs/PILOT_RUNBOOK.md` for the full launch/support runbook.
+
+---
+
+## 13. Phase 4 local bounded-autonomy control plane (G7 rehearsal)
+
+This is an inert integration-track package, not part of the legacy application
+surface and not a deployed runtime profile.
+
+- `domain/g7Policy.ts` validates one exact low-risk G6-bound standing policy;
+  `domain/boundedAutonomy.ts` supplies deterministic simulation and envelope
+  decisions.
+- `boundedAutonomyRepository.ts` persists immutable policy, simulation,
+  kill-switch, evaluation, recovery approval, incident, and ordered event facts.
+  Attempt coordination allows one guarded terminal transition only.
+- `boundedAutonomyService.ts` evaluates one candidate per invocation. It checks
+  current G5/G6 evidence, real supervised history, source freshness, simulator,
+  kill switch, incidents, cooldown, rolling rates/cost, and exact adapter before
+  a zero-mutation preview and atomic claim.
+- Failed, invalid, expired-lease, or unknown results open an incident and engage
+  the kill switch. A successful action can be reversed only by an explicit
+  24-hour human recovery path: kill switch → preview → separate approval →
+  invocation. There is no autonomous rollback.
+- `autonomyOperator.ts` is command-and-exit. The checked-in adapter registry is
+  empty; no scheduler, timer, background loop, HTTP mutation route, provider
+  SDK, source credential, or external request is composed.
+
+---
+
+## 14. Phase 5 local operational-assurance control plane
+
+Phase 5 is an evidence and review layer over one exact Phase 4 policy. It does
+not add a deployed runtime profile or action capability.
+
+- `domain/operationalAssurancePolicy.ts` validates an exact local-rehearsal
+  policy bound to one immutable G7 fingerprint. Authority, assessor, and
+  reviewer credentials are distinct from one another and from every G7/G6 key.
+- `operationalAssuranceRepository.ts` derives bounded outcome/recovery/incident
+  counts and the validated G7 event-chain fingerprint directly from the
+  database. Policy, assessment, release-package, and ordered event records are
+  immutable in SQLite and PostgreSQL.
+- `operationalAssuranceService.ts` computes 15 deterministic checks. Packaging
+  requires the latest passing assessment inside its TTL and recomputes current
+  G5/G6/G7, kill-switch, incident, registry, and event-chain state.
+- Every package is `blocked_external` with eight canonical production blockers.
+  There is no approve, promote, waive, schedule, execute, or release method.
+- `operationalAssuranceOperator.ts` is command-and-exit and
+  `phase5Preflight.ts` is read-only/fail-closed. Production adapter composition
+  remains empty; no network client, timer, daemon, or HTTP mutation route is
+  added.
+
+---
+
+## 15. Phase 6 signed external-evidence control plane
+
+Phase 6 turns the eight named Phase 5 blockers into a fixed, cryptographically
+verifiable matrix. It is an admission and assessment layer, not an activation
+or action runtime.
+
+- `domain/externalEvidencePolicy.ts` validates exact Phase 5 package binding,
+  four unique Ed25519 trust roots, two new separated runtime credential
+  fingerprints, bounded validity, and invariant safety flags.
+- `domain/externalEvidence.ts` defines canonical pass/revoke envelopes, detached
+  Ed25519 verification, exact issuer/type assignment, and the eight-row matrix.
+- `externalEvidenceRepository.ts` stores immutable policies, attestations,
+  assessments, and monotonic events. It rejects attestation-ID conflicts,
+  nonce reuse, non-increasing statements, and invalid revocation ancestry.
+- `externalEvidenceService.ts` revalidates the complete local G5/G6/G7/Phase 5
+  chain and empty production registry before admission and assessment. It
+  re-verifies every stored signature while deriving current matrix status.
+- `externalEvidenceOperator.ts` is file-based and command-and-exit;
+  `phase6Preflight.ts` is read-only and deliberately non-zero because release
+  authority is absent.
+- Eight satisfied rows yield only `complete_unreleased` and
+  `blocked_external_activation`. There is no adapter registration, release,
+  promote, activate, scheduler, network, daemon, or HTTP mutation path.
+
+Issuer private keys and raw proof material stay outside LeozOps. The database
+contains only public keys, metadata, SHA-256 digests, detached signatures, and
+canonical evidence bindings.
+
+## 16. Phase 7 activation-ceremony control plane
+
+Phase 7 consumes only a fresh, exact Phase 6 `complete_unreleased` snapshot and
+still provides no production runtime capability.
+
+- `activationCeremonyPolicy.ts` validates exact upstream, target, artifact,
+  configuration, credential-reference, canary, rollback, identity, validity,
+  and safety bindings.
+- `activationCeremonyService.ts` derives dossiers from current database and
+  signed-envelope facts. It rechecks upstream state before approval/sealing and
+  can only emit an external handoff with `activation_status=not_executed`.
+- `activationCeremonyRepository.ts` locks the Phase 6 policy row and rechecks
+  the exact assessment/attestation snapshot in the same transaction as every
+  policy, dossier, or handoff write. All six Phase 7 tables are immutable.
+- Recall is a new immutable fact requiring both authority and verifier
+  credentials; it never rewrites evidence or invokes provider recovery.
+- `activationCeremonyOperator.ts` and `phase7Preflight.ts` are one-shot local
+  boundaries. No HTTP route, executor, adapter registration, target secret,
+  provider SDK, scheduler, daemon, timer, or network request is composed.
+
+---
+
+## 17. Phase 14 supervised-hand source boundary
+
+The first hand candidate is exactly `egoric.task.create.v1`. RepositoryRealms
+owns the default-off command endpoint and its durable receipts; LeozOps owns
+proposal, preview, approval, policy, incident, and evidence projection. The
+source supports explicit preview/approve/execute and
+preview-rollback/approve-rollback/rollback operations, each under a dedicated
+scope. LeozOps can construct only a preview envelope and has no composed
+default transport or credential. The exact Phase 15 transport exists only
+behind an explicit release builder and is never part of normal composition.
+
+Qualification binds a source ref, revision state, base commit, exact blob
+hashes, and aggregate patch fingerprint. A `working_tree` or unmerged branch is
+evidence for review but never a deployable capability. Production composition
+continues to return an empty action-adapter registry until canonical source,
+G5, exact G6, named-target, and credential evidence are accepted.
+
+## 18. Phase 15 exact adapter boundary
+
+`repositoryRealmsTaskCommandAdapter.ts` is the only concrete action adapter.
+It is never returned by default composition. An explicit release builder first
+validates canonical merged source qualification, exact G5/G6/target bindings,
+the adapter and configuration digests, and seven distinct secret references
+whose injected values match their fingerprints.
+
+The adapter speaks only the dedicated command and receipt endpoints. A fresh
+preview is required before approval/execution or rollback, provider envelopes
+and receipts are canonical-hash checked, redirects and retries are denied, and
+unknown outcomes flow into reconciliation. The human recovery interface maps
+to the same source exact-state rollback and remains behind G7 controls.
+
+## 19. Phase 16 Ambient Jarvis and governance
+
+Ambient Jarvis remains inside the authenticated read/LeozOps-owned plane:
+
+- append-only preferences configure language, cadence, timezone, quiet hours,
+  and on-demand speech;
+- the PWA worker caches only public data-free shell assets and excludes `/v1`;
+- speech recognition fills the composer only, action-shaped questions require
+  advisory confirmation, and validated speech output is user-triggered;
+- the Jarvis v1 repository aggregates tenant evidence into answer, citation,
+  alert, plan, action, latency, cost, safety, and J1–J8 readiness projections;
+- append-only data requests authorize a sanitized export or capture a blocked
+  delete request. There is no automatic/destructive deletion path.
+
+These surfaces add no source credential, scheduler, generic tool, adapter
+registration, or action route.

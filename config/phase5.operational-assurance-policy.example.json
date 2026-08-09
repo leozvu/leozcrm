@@ -1,0 +1,41 @@
+{
+  "schema_version": "leozops_phase5_operational_assurance_policy_v1",
+  "policy_id": "P5-pending",
+  "status": "pending",
+  "assurance_mode": "local_rehearsal",
+  "environment": "test",
+  "approved_by": "pending",
+  "approved_at": "2026-07-30T00:00:00.000Z",
+  "valid_from": "2026-07-30T00:05:00.000Z",
+  "valid_until": "2026-07-31T00:00:00.000Z",
+  "tenant_id": "00000000-0000-4000-8000-000000000000",
+  "source_connection_id": "00000000-0000-4000-8000-000000000000",
+  "g7_policy": {
+    "policy_id": "G7-pending",
+    "policy_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "identities": {
+    "assurance_authority": "pending",
+    "authority_credential_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "assessor": "pending",
+    "assessor_credential_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "release_reviewer": "pending",
+    "reviewer_credential_sha256": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "window": {
+    "days": 7,
+    "max_assessment_age_minutes": 15,
+    "min_successful_executions": 1,
+    "max_failed_executions": 0,
+    "max_reconciliation_required_executions": 0,
+    "require_successful_human_recovery": true,
+    "require_resolved_incident_halt_drill": true
+  },
+  "safety": {
+    "release_package_must_remain_blocked_external": true,
+    "external_evidence_may_not_be_inferred": true,
+    "production_adapter_registry_must_remain_empty": true,
+    "waivers_allowed": false
+  },
+  "verdict": "pending"
+}

@@ -29,6 +29,10 @@ import { authenticate, resolveAuthConfig, AuthConfig } from './auth';
 import { db, type Knex } from '../db/knex';
 import { createEgoricReadonlyApp } from './egoricReadonlyApp';
 import type { IntegrationReadAuthConfig } from './integrationReadAuth';
+import type { AdvisorModelProvider } from '../domain/advisorConversation';
+import type { AdvisorServiceLimits } from '../services/advisorConversationService';
+import type { NotificationDeliveryRegistry } from '../integrations/notifications/notificationDeliveryRegistry';
+import type { StructuredLogger } from '../observability/structuredLogger';
 
 export type RuntimeProfile = 'legacy' | 'egoric-readonly';
 
@@ -63,8 +67,20 @@ export interface CreateAppOptions {
    * deterministic clock so no real email is sent.
    */
   emailPublisher?: EmailPublishService;
-  /** Separate output credential for the egoric-readonly tenant brief surface. */
+  /** Separate output credential for the egoric-readonly tenant intelligence surfaces. */
   integrationReadAuth?: IntegrationReadAuthConfig;
+  /** Optional Advisor provider boundary; environment composition defaults to deterministic rules. */
+  advisorProvider?: AdvisorModelProvider;
+  advisorLimits?: AdvisorServiceLimits;
+  advisorClock?: () => Date;
+  proactiveClock?: () => Date;
+  notificationDeliveryRegistry?: NotificationDeliveryRegistry;
+  structuredLogger?: StructuredLogger;
+  deploymentFingerprint?: string;
+  observabilityCredentialFingerprint?: string;
+  maxFreshnessSeconds?: number;
+  plannerClock?: () => Date;
+  supervisedHandClock?: () => Date;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -84,6 +100,17 @@ export function createApp(options: CreateAppOptions = {}) {
     return createEgoricReadonlyApp({
       knex: options.knex,
       integrationReadAuth: options.integrationReadAuth,
+      advisorProvider: options.advisorProvider,
+      advisorLimits: options.advisorLimits,
+      advisorClock: options.advisorClock,
+      proactiveClock: options.proactiveClock,
+      notificationDeliveryRegistry: options.notificationDeliveryRegistry,
+      structuredLogger: options.structuredLogger,
+      deploymentFingerprint: options.deploymentFingerprint,
+      observabilityCredentialFingerprint: options.observabilityCredentialFingerprint,
+      maxFreshnessSeconds: options.maxFreshnessSeconds,
+      plannerClock: options.plannerClock,
+      supervisedHandClock: options.supervisedHandClock,
     });
   }
   const app = express();

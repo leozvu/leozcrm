@@ -5,6 +5,7 @@ import config from '../../knexfile';
 import { createApp, resolveRuntimeProfile } from '../http/app';
 import { signTenantReadToken } from '../http/integrationReadAuth';
 import { seedEgoricMemory } from './support/egoricMemoryScenario';
+import { DeterministicAdvisorProvider } from '../integrations/advisor/deterministicAdvisorProvider';
 
 const db = knexFactory(config.test);
 const AUTH = { secret: 'separate-output-secret', adminKey: 'separate-output-admin' };
@@ -19,6 +20,7 @@ before(async () => {
     profile: 'egoric-readonly',
     knex: db,
     integrationReadAuth: AUTH,
+    advisorProvider: new DeterministicAdvisorProvider(),
   });
   const server = app.listen(0);
   await new Promise<void>((resolve) => server.once('listening', resolve));
@@ -38,10 +40,18 @@ function authHeaders(tenantKey: string): Record<string, string> {
   return { authorization: `Bearer ${signTenantReadToken(tenantKey, AUTH.secret)}` };
 }
 
-test('egoric-readonly profile exposes public health and one authenticated tenant brief', async () => {
+test('egoric-readonly profile exposes public health and an authenticated tenant brief', async () => {
   const health = await fetch(`${baseUrl}/health`);
   assert.equal(health.status, 200);
   assert.deepEqual(await health.json(), { ok: true, profile: 'egoric-readonly' });
+
+  const ready = await fetch(`${baseUrl}/ready`);
+  assert.equal(ready.status, 200);
+  assert.deepEqual(await ready.json(), {
+    ok: true,
+    profile: 'egoric-readonly',
+    checks: { db: 'ok', migrations_current: true },
+  });
 
   assert.equal((await fetch(`${baseUrl}/v1/tenants/profile-a/brief`)).status, 401);
   const response = await fetch(`${baseUrl}/v1/tenants/profile-a/brief?asOf=2026-07-28`, {
@@ -68,7 +78,7 @@ test('tenant read token is scoped; separate read admin may access either tenant'
   })).status, 401);
 });
 
-test('legacy CRM, task, onboarding, email, dashboard, readiness, and write routes are absent', async () => {
+test('legacy CRM, task, onboarding, email, dashboard, and write routes are absent', async () => {
   const denied: Array<[string, string, string?]> = [
     ['GET', '/clients'],
     ['POST', '/clients', '{bad-json'],
@@ -82,7 +92,6 @@ test('legacy CRM, task, onboarding, email, dashboard, readiness, and write route
     ['POST', '/onboarding', '{}'],
     ['POST', '/integrations/email/send', '{}'],
     ['GET', '/integrations'],
-    ['GET', '/ready'],
   ];
   for (const [method, path, body] of denied) {
     const response = await fetch(`${baseUrl}${path}`, {

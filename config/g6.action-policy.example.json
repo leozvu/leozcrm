@@ -1,0 +1,50 @@
+{
+  "schema_version": "leozops_g6_action_policy_v1",
+  "policy_id": "G6-REPLACE_ME",
+  "status": "pending",
+  "environment": "test",
+  "approved_by": "Leoz",
+  "approved_at": "pending",
+  "valid_from": "pending",
+  "valid_until": "pending",
+  "tenant_id": "pending",
+  "source_connection_id": "pending",
+  "g5_release": {
+    "decision_id": "pending",
+    "evidence_key": "pending",
+    "evaluation_fingerprint": "pending",
+    "decision": "pending"
+  },
+  "target": {
+    "system": "egoric",
+    "project_id": "pending",
+    "tenant_key": "pending",
+    "command_endpoint_url": "pending",
+    "command_credential_sha256": "pending"
+  },
+  "command": {
+    "key": "pending",
+    "version": "pending",
+    "adapter_id": "pending",
+    "risk_tier": "pending",
+    "supports_dry_run": false,
+    "supports_idempotency": false,
+    "supports_rollback": false,
+    "mutation_count_max": 0
+  },
+  "identities": {
+    "approver": "Leoz",
+    "approval_credential_sha256": "pending",
+    "operator": "Leoz",
+    "operator_credential_sha256": "pending"
+  },
+  "limits": {
+    "max_cost_minor": 0,
+    "currency": "USD",
+    "max_executions_per_hour": 1,
+    "max_executions_per_day": 1,
+    "approval_ttl_minutes": 5,
+    "execution_lease_seconds": 30
+  },
+  "verdict": "pending"
+}

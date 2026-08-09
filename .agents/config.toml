@@ -1,0 +1,75 @@
+# Ruflo project configuration for LeozOps.
+# Repository safety and release authority remain defined by AGENTS.md,
+# DECISIONS.md, and docs/RELEASE_GATES.md.
+
+project_doc_max_bytes = 65536
+
+[policy]
+# Observe records recommendations without granting or expanding authority.
+mode = "observe"
+
+[swarm.automation]
+# Delegation is explicit-user opt-in for this repository.
+enabled = false
+max_concurrent = 4
+max_writers = 1
+worktree_isolation = true
+dependency_failure = "cancel"
+agent_timeout_seconds = 1800
+max_output_bytes = 1048576
+
+[mcp_servers.ruflo]
+# Disabled until `codex mcp add` and `ruflo doctor` succeed on this machine.
+command = "cmd"
+args = ["/c", "npx", "-y", "ruflo@latest", "mcp", "start"]
+enabled = false
+startup_timeout_sec = 120
+tool_timeout_sec = 120
+
+[mcp_servers.ruflo.env]
+RUFLO_DAEMON_AUTOSTART = "false"
+CLAUDE_FLOW_MCP_TOOLS = "memory,swarm,agent,hooks,task,guidance,security"
+CLAUDE_FLOW_HOOKS_ENABLED = "false"
+CLAUDE_FLOW_TOPOLOGY = "hierarchical"
+CLAUDE_FLOW_MAX_AGENTS = "4"
+
+[[skills.config]]
+path = ".agents/skills/swarm-orchestration"
+enabled = true
+
+[[skills.config]]
+path = ".agents/skills/memory-management"
+enabled = true
+
+[[skills.config]]
+path = ".agents/skills/sparc-methodology"
+enabled = true
+
+[[skills.config]]
+path = ".agents/skills/security-audit"
+enabled = true
+
+[security]
+input_validation = true
+path_traversal_prevention = true
+secret_scanning = true
+cve_scanning = true
+blocked_patterns = ["\\.env$", "credentials\\.json$", "\\.pem$", "\\.key$"]
+
+[logging]
+level = "info"
+format = "json"
+destination = "stdout"
+
+[swarm]
+default_topology = "hierarchical"
+default_strategy = "specialized"
+anti_drift = true
+
+[hooks]
+# Hook definitions may be reviewed later; they are not active now.
+enabled = false
+
+[workers]
+# No unattended background work in the repository baseline.
+enabled = false

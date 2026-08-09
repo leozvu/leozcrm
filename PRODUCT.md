@@ -31,6 +31,21 @@ A CEO should be able to open LeozOps and, in less than five minutes, answer:
 4. What should we do next?
 5. Which approved actions can LeozOps coordinate safely?
 
+## Jarvis v1 completion outcome
+
+The long-term product direction becomes a release only when the CEO can use a
+single live cockpit to observe the business, ask evidence-backed questions,
+retain goals and decisions, receive useful proactive alerts, review a plan,
+and supervise one narrow reversible action through receipt, observation, and
+recovery. Freshness, provenance, limitations, cost, incidents, and the kill
+switch remain visible throughout the loop.
+
+The implementation and evidence sequence is defined in
+[`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md). This outcome
+does not authorize a production model credential, deployment, source access,
+action adapter, or autonomous policy by itself; each capability still requires
+its named release gate.
+
 ## Core operating loop
 
 `Observe → Understand → Recommend → Approve → Coordinate → Measure → Learn`
@@ -109,6 +124,7 @@ It is successful when:
 - Egoric technical contract: `docs/EGORIC_INTEGRATION.md`
 - Legacy-code classification: `docs/LEGACY_FOUNDATION.md`
 - Milestone status: `ROADMAP.md`
+- Jarvis v1 completion plan: `docs/JARVIS_COMPLETION_PLAN.md`
 
 Historical descriptions of LeozOps as “CRM + AI Brain + Agent Workforce” are
 preserved only as product history. They do not authorize a standalone CRM

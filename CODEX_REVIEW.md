@@ -931,3 +931,738 @@ No provider choice, purchase, managed infrastructure, P1/P2 approval,
 deployment, credential or flag, scheduler activation, production-data access,
 write-back, publishing, employee workflow change, or autonomy is authorized by
 this verdict.
+# Phase 2 Local Control Plane Review — S2.B to S2.D
+
+Review date: 2026-07-29
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase2`
+
+Baseline: `main@71176d1`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — P1/P2/EXTERNAL G5 EVIDENCE BLOCKED**
+
+## A. Implemented scope
+
+- Checkpoint B and P2 manifests are exact-key, pending-by-default, non-secret,
+  environment-bound, and fingerprint-bound to the validated P1 decision.
+- Test execution requires P1; production execution requires the complete
+  P1 → Checkpoint B → P2 chain plus exact runtime/database/Egoric/tenant/source
+  endpoint identities.
+- The shadow worker is command-and-exit and is never mounted by the HTTP
+  server. Failed polls, unsafe skips, and failed daily closes return a non-zero
+  process result after recording safe evidence so platform alerting can fire.
+- Public `egoric-readonly` readiness verifies database access, every required
+  table, and no pending migration; it exposes no operator or mutation route.
+- Poll, daily-shadow, and release-decision evidence is tenant-scoped,
+  non-PII, idempotent/conflict-detecting, and immutable in SQLite/PostgreSQL.
+- Daily closure runs exact reconciliation and fails on insufficient schedule
+  coverage, failed sync, stale confirmation, count/stage/source drift,
+  mutation, authorization mixing, workflow/latency/error regression, or a
+  material false claim.
+- `go` requires ten consecutive qualifying business days, at least 99.5%
+  successful scheduled syncs, and average reviewer usefulness of at least
+  4/5. Incomplete/unsafe evidence may only produce `extend` or `revoke`.
+- The existing authenticated CEO Brief remains the only product read route.
+  No dashboard, delivery, publishing, write-back, employee workflow, generic
+  Egoric access, or autonomous action was added.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **222/222 PASS**, 0 skipped, 0 failed.
+- Strict TypeScript check: **PASS**.
+- Focused Phase 2/authorization/shadow/profile/P1 suite: **20/20 PASS**.
+- Disposable SQLite migration apply/status/rollback: **PASS**.
+- Disposable PostgreSQL 16 migrate/seed/immutability/rollback: **PASS** for
+  snapshots, reconciliation, poll runs, daily evidence, and release decisions.
+- Actual canonical RepositoryRealms handler E2E against
+  `main@98c0eca`: **PASS** — 200/304, three GETs, zero bodies, zero source
+  mutations, exact 4/4 brief reconciliation, legacy write route 404.
+- Pending P1, Checkpoint B, and P2 template drills: **BLOCKED AS EXPECTED**,
+  all exit 2 and perform no external action.
+- Local Markdown links: **PASS**, 33 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; the pre-existing low `body-parser` and moderate `uuid` advisories
+  are unchanged and no dependency was added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 2 control plane is ready for execution. G5 is not
+earned: the P1 example is pending, so no named test infrastructure, networked
+Checkpoint B, accepted P2, production canary, or ten elapsed business days
+exist. Those facts cannot be simulated or inferred from local tests.
+
+No provider purchase, deployment, managed database, credential, feature flag,
+scheduler activation, production-data access, write-back, publishing, employee
+workflow change, or autonomy was performed or authorized by this review.
+
+---
+
+# Phase 3 Local Control Plane Review — G6 Supervised Action
+
+Review date: 2026-07-29
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase3-supervised-action`
+
+Baseline: Phase 2 commit `3f10a89`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — G5/REAL COMMAND/G6 RELEASE BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_g6_action_policy_v1` binds one command to immutable G5
+  `go` evidence, tenant/source/target, least-privilege command credential
+  fingerprint, adapter descriptor, validity window, separate approver/operator
+  credential fingerprints, and bounded limits.
+- A later G5 `extend` or `revoke`, inactive policy, runtime identity mismatch,
+  unknown adapter, schema drift, changed payload/preview/approval, or expiry
+  blocks every new action before an adapter call.
+- Proposals reject recursively sensitive/secret-shaped fields and retain only
+  bounded canonical command payload plus safe codes, IDs, evidence refs, cost,
+  expiry, and fingerprints.
+- Execute and rollback dry-runs require zero mutation and exact request/target
+  fingerprints. Human decisions are immutable, nonce-protected, separately
+  authenticated, cost-bounded, and bound to the exact preview.
+- Execution claims enforce one proposal/kind attempt, idempotency, a bounded
+  lease, rolling-hour/day rate limits, and a rolling-day cost reservation in
+  the same database transaction before the adapter call.
+- A known zero-mutation failure is terminal. A thrown/invalid/over-budget or
+  crashed outcome becomes `reconciliation_required` and is never retried.
+- Rollback has a distinct dry-run, approval, idempotency key, attempt, and
+  evidence trail. One bounded 24-hour recovery remains available after G5
+  revoke so revocation cannot disable remediation.
+- Policy, proposal, preview, approval, and ordered event facts are immutable.
+  Attempt rows permit exactly one guarded in-progress-to-terminal transition
+  and reject deletion/rewrite in SQLite and PostgreSQL.
+- The operator is command-and-exit only. The checked-in production adapter
+  registry is empty, and no HTTP mutation route, fetch client, timer, scheduler,
+  source credential, provider SDK, or external command is present.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **234/234 PASS**, 0 skipped, 0 failed.
+- Focused G6 supervised-action suite: **12/12 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable SQLite migrate/status/rollback through the G6 migration: **PASS**.
+- Disposable PostgreSQL 16 migrate/seed/fake supervised action/immutability/
+  rollback: **PASS** using loopback-only `127.0.0.1:50409`; the exact container
+  auto-removed and Docker Desktop returned to stopped state.
+- Pending G6 policy template preflight: **BLOCKED AS EXPECTED** before DB,
+  adapter, credential, or external action.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Network/timer/HTTP-mutation primitive scan over all new G6 runtime files:
+  **PASS**, no match.
+- Local Markdown link scan: **PASS**, 35 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; unchanged low `body-parser` and moderate `uuid` advisories remain.
+  No dependency was added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 3 control plane is ready for a future
+command-specific integration. G6 is not earned: G5 has no real `go`, the
+production adapter registry is empty, and no RepositoryRealms write command,
+named credential, network proof, deployment, rollback drill, or CEO release
+exists.
+
+No external mutation, provider purchase, deployment, managed resource,
+credential, feature flag, scheduler, production-data access, generic write
+surface, employee workflow change, or G7 autonomy was performed or authorized.
+
+---
+
+# Phase 4 Local Rehearsal Review — G7 Bounded Autonomy
+
+Review date: 2026-07-29
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase4-bounded-autonomy`
+
+Baseline: Phase 3 commit `9dd5a99`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — G5/G6/REAL ADAPTER/G7 RELEASE BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_g7_bounded_autonomy_policy_v1` binds one low-risk command
+  and target to an unchanged G6 policy, distinct release/executor/kill-switch
+  credentials, qualifying history, validity, freshness, rate, cost, cooldown,
+  lease, one-mutation, and fail-closed safety rules.
+- The deterministic 13-scenario simulator covers current G5/G6, supervised
+  history, kill switch, freshness, incidents, hourly/daily limits, cooldown,
+  action/daily cost, dry-run mutation, and happy path. Exact results are
+  immutable and fingerprint-bound before policy acceptance.
+- Policy acceptance and every candidate use actual immutable G6 attempts: at
+  least five successes, zero non-successful executions in the window, and one
+  successful rollback drill. No simulated boolean can manufacture history.
+- One candidate per command-and-exit invocation is recursively safe, adapter-
+  validated, zero-mutation previewed, immutable allow/deny evaluated, and
+  atomically claimed with current prerequisite/limit checks before execution.
+- The kill switch starts engaged. Release requires separate release and
+  kill-switch credentials. Any failed, invalid, crashed, or unknown result opens
+  an incident and engages it atomically; replay never calls the adapter again.
+- Recovery is not autonomous. A successful candidate has one bounded 24-hour
+  human path with engaged kill switch, exact preview, dual-credential approval,
+  explicit executor invocation, idempotency, and expired-lease reconciliation.
+  It stays available after G5 revoke so revocation cannot disable remediation.
+- Policy, simulation, switch, evaluation, recovery preview/approval, incident,
+  and event facts are immutable. Execute/recovery attempts allow exactly one
+  guarded in-progress-to-terminal transition in SQLite and PostgreSQL.
+- Production composition remains empty. No HTTP mutation route, fetch client,
+  scheduler, timer, daemon, background loop, provider SDK, credential, or
+  external request was added.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **247/247 PASS**, 0 skipped, 0 failed.
+- Focused G7 bounded-autonomy suite: **13/13 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable SQLite migrate/latest/rollback through the G7 migration: **PASS**.
+- Disposable PostgreSQL 16 migrate/five supervised successes/rollback drill/
+  G7 simulation/fake action/human recovery/immutability/full rollback: **PASS**
+  on loopback `127.0.0.1:57118`; container auto-removed and Docker Desktop
+  returned to stopped state.
+- Pending G7 policy template preflight: **BLOCKED AS EXPECTED**, exit 2.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Local Markdown link scan: **PASS**, 36 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; unchanged low `body-parser` and moderate `uuid` advisories remain.
+- No dependencies were added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 4 rehearsal/control plane is ready for a future
+command-specific external project. G7 is not earned: G5/G6 are not externally
+released, no production supervised history exists, the production adapter
+registry is empty, and no deployed kill switch, monitoring, canary, incident /
+recovery drill, credential, or explicit Product Owner G7 release exists.
+
+No external mutation, provider purchase, deployment, managed resource,
+credential, feature flag, scheduler, production-data access, employee workflow
+change, or actual autonomy was performed or authorized.
+
+---
+
+# Phase 5 Local Review — Operational Assurance and Release Evidence
+
+Review date: 2026-07-30
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase5-operational-assurance`
+
+Baseline: Phase 4 commit `6daf143`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — EXTERNAL G5/G6/G7 RELEASE BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_phase5_operational_assurance_policy_v1` binds one policy
+  to one immutable G7 fingerprint, validity window, bounded evidence window,
+  assessment TTL, and three credentials distinct from all G7/G6 credentials.
+- The assessor accepts no arbitrary success claims. It derives 15 checks from
+  current G5/G6/G7 records, simulation, kill-switch state, incidents,
+  execution/recovery outcomes, and the validated G7 event chain.
+- Assessments are idempotent by exact key and immutable. Missing drills,
+  failed/reconciliation/in-progress execution, open incident, released kill
+  switch, upstream revoke/expiry, corrupt record, or non-empty production
+  registry fails locally.
+- Packaging requires the latest passing assessment inside its configured TTL,
+  recomputes current state, and rejects a later G5 decision or G7 event-chain
+  drift. Every package is immutable and exactly `blocked_external` with eight
+  canonical blockers.
+- There is no G8, waiver, approve, promote, release, schedule, or execute path.
+  Operator commands are command-and-exit; production composition stays empty.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **259/259 PASS**, 0 skipped, 0 failed.
+- Focused Phase 5 operational-assurance suite: **12/12 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable in-memory SQLite migrate/status/rollback through all 9 migrations:
+  **PASS**.
+- Disposable PostgreSQL 16 full lifecycle and Phase 5 policy/assessment/
+  blocked-package/immutability/rollback: **PASS** on loopback
+  `127.0.0.1:51661`; container auto-removed and Docker Desktop stopped.
+- Pending Phase 5 policy template preflight: **BLOCKED AS EXPECTED**, exit 2.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Phase 5 network/scheduler primitive scan: **PASS**, zero matches.
+- Local Markdown link scan: **PASS**, 38 files scanned.
+- `git diff --check`: **PASS**.
+- `npm audit --omit=dev --audit-level=high`: **PASS** with no high/critical
+  finding; unchanged low `body-parser` and moderate `uuid` advisories remain.
+- No dependencies were added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 5 assurance layer is ready to audit future named
+external evidence. It does not earn G7: the package itself records that G5/G6
+release, production history, adapter/credential, deployed monitoring and kill
+switch, canary, external drills, and explicit Product Owner G7 release remain
+unproven.
+
+No external mutation, provider purchase, deployment, managed resource,
+credential, feature flag, scheduler, production-data access, employee workflow
+change, waiver, or actual autonomy was performed or authorized.
+
+---
+
+# Phase 6 Local Review — Signed External-Evidence Admission
+
+Review date: 2026-07-30
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase6-external-evidence`
+
+Baseline: Phase 5 commit `c407761`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — EXTERNAL ACTIVATION BLOCKED**
+
+## A. Implemented scope
+
+- Exact-key `leozops_phase6_external_evidence_policy_v1` binds one policy to
+  the exact latest passing Phase 5 assessment and immutable
+  `blocked_external` package. Authority/assessor credentials differ from each
+  other and all Phase 5/G7/G6 credentials.
+- Four unique Ed25519 issuer IDs, key IDs, SPKI public keys, and fingerprints
+  are pinned. Each of eight evidence types has exactly one assigned role.
+- Canonical detached-signature envelopes bind policy, environment, tenant,
+  source, Phase 5 package, subject, digest, observation/issuance/expiry times,
+  statement, supersession, issuer, and nonce.
+- Admission rejects invalid signatures, unpinned/wrong issuers, wrong scope,
+  future/stale/expired evidence, ID conflicts, nonce reuse, non-monotonic
+  statements, bad revocation ancestry, and any changed upstream G5/G6/G7/
+  Phase 5 state.
+- The repository re-verifies stored signatures and canonical bindings on read.
+  Immutable signed revocations and expiry reopen their matrix blocker.
+- Eight satisfied rows produce only `complete_unreleased` with
+  `blocked_external_activation`. There is no release, promote, activate, G8,
+  network, scheduler, daemon, HTTP mutation, adapter-registration, or private-
+  key path.
+
+## B. Verification evidence
+
+- Complete LeozOps suite: **272/272 PASS**, 0 skipped, 0 failed.
+- Focused Phase 6 external-evidence suite: **13/13 PASS**.
+- Strict TypeScript check: **PASS**.
+- Disposable SQLite all-ten-migration `up → down → up`: **PASS**.
+- Disposable PostgreSQL 16 full lifecycle, eight signed admissions,
+  complete-unreleased assessment, immutability, and rollback: **PASS** on
+  loopback `127.0.0.1:51662`; container auto-removed and Docker Desktop stopped.
+- Example Phase 6 policy preflight: **BLOCKED AS EXPECTED**, exit 2, with both
+  `release_possible` and `activation_possible` false.
+- Production composition assertion: **PASS**, zero registered command adapters.
+- Phase 6 network/scheduler/release primitive scan: **PASS**, zero matches.
+- Local Markdown target scan: **PASS**, 55 links checked, 0 broken.
+- `git diff --check`: **PASS**.
+- `npm audit --audit-level=high`: **PASS** with no high/critical finding; two
+  low advisories (`body-parser`, dev-only `esbuild`) and one moderate `uuid`
+  advisory remain. No dependency was added or upgraded.
+
+## C. Gate result
+
+The complete codeable Phase 6 trust bridge is ready to receive future evidence
+from separately enrolled named issuers. It does not activate G7 and cannot turn
+its own output into release authority. The checked-in public keys and unsigned
+template are examples, not external proof.
+
+No external mutation, issuer enrollment, provider purchase, deployment,
+managed resource, credential/private key, feature flag, production-data access,
+employee workflow change, waiver, or actual autonomy was performed or
+authorized.
+
+---
+
+# Phase 7 Local Review — Activation Ceremony
+
+Review date: 2026-07-30
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase7-activation-ceremony`
+
+Commit: `90f6d3d`
+
+Verdict: **LOCAL IMPLEMENTATION PASS — EXECUTION ABSENT**
+
+## A. Implemented scope
+
+- One exact ceremony policy binds the latest fresh Phase 6 assessment, all
+  eight effective attestations, and one named target/canary/rollback contract.
+- Three separate credentials authenticate authority, independent verification,
+  and sealing while permitting the solo founder to remain the named actor.
+- Database-derived dossiers, approve/reject verification, one sealed handoff,
+  additive recall, and ordered events are immutable.
+- Every persistence boundary rechecks current upstream evidence and locks the
+  Phase 6 snapshot transactionally.
+- Every handoff remains `not_executed` and
+  `external_execution_required=true`; production adapter composition is empty.
+
+## B. Verification evidence
+
+- Focused Phase 7 suite: **13/13 PASS**.
+- Full repository regression: **285/285 PASS**.
+- Strict TypeScript and SQLite latest → rollback → latest: **PASS**.
+- Disposable PostgreSQL 16 eleven-migration lifecycle, ceremony, immutability,
+  and rollback: **PASS**.
+- Local documentation targets: **58/58 PASS**.
+- High-severity dependency gate: **PASS**, no high/critical finding.
+
+## C. Gate result
+
+Phase 7 can seal and recall an exact external handoff but cannot invoke it. It
+contains no executor, provider SDK, target secret, network call, scheduler,
+daemon, background loop, HTTP mutation route, or deployment authority.
+
+---
+
+# Phase 8 Local Review — Controlled Single Activation
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase8-controlled-activation`
+
+Core commit: `424f486`
+
+Verdict: **REPOSITORY-LOCAL PASS — PRODUCTION ADAPTER ABSENT**
+
+## A. Implemented scope
+
+- One exact Phase 8 policy consumes at most one current unrecalled Phase 7
+  handoff and preserves its target, artifact, configuration, canary, and
+  rollback bindings.
+- Four separate credentials authenticate release, execution, safety
+  observation, and rollback; all differ from every upstream credential.
+- The switch begins engaged. Dual release is short-lived, preview reports zero
+  mutations, and an atomic claim is stored before one adapter invocation.
+- Concurrent callers cannot invoke twice. Invalid/lost responses become
+  terminal unknown incidents, and an expired orphan claim reconciles to
+  unknown without another adapter call.
+- Explicit receipt-bound observation and explicit dual-authorized rollback are
+  idempotent. Nothing triggers automatic retry, observation, or rollback.
+- Ten persistence tables and ordered evidence are append-only on SQLite and
+  PostgreSQL. The one-shot operator rejects unknown input keys and raw secrets
+  never enter policy JSON or storage.
+
+## B. Verification evidence
+
+- Focused Phase 8 suite: **17/17 PASS**.
+- Full repository regression on Node 22: **302/302 PASS**.
+- Isolated Node 24 regression: **302/302 PASS**; TypeScript PASS.
+- SQLite latest → rollback → latest: **PASS**.
+- Disposable PostgreSQL 16 twelve-migration lifecycle, controlled activation,
+  unhealthy observation, incident, manual rollback, ten-table immutability,
+  and full rollback: **PASS**.
+- Pending example preflight: **BLOCKED AS EXPECTED**, exit 2.
+- Production registry assertion: **PASS**, zero activation adapters.
+- GitHub Actions workflow definition review: **PASS**, read-only permissions,
+  Node 22/24 SQLite jobs, high-severity audit, and PostgreSQL 16 lifecycle job.
+  It has not run on GitHub because this branch has not been pushed.
+- Local documentation targets: **63/63 PASS**.
+- Staged secret scan and `git diff --check`: **PASS**.
+- High-severity dependency gate: **PASS**, no high/critical finding.
+
+## C. Gate result
+
+All repository-local Phase 8 work is complete. The exact remaining facts are
+external: named P1/P2 infrastructure, reviewed provider adapter and
+least-privilege secret, production monitoring/idempotency, elapsed shadow
+evidence, real G5/G6 decisions, genuine supervised history, explicit G7
+release, and live incident/rollback drills. Local tests cannot honestly create
+those facts. Until they exist, preflight remains blocked and the checked-in
+production registry remains empty.
+
+Canonical detailed evidence and blocker list:
+[`docs/PHASE_8_COMPLETION_EVIDENCE.md`](docs/PHASE_8_COMPLETION_EVIDENCE.md).
+
+---
+
+# Phase 9A Local Review — Evidence-Grade Ask LeozOps
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase9a-conversation-core`
+
+Verdict: **REPOSITORY-LOCAL PASS — PRODUCTION LANGUAGE MODEL ABSENT**
+
+## A. Implemented scope
+
+- `advisor_evidence_v1` converts the accepted deterministic CEO Brief and
+  active founder context into a bounded PII-minimized evidence pack with one
+  hash per value and no raw lead identity or payload.
+- Six fixed read projections expose pipeline headline, current funnel, safe
+  sources, freshness, known limitations, and active goals/constraints/
+  decisions. There is no generic SQL, HTTP, filesystem, browser, code, or
+  action tool.
+- `advisor_answer_v1` separates summary, fact, inference, recommendation, and
+  limitation. Every material statement is evidence-bound; numeric text without
+  a citation is rejected before persistence.
+- Seven tenant-scoped tables store conversations, ordered messages, one
+  pre-provider run claim, one terminal result, exact citations, versioned
+  context, and feedback. Every table rejects UPDATE and DELETE on SQLite and
+  PostgreSQL.
+- Idempotent replay returns the original run/message/answer/citations. A
+  concurrent caller cannot invoke the provider twice; a failed run is terminal
+  for its key.
+- Authenticated create/read/ask/context/feedback routes are mounted only in the
+  `egoric-readonly` profile. JSON parsing is route-local so forbidden legacy
+  surfaces remain true 404s, even for malformed bodies.
+- The only checked-in provider is deterministic and bilingual. It refuses
+  unsupported history, action-shaped requests, prompt injection, and unknown
+  questions, and has no network or credential primitive.
+
+## B. Verification evidence
+
+- Focused Phase 9A suite: **18/18 PASS**.
+- Full repository regression: **320/320 PASS**.
+- Strict TypeScript: **PASS**.
+- SQLite latest → rollback → latest and seven-table immutability: **PASS**.
+- Disposable PostgreSQL 16 thirteen-migration lifecycle; conversation,
+  context, answer, exact citation, feedback, idempotent replay, seven-table
+  immutability, and full rollback: **PASS**.
+- `egoric-readonly` profile and legacy-route isolation: **PASS**.
+- Local documentation targets: **71/71 PASS**.
+- `git diff --check`: **PASS**.
+- High-severity production dependency gate: **PASS**, no high/critical
+  finding. `npm audit` reports the pre-existing one low and one moderate
+  advisory; neither is introduced by Phase 9A and no dependency was added.
+- Docker PostgreSQL container was removed and Docker Desktop was restored to
+  its prior stopped state after verification.
+
+## C. Gate result
+
+Phase 9A is a local J1 contract and regression baseline, not live J1 acceptance.
+No production model SDK, API key, model selection, network transport,
+streaming, UI, notification scheduler, deployment, or action capability is
+present. Phase 9B must separately review a production model adapter, run an
+expanded evaluation threshold, and produce cost/latency evidence. Real G5/G6/
+G7 remain externally blocked.
+
+Canonical contract and operations:
+[`docs/PHASE_9A_ASK_LEOZOPS.md`](docs/PHASE_9A_ASK_LEOZOPS.md).
+
+---
+
+# Phase 9B Local Review — OpenAI Responses Advisor Adapter
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase9b-openai-adapter`
+
+Verdict: **REPOSITORY-LOCAL PASS — LIVE MODEL EVIDENCE ABSENT**
+
+## A. Implemented scope
+
+- One fixed `gpt-5.6-sol` adapter calls only the official Responses endpoint
+  through an injected, testable HTTPS boundary. The model and endpoint cannot
+  be redirected by environment configuration.
+- Requests are stateless and non-streaming, use none/current-turn reasoning and
+  strict `advisor_answer_v1` Structured Outputs, expose an empty tool list, and
+  explicitly deny tool choice and parallel tool calls.
+- Only the existing PII-minimized evidence pack and question enter the model
+  input. Evidence and user content are untrusted data. The Phase 9A domain
+  validator remains authoritative for exact fields, citations, numeric claims,
+  PII, and answer size before persistence.
+- Deterministic mode remains the default. OpenAI composition requires an
+  explicit selector and out-of-band key. Unsupported providers/models, missing
+  keys, malformed output limits, wrong response models, incomplete/refused/
+  malformed responses, invalid usage, and provider errors fail closed.
+- The standard 2026-08-01 rate card is versioned in provider identity. Actual
+  response units calculate a persisted microunit estimate; estimated input,
+  a fixed system/schema allowance, and maximum output must fit the run budget
+  before the transport is called.
+- The frozen eval expands to 12 factual, missing-data, action, injection,
+  exfiltration, and PII cases. Acceptance is 100% valid grounded contract and
+  at least 90% expected behavior, with per-case latency/tokens/cost.
+- Live evaluation is a separately acknowledged, billable command. Streaming is
+  deferred to the Phase 10 cockpit boundary so no partial claim is persisted or
+  displayed as accepted evidence.
+
+## B. Verification evidence
+
+- Phase 9B provider/eval and trust-boundary suites: **11/11 PASS**.
+- Phase 9 conversation/evidence suite after cost-preflight addition:
+  **20/20 PASS**.
+- Full repository regression: **332/332 PASS**.
+- Strict TypeScript: **PASS**.
+- Unconfigured live-eval guard: **BLOCKED AS EXPECTED**, exit 1 before any
+  provider call.
+- Local links across changed documentation: **55/55 PASS**.
+- `git diff --check` and repository secret-pattern scan: **PASS**.
+- High-severity production dependency gate: **PASS**, no high/critical
+  finding. The pre-existing one low `body-parser` and one moderate `uuid`
+  advisory remain; Phase 9B adds no dependency.
+- No database migration changed, so the already-passing Phase 9A SQLite and
+  PostgreSQL append-only lifecycle is unchanged. The full SQLite regression
+  reran; no new persistence claim relies on an unexecuted database proof.
+- No real `OPENAI_API_KEY` was installed, no live eval/API request was made, and
+  no cost, latency, quality, or rate-limit result was fabricated.
+
+## C. Gate result
+
+The repository now has a production-shaped, narrow language-model edge without
+expanding data or action authority. This completes the codeable Phase 9B
+adapter/eval boundary, not live J1.
+
+Live J1 still requires a named OpenAI project and deployment, secret injection
+and revocation drill, privacy/data-retention acceptance, passing live eval,
+repeated p95 latency and cost measurements, provider monitoring, Product Owner
+SLO acceptance, and real G5 Observer evidence. G6/G7 action authority is
+unchanged.
+
+Canonical adapter and operations contract:
+[`docs/PHASE_9B_OPENAI_ADAPTER.md`](docs/PHASE_9B_OPENAI_ADAPTER.md).
+
+---
+
+# Phase 10 Local Review — Medieval CEO Cockpit
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase10-medieval-cockpit`
+
+Verdict: **REPOSITORY-LOCAL PASS — LIVE J2 ACCEPTANCE ABSENT**
+
+## A. Implemented scope
+
+- One versioned `leozops_cockpit_v1` service projects the accepted CEO Brief
+  into a tenant-scoped, PII-minimized headline, freshness state, three-priority
+  ceiling, business quality view, limitations, provenance, and sealed command
+  state.
+- The `egoric-readonly` profile serves a public data-free `/cockpit` chamber,
+  same-origin external assets, and one authenticated GET projection. There is
+  no cockpit POST or action-adapter route.
+- Today, Ask LeozOps, Business, Recommendations, and Command Deck use the
+  canonical Realm v2 obsidian/gold/emerald language with semantic state text,
+  evidence drill-down, keyboard navigation, reduced motion, increased
+  contrast, and responsive desktop/tablet/mobile layouts.
+- Ask creates only LeozOps-owned Phase 9 conversation evidence. The complete
+  answer must pass server grounding/citation validation before progressive
+  visual reveal; citation chips open exact stored provenance. No partial claim
+  is persisted or presented as accepted evidence.
+- The read credential is kept in page memory, cleared from the input after
+  connection, and discarded on disconnect/pagehide. CSP, same-origin fetches,
+  omitted ambient credentials, no inline execution, and DOM-safe construction
+  protect the shell boundary.
+- Command Deck states remain explicit: read-only, approval not connected,
+  execution blocked, receipt/rollback/incident unavailable, and kill switch
+  not exposed. “Approval is not execution.” is the authoritative UI claim.
+
+## B. Verification evidence
+
+- Focused Phase 10 suite: **4/4 PASS**.
+- Full repository regression: **336/336 PASS**.
+- Strict TypeScript: **PASS**.
+- In-app browser QA: **PASS** across all five surfaces, Ask/citation drawer,
+  Ctrl+K focus, 1280 desktop, and 390 mobile; no horizontal overflow, mobile
+  targets measured 56 px high, and no console warning/error was recorded.
+- Local links across changed documentation: **56 PASS**.
+- `git diff --check` and changed-file secret-pattern scan: **PASS**.
+- High/critical production dependency gate: **PASS**. The pre-existing one low
+  `body-parser` and one moderate `uuid` advisory remain; Phase 10 adds no
+  dependency.
+- No database migration, model credential, live provider request, deployment,
+  scheduler, notification loop, production adapter, or external mutation was
+  added or claimed.
+
+## C. Gate result
+
+Phase 10 completes the codeable medieval evidence cockpit and is a
+repository-local J2 candidate. It does not accept live J2 or widen G5/G6/G7.
+The founder must still record the North Star run in under five minutes against
+a named deployment after live J1 and real G5 Observer evidence are accepted.
+
+Canonical contract and operations:
+[`docs/PHASE_10_MEDIEVAL_COCKPIT.md`](docs/PHASE_10_MEDIEVAL_COCKPIT.md).
+
+---
+
+# Phase 11 Local Review — Proactive Nervous System
+
+Review date: 2026-08-01
+
+Target: `leozvu/leozcrm`
+
+Branch: `codex/leozops-phase11-proactive-nervous-system`
+
+Verdict: **REPOSITORY-LOCAL PASS — POSTGRES EXECUTION AND LIVE J3 ABSENT**
+
+## A. Implemented scope
+
+- `proactive_alert_policy_v1` deterministically evaluates overdue expected-
+  close and active-owner-gap facts from the accepted CEO Brief. Stale, future,
+  and partial evidence fails closed; a later fresh accepted snapshot still
+  evaluates against the last alert, not against a suppressed observation.
+- Seven tenant-scoped append-only tables preserve cycles, every rule decision,
+  alert episodes/events, delivery intent, attempts, and results. Cycle writes
+  are atomic, so a mid-cycle failure rolls back and the same command can retry.
+- Logical deduplication, worsening-only re-alerts, four-hour cooldown, UTC
+  quiet hours, bounded snooze, acknowledgement, resolution, and one immutable
+  useful/false-positive outcome derive alert state without rewriting history.
+- Daily and urgent intents use stable logical keys behind a versioned adapter
+  registry. The outbox claim serializes in-flight delivery, definitive failure
+  may retry, delivered replays its receipt, and unknown blocks automatic retry.
+- The exact-credential operator runs one evaluate, daily-brief, delivery,
+  status, or shadow-status command and exits. Checked-in production composition
+  has no adapter, scheduler, daemon, loop, provider credential, or network call.
+- The tenant-authenticated cockpit displays explicit severity/state text,
+  recommendation, evidence and delivery provenance, acknowledgement, four-hour
+  snooze, and founder quality outcomes. It does not expose evaluation,
+  delivery, action, or direct Egoric mutation routes.
+- The shadow evaluator freezes the candidate gate at 20 genuine reviews,
+  <=10% false positives, <=3 alerts/day, and no unknown delivery result.
+
+## B. Verification evidence
+
+- Phase 11 suite plus cockpit suite: **20/20 PASS**.
+- Full repository regression: **348/348 PASS**.
+- Strict TypeScript: **PASS**.
+- Fault/replay proof: injected mid-cycle failure rolled back cycle, alert, and
+  outbox rows; retry completed. An in-flight attempt admitted one provider call
+  and rejected the concurrent second attempt.
+- SQLite latest/rollback/latest and all seven table immutability checks:
+  **PASS**.
+- In-app Codex browser QA: **PASS** at 1280 desktop and 390 mobile. Alert cards
+  stack to one column, body width does not overflow, controls measure 44 px,
+  evidence drawer and acknowledge -> outcome flow work, and console has zero
+  warning/error.
+- Changed-document local links: **59/59 PASS**. `git diff --check`, Phase 11
+  TODO scan, and changed-code secret-pattern scan: **PASS**.
+- High/critical production dependency gate: **PASS**. The pre-existing one low
+  `body-parser` and one moderate `uuid` advisory remain; Phase 11 adds no
+  dependency.
+- `npm run db:smoke:pg` is registered with all Phase 11 tables but **SKIPPED**:
+  this workstation exposed no Docker server, local PostgreSQL executable, or
+  database credential. No PostgreSQL result is claimed.
+
+## C. Gate result
+
+Phase 11 completes the codeable Proactive Nervous System and is a local J3
+candidate. It does not accept live J3, J1/J2, G5, or any write authority.
+
+Repository follow-up is one real disposable PostgreSQL lifecycle run. Live J3
+additionally requires a named deployment, reviewed channel adapter and external
+scheduler, at least 20 genuine founder reviews, accepted volume/FPR, delivery
+SLO/reconciliation/incident evidence, real G5 Observer evidence, and Product
+Owner acceptance. Fixtures and simulated clocks cannot satisfy those facts.
+
+Canonical contract and operations:
+[`docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md`](docs/PHASE_11_PROACTIVE_NERVOUS_SYSTEM.md).
+
+---

@@ -85,8 +85,10 @@ separate retention implementation/review before any deletion is enabled.
    npm run p1:preflight -- <decision-manifest.json>
    ```
 
-6. A PASS validates completeness and safety only. Review the diff and record a
-   DECISION-002 addendum before any P1 external action.
+6. A PASS validates completeness and safety only. Its
+   `decision_fingerprint` binds later Checkpoint B evidence to these exact
+   normalized values. Review the diff and record a DECISION-002 addendum before
+   any P1 external action.
 
 ## Fail-closed rules
 

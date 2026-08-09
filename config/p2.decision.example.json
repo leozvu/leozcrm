@@ -1,0 +1,21 @@
+{
+  "schema_version": "leozops_p2_decision_v1",
+  "decision_id": "P2-REPLACE_ME",
+  "status": "pending",
+  "approved_by": "Leoz",
+  "approved_at": "pending",
+  "p1_decision_id": "pending",
+  "p1_decision_fingerprint": "pending",
+  "checkpoint_b_evidence_id": "pending",
+  "checkpoint_b_fingerprint": "pending",
+  "production": {
+    "runtime_project_id": "pending",
+    "database_id": "pending",
+    "egoric_project_id": "prj_Hh4aZEj9q3hvULaUfC4GwFvxYii9",
+    "source_tenant_key": "egoric"
+  },
+  "scope": "company_ceo_brief_readonly",
+  "poll_schedule_minutes": 15,
+  "shadow_business_days": 10,
+  "verdict": "pending"
+}

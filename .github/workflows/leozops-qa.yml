@@ -1,0 +1,114 @@
+name: LeozOps QA
+
+on:
+  push:
+    branches:
+      - main
+      - 'codex/**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: leozops-qa-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sqlite-regression:
+    name: SQLite regression / Node ${{ matrix.node }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [22, 24]
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Strict TypeScript check
+        run: npm run typecheck
+
+      - name: Phase 12 live-observer safety suite
+        run: npm run test:phase12
+
+      - name: Phase 13 goal-aware Planner safety suite
+        run: npm run test:phase13
+
+      - name: Phase 14 supervised-hand readiness suite
+        run: npm run test:phase14
+
+      - name: Full SQLite regression
+        run: npm test
+
+      - name: High-severity production dependency gate
+        if: matrix.node == 24
+        run: npm audit --omit=dev --audit-level=high
+
+  postgres-lifecycle:
+    name: PostgreSQL 16 lifecycle
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: leozops
+          POSTGRES_PASSWORD: leozops_ci_only
+          POSTGRES_DB: leozops
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U leozops -d leozops"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: leozops
+      PGPASSWORD: leozops_ci_only
+      PGDATABASE: leozops
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Compile production runtime
+        run: npm run build
+
+      - name: Migrate, exercise, prove immutability, and roll back
+        run: npm run db:smoke:pg
+
+  container-build:
+    name: Production container build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build non-publishing production image
+        run: docker build --tag leozops:${{ github.sha }} .

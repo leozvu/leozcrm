@@ -1,0 +1,57 @@
+{
+  "version": "3.5",
+  "daemon": {
+    "autostart": false
+  },
+  "agents": {
+    "defaultType": "coder",
+    "autoSpawn": false,
+    "maxConcurrent": 4,
+    "timeout": 300000,
+    "providers": []
+  },
+  "swarm": {
+    "topology": "hierarchical",
+    "maxAgents": 4,
+    "autoScale": false,
+    "coordinationStrategy": "leader",
+    "healthCheckInterval": 30000
+  },
+  "memory": {
+    "backend": "hybrid",
+    "persistPath": "./.swarm/memory.db",
+    "cacheSize": 1000,
+    "enableHNSW": true,
+    "vectorDimension": 384
+  },
+  "mcp": {
+    "serverHost": "localhost",
+    "serverPort": 3000,
+    "autoStart": false,
+    "transportType": "stdio",
+    "tools": [
+      "memory",
+      "swarm",
+      "agent",
+      "hooks",
+      "task",
+      "guidance",
+      "security"
+    ]
+  },
+  "cli": {
+    "colorOutput": true,
+    "interactive": true,
+    "verbosity": "normal",
+    "outputFormat": "text",
+    "progressStyle": "spinner"
+  },
+  "hooks": {
+    "enabled": false,
+    "autoExecute": false,
+    "hooks": []
+  },
+  "workers": {
+    "enabled": false
+  }
+}

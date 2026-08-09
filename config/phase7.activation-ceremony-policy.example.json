@@ -1,0 +1,68 @@
+{
+  "schema_version": "leozops_phase7_activation_ceremony_policy_v1",
+  "policy_id": "P7-pending-replace_me",
+  "status": "pending",
+  "ceremony_mode": "sealed_external_handoff",
+  "environment": "test",
+  "approved_by": "pending",
+  "approved_at": "2099-01-01T00:00:00.000Z",
+  "valid_from": "2099-01-01T00:05:00.000Z",
+  "valid_until": "2099-01-02T00:00:00.000Z",
+  "tenant_id": "11111111-1111-4111-8111-111111111111",
+  "source_connection_id": "22222222-2222-4222-8222-222222222222",
+  "phase6": {
+    "policy_id": "P6-pending-replace_me",
+    "policy_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "assessment_fingerprint": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+  },
+  "identities": {
+    "ceremony_authority": "pending",
+    "authority_credential_sha256": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+    "independent_verifier": "pending",
+    "verifier_credential_sha256": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+    "activation_operator": "pending",
+    "operator_credential_sha256": "sha256:4444444444444444444444444444444444444444444444444444444444444444"
+  },
+  "target": {
+    "deployment_id": "pending-deployment",
+    "target_fingerprint": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+    "provider": "pending-provider",
+    "region": "pending-region",
+    "project_id": "pending-project",
+    "service_id": "pending-service",
+    "adapter_id": "pending-adapter",
+    "adapter_version": "pending-version",
+    "command_key": "pending-command",
+    "adapter_artifact_digest": "sha256:6666666666666666666666666666666666666666666666666666666666666666",
+    "configuration_digest": "sha256:7777777777777777777777777777777777777777777777777777777777777777",
+    "credential_reference_sha256": "sha256:8888888888888888888888888888888888888888888888888888888888888888"
+  },
+  "canary": {
+    "cohort_size": 1,
+    "max_mutations": 1,
+    "observation_minutes": 30,
+    "success_metric_fingerprint": "sha256:9999999999999999999999999999999999999999999999999999999999999999",
+    "abort_metric_fingerprint": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "manual_start_required": true,
+    "manual_continue_required": true
+  },
+  "rollback": {
+    "rollback_artifact_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "procedure_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "max_recovery_minutes": 15,
+    "kill_switch_must_start_engaged": true,
+    "manual_recovery_only": true
+  },
+  "limits": {
+    "max_phase6_assessment_age_minutes": 30,
+    "max_verification_age_minutes": 15
+  },
+  "safety": {
+    "handoff_only": true,
+    "activation_executor_not_implemented": true,
+    "external_execution_requires_new_authority": true,
+    "production_adapter_registry_must_remain_empty": true,
+    "waivers_allowed": false
+  },
+  "verdict": "pending"
+}
