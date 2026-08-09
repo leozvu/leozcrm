@@ -3,9 +3,6 @@ import fs from 'node:fs';
 import https from 'node:https';
 
 const path = '/api/integrations/leozops/v1/lead-snapshot';
-const requiredToken = process.env.LEOZOPS_SOURCE_BEARER_TOKEN || '';
-if (!requiredToken) throw new Error('source_stub_token_missing');
-
 const facts = {
   schema_version: '1.0',
   source: { system: 'egoric', tenant_key: 'egoric-local-staging' },
@@ -18,17 +15,27 @@ const facts = {
   leads: [],
   quality: { records: 0, missing_source: 0, missing_created_at: 0, client_attribution: 'unavailable' },
 };
-const snapshotId = `sha256:${createHash('sha256').update(JSON.stringify(facts)).digest('hex')}`;
-const snapshot = {
-  schema_version: facts.schema_version,
-  source: facts.source,
-  snapshot_id: snapshotId,
-  generated_at: new Date().toISOString(),
-  funnel_definition: facts.funnel_definition,
-  leads: facts.leads,
-  quality: facts.quality,
-};
-const etag = `"sha256:${createHash('sha256').update(JSON.stringify(snapshot)).digest('hex')}"`;
+
+/** Keep this byte-for-byte compatible with businessMemory.canonicalStringify. */
+export function canonicalStringify(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalStringify).join(',')}]`;
+  return `{${Object.keys(value).sort().map(
+    (key) => `${JSON.stringify(key)}:${canonicalStringify(value[key])}`,
+  ).join(',')}}`;
+}
+
+export function buildFixtureSnapshot(generatedAt = new Date().toISOString()) {
+  return {
+    schema_version: facts.schema_version,
+    source: facts.source,
+    snapshot_id: `sha256:${createHash('sha256').update(canonicalStringify(facts)).digest('hex')}`,
+    generated_at: generatedAt,
+    funnel_definition: facts.funnel_definition,
+    leads: facts.leads,
+    quality: facts.quality,
+  };
+}
 
 function equal(left, right) {
   const a = Buffer.from(left);
@@ -46,10 +53,15 @@ function json(response, status, value, headers = {}) {
   response.end(JSON.stringify(value));
 }
 
-const server = https.createServer({
-  cert: fs.readFileSync('/certs/ca/source-cert.pem'),
-  key: fs.readFileSync('/certs/server/source-key.pem'),
-}, (request, response) => {
+function startServer() {
+  const requiredToken = process.env.LEOZOPS_SOURCE_BEARER_TOKEN || '';
+  if (!requiredToken) throw new Error('source_stub_token_missing');
+  const snapshot = buildFixtureSnapshot();
+  const etag = `"${snapshot.snapshot_id}"`;
+  const server = https.createServer({
+    cert: fs.readFileSync('/certs/ca/source-cert.pem'),
+    key: fs.readFileSync('/certs/server/source-key.pem'),
+  }, (request, response) => {
   if (request.url === '/health' && request.method === 'GET') {
     json(response, 200, { ok: true, source: 'repositoryrealms-local-staging-fixture' });
     return;
@@ -75,10 +87,17 @@ const server = https.createServer({
     return;
   }
   json(response, 200, snapshot, { ETag: etag });
-});
+  });
 
-server.listen(3443, '0.0.0.0');
+  server.listen(3443, '0.0.0.0');
 
-for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, () => server.close(() => process.exit(0)));
+  for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.on(signal, () => server.close(() => process.exit(0)));
+  }
+}
+
+if (process.argv[2] === '--print-snapshot') {
+  console.log(JSON.stringify(buildFixtureSnapshot(process.argv[3])));
+} else {
+  startServer();
 }

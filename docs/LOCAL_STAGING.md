@@ -11,6 +11,7 @@ cloud database or RepositoryRealms deployment. It contains:
 - an HTTPS, token-protected, PII-minimized RepositoryRealms fixture source on
   loopback port `3200`;
 - one-shot migration and exact idempotent tenant/source provisioning jobs;
+- one read-only source poll that must complete before the Cockpit starts;
 - runtime-generated, private-key-isolated local TLS material and randomly
   generated secret bindings;
 - no action adapter, source task flag, scheduler, OpenAI credential, or live
@@ -26,6 +27,7 @@ refuses to overwrite an existing environment.
 npm run staging:bootstrap # first run only
 npm run staging:up
 npm run staging:verify
+npm run staging:credential # prints the tenant-scoped Cockpit credential
 npm run staging:restore-drill
 ```
 
@@ -33,6 +35,9 @@ Verification requires the exact staging manifest and checks its fingerprint,
 secret-reference separation, database identity, current migrations, non-root
 app and source runtimes, `/health`, `/startup`, `/ready`, tenant/operations authentication,
 source TLS/token protection, PII denial, ETag, and `304` replay.
+The verification also requires an accepted source snapshot and a successful
+tenant-scoped Cockpit read. The raw output-auth signing secret is not a Cockpit
+credential; use `staging:credential` to derive the current signed token.
 
 The restore drill creates only
 `leozops_local_staging_restore_drill` inside the isolated container, restores a

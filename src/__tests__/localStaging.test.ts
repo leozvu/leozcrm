@@ -1,8 +1,11 @@
 import test, { after, before } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
+import path from 'node:path';
 import knexFactory from 'knex';
 import config from '../../knexfile';
+import { validateEgoricSalesV1Snapshot } from '../domain/businessMemory';
 import { provisionLocalStaging } from '../localStagingProvision';
 
 const db = knexFactory(config.test);
@@ -79,4 +82,19 @@ test('local staging provisioning rejects missing acknowledgement and retargeting
   const env = environment();
   env.LEOZOPS_DATABASE_ID = 'another-database';
   await assert.rejects(provisionLocalStaging(db, retargeted, env), /local_staging_target_mismatch/);
+});
+
+test('local staging source fixture emits the exact canonical source contract', () => {
+  const generatedAt = '2026-08-09T14:45:00.000Z';
+  const result = spawnSync(process.execPath, [
+    path.resolve('deploy/local-staging/source-stub.mjs'),
+    '--print-snapshot',
+    generatedAt,
+  ], { encoding: 'utf8', shell: false });
+  assert.equal(result.status, 0, result.stderr);
+  const snapshot = JSON.parse(result.stdout);
+  const validated = validateEgoricSalesV1Snapshot(snapshot, 'egoric-local-staging');
+  assert.equal(validated.generated_at, generatedAt);
+  assert.match(validated.snapshot_id, /^sha256:[0-9a-f]{64}$/);
+  assert.deepEqual(validated.leads, []);
 });

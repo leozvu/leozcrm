@@ -44,6 +44,7 @@
     "staging:bootstrap": "tsx scripts/bootstrapLocalStaging.ts",
     "staging:up": "docker build --tag leozops:local-staging . && docker compose --env-file .env.local-staging.local --file deploy/local-staging/docker-compose.yml up --detach --wait",
     "staging:verify": "tsx scripts/verifyLocalStaging.ts",
+    "staging:credential": "tsx scripts/printLocalStagingCredential.ts",
     "staging:restore-drill": "tsx scripts/drillLocalStaging.ts",
     "staging:down": "docker compose --env-file .env.local-staging.local --file deploy/local-staging/docker-compose.yml down",
     "hand:preflight": "tsx src/supervisedHandPreflight.ts",

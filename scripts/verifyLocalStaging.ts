@@ -3,7 +3,9 @@ import fs from 'node:fs';
 import https from 'node:https';
 import path from 'node:path';
 import * as dotenv from 'dotenv';
+import { validateEgoricSalesV1Snapshot } from '../src/domain/businessMemory';
 import { validateLiveObserverDeployment } from '../src/domain/liveObserver';
+import { signTenantReadToken } from '../src/http/integrationReadAuth';
 import { inspectLiveObserverPreflight } from '../src/liveObserverPreflight';
 
 const root = path.resolve(__dirname, '..');
@@ -85,6 +87,14 @@ async function main(): Promise<void> {
 
   const unauthenticated = await fetch(`${base}/v1/tenants/${validation.value.source.tenant_key}/brief`, { signal: AbortSignal.timeout(10_000) });
   assert(unauthenticated.status === 401, 'local_staging_tenant_auth_boundary_failed');
+  const tenantReadToken = signTenantReadToken(
+    validation.value.source.tenant_key,
+    env.LEOZOPS_OUTPUT_AUTH_SECRET!,
+  );
+  const cockpit = await json(`${base}/v1/tenants/${validation.value.source.tenant_key}/cockpit`, {
+    headers: { Authorization: `Bearer ${tenantReadToken}` },
+  });
+  assert(cockpit.response.status === 200 && cockpit.body.tenant?.key === validation.value.source.tenant_key, 'local_staging_cockpit_read_failed');
   const operationsDenied = await fetch(`${base}/internal/operations/snapshot`, { signal: AbortSignal.timeout(10_000) });
   assert(operationsDenied.status === 401, 'local_staging_operations_auth_boundary_failed');
   const operations = await json(`${base}/internal/operations/snapshot`, {
@@ -99,9 +109,14 @@ async function main(): Promise<void> {
   assert(source.status === 200, 'local_staging_source_probe_failed');
   const sourceBody = JSON.parse(source.body) as any;
   assert(sourceBody.schema_version === '1.0' && sourceBody.source?.tenant_key === validation.value.source.tenant_key, 'local_staging_source_contract_failed');
+  try {
+    validateEgoricSalesV1Snapshot(sourceBody, validation.value.source.tenant_key);
+  } catch {
+    throw new Error('local_staging_source_canonical_hash_failed');
+  }
   assert(!/(email|phone|password|credential|first_name|last_name)/i.test(source.body), 'local_staging_source_pii_boundary_failed');
   const etag = Array.isArray(source.headers.etag) ? source.headers.etag[0] : source.headers.etag;
-  assert(typeof etag === 'string' && etag.startsWith('"sha256:'), 'local_staging_source_etag_missing');
+  assert(etag === `"${sourceBody.snapshot_id}"`, 'local_staging_source_etag_missing');
   const unchanged = await localHttps(sourcePath, env.LEOZOPS_SOURCE_BEARER_TOKEN, etag);
   assert(unchanged.status === 304 && unchanged.body === '', 'local_staging_source_304_failed');
 
@@ -121,7 +136,7 @@ async function main(): Promise<void> {
     database: { identity: 'leozops_local_staging', migrations_current: true },
     runtime: { profile: 'egoric-readonly', user: 'leozops' },
     source: { kind: 'fixture_stub', user: 'node', pii_minimized: true, etag_replay: true },
-    auth: { tenant_boundary: true, operations_boundary: true, secrets_printed: false },
+    auth: { tenant_boundary: true, cockpit_read: true, operations_boundary: true, secrets_printed: false },
     live_gate_claimed: false,
   }, null, 2));
 }

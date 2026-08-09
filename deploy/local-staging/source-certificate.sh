@@ -1,4 +1,5 @@
 #!/bin/sh
+# This file must stay LF-only because Alpine executes it from a Windows bind mount.
 set -eu
 
 if [ -s /certs/ca/source-cert.pem ] && [ -s /certs/server/source-key.pem ]; then
