@@ -285,6 +285,44 @@ handoff remained `not_executed`; rewrites were rejected across all six new
 tables; all eleven migrations rolled back. This proves SQL dialect and local
 ceremony behavior only, not deployment or activation.
 
+## Phase 16 Ambient Jarvis checkpoint — 2026-08-09
+
+The complete current lifecycle was executed after adding Ambient Jarvis
+preferences, Jarvis v1 governance, and the canonical RepositoryRealms adapter
+boundary:
+
+- branch: `codex/ruflo-phase14-contract-unlock`;
+- engine: Docker Desktop `29.6.2`;
+- image: `postgres:16-alpine`;
+- container: `leozops-phase16-pg-20260809`;
+- endpoint: loopback-only `127.0.0.1:55436`;
+- database: `leozops_phase16`;
+- storage: disposable container filesystem, no volume;
+- credential: generated in process, never printed or persisted;
+- source/network action: none; all action adapters used by the smoke are
+  deterministic in-process test boundaries.
+
+The first run stopped honestly at Planner checkpoint integrity verification.
+PostgreSQL returns timestamp columns as `Date` values while the immutable hash
+was created from an ISO string. The repository now normalizes every Planner
+timestamp to canonical ISO before integrity verification, with a focused
+regression covering the PostgreSQL representation.
+
+The clean rerun applied all migrations, exercised task, source, Advisor,
+Planner, Ambient Jarvis, data-governance, shadow, supervised-action,
+bounded-autonomy, assurance, external-evidence, ceremony, and activation
+records, rejected direct evidence mutation, rolled the full migration batch
+back, and verified all expected tables were absent. Final output:
+
+```text
+Postgres migrate/seed/rollback smoke PASSED.
+PHASE16_POSTGRES_SMOKE=PASS
+DISPOSABLE_CONTAINER_CLEANUP=PASS
+```
+
+This closes the Phase 16 disposable PostgreSQL dialect/lifecycle check. It is
+not a managed staging deployment, production history, or action authority.
+
 ## Running on another approved disposable target
 
 Set either one connection string:

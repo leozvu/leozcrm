@@ -650,7 +650,7 @@ Status: IMPLEMENTED ON `codex/leozops-phase13-goal-aware-planner`; LIVE J5 OPEN
     readiness coverage, sanitized responses, and rollback-safe migration.
 [x] Medieval Planner cockpit with goal/plan counts, conflicts, decisions,
     evidence drill-down, accept/reject intent, and explicit authority boundary.
-[x] Focused Phase 13 suite 9/9, cockpit regression 4/4, full registered
+[x] Focused Phase 13 suite 10/10, cockpit regression 4/4, full registered
     regression 348/348, Node 22/24 CI job, PostgreSQL 16 lifecycle/immutability/
     rollback coverage, strict TypeScript, and build gate.
 [ ] Run named-deployment founder review against accepted live J1 evidence and
@@ -728,8 +728,11 @@ Status: REPOSITORY COMPLETE; LIVE J6/J7/J8 BLOCKED
     HTTP/domain/action integrations/repositories with zero findings.
 [x] Extend the disposable PostgreSQL smoke to require both Phase 16 tables and
     prove their update/delete guards before rollback.
-[ ] Execute that Phase 16 PostgreSQL smoke on a configured disposable service;
-    this workstation has no PostgreSQL target, so the command skipped honestly.
+[x] Execute the Phase 16 PostgreSQL smoke on a new loopback-only PostgreSQL 16
+    Docker target. The first run exposed PostgreSQL `Date`/ISO checkpoint hash
+    drift; timestamp normalization plus a focused regression fixed it, and the
+    complete migrate/evidence/immutability/rollback rerun passed before the
+    no-volume container was removed.
 [x] Remediate and review all reported npm advisories in both repositories;
     full suites/builds and `npm audit --audit-level=low` pass with 0 findings.
 [ ] Merge and re-audit the source contract on canonical RepositoryRealms main;

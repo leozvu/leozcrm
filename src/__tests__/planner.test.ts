@@ -8,14 +8,16 @@ import config from '../../knexfile';
 import {
   PLANNER_GOAL_SCHEMA,
   PLANNER_TABLES,
+  PlannerCheckpointRecord,
   PlannerGoalManifest,
+  plannerHash,
   validatePlannerGoal,
 } from '../domain/planner';
 import { EGORIC_SCHEMA_VERSION, EgoricSalesLead } from '../domain/businessMemory';
 import { createApp } from '../http/app';
 import { signTenantReadToken } from '../http/integrationReadAuth';
 import { BusinessMemoryRepository } from '../repositories/businessMemoryRepository';
-import { PlannerRepository } from '../repositories/plannerRepository';
+import { normalizePlannerCheckpointRecord, PlannerRepository } from '../repositories/plannerRepository';
 import { EgoricBriefService } from '../services/egoricBriefService';
 import { PlannerService } from '../services/plannerService';
 import { buildEgoricSnapshot, DEFAULT_EGORIC_LEADS } from './support/egoricMemoryScenario';
@@ -26,6 +28,32 @@ let sequence = 0;
 
 before(async () => { await db.migrate.latest(); });
 after(async () => { await db.destroy(); });
+
+test('PostgreSQL Date timestamps normalize before checkpoint integrity verification', () => {
+  const core = {
+    tenant_id: '550e8400-e29b-41d4-a716-446655440000',
+    plan_id: '550e8400-e29b-41d4-a716-446655440001',
+    idempotency_key: 'postgres-date-checkpoint',
+    source_snapshot_id: 'sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
+    intelligence_run_id: '550e8400-e29b-41d4-a716-446655440002',
+    metric_key: 'active_pipeline' as const,
+    observed_value: 3,
+    target_value: 5,
+    freshness_status: 'fresh' as const,
+    verdict: 'no_progress' as const,
+    observed_at: '2026-08-09T04:40:00.000Z',
+  };
+  const row = {
+    id: '550e8400-e29b-41d4-a716-446655440003',
+    ...core,
+    observed_at: new Date(core.observed_at),
+    evidence_hash: plannerHash(core),
+    created_at: new Date(core.observed_at),
+  } as unknown as PlannerCheckpointRecord;
+  const normalized = normalizePlannerCheckpointRecord(row);
+  assert.equal(normalized.observed_at, core.observed_at);
+  assert.equal(normalized.created_at, core.observed_at);
+});
 
 function goal(input: {
   key?: string;

@@ -49,8 +49,20 @@ function numbers<T extends Record<string, unknown>>(row: T, keys: string[]): T {
   return output;
 }
 
+function isoTimestamp(value: unknown, path: string): string {
+  if (!(typeof value === 'string' || value instanceof Date)) {
+    throw new PlannerError('corrupt_plan', `stored ${path} timestamp is invalid`, 500);
+  }
+  const parsed = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    throw new PlannerError('corrupt_plan', `stored ${path} timestamp is invalid`, 500);
+  }
+  return parsed.toISOString();
+}
+
 function normalizeGoal(row: PlannerGoalRecord): PlannerGoalRecord {
   const value = numbers(row as unknown as Record<string, unknown>, ['version']) as unknown as PlannerGoalRecord;
+  value.created_at = isoTimestamp(value.created_at, 'goal.created_at');
   parsePlannerGoal(value);
   if (!Number.isInteger(value.version) || value.version < 1) throw new PlannerError('corrupt_goal', 'stored goal version is invalid', 500);
   return value;
@@ -58,6 +70,7 @@ function normalizeGoal(row: PlannerGoalRecord): PlannerGoalRecord {
 
 function normalizePlan(row: PlannerPlanRecord): PlannerPlanRecord {
   const value = numbers(row as unknown as Record<string, unknown>, ['version', 'baseline_value', 'target_value']) as unknown as PlannerPlanRecord;
+  value.created_at = isoTimestamp(value.created_at, 'plan.created_at');
   value.advisory_only = Boolean(value.advisory_only);
   if (!value.advisory_only || value.action_authority !== 'none'
     || value.policy_version !== PLANNER_POLICY_VERSION
@@ -84,6 +97,7 @@ function normalizeStep(row: PlannerStepRecord): PlannerStepRecord {
   const value = numbers(row as unknown as Record<string, unknown>, [
     'ordinal', 'effort_points', 'completion_target_value',
   ]) as unknown as PlannerStepRecord;
+  value.created_at = isoTimestamp(value.created_at, 'step.created_at');
   const { id: _id, step_hash: hash, created_at: _createdAt, ...core } = value;
   const validAuthority = value.kind === 'action_candidate'
     ? value.action_route === 'g6_supervised_action' && value.execution_state === 'not_authorized'
@@ -101,19 +115,21 @@ function normalizeStep(row: PlannerStepRecord): PlannerStepRecord {
 }
 
 function normalizeConflict(row: PlannerConflictRecord): PlannerConflictRecord {
-  const { id: _id, conflict_hash: hash, created_at: _createdAt, ...core } = row;
-  if (!['advisory', 'blocking'].includes(row.severity)
-    || !['evidence', 'goal', 'budget', 'capacity', 'policy'].includes(row.category)
+  const value = { ...row, created_at: isoTimestamp(row.created_at, 'conflict.created_at') };
+  const { id: _id, conflict_hash: hash, created_at: _createdAt, ...core } = value;
+  if (!['advisory', 'blocking'].includes(value.severity)
+    || !['evidence', 'goal', 'budget', 'capacity', 'policy'].includes(value.category)
     || plannerHash(core) !== hash) {
     throw new PlannerError('corrupt_plan', 'stored plan conflict is invalid', 500);
   }
-  return row;
+  return value;
 }
 
 function normalizeSimulation(row: PlannerSimulationRecord): PlannerSimulationRecord {
   const value = numbers(row as unknown as Record<string, unknown>, [
     'projected_value', 'target_value', 'progress_basis_points',
   ]) as unknown as PlannerSimulationRecord;
+  value.created_at = isoTimestamp(value.created_at, 'simulation.created_at');
   const { id: _id, simulation_hash: hash, created_at: _createdAt, ...core } = value;
   if (!['conservative', 'expected', 'ambitious'].includes(value.scenario)
     || !['blocked', 'partial', 'meets_target'].includes(value.feasibility)
@@ -129,7 +145,11 @@ function normalizeSimulation(row: PlannerSimulationRecord): PlannerSimulationRec
 }
 
 function normalizeDecision(row: PlannerDecisionRecord): PlannerDecisionRecord {
-  const value = { ...row, grants_action_authority: Boolean(row.grants_action_authority) };
+  const value = {
+    ...row,
+    grants_action_authority: Boolean(row.grants_action_authority),
+    created_at: isoTimestamp(row.created_at, 'decision.created_at'),
+  };
   if (value.grants_action_authority) {
     throw new PlannerError('corrupt_plan', 'stored plan decision grants forbidden action authority', 500);
   }
@@ -144,8 +164,10 @@ function normalizeDecision(row: PlannerDecisionRecord): PlannerDecisionRecord {
   return normalized;
 }
 
-function normalizeCheckpoint(row: PlannerCheckpointRecord): PlannerCheckpointRecord {
+export function normalizePlannerCheckpointRecord(row: PlannerCheckpointRecord): PlannerCheckpointRecord {
   const value = numbers(row as unknown as Record<string, unknown>, ['observed_value', 'target_value']) as unknown as PlannerCheckpointRecord;
+  value.observed_at = isoTimestamp(value.observed_at, 'checkpoint.observed_at');
+  value.created_at = isoTimestamp(value.created_at, 'checkpoint.created_at');
   const { id: _id, evidence_hash: hash, created_at: _createdAt, ...core } = value;
   if ((value.observed_value !== null && !Number.isSafeInteger(value.observed_value))
     || !Number.isSafeInteger(value.target_value)
@@ -159,13 +181,14 @@ function normalizeCheckpoint(row: PlannerCheckpointRecord): PlannerCheckpointRec
 }
 
 function normalizeOutcome(row: PlannerOutcomeRecord): PlannerOutcomeRecord {
-  const { id: _id, outcome_hash: hash, created_at: _createdAt, ...core } = row;
-  if (!['useful', 'not_useful'].includes(row.outcome)
-    || row.actor !== 'founder'
+  const value = { ...row, created_at: isoTimestamp(row.created_at, 'outcome.created_at') };
+  const { id: _id, outcome_hash: hash, created_at: _createdAt, ...core } = value;
+  if (!['useful', 'not_useful'].includes(value.outcome)
+    || value.actor !== 'founder'
     || plannerHash(core) !== hash) {
     throw new PlannerError('corrupt_plan', 'stored plan outcome is invalid', 500);
   }
-  return row;
+  return value;
 }
 
 function normalizeGraph(
@@ -401,7 +424,7 @@ export class PlannerRepository {
       throw new PlannerError('corrupt_plan', 'stored plan evidence bindings are invalid', 500);
     }
     const normalizedDecisions = decisions.map(normalizeDecision);
-    const normalizedCheckpoints = checkpoints.map(normalizeCheckpoint);
+    const normalizedCheckpoints = checkpoints.map(normalizePlannerCheckpointRecord);
     const normalizedOutcomes = outcomes.map(normalizeOutcome);
     return {
       plan: graph.plan, goal, goal_manifest: goalManifest,
@@ -440,7 +463,7 @@ export class PlannerRepository {
       const hash = plannerHash(core);
       if (existing) {
         if (existing.evidence_hash !== hash) throw new PlannerError('checkpoint_idempotency_conflict', 'checkpoint key binds different evidence', 409);
-        return { record: normalizeCheckpoint(existing), replayed: true };
+        return { record: normalizePlannerCheckpointRecord(existing), replayed: true };
       }
       const record: PlannerCheckpointRecord = { id: this.uuid(), ...core, evidence_hash: hash, created_at: input.observed_at };
       await trx(PLANNER_TABLES.checkpoints).insert(record);

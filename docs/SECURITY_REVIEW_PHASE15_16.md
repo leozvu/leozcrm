@@ -21,6 +21,8 @@ repository, and migrations.
 - RepositoryRealms `npm audit --audit-level=low`: 0 vulnerabilities after
   pinning patched `postcss` `8.5.26` and `nanoid` `3.3.18`.
 - Ruflo deep dependency scans of both repositories: 0 findings.
+- Disposable PostgreSQL 16 migrate/evidence/immutability/rollback lifecycle:
+  passed; its loopback-only, no-volume container was removed after the run.
 
 Both dependency remediations passed the full repository suites and production
 builds. RepositoryRealms additionally passed Prisma validation, migration-chain
