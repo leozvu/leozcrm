@@ -22,3 +22,5 @@ ruvector.db
 # Environment variables
 .env.local
 .env.*.local
+deploy/local-staging/deployment.local.json
+deploy/local-staging/certs/

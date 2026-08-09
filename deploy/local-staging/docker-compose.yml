@@ -1,0 +1,133 @@
+name: leozops-local-staging
+
+x-leozops-runtime: &leozops-runtime
+  image: leozops:local-staging
+  pull_policy: never
+  env_file:
+    - ../../.env.local-staging.local
+  environment:
+    NODE_ENV: production
+    INTEGRATION_MODE: egoric-readonly
+    LEOZOPS_DEPLOY_ENV: local-staging
+    LEOZOPS_LIVE_DEPLOYMENT_MANIFEST: /run/config/deployment.local.json
+    NODE_EXTRA_CA_CERTS: /run/source-ca/source-cert.pem
+  volumes:
+    - ./deployment.local.json:/run/config/deployment.local.json:ro
+    - ./certs/ca:/run/source-ca:ro
+  networks:
+    - leozops-local-staging
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+
+services:
+  postgres:
+    image: postgres:16.10-alpine
+    env_file:
+      - ../../.env.local-staging.local
+    ports:
+      - "127.0.0.1:${LEOZOPS_LOCAL_POSTGRES_PORT}:5432"
+    volumes:
+      - leozops-local-staging-postgres:/var/lib/postgresql/data
+    networks:
+      - leozops-local-staging
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+
+  source-certificates:
+    image: alpine:3.22.1
+    command: ["sh", "/workspace/source-certificate.sh"]
+    volumes:
+      - ./source-certificate.sh:/workspace/source-certificate.sh:ro
+      - ./certs:/certs
+    networks:
+      - leozops-local-staging
+    security_opt:
+      - no-new-privileges:true
+
+  repositoryrealms-source:
+    image: node:24-alpine
+    user: node
+    env_file:
+      - ../../.env.local-staging.local
+    command: ["node", "/app/source-stub.mjs"]
+    depends_on:
+      source-certificates:
+        condition: service_completed_successfully
+    ports:
+      - "127.0.0.1:${LEOZOPS_LOCAL_SOURCE_PORT}:3443"
+    volumes:
+      - ./source-stub.mjs:/app/source-stub.mjs:ro
+      - ./certs/ca:/certs/ca:ro
+      - ./certs/server:/certs/server:ro
+    networks:
+      leozops-local-staging:
+        aliases:
+          - repositoryrealms-source.local
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('https').get({host:'127.0.0.1',port:3443,path:'/health',rejectUnauthorized:false},r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+  migrate:
+    <<: *leozops-runtime
+    command: ["node", "dist/src/db/migrate.js", "latest"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      source-certificates:
+        condition: service_completed_successfully
+    restart: "no"
+
+  provision:
+    <<: *leozops-runtime
+    command: ["node", "dist/src/localStagingProvision.js"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  web:
+    <<: *leozops-runtime
+    command: ["node", "dist/src/server.js"]
+    depends_on:
+      provision:
+        condition: service_completed_successfully
+      repositoryrealms-source:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${LEOZOPS_LOCAL_STAGING_PORT}:3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+      start_period: 10s
+    restart: unless-stopped
+
+networks:
+  leozops-local-staging:
+    name: leozops-local-staging
+
+volumes:
+  leozops-local-staging-postgres:
+    name: leozops-local-staging-postgres

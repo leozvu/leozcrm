@@ -5,6 +5,11 @@ read-only production job. The repository implementation is complete; a live
 deployment and J4 are not. No local fixture, simulated date, container build,
 or disposable database is accepted as production evidence.
 
+The isolated `leozops-local-staging` Compose profile is documented in
+[`LOCAL_STAGING.md`](LOCAL_STAGING.md). It accepts the same exact manifest and
+runtime bindings with `environment: staging`, but its fixture source and local
+PostgreSQL never count as production or elapsed G5/J4 evidence.
+
 ## Runtime shape
 
 The production image has two deliberately separate entry points:

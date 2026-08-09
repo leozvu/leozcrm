@@ -6,7 +6,7 @@ export const LIVE_OBSERVER_SCHEMA = 'leozops_phase12_live_observer_v1' as const;
 export interface LiveObserverDeployment {
   schema_version: typeof LIVE_OBSERVER_SCHEMA;
   status: 'accepted';
-  environment: 'production';
+  environment: 'staging' | 'production';
   runtime_profile: 'egoric-readonly';
   target: {
     provider: string;
@@ -136,7 +136,9 @@ export function validateLiveObserverDeployment(raw: unknown): LiveObserverValida
   ], 'deployment', issues);
   if (root.schema_version !== LIVE_OBSERVER_SCHEMA) issues.push(`schema_version must equal ${LIVE_OBSERVER_SCHEMA}`);
   if (root.status !== 'accepted') issues.push('status must equal accepted');
-  if (root.environment !== 'production') issues.push('environment must equal production');
+  if (root.environment !== 'staging' && root.environment !== 'production') {
+    issues.push('environment must equal staging or production');
+  }
   if (root.runtime_profile !== 'egoric-readonly') issues.push('runtime_profile must equal egoric-readonly');
 
   const target = object(root.target) ?? {};
@@ -235,7 +237,7 @@ export function validateLiveObserverDeployment(raw: unknown): LiveObserverValida
   const value: LiveObserverDeployment = {
     schema_version: LIVE_OBSERVER_SCHEMA,
     status: 'accepted',
-    environment: 'production',
+    environment: root.environment as LiveObserverDeployment['environment'],
     runtime_profile: 'egoric-readonly',
     target: parsedTarget,
     source: parsedSource,
