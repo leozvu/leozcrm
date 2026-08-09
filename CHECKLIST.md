@@ -735,8 +735,15 @@ Status: REPOSITORY COMPLETE; LIVE J6/J7/J8 BLOCKED
     no-volume container was removed.
 [x] Remediate and review all reported npm advisories in both repositories;
     full suites/builds and `npm audit --audit-level=low` pass with 0 findings.
-[ ] Merge and re-audit the source contract on canonical RepositoryRealms main;
-    accept exact G5/G6, register runtime credentials/adapter, and earn J6.
+[x] Merge and re-audit the source contract on canonical RepositoryRealms main
+    and merge the LeozOps candidate through PR #19 at `main@1817826`.
+[x] Provision isolated `leozops-local-staging` with independent PostgreSQL 16,
+    production image, exact secret-reference bindings, non-root runtime,
+    HTTPS PII-minimized fixture source, migration/provision replay, restart
+    persistence, authenticated probes, and disposable restore drill PASS.
+[ ] Replace the fixture with an accepted named source, complete P1/P2 and real
+    G5 shadow evidence, then accept exact G6 and register runtime credentials/
+    adapter to earn J6.
 [ ] Earn J7 through real supervised history, canary, kill switch, recovery, and
     incident evidence.
 [ ] Deploy the exact reviewed revisions, accept J1–J7, complete the 30-day SLO,

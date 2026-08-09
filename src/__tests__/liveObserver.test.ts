@@ -61,10 +61,16 @@ function manifest(): LiveObserverDeployment {
 before(async () => { await db.migrate.latest(); });
 after(async () => { await db.destroy(); });
 
-test('Phase 12 deployment is exact, production-only, read-only, and secret-reference-only', () => {
+test('Phase 12 deployment is exact, environment-bound, read-only, and secret-reference-only', () => {
   const valid = validateLiveObserverDeployment(manifest());
   assert.equal(valid.ok, true);
   assert.match(valid.fingerprint ?? '', /^sha256:[0-9a-f]{64}$/);
+  const staging = structuredClone(manifest()) as any;
+  staging.environment = 'staging';
+  assert.equal(validateLiveObserverDeployment(staging).ok, true);
+  const unsupported = structuredClone(manifest()) as any;
+  unsupported.environment = 'development';
+  assert.equal(validateLiveObserverDeployment(unsupported).ok, false);
   const rawSecret = structuredClone(manifest()) as any;
   rawSecret.secret_bindings.database_url = 'postgres://user:password@example/db';
   assert.equal(validateLiveObserverDeployment(rawSecret).ok, false);

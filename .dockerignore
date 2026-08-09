@@ -4,6 +4,8 @@ dist
 .github
 .env
 .env.*
+deploy/local-staging/deployment.local.json
+deploy/local-staging/certs
 data
 *.sqlite
 *.log

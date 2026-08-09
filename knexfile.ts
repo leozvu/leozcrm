@@ -20,9 +20,9 @@ const MIGRATION_LOAD_EXTENSION = [`.${MIGRATION_EXTENSION}`];
  * migration files run unchanged against both engines.
  */
 
-const sqliteConnection = (file: string): Knex.Config => {
+const sqliteConnection = (file: string, prepareDirectory = true): Knex.Config => {
   // better-sqlite3 will not create the parent directory; do it ourselves.
-  if (file !== ':memory:') {
+  if (prepareDirectory && file !== ':memory:') {
     fs.mkdirSync(path.dirname(path.resolve(file)), { recursive: true });
   }
   // An in-memory DB lives inside a single connection, so the whole pool must
@@ -70,7 +70,13 @@ function productionConnection(): Knex.PgConnectionConfig | string {
 }
 
 const config: Record<string, Knex.Config> = {
-  development: sqliteConnection(process.env.SQLITE_FILE || './data/leozops.dev.sqlite'),
+  // Configuration for every dialect is exported for tooling, but importing
+  // production config as the non-root runtime user must not try to create the
+  // development-only SQLite directory.
+  development: sqliteConnection(
+    process.env.SQLITE_FILE || './data/leozops.dev.sqlite',
+    (process.env.NODE_ENV ?? 'development') === 'development',
+  ),
 
   test: sqliteConnection(':memory:'),
 

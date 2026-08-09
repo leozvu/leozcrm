@@ -890,3 +890,24 @@ Decision:
   environment or evidence is unavailable. Authorization to attempt promotion
   does not authorize fabricated G5/G6/J1-J8 history or shortened elapsed gates.
 Owner: Leoz. Recorded by Codex during the canonical Phase 14–16 release pass.
+
+DECISION-002 addendum 32 — 2026-08-09 — Isolated local staging authorized
+Status: Approved by Leoz (Product Owner) for non-production provisioning.
+Decision:
+- Treat the explicit instruction to proceed after the canonical release as
+  authorization to provision one production-shaped local staging environment
+  using only newly generated local secrets and independent Docker resources.
+- Name the target `leozops-local-staging`; bind it to an independent PostgreSQL
+  16 database, the reviewed non-root image, an exact staging manifest, and an
+  HTTPS token-protected PII-minimized fixture source.
+- Permit migrations, idempotent tenant/source fixture provisioning, loopback
+  health/readiness/auth probes, restart persistence, and backup/restore into a
+  separately named disposable database that is removed after the drill.
+- Keep the production action registry empty and omit source task flags,
+  RepositoryRealms command credentials, schedulers, OpenAI credentials, and
+  live business data. Generated secrets, manifests, certificates, and keys stay
+  untracked and are never printed.
+- This local environment closes only the reproducible packaging/infrastructure
+  rehearsal. It cannot satisfy P1/P2, G5/G6/G7, J4-J8, supervised history, or
+  any elapsed evidence window.
+Owner: Leoz. Recorded by Codex during local staging provisioning.
