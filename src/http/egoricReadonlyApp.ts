@@ -36,6 +36,14 @@ import { createPlannerRouter } from './routes/planner';
 import { SupervisedHandRepository } from '../repositories/supervisedHandRepository';
 import { SupervisedHandError, SupervisedHandService } from '../services/supervisedHandService';
 import { createSupervisedHandRouter } from './routes/supervisedHand';
+import { AMBIENT_JARVIS_TABLES, AmbientJarvisError } from '../domain/ambientJarvis';
+import { AmbientJarvisRepository } from '../repositories/ambientJarvisRepository';
+import { AmbientJarvisService } from '../services/ambientJarvisService';
+import { createAmbientJarvisRouter } from './routes/ambientJarvis';
+import { JARVIS_V1_TABLES, JarvisV1Error } from '../domain/jarvisV1';
+import { JarvisV1Repository } from '../repositories/jarvisV1Repository';
+import { JarvisV1Service } from '../services/jarvisV1Service';
+import { createJarvisV1Router } from './routes/jarvisV1';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -120,6 +128,8 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         'live_observer_events',
         'live_recovery_drills',
         ...Object.values(PLANNER_TABLES),
+        ...Object.values(AMBIENT_JARVIS_TABLES),
+        ...Object.values(JARVIS_V1_TABLES),
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();
@@ -164,6 +174,17 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     new SupervisedHandRepository(knex),
     options.supervisedHandClock ?? clock,
   );
+  const ambientPreferences = new AmbientJarvisRepository(knex, clock);
+  const ambientJarvis = new AmbientJarvisService(
+    ambientPreferences,
+    repository,
+  );
+  const jarvisV1 = new JarvisV1Service(
+    new JarvisV1Repository(knex, clock),
+    repository,
+    ambientPreferences,
+    clock,
+  );
   const advisor = new AdvisorConversationService(
     repository,
     advisorRepository,
@@ -188,6 +209,8 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   app.use('/v1/tenants', createProactiveAlertRouter(proactive));
   app.use('/v1/tenants', createPlannerRouter(planner));
   app.use('/v1/tenants', createSupervisedHandRouter(supervisedHand));
+  app.use('/v1/tenants', createAmbientJarvisRouter(ambientJarvis));
+  app.use('/v1/tenants', createJarvisV1Router(jarvisV1));
 
   app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
     if (error.type === 'entity.too.large') {
@@ -211,6 +234,14 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
       return;
     }
     if (error instanceof SupervisedHandError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+    if (error instanceof AmbientJarvisError) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+    if (error instanceof JarvisV1Error) {
       res.status(error.status).json({ error: error.message, code: error.code });
       return;
     }

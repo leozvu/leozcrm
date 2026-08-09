@@ -1,12 +1,12 @@
 # LeozOps Jarvis Completion Plan
 
-Status: **Approved baseline; repository implementation complete through the Phase 14 qualification slice, live gates remain gate-bound**
+Status: **Repository candidate complete; Phase 14 source is canonical, live gates remain gate-bound**
 
 Approved by: Leoz, Product Owner
 
 Effective: 2026-08-01
 
-Current repository baseline: `codex/leozops-phase14-supervised-hand-readiness`
+Current repository baseline: `codex/ruflo-phase14-contract-unlock`
 
 ## 1. Outcome
 
@@ -257,19 +257,20 @@ Estimated solo effort: **6-10 focused development days**.
 
 Goal: earn trust with one reversible, low-risk operational command.
 
-Repository status (2026-08-01): qualification slice implemented on
-`codex/leozops-phase14-supervised-hand-readiness`. The RepositoryRealms
-`task.create` source contract and blob evidence are pinned; strict unassigned
-payload/envelope validation, tenant-scoped evidence projection, fail-closed
-preflight, Command Deck blocker/ledger states, and no-capability tests are
-complete. No real hand exists: a dedicated G6-compatible source endpoint,
-source preview and rollback guarantees, live G5/G6 authority, a production
-adapter, and live execution history are absent.
+Repository status (2026-08-09): the default-off RepositoryRealms
+`repositoryrealms.leozops.task-command` v1 contract is merged through PR #9 to
+canonical `main@0c2b3ff236d747e87113f7d438d42b6b3caadb7c`. It supplies a
+dedicated endpoint, zero-business-mutation preview, separate execute approval,
+durable idempotent receipt, exact-state rollback preview, separate rollback
+approval, and idempotent rollback. LeozOps pins seven blobs plus an aggregate
+contract fingerprint on `codex/ruflo-phase14-contract-unlock`. The source is
+qualified, but no real hand exists: the adapter registry is empty, and live
+G5/G6 authority, runtime credentials, registration, and execution history are
+absent.
 
-Default candidate: create or update one CEO-approved follow-up task through an
-explicit RepositoryRealms command contract. The final command must be selected
-only after inspecting the real source API, ownership, reversibility, and user
-value.
+Default candidate: create one CEO-approved unassigned follow-up task through
+the explicit RepositoryRealms command contract. No update or broader generic
+task capability is implied.
 
 Deliverables:
 
@@ -339,6 +340,14 @@ Exit gate J8 / Jarvis v1:
   hidden operator knowledge.
 
 Estimated solo effort: **7-12 development days plus a 30-day release window**.
+
+Repository update (2026-08-09): Phase 16 is implemented locally. The cockpit
+now has an installable data-free shell, reviewed push-to-talk/on-demand speech,
+action-shaped confirmation, append-only preferences, a 30-day evaluation and
+J1–J8 blocker dashboard, confirmed sanitized export, immutable delete requests,
+and an operator release/incident runbook. This is the repository candidate
+only; the named deployment, live windows, accepted J1–J7, policy acceptance,
+drills, and Product Owner J8 decision remain external.
 
 ## 6. Phase 9A repository baseline
 

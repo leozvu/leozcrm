@@ -1,36 +1,50 @@
 # Phase 14 — Supervised-hand readiness
 
-Status: **repository qualification slice implemented; live J6 remains blocked**
+Status: **canonical source qualified; registration and live J6 remain blocked**
 
-Branch: `codex/leozops-phase14-supervised-hand-readiness`
+LeozOps branch: `codex/ruflo-phase14-contract-unlock`
 
-Phase 14 prepares exactly one possible supervised hand without pretending that
-LeozOps may use it. The candidate is an unassigned RepositoryRealms task. This
-slice pins the source contract, validates a PII-minimized payload, projects the
-existing G5/G6 evidence into the Command Deck, and keeps the production action
-adapter registry empty.
+RepositoryRealms release: `main@0c2b3ff236d747e87113f7d438d42b6b3caadb7c`
+via [PR #9](https://github.com/leozvu/repositoryrealms/pull/9)
 
-## Pinned RepositoryRealms evidence
+Phase 14 prepares exactly one possible supervised hand without registering or
+exercising it. The candidate creates one unassigned RepositoryRealms task. The
+source has the dedicated endpoint, zero-business-mutation preview, durable
+receipt, and separately approved rollback semantics in an immutable canonical
+`main` revision. Qualification of that source does not grant runtime authority.
+
+## Pinned canonical evidence
 
 The qualification manifest is
-`config/phase14.repositoryrealms-task-create.audit.json`. It was derived from
-`leozvu/repositoryrealms@98c0eca01330cbf101bca8ff93de38cdd8ec4045` and pins
-the Git blob SHA for each reviewed source file.
+`config/phase14.repositoryrealms-task-create.audit.json`. It binds the source
+canonical commit, seven Git blob hashes, and an aggregate SHA-256 contract
+fingerprint. The aggregate is SHA-256 over the seven lexically sorted
+`path:git_blob_sha` lines joined by `\n` with no trailing newline. A
+qualification fingerprint is source evidence, not an action release.
 
-| Contract field | Audited value |
+| Contract field | Current value |
 |---|---|
-| Contract | `repositoryrealms.ceo.command` version `1` |
+| Contract | `repositoryrealms.leozops.task-command` version `1` |
 | LeozOps command key | `egoric.task.create.v1` |
-| Action / scope | `task.create` / `command.task.create` |
-| POST | `/api/ceo/v1/commands` |
-| Receipt observation | `/api/ceo/v1/commands/receipts` |
+| Action / execute scope | `task.create` / `leozops.task.create.execute` |
+| POST | `/api/integrations/leozops/v1/commands/create-task` |
+| Receipt observation | `/api/integrations/leozops/v1/commands/create-task/receipts` |
+| Source state | `merged_main` |
+| Canonical commit | `0c2b3ff236d747e87113f7d438d42b6b3caadb7c` |
+| Qualification fingerprint | `sha256:562f0d73936cea5d46230f01cb58b32a5ac07f4d7b3d635f7c53fc4eaa1f6828` |
 | Payload profile | `unassigned_task_only` |
 
-The source already provides an exact payload schema, provider idempotency,
-atomic receipts, receipt observation, and least-privilege dispatch scope. It
-does **not** provide the dedicated LeozOps command endpoint required by G6, a
-guaranteed zero-mutation preview, or a separately approved rollback contract.
-The manifest verdict is therefore `blocked`.
+The source contract is default-off and implements six explicit operations:
+
+1. `preview`;
+2. `approve_execute` with a separately scoped credential and subject;
+3. `execute` with idempotent durable receipt evidence;
+4. `preview_rollback` against the exact unchanged task and zero linked evidence;
+5. `approve_rollback` as a new separate approval; and
+6. `rollback`, idempotently deleting only that exact unchanged task.
+
+No operation automatically rolls back. The approval ledger stores only
+fingerprints and bounded metadata, not command payloads or credentials.
 
 ## Candidate payload boundary
 
@@ -40,76 +54,63 @@ LeozOps accepts only these internal fields:
 {
   "title": "Review stalled opportunities",
   "note": "Optional non-PII operating note",
-  "due_date": "2026-08-05",
+  "due_date": "2026-08-10",
   "priority": "high",
   "estimated_hours": 2
 }
 ```
 
-Unknown fields are rejected. The mapped RepositoryRealms envelope always sets
-`assigneeEmail` and `projectId` to `null`; no person, client, lead, email,
-telephone-number field, credential, or arbitrary target URL is accepted.
-High-confidence email and telephone patterns in title/note are also rejected;
-this is a data-minimization control, not a claim of universal PII detection.
-Envelope construction is pure and network-free.
+It maps them to exactly `title`, `note`, `dueDate`, `priority`, and `estHours`.
+Unknown fields, assignees, projects, URLs, arbitrary resources, and contact
+data are rejected. Envelope construction remains pure and network-free in
+LeozOps; its only permitted initial operation is `preview`.
 
 ## Runtime boundary
 
-- `GET /v1/tenants/:tenantKey/supervised-hand` is authenticated, tenant-scoped,
-  cache-disabled, sanitized, and read-only.
-- The projection reports source qualification, G5/G6 state, proposal, preview,
-  approval, execution receipt, rollback, incident, and immutable event counts.
+- `GET /v1/tenants/:tenantKey/supervised-hand` remains authenticated,
+  tenant-scoped, cache-disabled, sanitized, and read-only.
+- The projection reports source state/fingerprint, G5/G6 state, proposals,
+  previews, approvals, receipts, rollbacks, incidents, and event counts.
 - It never reads or returns stored `payload_json`.
-- The Command Deck shows explicit blocker text and a read-only evidence ledger.
-- There is no POST execution route, transport, source credential, scheduler, or
-  registered production action adapter.
+- The production action adapter registry remains empty.
+- The separately reviewed exact adapter exists but is not registered or
+  invocable by the application composition.
+- There is no checked-in runtime credential, scheduler, or HTTP execution route.
 - An accepted Planner plan still grants no command capability.
 
-## Preflight
+## Current preflight
 
-Run:
+Run `npm run hand:preflight`. Exit code `2` is expected with:
 
-```bash
-npm run hand:preflight
-```
+- `production_adapter_registry_empty`;
+- `live_g5_go_not_verified_by_static_preflight`; and
+- `command_specific_g6_release_not_verified_by_static_preflight`.
 
-The current expected result is exit code `2` with these blockers:
+## Required work before a real hand
 
-- `source_dedicated_leozops_command_endpoint_missing`
-- `source_zero_mutation_preview_missing`
-- `source_separately_approved_rollback_missing`
-- `production_adapter_registry_empty`
-- `live_g5_go_not_verified_by_static_preflight`
-- `command_specific_g6_release_not_verified_by_static_preflight`
+1. Obtain real G5 `go` and one exact command-specific G6 release.
+2. Bind a named-environment release manifest to the canonical qualification,
+   exact adapter digest, seven runtime credential references, and target.
+3. Register the adapter only in that authorized action worker after runtime
+   verification; the default application registry stays empty.
+4. Execute approved tasks, observe receipts, rehearse separately approved
+   rollback, close incidents, and gather the live history required by J6.
 
-A local test, fixture, G6 record, or UI state cannot remove a live blocker.
+Until every step is evidenced, LeozOps has no external write authority.
 
 ## Verification
 
-```bash
-npm run typecheck
+```powershell
 npm run test:phase14
+npm run typecheck
 npm test
 npm run build
 ```
 
-The focused suite pins the source audit and candidate envelope, proves the
-empty production registry, checks tenant isolation and read-only HTTP behavior,
-and verifies that evidence projection excludes payload material.
+Ruflo SPARC and focused security scans supplement these gates. They do not
+replace repository QA or create Product Owner/release authority.
 
-## Required work before a real hand
-
-1. Add a dedicated least-privilege LeozOps command endpoint to RepositoryRealms
-   on its own reviewed branch; do not reuse the global CEO gateway directly.
-2. Add a genuine zero-mutation preview contract with deterministic evidence and
-   expiry.
-3. Add a separately approved, idempotent rollback contract with observation and
-   reconciliation semantics.
-4. Re-audit and pin the exact merged RepositoryRealms commit and source blobs.
-5. Obtain a real G5 `go`, then accept one command-specific G6 policy/release.
-6. Implement and review one exact adapter; register it only in the named target.
-7. Execute one approved task, observe its receipt, rehearse rollback, close any
-   incident, and obtain Product Owner acceptance of the live history.
-
-Until every step is evidenced, J6 is open and LeozOps has no external write
-authority.
+RepositoryRealms PR #9 passed 851/851 tests, coverage, migration-chain CI,
+production audit, build, Prisma validation, Playwright E2E, and two Vercel
+preview deployments before canonical merge. The seven contract blobs and the
+aggregate fingerprint match the reviewed source exactly.

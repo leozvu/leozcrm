@@ -96,15 +96,31 @@ cockpit. Plan acceptance remains advisory and every action candidate is
 using accepted live J1 evidence or Product Owner usefulness/reproducibility
 acceptance exists, and J5 would grant no write authority even if accepted.
 
-Phase 14 implements only a repository-side J6 qualification slice on
-`codex/leozops-phase14-supervised-hand-readiness`. It pins the audited
-RepositoryRealms `task.create` contract, validates one unassigned PII-minimized
-candidate envelope, and projects source/G5/G6/receipt/incident evidence into a
-read-only Command Deck. The source lacks the dedicated LeozOps endpoint G6
-requires, zero-mutation preview, and a separately approved rollback contract;
-the production adapter registry is empty and live G5/G6 evidence is absent.
-Therefore G6 and J6 remain blocked, and no HTTP/UI state added by this slice
-grants write authority.
+Phase 14 includes a default-off RepositoryRealms `task.create` contract merged
+through PR #9 to canonical `main@0c2b3ff236d747e87113f7d438d42b6b3caadb7c`.
+It has a dedicated endpoint, zero-business-mutation preview, separate execute
+and rollback approvals, durable idempotent receipts, and exact-state rollback.
+The LeozOps v2 qualification pins the immutable canonical commit and exact
+blobs. The production adapter registry is still empty and live G5/G6 evidence,
+runtime credentials, named registration, and supervised history are absent.
+Therefore G6/J6 remain blocked and no HTTP/UI state grants write authority.
+
+Phase 15 implements the exact RepositoryRealms task adapter and immutable
+release/configuration boundary locally. Seven credentials and subjects remain
+separate, source previews and receipts are hash-verified, unknown outcomes
+require reconciliation, and recovery uses the separately approved exact-state
+rollback path. The default registry is still empty. The source is now a
+qualified canonical release, but live G5/G6 history, runtime credential
+verification, named registration, and J6 acceptance remain absent.
+
+Phase 16 implements the Ambient Jarvis/J8 repository candidate: append-only
+preferences, a data-free installable PWA shell, push-to-talk transcript review,
+on-demand validated speech output, confirmation for action-shaped questions,
+a measured 1–90-day product/safety evaluation, explicit J1–J8 live blockers,
+and confirmed sanitized export/delete-request controls. Delete enforcement is
+disabled pending retention/privacy acceptance. No local result supplies the
+named deployment, accepted J1–J7, 30 live days, recovery/security/privacy
+acceptance, or Product Owner J8 decision.
 
 ## Gate ownership
 

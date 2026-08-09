@@ -103,8 +103,10 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     const csp = shellResponse.headers.get('content-security-policy') ?? '';
     assert.match(csp, /default-src 'none'/);
     assert.match(csp, /connect-src 'self'/);
+    assert.match(csp, /worker-src 'self'/);
     assert.equal(csp.includes('unsafe-inline'), false);
     assert.equal(shellResponse.headers.get('referrer-policy'), 'no-referrer');
+    assert.equal(shellResponse.headers.get('permissions-policy'), 'camera=(), geolocation=(), microphone=(self)');
     const shell = await shellResponse.text();
     assert.match(shell, /id="connection-chamber"/);
     assert.match(shell, /role="tablist"/);
@@ -120,6 +122,16 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(shell, /PHASE 14 QUALIFICATION/);
     assert.match(shell, /Approval, receipt, and incident ledger/);
     assert.match(shell, /id="command-blocker-list"/);
+    assert.match(shell, /rel="manifest" href="\/cockpit\/manifest\.webmanifest"/);
+    assert.match(shell, /id="voice-input-button"/);
+    assert.match(shell, /Voice only fills this composer\. It never sends or executes an action\./);
+    assert.match(shell, /id="preference-form"/);
+    assert.match(shell, /id="advisory-confirmation-dialog"/);
+    assert.match(shell, /Send as advisory question/);
+    assert.match(shell, /id="jarvis-evaluation-grid"/);
+    assert.match(shell, /id="jarvis-checkpoint-list"/);
+    assert.match(shell, /id="data-request-form"/);
+    assert.match(shell, /Delete requests preserve evidence/);
     assert.match(shell, /Read only/);
     assert.match(shell, /href="#main-content"/);
     assert.equal(shell.includes('<style'), false);
@@ -156,6 +168,35 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(script, /\/supervised-hand/);
     assert.match(script, /No command capability is inferred/);
     assert.match(script, /prefers-reduced-motion/);
+    assert.match(script, /SpeechRecognition/);
+    assert.match(script, /SpeechSynthesisUtterance/);
+    assert.match(script, /actionShaped/);
+    assert.match(script, /\/jarvis\/preferences/);
+    assert.match(script, /\/jarvis\/evaluation\?days=30/);
+    assert.match(script, /\/jarvis\/readiness\?days=30/);
+    assert.match(script, /\/jarvis\/data-requests/);
+    assert.match(script, /sanitized-export\.json/);
+    assert.match(script, /No data was deleted/);
+    assert.match(script, /serviceWorker\.register\('\/cockpit\/sw\.js'/);
+
+    const manifestResponse = await fetch(`${base}/cockpit/manifest.webmanifest`);
+    assert.equal(manifestResponse.status, 200);
+    assert.match(manifestResponse.headers.get('content-type') ?? '', /^application\/manifest\+json/);
+    const manifest = await manifestResponse.json() as any;
+    assert.equal(manifest.start_url, '/cockpit/');
+    assert.equal(manifest.scope, '/cockpit/');
+    assert.equal(manifest.display, 'standalone');
+
+    const workerResponse = await fetch(`${base}/cockpit/sw.js`);
+    assert.equal(workerResponse.status, 200);
+    assert.equal(workerResponse.headers.get('service-worker-allowed'), '/cockpit/');
+    const worker = await workerResponse.text();
+    assert.doesNotThrow(() => new Function(worker));
+    assert.equal(worker.includes('/v1'), false);
+    assert.equal(worker.includes('Authorization'), false);
+    assert.equal(worker.includes('localStorage'), false);
+    assert.match(worker, /leozops-cockpit-shell-v1/);
+    assert.equal((await fetch(`${base}/cockpit/assets/icon.svg`)).status, 200);
   } finally {
     await closeServer(server);
   }

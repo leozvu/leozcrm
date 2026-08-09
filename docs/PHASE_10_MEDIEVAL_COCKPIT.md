@@ -97,7 +97,8 @@ horizontal overflow, 56 px mobile targets, and no console warning/error.
 - Strict TypeScript, `git diff --check`, 56 local documentation links, and
   changed-file secret scan: **PASS**.
 - High/critical production dependency gate: **PASS**. The pre-existing one low
-  `body-parser` and one moderate `uuid` advisory remain; Phase 10 adds no
+  `body-parser` and one moderate `uuid` advisory remained at the Phase 10 cut
+  and were resolved during the Phase 16 release pass; Phase 10 adds no
   dependency.
 - No migration changed, so no new persistence claim requires a separate
   PostgreSQL lifecycle proof.

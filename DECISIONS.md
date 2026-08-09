@@ -804,3 +804,89 @@ Decision:
 - Keep J6 open. Local fixtures, simulated G6 records, UI states, and tests do
   not constitute a real supervised hand or production execution history.
 Owner: Leoz. Recorded by Codex before Phase 14 readiness completion.
+
+DECISION-002 addendum 28 — 2026-08-08 — Phase 14 source contract implementation authorized
+Status: Approved by Leoz (Product Owner) for isolated local implementation.
+Decision:
+- Treat the explicit instruction to continue building LeoZOps with Ruflo as
+  authorization to implement the previously required RepositoryRealms source
+  contract on its own `codex/` branch and re-audit the LeozOps qualification.
+- Limit the source capability to `egoric.task.create.v1`, an exact five-field
+  unassigned payload, a default-off dedicated endpoint, zero-business-mutation
+  preview, separate execute approval, idempotent execution/receipt, exact-state
+  rollback preview, new separate rollback approval, and idempotent rollback.
+- Permit Ruflo only as an observe-only engineering harness for SPARC planning,
+  routing advice, doctor checks, and focused security scans. It grants no
+  product authority and may not auto-spawn agents, run workers, or execute a
+  source mutation.
+- Permit LeozOps to pin the uncommitted source branch, base commit, exact blob
+  hashes, and aggregate patch fingerprint only as working-tree evidence. The
+  qualification must remain blocked until an immutable reviewed revision and
+  canonical `main` release exist.
+- Keep the production adapter registry empty. This authorization does not
+  permit commit, push, merge, deploy, migration deployment, credentials,
+  feature-flag enablement, adapter registration, a live command, G5/G6/G7
+  release, J6 acceptance, or autonomous rollback.
+- Adopt the attached L0–L5/Phase 1–9 blueprint as a long-horizon completion map,
+  not as a reset of the already completed Sprint 1 and Phase 2–14 repository
+  work. R4 actions always retain explicit human approval.
+Owner: Leoz. Recorded by Codex during the Ruflo-assisted Phase 14 source-contract cut.
+
+DECISION-002 addendum 29 — 2026-08-09 — Exact RepositoryRealms adapter authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Treat the instruction to build the full path to a RepositoryRealms Jarvis as
+  authorization to implement the exact Phase 15 adapter and release boundary,
+  but not to register it, inject live credentials, enable the source flag,
+  execute a command, deploy, commit, push, or merge.
+- Restrict the adapter to `egoric.task.create.v1`, the dedicated endpoint and
+  receipt path, one exact target, five PII-minimized fields, and the source's
+  preview/approval/execute/rollback operations.
+- Require distinct operation credentials and subjects, fresh preview/effect
+  matching, canonical response/receipt hashes, one bounded attempt, no retry
+  after unknown outcome, and explicit reconciliation.
+- Permit human G7 recovery only through the same separately approved source
+  rollback. Preserve the empty default registry and require canonical merged
+  source qualification plus exact release/G5/G6/runtime binding.
+Owner: Leoz. Recorded by Codex before Phase 15 repository completion.
+
+DECISION-002 addendum 30 — 2026-08-09 — Ambient Jarvis v1 candidate authorized
+Status: Approved by Leoz (Product Owner) for local repository implementation.
+Decision:
+- Permit an installable mobile shell, push-to-talk transcript input,
+  on-demand validated speech output, append-only personal preferences,
+  product/safety evaluation, readiness visibility, and data-governance controls.
+- Cache only data-free cockpit assets. Never cache `/v1`, store credentials in
+  browser persistence, retain audio, auto-send voice, or let an action-shaped
+  turn skip its explicit advisory confirmation.
+- Measure answer, citation, alert, plan, action, latency, cost, and safety
+  evidence from tenant-scoped database records. Empty samples remain
+  insufficient and every J1–J8 live status remains blocked without its named
+  external evidence.
+- Permit confirmed sanitized export. Permit delete-request capture only; actual
+  deletion stays disabled until retention, privacy/legal, backup, immutable
+  evidence, and operator enforcement receive separate acceptance.
+- Require the release/incident runbook and 30 live days before Product Owner J8.
+  Local tests, fixtures, UI, PWA installation, or a generated report cannot
+  satisfy live J6/J7/J8.
+Owner: Leoz. Recorded by Codex before Phase 16 repository completion.
+
+DECISION-002 addendum 31 — 2026-08-09 — Canonical integration release authorized
+Status: Approved by Leoz (Product Owner) for repository publish and evidence-bound promotion.
+Decision:
+- Treat the explicit instruction to “do it all” after the release plan as
+  authorization to remediate dependencies, commit, push, open PRs, merge after
+  automated gates pass, and attempt staging/canary only where exact runtime
+  credentials and named-environment evidence actually exist.
+- Merge RepositoryRealms first, then re-pin LeoZOps to the resulting canonical
+  commit. Never bind LeoZOps to an unmerged branch or stale release digest.
+- Because the repository is solo and an author cannot self-approve, permit the
+  owner review bypass only after every configured migration, coverage, audit,
+  build, E2E, and preview check passes. Do not bypass a failed or pending check.
+- Dependency remediation must use compatible patched versions and pass the
+  complete repository suites; no framework major upgrade is implied.
+- Keep source feature flags, credentials, adapter registration, migrations,
+  live commands, and production acceptance fail-closed whenever their named
+  environment or evidence is unavailable. Authorization to attempt promotion
+  does not authorize fabricated G5/G6/J1-J8 history or shortened elapsed gates.
+Owner: Leoz. Recorded by Codex during the canonical Phase 14–16 release pass.

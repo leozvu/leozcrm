@@ -660,18 +660,22 @@ Phase 13 adds no Egoric mutation, command payload, target endpoint, credential,
 adapter, scheduler, background loop, execution route, G6 release, or action
 authority.
 
-24. PHASE 14 SUPERVISED-HAND READINESS — REPOSITORY PASS CANDIDATE
-------------------------------------------------------------------
-Status: IMPLEMENTED ON `codex/leozops-phase14-supervised-hand-readiness`; LIVE J6 BLOCKED
+24. PHASE 14 SUPERVISED-HAND READINESS — CANONICAL SOURCE QUALIFIED
+-------------------------------------------------------------------
+Status: SOURCE CONTRACT MERGED AND QUALIFIED; REGISTRATION/LIVE J6 BLOCKED
 
-[x] Pin RepositoryRealms `main@98c0eca01330cbf101bca8ff93de38cdd8ec4045`
-    plus three reviewed source blob SHAs.
-[x] Record the exact `repositoryrealms.ceo.command` v1 `task.create` action,
-    delivery capability, least-privilege scope, POST, and receipt paths.
+[x] Pin RepositoryRealms `main@0c2b3ff236d747e87113f7d438d42b6b3caadb7c`,
+    seven exact blob SHAs, aggregate contract fingerprint, and canonical
+    qualification fingerprint `sha256:562f0d73936cea5d46230f01cb58b32a5ac07f4d7b3d635f7c53fc4eaa1f6828`.
+[x] Record the exact `repositoryrealms.leozops.task-command` v1 `task.create`
+    contract, dedicated POST/receipt paths, and least-privilege execute scope.
 [x] Validate a strict unassigned PII-minimized payload and deterministic source
     envelope; reject unknown fields and arbitrary target material.
-[x] Keep source qualification blocked for the missing dedicated LeozOps
-    endpoint, zero-mutation preview, and separately approved rollback.
+[x] Implement the default-off dedicated source endpoint, zero-business-mutation
+    preview, separate execute approval, durable idempotent receipt, exact-state
+    rollback preview, separate rollback approval, and idempotent rollback.
+[x] Qualify the immutable canonical source only after RepositoryRealms PR #9
+    passed CI and merged; keep runtime authority separately blocked.
 [x] Keep the production adapter registry empty and add no credential, network
     transport, scheduler, execution API, or browser execution control.
 [x] Add tenant-scoped sanitized read projection for source, G5, G6 proposal,
@@ -681,14 +685,59 @@ Status: IMPLEMENTED ON `codex/leozops-phase14-supervised-hand-readiness`; LIVE J
     approval/receipt/incident ledger without adding a sixth destination.
 [x] Add fail-closed static preflight, focused Phase 14 tests, Node 22/24 CI
     coverage, strict TypeScript, and cockpit regression assertions.
-[x] Focused Phase 14 suite 7/7, cockpit regression 4/4, full registered
-    regression 348/348, strict TypeScript, production build, and expected
-    fail-closed preflight exit `2` PASS locally.
-[ ] Add reviewed source preview and rollback contracts on a separate
-    RepositoryRealms branch, then re-audit the merged exact commit.
+[x] RepositoryRealms command tests 5/5, full source regression 851/851,
+    production build, Prisma schema validation, and focused Ruflo scans PASS.
+[x] Updated LeozOps Phase 14 suite 7/7, full registered regression 348/348,
+    strict TypeScript, production build, and expected fail-closed preflight
+    exit `2` PASS locally; focused Ruflo domain/service scans report zero issues.
+[x] Review, freeze, re-audit, and merge the RepositoryRealms patch through PR
+    #9; canonical `main` and all seven pinned blobs match the qualification.
 [ ] Obtain real G5 `go`, exact G6 release, reviewed adapter, named deployment,
     accepted supervised history, incident closure, and Product Owner J6
     acceptance.
 
 This slice qualifies a candidate and exposes evidence. It does not execute a
 real command or satisfy G6/J6.
+
+25. PHASE 15–16 EXACT HAND + AMBIENT JARVIS V1 — REPOSITORY CANDIDATE
+---------------------------------------------------------------------
+Status: REPOSITORY COMPLETE; LIVE J6/J7/J8 BLOCKED
+
+[x] Implement one exact RepositoryRealms task adapter with source-owned
+    preview, approvals, execution, receipt observation, exact rollback, and
+    bounded human recovery.
+[x] Separate seven source credentials/subjects, bind target and execute
+    credential to G6, cap transport, deny redirects/retries, and reconcile
+    unknown outcomes.
+[x] Require canonical merged source qualification and an immutable release
+    manifest before explicit adapter construction; leave default registry empty.
+[x] Add append-only tenant preferences for language, cadence, timezone, quiet
+    hours, and on-demand voice output.
+[x] Add installable data-free PWA shell whose worker caches only public shell
+    assets and never `/v1`.
+[x] Add push-to-talk transcript review, no audio persistence/auto-send, optional
+    validated read-aloud, and confirmation before action-shaped questions.
+[x] Add measured 1–90-day answer/citation/alert/plan/action/latency/cost/safety
+    evaluation and an explicit J1–J8 `blocked_external` dashboard.
+[x] Add exact-confirmation, idempotent, append-only export/delete requests,
+    sanitized hashed export, candidate 90/365-day policy, and disabled deletion.
+[x] Add Phase 15/16 tests, migration lifecycle/immutability, readiness coverage,
+    operator release/incident/data-rights runbook, and honest live blockers.
+[x] Focused Phase 16 13/13, full registered regression 364/364, strict
+    TypeScript, production build, diff check, and focused Ruflo deep scans of
+    HTTP/domain/action integrations/repositories with zero findings.
+[x] Extend the disposable PostgreSQL smoke to require both Phase 16 tables and
+    prove their update/delete guards before rollback.
+[ ] Execute that Phase 16 PostgreSQL smoke on a configured disposable service;
+    this workstation has no PostgreSQL target, so the command skipped honestly.
+[x] Remediate and review all reported npm advisories in both repositories;
+    full suites/builds and `npm audit --audit-level=low` pass with 0 findings.
+[ ] Merge and re-audit the source contract on canonical RepositoryRealms main;
+    accept exact G5/G6, register runtime credentials/adapter, and earn J6.
+[ ] Earn J7 through real supervised history, canary, kill switch, recovery, and
+    incident evidence.
+[ ] Deploy the exact reviewed revisions, accept J1–J7, complete the 30-day SLO,
+    privacy/security/recovery/export drills, and record Product Owner J8.
+
+The checked-in release remains inert. Voice, PWA, preference, evaluation, and
+data-request surfaces grant no RepositoryRealms mutation authority.

@@ -12,9 +12,16 @@ export const COCKPIT_SCRIPT = String.raw`
     goals: [],
     plans: [],
     hand: null,
+    preferences: null,
+    evaluation: null,
+    readiness: null,
+    dataRequests: [],
     conversationId: null,
     activeView: 'today',
-    requestController: null
+    requestController: null,
+    recognition: null,
+    pendingQuestion: '',
+    deferredInstall: null
   };
 
   function id(value) { return document.getElementById(value); }
@@ -127,7 +134,15 @@ export const COCKPIT_SCRIPT = String.raw`
     state.goals = [];
     state.plans = [];
     state.hand = null;
+    state.preferences = null;
+    state.evaluation = null;
+    state.readiness = null;
+    state.dataRequests = [];
     state.conversationId = null;
+    state.pendingQuestion = '';
+    if (state.recognition) state.recognition.abort();
+    state.recognition = null;
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (state.requestController) state.requestController.abort();
     state.requestController = null;
     enableWorkspace(false);
@@ -633,6 +648,76 @@ export const COCKPIT_SCRIPT = String.raw`
     });
   }
 
+  async function downloadSanitizedExport(requestId) {
+    try {
+      var output = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/jarvis/exports/' + encodeURIComponent(requestId));
+      var blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement('a');
+      link.href = url;
+      link.download = 'leozops-' + state.tenant + '-sanitized-export.json';
+      document.body.append(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      announce('Sanitized tenant export downloaded.');
+    } catch (error) {
+      setError(id('data-request-error'), friendlyError(error));
+    }
+  }
+
+  function renderJarvisV1() {
+    id('data-request-confirmation').placeholder = id('data-request-kind').value.toUpperCase() + ' ' + (state.tenant || 'tenant-key');
+    var grid = id('jarvis-evaluation-grid');
+    clear(grid);
+    if (!state.evaluation) {
+      grid.append(element('div', 'empty-state', 'Evaluation evidence is unavailable. No live readiness is inferred.'));
+    } else {
+      var evaluation = state.evaluation;
+      grid.append(
+        commandCard('Answer usefulness', evaluation.answers.useful_rate === null ? 'insufficient' : formatPercent(evaluation.answers.useful_rate), evaluation.answers.reviewed + ' reviewed answer(s)'),
+        commandCard('Citation coverage', evaluation.answers.citation_coverage_rate === null ? 'insufficient' : formatPercent(evaluation.answers.citation_coverage_rate), evaluation.answers.completed + ' completed run(s)'),
+        commandCard('Alert false positives', evaluation.alerts.false_positive_rate === null ? 'insufficient' : formatPercent(evaluation.alerts.false_positive_rate), evaluation.alerts.reviewed + ' reviewed alert(s)'),
+        commandCard('Plan acceptance', evaluation.plans.acceptance_rate === null ? 'insufficient' : formatPercent(evaluation.plans.acceptance_rate), evaluation.plans.decisions + ' decision(s)'),
+        commandCard('Advisor p95', evaluation.answers.latency_p95_ms + ' ms', evaluation.answers.cost_microunits + ' cost microunits'),
+        commandCard('Safety', evaluation.safety.candidate_status, evaluation.safety.open_incidents + ' open incident(s)')
+      );
+    }
+    var readiness = id('jarvis-readiness-status');
+    readiness.className = 'state-chip state-blocked';
+    readiness.lastChild.textContent = state.readiness ? titleCase(state.readiness.overall) : 'Unavailable';
+    var checkpoints = id('jarvis-checkpoint-list');
+    clear(checkpoints);
+    if (!state.readiness) checkpoints.append(element('div', 'empty-state', 'J1–J8 readiness evidence is unavailable.'));
+    else state.readiness.checkpoints.forEach(function (checkpoint) {
+      var card = element('article', 'checkpoint-card');
+      card.append(
+        element('strong', '', checkpoint.checkpoint + ' · ' + checkpoint.name),
+        element('span', '', titleCase(checkpoint.live_status)),
+        element('p', '', checkpoint.blockers.map(titleCase).join(' · '))
+      );
+      checkpoints.append(card);
+    });
+    var requests = id('data-request-list');
+    clear(requests);
+    if (!state.dataRequests.length) requests.append(element('div', 'empty-state', 'No export or delete request has been recorded.'));
+    state.dataRequests.forEach(function (request) {
+      var card = element('article', 'data-request-card');
+      card.append(
+        element('strong', '', titleCase(request.kind) + ' · ' + titleCase(request.status)),
+        element('p', '', request.limitation),
+        element('small', '', formatDate(request.requested_at) + ' · ' + request.fingerprint)
+      );
+      if (request.kind === 'export' && request.status === 'ready_for_export') {
+        var button = element('button', 'secondary-button', 'Download sanitized export');
+        button.type = 'button';
+        button.addEventListener('click', function () { downloadSanitizedExport(request.id); });
+        card.append(button);
+      }
+      requests.append(card);
+    });
+  }
+
   function renderContext(entries) {
     var target = id('context-list');
     clear(target);
@@ -645,6 +730,36 @@ export const COCKPIT_SCRIPT = String.raw`
       card.append(element('small', '', entry.kind), element('strong', '', entry.key), element('p', '', entry.content));
       target.append(card);
     });
+  }
+
+  function renderPreferences(view) {
+    var preferences = view && view.preferences ? view.preferences : {
+      schema_version: 'leozops_ambient_jarvis_preferences_v1',
+      locale: 'en', briefing_cadence: 'manual', timezone: 'UTC',
+      quiet_hours: { start: '22:00', end: '07:00' }, voice_output: 'off'
+    };
+    state.preferences = preferences;
+    id('preference-locale').value = preferences.locale;
+    id('preference-cadence').value = preferences.briefing_cadence;
+    id('preference-timezone').value = preferences.timezone;
+    id('preference-voice').value = preferences.voice_output;
+    id('preference-quiet-start').value = preferences.quiet_hours.start;
+    id('preference-quiet-end').value = preferences.quiet_hours.end;
+    id('preference-version').textContent = view && view.revision ? 'Revision ' + view.revision.version : 'Defaults';
+    id('voice-input-button').disabled = !(window.SpeechRecognition || window.webkitSpeechRecognition);
+    id('voice-input-button').title = id('voice-input-button').disabled
+      ? 'Voice input is unavailable in this browser' : 'Push to talk; transcript only';
+  }
+
+  function preferencePayload() {
+    return {
+      schema_version: 'leozops_ambient_jarvis_preferences_v1',
+      locale: id('preference-locale').value,
+      briefing_cadence: id('preference-cadence').value,
+      timezone: id('preference-timezone').value.trim(),
+      quiet_hours: { start: id('preference-quiet-start').value, end: id('preference-quiet-end').value },
+      voice_output: id('preference-voice').value
+    };
   }
 
   function renderFreshness(snapshot) {
@@ -697,7 +812,11 @@ export const COCKPIT_SCRIPT = String.raw`
       api('/v1/tenants/' + tenant + '/notification-deliveries', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/goals', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/plans', { signal: state.requestController.signal }),
-      api('/v1/tenants/' + tenant + '/supervised-hand', { signal: state.requestController.signal })
+      api('/v1/tenants/' + tenant + '/supervised-hand', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/jarvis/preferences', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/jarvis/evaluation?days=30', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/jarvis/readiness?days=30', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/jarvis/data-requests', { signal: state.requestController.signal })
     ]);
     if (results[0].status === 'rejected') throw results[0].reason;
     state.context = results[1].status === 'fulfilled' && Array.isArray(results[1].value.entries)
@@ -711,12 +830,18 @@ export const COCKPIT_SCRIPT = String.raw`
     state.plans = results[5].status === 'fulfilled' && Array.isArray(results[5].value.plans)
       ? results[5].value.plans : [];
     state.hand = results[6].status === 'fulfilled' ? results[6].value : null;
+    renderPreferences(results[7].status === 'fulfilled' ? results[7].value : null);
+    state.evaluation = results[8].status === 'fulfilled' ? results[8].value : null;
+    state.readiness = results[9].status === 'fulfilled' ? results[9].value : null;
+    state.dataRequests = results[10].status === 'fulfilled' && Array.isArray(results[10].value.requests)
+      ? results[10].value.requests : [];
     setError(id('alert-error'), results[2].status === 'fulfilled' ? '' : 'Proactive alert state is temporarily unavailable. Refresh to retry.');
     setError(id('planner-error'), results[4].status === 'fulfilled' && results[5].status === 'fulfilled'
       ? '' : 'Planner state is temporarily unavailable. Refresh to retry.');
     setError(id('command-error'), results[6].status === 'fulfilled'
       ? '' : 'Supervised hand evidence is temporarily unavailable. No command capability is inferred.');
     renderSnapshot(results[0].value);
+    renderJarvisV1();
     setHidden(id('connection-chamber'), true);
     setHidden(id('cockpit-workspace'), false);
     enableWorkspace(true);
@@ -729,6 +854,10 @@ export const COCKPIT_SCRIPT = String.raw`
     if (results[4].status === 'rejected') partials.push('goal ledger');
     if (results[5].status === 'rejected') partials.push('planner state');
     if (results[6].status === 'rejected') partials.push('supervised hand evidence');
+    if (results[7].status === 'rejected') partials.push('ambient preferences');
+    if (results[8].status === 'rejected') partials.push('Jarvis evaluation');
+    if (results[9].status === 'rejected') partials.push('J1–J8 readiness');
+    if (results[10].status === 'rejected') partials.push('data governance requests');
     announce(partials.length ? 'Cockpit evidence loaded; ' + partials.join(', ') + ' temporarily unavailable.' : 'Cockpit evidence loaded.');
   }
 
@@ -849,6 +978,19 @@ export const COCKPIT_SCRIPT = String.raw`
     useful.addEventListener('click', function () { sendFeedback(output.run.id, 'useful', buttons); });
     notUseful.addEventListener('click', function () { sendFeedback(output.run.id, 'not_useful', buttons); });
     feedback.append(useful, notUseful);
+    if (state.preferences && state.preferences.voice_output === 'on_demand'
+      && 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window) {
+      var speak = element('button', 'feedback-button', 'Read aloud');
+      speak.type = 'button';
+      speak.addEventListener('click', function () {
+        window.speechSynthesis.cancel();
+        var utterance = new SpeechSynthesisUtterance(answer.summary.statement);
+        utterance.lang = state.preferences.locale === 'vi' ? 'vi-VN' : 'en-US';
+        window.speechSynthesis.speak(utterance);
+        announce('Reading the validated summary aloud.');
+      });
+      feedback.append(speak);
+    }
     message.append(feedback);
     id('conversation-log').append(message);
     progressiveText(summary, answer.summary.statement);
@@ -881,6 +1023,74 @@ export const COCKPIT_SCRIPT = String.raw`
       headers: { 'Idempotency-Key': idempotencyKey() },
       body: JSON.stringify({ question: question })
     });
+  }
+
+  function actionShaped(question) {
+    return /\b(create|delete|send|publish|schedule|assign|update|close|approve|execute|run|launch|email|call)\b|(?:^|\s)(tạo|xóa|xoá|gửi|đăng|lên lịch|giao|cập nhật|đóng|duyệt|thực thi|chạy|gọi)(?:\s|$)/i.test(question);
+  }
+
+  async function sendQuestion(question) {
+    var questionField = id('advisor-question');
+    setError(id('ask-error'), '');
+    appendUserMessage(question);
+    questionField.value = '';
+    id('ask-button').disabled = true;
+    id('voice-input-button').disabled = true;
+    announce('LeozOps is validating an evidence-grounded answer.');
+    try {
+      var output = await ask(question);
+      appendAdvisorMessage(output);
+      announce('Validated advisor answer ready with ' + output.citations.length + ' citation(s).');
+    } catch (error) {
+      questionField.value = question;
+      setError(id('ask-error'), friendlyError(error));
+      if (error.status === 401 || error.status === 403) resetWorkspace(friendlyError(error));
+    } finally {
+      if (state.token) {
+        id('ask-button').disabled = false;
+        id('voice-input-button').disabled = !(window.SpeechRecognition || window.webkitSpeechRecognition);
+      }
+    }
+  }
+
+  function startVoiceInput() {
+    var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!Recognition) {
+      setError(id('ask-error'), 'Push-to-talk is unavailable in this browser. You can still type your question.');
+      return;
+    }
+    if (state.recognition) {
+      state.recognition.stop();
+      return;
+    }
+    var recognition = new Recognition();
+    state.recognition = recognition;
+    recognition.lang = state.preferences && state.preferences.locale === 'vi' ? 'vi-VN' : 'en-US';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    id('voice-input-button').classList.add('voice-listening');
+    id('voice-input-button').setAttribute('aria-label', 'Stop voice input');
+    announce('Listening. Speech will fill the question field only.');
+    recognition.onresult = function (event) {
+      var transcript = event.results && event.results[0] && event.results[0][0]
+        ? String(event.results[0][0].transcript || '').trim() : '';
+      if (!transcript) return;
+      var field = id('advisor-question');
+      var combined = (field.value.trim() + ' ' + transcript).trim();
+      field.value = combined.slice(0, 1000);
+      field.focus();
+      announce('Voice transcript added. Review it before sending.');
+    };
+    recognition.onerror = function () {
+      setError(id('ask-error'), 'Voice input ended without a transcript. No question was sent.');
+    };
+    recognition.onend = function () {
+      state.recognition = null;
+      id('voice-input-button').classList.remove('voice-listening');
+      id('voice-input-button').setAttribute('aria-label', 'Start push-to-talk voice input');
+    };
+    recognition.start();
   }
 
   id('connection-form').addEventListener('submit', async function (event) {
@@ -944,27 +1154,99 @@ export const COCKPIT_SCRIPT = String.raw`
     var questionField = id('advisor-question');
     var question = questionField.value.trim();
     if (!question) return;
-    setError(id('ask-error'), '');
-    appendUserMessage(question);
-    questionField.value = '';
-    id('ask-button').disabled = true;
-    announce('LeozOps is validating an evidence-grounded answer.');
-    try {
-      var output = await ask(question);
-      appendAdvisorMessage(output);
-      announce('Validated advisor answer ready with ' + output.citations.length + ' citation(s).');
-    } catch (error) {
-      questionField.value = question;
-      setError(id('ask-error'), friendlyError(error));
-      if (error.status === 401 || error.status === 403) resetWorkspace(friendlyError(error));
-    } finally {
-      if (state.token) id('ask-button').disabled = false;
+    if (actionShaped(question)) {
+      state.pendingQuestion = question;
+      id('advisory-confirmation-dialog').showModal();
+      id('advisory-confirmation-send').focus();
+      return;
     }
+    await sendQuestion(question);
+  });
+
+  id('voice-input-button').addEventListener('click', startVoiceInput);
+
+  id('preference-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    setError(id('preference-error'), '');
+    setBusy(id('preference-save'), true, 'Saving…', 'Save preferences');
+    try {
+      var output = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/jarvis/preferences', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey() },
+        body: JSON.stringify(preferencePayload())
+      });
+      renderPreferences(output.view);
+      announce(output.replayed ? 'Preferences already matched this revision.' : 'Ambient preferences saved as a new immutable revision.');
+    } catch (error) {
+      setError(id('preference-error'), friendlyError(error));
+    } finally {
+      if (state.token) setBusy(id('preference-save'), false, 'Saving…', 'Save preferences');
+    }
+  });
+
+  id('data-request-kind').addEventListener('change', function () {
+    var prefix = id('data-request-kind').value === 'delete' ? 'DELETE ' : 'EXPORT ';
+    id('data-request-confirmation').placeholder = prefix + (state.tenant || 'tenant-key');
+  });
+  id('data-request-form').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    setError(id('data-request-error'), '');
+    var kind = id('data-request-kind').value;
+    var confirmation = id('data-request-confirmation').value.trim();
+    var expected = kind.toUpperCase() + ' ' + state.tenant;
+    if (confirmation !== expected) {
+      setError(id('data-request-error'), 'Type exactly “' + expected + '” to create this request.');
+      return;
+    }
+    setBusy(id('data-request-submit'), true, 'Recording…', 'Create request');
+    try {
+      var output = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/jarvis/data-requests', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey() },
+        body: JSON.stringify({ kind: kind, scope: 'tenant_leozops_data', confirmation: confirmation })
+      });
+      state.dataRequests.unshift(output.request);
+      id('data-request-confirmation').value = '';
+      renderJarvisV1();
+      announce(kind === 'delete'
+        ? 'Delete request recorded. No data was deleted; policy and operator review remain required.'
+        : 'Sanitized export request is ready to download.');
+    } catch (error) {
+      setError(id('data-request-error'), friendlyError(error));
+    } finally {
+      if (state.token) setBusy(id('data-request-submit'), false, 'Recording…', 'Create request');
+    }
+  });
+
+  function closeAdvisoryConfirmation() {
+    state.pendingQuestion = '';
+    id('advisory-confirmation-dialog').close();
+    id('advisor-question').focus();
+  }
+  id('advisory-confirmation-close').addEventListener('click', closeAdvisoryConfirmation);
+  id('advisory-confirmation-cancel').addEventListener('click', closeAdvisoryConfirmation);
+  id('advisory-confirmation-send').addEventListener('click', async function () {
+    var question = state.pendingQuestion;
+    state.pendingQuestion = '';
+    id('advisory-confirmation-dialog').close();
+    if (question) await sendQuestion(question);
   });
 
   id('evidence-close').addEventListener('click', function () { id('evidence-dialog').close(); });
   id('evidence-dialog').addEventListener('click', function (event) {
     if (event.target === id('evidence-dialog')) id('evidence-dialog').close();
+  });
+  window.addEventListener('beforeinstallprompt', function (event) {
+    event.preventDefault();
+    state.deferredInstall = event;
+    id('install-button').hidden = false;
+  });
+  id('install-button').addEventListener('click', async function () {
+    if (!state.deferredInstall) return;
+    state.deferredInstall.prompt();
+    await state.deferredInstall.userChoice;
+    state.deferredInstall = null;
+    id('install-button').hidden = true;
   });
   document.addEventListener('keydown', function (event) {
     if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && state.token) {
@@ -981,6 +1263,17 @@ export const COCKPIT_SCRIPT = String.raw`
     if (state.token) setConnectionChip('Connected', 'state-fresh');
     announce('Network connection restored. Refresh when ready.');
   });
-  window.addEventListener('pagehide', function () { state.token = ''; });
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('/cockpit/sw.js', { scope: '/cockpit/' }).catch(function () {
+        announce('Installable offline shell is unavailable; authenticated APIs remain network-only.');
+      });
+    });
+  }
+  window.addEventListener('pagehide', function () {
+    state.token = '';
+    if (state.recognition) state.recognition.abort();
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  });
 })();
 `;

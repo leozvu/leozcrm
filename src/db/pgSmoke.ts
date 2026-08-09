@@ -103,6 +103,13 @@ import { AdvisorEvidenceService } from '../services/advisorEvidenceService';
 import { PLANNER_GOAL_SCHEMA, PLANNER_TABLES, PlannerGoalManifest } from '../domain/planner';
 import { PlannerRepository } from '../repositories/plannerRepository';
 import { PlannerService } from '../services/plannerService';
+import {
+  AMBIENT_JARVIS_TABLES,
+  defaultAmbientJarvisPreferences,
+} from '../domain/ambientJarvis';
+import { AmbientJarvisRepository } from '../repositories/ambientJarvisRepository';
+import { JARVIS_V1_TABLES, jarvisV1Hash } from '../domain/jarvisV1';
+import { JarvisV1Repository } from '../repositories/jarvisV1Repository';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -177,6 +184,8 @@ async function main(): Promise<void> {
       ...Object.values(PROACTIVE_TABLES),
       ...Object.values(PHASE12_TABLES),
       ...Object.values(PLANNER_TABLES),
+      ...Object.values(AMBIENT_JARVIS_TABLES),
+      ...Object.values(JARVIS_V1_TABLES),
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -217,6 +226,19 @@ async function main(): Promise<void> {
     const tenant = await memory.ensureTenant({
       tenantKey: 'pg-smoke-egoric',
       displayName: 'PG Smoke Egoric',
+    });
+    const ambientRepository = new AmbientJarvisRepository(db, () => sourceNow);
+    const ambientPreference = await ambientRepository.append({
+      tenantId: tenant.id,
+      preferences: defaultAmbientJarvisPreferences(),
+      idempotencyKey: 'pg-smoke-ambient-preferences',
+    });
+    const jarvisRepository = new JarvisV1Repository(db, () => sourceNow);
+    const jarvisDataRequest = await jarvisRepository.createDataRequest({
+      tenantId: tenant.id,
+      kind: 'export',
+      confirmationHash: jarvisV1Hash({ confirmation: 'EXPORT pg-smoke-egoric' }),
+      idempotencyKey: 'pg-smoke-jarvis-export',
     });
     const connection = await memory.ensureSourceConnection({
       tenantId: tenant.id,
@@ -1470,6 +1492,8 @@ async function main(): Promise<void> {
         db(table).where({ tenant_id: tenant.id }).update({ created_at: sourceNow.toISOString() }),
         db(table).where({ tenant_id: tenant.id }).delete(),
       ]),
+      db(AMBIENT_JARVIS_TABLES.preferences).where({ id: ambientPreference.record.id }).update({ version: 99 }),
+      db(JARVIS_V1_TABLES.dataRequests).where({ id: jarvisDataRequest.record.id }).delete(),
     ]) {
       let rejected = false;
       try {
@@ -1479,7 +1503,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, Advisor, Planner, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
+    console.log('  source, Advisor, Planner, Ambient Jarvis, data governance, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();

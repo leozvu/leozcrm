@@ -9,7 +9,11 @@ export function renderCockpitHtml(): string {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#111923">
+  <meta name="mobile-web-app-capable" content="yes">
   <title>LeozOps — CEO Cockpit</title>
+  <link rel="manifest" href="/cockpit/manifest.webmanifest">
+  <link rel="icon" href="/cockpit/assets/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/cockpit/assets/cockpit.css">
 </head>
 <body>
@@ -27,6 +31,8 @@ export function renderCockpitHtml(): string {
     <symbol id="icon-exit" viewBox="0 0 24 24"><path d="M10 4H4v16h6m4-4 4-4-4-4m4 4H9"/></symbol>
     <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
     <symbol id="icon-send" viewBox="0 0 24 24"><path d="m4 4 17 8-17 8 3-8-3-8Z"/><path d="M7 12h14"/></symbol>
+    <symbol id="icon-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></symbol>
+    <symbol id="icon-install" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 20h14"/></symbol>
   </svg>
 
   <div class="realm-shell">
@@ -55,6 +61,7 @@ export function renderCockpitHtml(): string {
       </div>
       <div class="topbar-actions">
         <span id="connection-state" class="state-chip state-offline"><span></span>Disconnected</span>
+        <button id="install-button" class="icon-button" type="button" aria-label="Install LeozOps cockpit" title="Install cockpit" hidden>${icon('install')}</button>
         <button id="refresh-button" class="icon-button" type="button" aria-label="Refresh cockpit" title="Refresh cockpit" disabled>${icon('refresh')}</button>
         <button id="disconnect-button" class="icon-button" type="button" aria-label="Disconnect and clear credential" title="Disconnect" disabled>${icon('exit')}</button>
       </div>
@@ -135,12 +142,28 @@ export function renderCockpitHtml(): string {
               </div>
               <form id="ask-form" class="ask-composer">
                 <label for="advisor-question">Question for LeozOps</label>
-                <div><textarea id="advisor-question" rows="2" maxlength="1000" placeholder="Ask about current business evidence…" required></textarea><button id="ask-button" type="submit" class="send-button" aria-label="Send question">${icon('send')}</button></div>
-                <small>No tool calls, browsing, or operational execution.</small>
+                <div><textarea id="advisor-question" rows="2" maxlength="1000" placeholder="Ask about current business evidence…" required></textarea><button id="voice-input-button" type="button" class="icon-button voice-button" aria-label="Start push-to-talk voice input" title="Push to talk">${icon('mic')}</button><button id="ask-button" type="submit" class="send-button" aria-label="Send question">${icon('send')}</button></div>
+                <small id="voice-boundary-copy">Voice only fills this composer. It never sends or executes an action.</small>
                 <p id="ask-error" class="form-error" role="alert" hidden></p>
               </form>
             </div>
-            <aside class="realm-panel memory-panel" aria-labelledby="memory-title"><div class="panel-heading"><div><p class="eyebrow">CEO MEMORY</p><h2 id="memory-title">Current context</h2></div></div><div id="context-list" class="context-list"></div></aside>
+            <aside class="realm-panel memory-panel" aria-labelledby="memory-title">
+              <div class="panel-heading"><div><p class="eyebrow">CEO MEMORY</p><h2 id="memory-title">Current context</h2></div></div>
+              <div id="context-list" class="context-list"></div>
+              <form id="preference-form" class="preference-form">
+                <div class="panel-heading"><div><p class="eyebrow">AMBIENT PREFERENCES</p><h3>How Jarvis meets you</h3></div><span id="preference-version" class="authority-label">Defaults</span></div>
+                <div class="preference-grid">
+                  <label>Language<select id="preference-locale"><option value="en">English</option><option value="vi">Tiếng Việt</option></select></label>
+                  <label>Briefing cadence<select id="preference-cadence"><option value="manual">Manual</option><option value="daily">Daily</option><option value="weekdays">Weekdays</option></select></label>
+                  <label>Timezone<input id="preference-timezone" value="UTC" maxlength="64" autocomplete="off"></label>
+                  <label>Voice output<select id="preference-voice"><option value="off">Off</option><option value="on_demand">On demand</option></select></label>
+                  <label>Quiet start<input id="preference-quiet-start" type="time" value="22:00"></label>
+                  <label>Quiet end<input id="preference-quiet-end" type="time" value="07:00"></label>
+                </div>
+                <button id="preference-save" class="secondary-button" type="submit"><span>Save preferences</span></button>
+                <p id="preference-error" class="form-error" role="alert" hidden></p>
+              </form>
+            </aside>
           </div>
         </section>
 
@@ -186,6 +209,21 @@ export function renderCockpitHtml(): string {
               <div id="command-record-list" class="command-record-list" aria-live="polite"></div>
             </article>
           </div>
+          <article class="realm-panel jarvis-evaluation-panel">
+            <div class="panel-heading"><div><p class="eyebrow">JARVIS V1 EVALUATION</p><h3>30-day product and safety window</h3><p class="panel-intro">Measured repository evidence. It never substitutes for live J1–J8 acceptance.</p></div><span id="jarvis-readiness-status" class="state-chip state-blocked"><span></span>Blocked external</span></div>
+            <div id="jarvis-evaluation-grid" class="quality-grid"></div>
+            <div id="jarvis-checkpoint-list" class="checkpoint-list"></div>
+          </article>
+          <article class="realm-panel data-governance-panel">
+            <div class="panel-heading"><div><p class="eyebrow">DATA GOVERNANCE</p><h3>Inspect, export, and request deletion</h3><p class="panel-intro">Exports are sanitized. Delete requests preserve evidence and remain blocked until an accepted retention policy and operator review exist.</p></div><span class="authority-label">Tenant scoped</span></div>
+            <form id="data-request-form" class="data-request-form">
+              <label>Request type<select id="data-request-kind"><option value="export">Sanitized export</option><option value="delete">Delete request</option></select></label>
+              <label>Exact confirmation<input id="data-request-confirmation" maxlength="96" autocomplete="off" placeholder="EXPORT tenant-key"></label>
+              <button id="data-request-submit" class="secondary-button" type="submit"><span>Create request</span></button>
+            </form>
+            <p id="data-request-error" class="form-error" role="alert" hidden></p>
+            <div id="data-request-list" class="data-request-list" aria-live="polite"></div>
+          </article>
         </section>
       </section>
     </main>
@@ -195,6 +233,11 @@ export function renderCockpitHtml(): string {
     <div class="dialog-heading"><div><p class="eyebrow">PROVENANCE</p><h2 id="evidence-title">Evidence detail</h2></div><button id="evidence-close" class="icon-button" type="button" aria-label="Close evidence detail">${icon('close')}</button></div>
     <p id="evidence-description"></p>
     <dl id="evidence-items" class="evidence-items"></dl>
+  </dialog>
+  <dialog id="advisory-confirmation-dialog" aria-labelledby="advisory-confirmation-title">
+    <div class="dialog-heading"><div><p class="eyebrow">ADVISORY BOUNDARY</p><h2 id="advisory-confirmation-title">This sounds action-shaped</h2></div><button id="advisory-confirmation-close" class="icon-button" type="button" aria-label="Cancel question">${icon('close')}</button></div>
+    <p>LeozOps will treat this only as a question. Sending it cannot approve, schedule, mutate, or execute anything in RepositoryRealms.</p>
+    <div class="dialog-actions"><button id="advisory-confirmation-cancel" class="secondary-button" type="button">Cancel</button><button id="advisory-confirmation-send" class="primary-button" type="button">Send as advisory question</button></div>
   </dialog>
   <script src="/cockpit/assets/cockpit.js" defer></script>
 </body>

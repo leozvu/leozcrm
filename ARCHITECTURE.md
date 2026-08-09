@@ -670,8 +670,6 @@ Issuer private keys and raw proof material stay outside LeozOps. The database
 contains only public keys, metadata, SHA-256 digests, detached signatures, and
 canonical evidence bindings.
 
----
-
 ## 16. Phase 7 activation-ceremony control plane
 
 Phase 7 consumes only a fresh, exact Phase 6 `complete_unreleased` snapshot and
@@ -691,3 +689,53 @@ still provides no production runtime capability.
 - `activationCeremonyOperator.ts` and `phase7Preflight.ts` are one-shot local
   boundaries. No HTTP route, executor, adapter registration, target secret,
   provider SDK, scheduler, daemon, timer, or network request is composed.
+
+---
+
+## 17. Phase 14 supervised-hand source boundary
+
+The first hand candidate is exactly `egoric.task.create.v1`. RepositoryRealms
+owns the default-off command endpoint and its durable receipts; LeozOps owns
+proposal, preview, approval, policy, incident, and evidence projection. The
+source supports explicit preview/approve/execute and
+preview-rollback/approve-rollback/rollback operations, each under a dedicated
+scope. LeozOps can construct only a preview envelope and has no composed
+default transport or credential. The exact Phase 15 transport exists only
+behind an explicit release builder and is never part of normal composition.
+
+Qualification binds a source ref, revision state, base commit, exact blob
+hashes, and aggregate patch fingerprint. A `working_tree` or unmerged branch is
+evidence for review but never a deployable capability. Production composition
+continues to return an empty action-adapter registry until canonical source,
+G5, exact G6, named-target, and credential evidence are accepted.
+
+## 18. Phase 15 exact adapter boundary
+
+`repositoryRealmsTaskCommandAdapter.ts` is the only concrete action adapter.
+It is never returned by default composition. An explicit release builder first
+validates canonical merged source qualification, exact G5/G6/target bindings,
+the adapter and configuration digests, and seven distinct secret references
+whose injected values match their fingerprints.
+
+The adapter speaks only the dedicated command and receipt endpoints. A fresh
+preview is required before approval/execution or rollback, provider envelopes
+and receipts are canonical-hash checked, redirects and retries are denied, and
+unknown outcomes flow into reconciliation. The human recovery interface maps
+to the same source exact-state rollback and remains behind G7 controls.
+
+## 19. Phase 16 Ambient Jarvis and governance
+
+Ambient Jarvis remains inside the authenticated read/LeozOps-owned plane:
+
+- append-only preferences configure language, cadence, timezone, quiet hours,
+  and on-demand speech;
+- the PWA worker caches only public data-free shell assets and excludes `/v1`;
+- speech recognition fills the composer only, action-shaped questions require
+  advisory confirmation, and validated speech output is user-triggered;
+- the Jarvis v1 repository aggregates tenant evidence into answer, citation,
+  alert, plan, action, latency, cost, safety, and J1–J8 readiness projections;
+- append-only data requests authorize a sanitized export or capture a blocked
+  delete request. There is no automatic/destructive deletion path.
+
+These surfaces add no source credential, scheduler, generic tool, adapter
+registration, or action route.

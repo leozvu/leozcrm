@@ -1,30 +1,48 @@
 {
-  "schema_version": "leozops_supervised_hand_qualification_v1",
-  "audited_at": "2026-08-02T00:30:00.000Z",
+  "schema_version": "leozops_supervised_hand_qualification_v2",
+  "audited_at": "2026-08-09T04:34:05.000Z",
   "repository": "leozvu/repositoryrealms",
   "source_ref": "main",
-  "source_commit": "98c0eca01330cbf101bca8ff93de38cdd8ec4045",
+  "source_commit": "0c2b3ff236d747e87113f7d438d42b6b3caadb7c",
+  "source_state": "merged_main",
+  "source_patch_fingerprint": "sha256:e295095b4e29f60e72f9b56afd0774481d6d97390b61f6d1597b6349b4300239",
   "command_key": "egoric.task.create.v1",
-  "source_contract": "repositoryrealms.ceo.command",
+  "source_contract": "repositoryrealms.leozops.task-command",
   "source_contract_version": 1,
-  "endpoint_path": "/api/ceo/v1/commands",
-  "receipt_path": "/api/ceo/v1/commands/receipts",
+  "endpoint_path": "/api/integrations/leozops/v1/commands/create-task",
+  "receipt_path": "/api/integrations/leozops/v1/commands/create-task/receipts",
   "action": "task.create",
-  "scope": "command.task.create",
+  "scope": "leozops.task.create.execute",
   "capability": "delivery",
   "payload_profile": "unassigned_task_only",
   "source_files": [
     {
-      "path": "app/api/ceo/v1/commands/receipts/route.js",
-      "git_blob_sha": "6fec073488bd0eaafd33b320fd78c51e602533e0"
+      "path": "app/api/integrations/leozops/v1/commands/create-task/receipts/route.js",
+      "git_blob_sha": "92176d717a3e9a1043f959d8525cf9d2796cc960"
     },
     {
-      "path": "app/api/ceo/v1/commands/route.js",
-      "git_blob_sha": "b5a3b05439a686d8d933ff00fcdc23abc29f4fb3"
+      "path": "app/api/integrations/leozops/v1/commands/create-task/route.js",
+      "git_blob_sha": "fda72461aa29f94c41f339e6b56d9301c13f1f6d"
     },
     {
-      "path": "lib/ceo-command-gateway.js",
-      "git_blob_sha": "0066aa83d958ddbbf768558caea9f3bd0a709559"
+      "path": "lib/ceo-service-auth.js",
+      "git_blob_sha": "d843119fa3d7fd8de6c6460de457973940666121"
+    },
+    {
+      "path": "lib/leozops-task-command-admin.js",
+      "git_blob_sha": "90f6f93d8d1c43b808d7fe9a4402e2586898954d"
+    },
+    {
+      "path": "lib/leozops-task-command.js",
+      "git_blob_sha": "7da2ed834c8a9e3c67ecba5b310893794bdf3939"
+    },
+    {
+      "path": "prisma/migrations/20260808010000_add_leozops_task_command_contract/migration.sql",
+      "git_blob_sha": "e36a39951ddbdc56e24ee52c1bbeacb59c6d8a26"
+    },
+    {
+      "path": "prisma/schema.prisma",
+      "git_blob_sha": "7b189a8211d499d024074bb1b473ab0bbd8424f2"
     }
   ],
   "capabilities": {
@@ -33,9 +51,11 @@
     "atomic_receipt": true,
     "receipt_observation": true,
     "least_privilege_dispatch_scope": true,
-    "dedicated_leozops_command_endpoint": false,
-    "zero_mutation_preview": false,
-    "separately_approved_rollback": false
+    "dedicated_leozops_command_endpoint": true,
+    "zero_mutation_preview": true,
+    "separately_approved_rollback": true,
+    "immutable_revision": true,
+    "canonical_main_release": true
   },
-  "verdict": "blocked"
+  "verdict": "qualified"
 }

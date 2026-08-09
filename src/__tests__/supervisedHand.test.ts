@@ -32,18 +32,21 @@ const AUTH = { secret: 'phase14-read-secret', adminKey: 'phase14-admin-key' };
 before(async () => { await db.migrate.latest(); });
 after(async () => { await db.destroy(); });
 
-test('pinned RepositoryRealms task.create audit is exact and honestly blocked', () => {
+test('pinned RepositoryRealms task.create audit is canonical while production registration stays blocked', () => {
   const result = validateSupervisedHandQualification(qualificationInput);
   assert.equal(result.value.repository, 'leozvu/repositoryrealms');
-  assert.equal(result.value.source_commit, '98c0eca01330cbf101bca8ff93de38cdd8ec4045');
+  assert.equal(result.value.source_ref, 'main');
+  assert.equal(result.value.source_commit, '0c2b3ff236d747e87113f7d438d42b6b3caadb7c');
+  assert.equal(result.value.source_state, 'merged_main');
+  assert.equal(
+    result.value.source_patch_fingerprint,
+    'sha256:e295095b4e29f60e72f9b56afd0774481d6d97390b61f6d1597b6349b4300239',
+  );
   assert.equal(result.value.action, 'task.create');
-  assert.equal(result.value.endpoint_path, '/api/ceo/v1/commands');
-  assert.equal(result.value.receipt_path, '/api/ceo/v1/commands/receipts');
-  assert.equal(result.value.verdict, 'blocked');
+  assert.equal(result.value.endpoint_path, '/api/integrations/leozops/v1/commands/create-task');
+  assert.equal(result.value.receipt_path, '/api/integrations/leozops/v1/commands/create-task/receipts');
+  assert.equal(result.value.verdict, 'qualified');
   assert.deepEqual(result.blockers, [
-    'source_dedicated_leozops_command_endpoint_missing',
-    'source_zero_mutation_preview_missing',
-    'source_separately_approved_rollback_missing',
     'production_adapter_registry_empty',
   ]);
   assert.match(result.fingerprint, /^sha256:[0-9a-f]{64}$/);
@@ -52,9 +55,27 @@ test('pinned RepositoryRealms task.create audit is exact and honestly blocked', 
     (error: any) => error.code === 'invalid_hand_qualification',
   );
   const dishonest = structuredClone(qualificationInput) as any;
-  dishonest.verdict = 'qualified';
+  dishonest.verdict = 'blocked';
   assert.throws(
     () => validateSupervisedHandQualification(dishonest),
+    (error: any) => error.code === 'invalid_hand_qualification',
+  );
+  const contradictory = structuredClone(qualificationInput) as any;
+  contradictory.capabilities.immutable_revision = false;
+  assert.throws(
+    () => validateSupervisedHandQualification(contradictory),
+    (error: any) => error.code === 'invalid_hand_qualification',
+  );
+  const substitutedSourceFile = structuredClone(qualificationInput) as any;
+  substitutedSourceFile.source_files[0].path = 'lib/unreviewed-substitute.js';
+  assert.throws(
+    () => validateSupervisedHandQualification(substitutedSourceFile),
+    (error: any) => error.code === 'invalid_hand_qualification',
+  );
+  const tamperedBlob = structuredClone(qualificationInput) as any;
+  tamperedBlob.source_files[0].git_blob_sha = '0000000000000000000000000000000000000000';
+  assert.throws(
+    () => validateSupervisedHandQualification(tamperedBlob),
     (error: any) => error.code === 'invalid_hand_qualification',
   );
 });
@@ -77,12 +98,12 @@ test('candidate payload is unassigned, PII-minimized, exact, and maps to the sou
   assert.deepEqual(envelope.payload, {
     title: payload.title,
     note: payload.note,
-    assigneeEmail: null,
-    projectId: null,
     dueDate: payload.due_date,
     priority: 'high',
     estHours: 2,
   });
+  assert.equal(envelope.contract, 'repositoryrealms.leozops.task-command');
+  assert.equal(envelope.operation, 'preview');
   assert.match(supervisedHandEnvelopeFingerprint(envelope), /^sha256:[0-9a-f]{64}$/);
   assert.throws(() => validateRepositoryRealmsTaskCreatePayload({ title: 'Valid task', assignee_email: 'person@example.test' }));
   assert.throws(() => validateRepositoryRealmsTaskCreatePayload({ title: 'Email person@example.test today' }));
@@ -97,9 +118,6 @@ test('static preflight fails closed and production adapter composition stays emp
   assert.equal(registry.size(), 0);
   assert.equal(result.status, 'blocked');
   assert.deepEqual(result.blockers, [
-    'source_dedicated_leozops_command_endpoint_missing',
-    'source_zero_mutation_preview_missing',
-    'source_separately_approved_rollback_missing',
     'production_adapter_registry_empty',
     'live_g5_go_not_verified_by_static_preflight',
     'command_specific_g6_release_not_verified_by_static_preflight',
@@ -124,7 +142,8 @@ test('tenant projection distinguishes accepted G6 evidence, receipts, and incide
     () => new Date(scenario.clock.now),
   );
   const state = await service.state('phase14-tenant');
-  assert.equal(state.status, 'blocked', 'source preview/rollback gaps still block the real hand');
+  assert.equal(state.status, 'blocked', 'live gates and empty production registry still block the real hand');
+  assert.equal(state.source_contract.source_state, 'merged_main');
   assert.equal(state.gates.g5, 'go');
   assert.equal(state.gates.g6_policy, 'accepted');
   assert.equal(state.summary.proposals, 1);

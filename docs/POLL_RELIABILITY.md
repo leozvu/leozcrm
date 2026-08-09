@@ -96,8 +96,9 @@ logged by the reliability core.
   `Retry-After`, 401, 404, schema denial, circuit probe/recovery, corrupt-state,
   tenant, secret, and GET-only tests: **PASS**;
 - package lock unchanged; no dependency added;
-- no high/critical dependency finding; the existing low `body-parser` and
-  moderate `uuid` advisories remain unchanged.
+- no high/critical dependency finding at this checkpoint; the then-existing
+  low `body-parser` and moderate `uuid` advisories were resolved during the
+  Phase 16 release pass.
 
 T5–T8 and the local disposable PostgreSQL checkpoint now pass. Scheduler
 mounting, P1, P2, and every external environment remain unproved and

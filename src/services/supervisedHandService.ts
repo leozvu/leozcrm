@@ -114,6 +114,8 @@ export class SupervisedHandService {
         repository: qualification.value.repository,
         source_ref: qualification.value.source_ref,
         source_commit: qualification.value.source_commit,
+        source_state: qualification.value.source_state,
+        source_patch_fingerprint: qualification.value.source_patch_fingerprint,
         command_key: qualification.value.command_key,
         action: qualification.value.action,
         scope: qualification.value.scope,

@@ -1,0 +1,26 @@
+{
+  "mcpServers": {
+    "claude-flow": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "ruflo@latest",
+        "mcp",
+        "start"
+      ],
+      "env": {
+        "npm_config_update_notifier": "false",
+        "CLAUDE_FLOW_MODE": "v3",
+        "CLAUDE_FLOW_HOOKS_ENABLED": "false",
+        "CLAUDE_FLOW_TOPOLOGY": "hierarchical",
+        "CLAUDE_FLOW_MAX_AGENTS": "4",
+        "CLAUDE_FLOW_MEMORY_BACKEND": "hybrid",
+        "RUFLO_DAEMON_AUTOSTART": "false",
+        "CLAUDE_FLOW_MCP_TOOLS": "memory,swarm,agent,hooks,task,guidance,security"
+      },
+      "autoStart": false
+    }
+  }
+}

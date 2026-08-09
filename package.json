@@ -12,8 +12,10 @@
     "test:phase12": "tsx --test src/__tests__/liveObserver.test.ts",
     "test:phase13": "tsx --test src/__tests__/planner.test.ts",
     "test:phase14": "tsx --test src/__tests__/supervisedHand.test.ts",
+    "test:phase15": "tsx --test src/__tests__/repositoryRealmsTaskCommandAdapter.test.ts",
+    "test:phase16": "tsx --test src/__tests__/ambientJarvis.test.ts src/__tests__/jarvisV1.test.ts src/__tests__/cockpit.test.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/__tests__/contract.test.ts src/__tests__/businessMemory.test.ts src/__tests__/pollReliability.test.ts src/__tests__/sourceOperations.test.ts src/__tests__/p1Decision.test.ts src/__tests__/phase2Proof.test.ts src/__tests__/shadowTrust.test.ts src/__tests__/supervisedAction.test.ts src/__tests__/boundedAutonomy.test.ts src/__tests__/operationalAssurance.test.ts src/__tests__/externalEvidence.test.ts src/__tests__/activationCeremony.test.ts src/__tests__/activationExecution.test.ts src/__tests__/egoricBrief.test.ts src/__tests__/egoricProfile.test.ts src/__tests__/advisorConversation.test.ts src/__tests__/openaiAdvisorProvider.test.ts src/__tests__/advisorGoldenEval.test.ts src/__tests__/cockpit.test.ts src/__tests__/proactiveAlerts.test.ts src/__tests__/metrics.test.ts src/__tests__/metricsRoutes.test.ts src/__tests__/brief.test.ts src/__tests__/briefRoutes.test.ts src/__tests__/recommendations.test.ts src/__tests__/recommendationsRoutes.test.ts src/__tests__/dashboard.test.ts src/__tests__/dashboardRoutes.test.ts src/__tests__/integrations.test.ts src/__tests__/integrationsRoutes.test.ts src/__tests__/auth.test.ts src/__tests__/tenantIsolation.test.ts src/__tests__/hardening.test.ts src/__tests__/emailPublish.test.ts src/__tests__/emailPublishRoutes.test.ts src/__tests__/tasks.test.ts src/__tests__/tasksRoutes.test.ts src/__tests__/onboarding.test.ts src/__tests__/onboardingRoutes.test.ts",
+    "test": "tsx --test src/__tests__/contract.test.ts src/__tests__/businessMemory.test.ts src/__tests__/pollReliability.test.ts src/__tests__/sourceOperations.test.ts src/__tests__/p1Decision.test.ts src/__tests__/phase2Proof.test.ts src/__tests__/shadowTrust.test.ts src/__tests__/supervisedAction.test.ts src/__tests__/boundedAutonomy.test.ts src/__tests__/operationalAssurance.test.ts src/__tests__/externalEvidence.test.ts src/__tests__/activationCeremony.test.ts src/__tests__/activationExecution.test.ts src/__tests__/egoricBrief.test.ts src/__tests__/egoricProfile.test.ts src/__tests__/advisorConversation.test.ts src/__tests__/openaiAdvisorProvider.test.ts src/__tests__/advisorGoldenEval.test.ts src/__tests__/cockpit.test.ts src/__tests__/proactiveAlerts.test.ts src/__tests__/metrics.test.ts src/__tests__/metricsRoutes.test.ts src/__tests__/brief.test.ts src/__tests__/briefRoutes.test.ts src/__tests__/recommendations.test.ts src/__tests__/recommendationsRoutes.test.ts src/__tests__/dashboard.test.ts src/__tests__/dashboardRoutes.test.ts src/__tests__/integrations.test.ts src/__tests__/integrationsRoutes.test.ts src/__tests__/auth.test.ts src/__tests__/tenantIsolation.test.ts src/__tests__/hardening.test.ts src/__tests__/emailPublish.test.ts src/__tests__/emailPublishRoutes.test.ts src/__tests__/tasks.test.ts src/__tests__/tasksRoutes.test.ts src/__tests__/onboarding.test.ts src/__tests__/onboardingRoutes.test.ts src/__tests__/repositoryRealmsTaskCommandAdapter.test.ts src/__tests__/ambientJarvis.test.ts src/__tests__/jarvisV1.test.ts",
     "advisor:eval:openai": "tsx src/advisorOpenAIEval.ts",
     "migrate": "tsx src/db/migrate.ts latest",
     "migrate:rollback": "tsx src/db/migrate.ts rollback",
@@ -40,6 +42,7 @@
     "live:preflight": "tsx src/liveObserverPreflight.ts",
     "live:operator": "tsx src/liveObserverOperator.ts",
     "hand:preflight": "tsx src/supervisedHandPreflight.ts",
+    "adapter:preflight": "tsx src/repositoryRealmsAdapterPreflight.ts",
     "recovery:operator": "tsx src/recoveryOperator.ts",
     "db:reset": "tsx src/db/migrate.ts rollback && tsx src/db/migrate.ts latest && tsx src/db/seed.ts",
     "db:smoke:pg": "tsx src/db/pgSmoke.ts",
@@ -49,7 +52,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "knex": "^3.1.0",
-    "uuid": "^9.0.1"
+    "uuid": "^11.1.1"
   },
   "optionalDependencies": {
     "better-sqlite3": "^11.3.0",
@@ -58,8 +61,11 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^22.5.0",
-    "@types/uuid": "^9.0.8",
-    "tsx": "^4.19.0",
+    "tsx": "^4.23.11",
     "typescript": "^5.5.4"
+  },
+  "overrides": {
+    "body-parser": "1.20.6",
+    "esbuild": "0.28.1"
   }
 }

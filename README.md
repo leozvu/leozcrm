@@ -27,14 +27,17 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
-| Jarvis product track | Phases 9-16 and J1-J8 checkpoints planned; Phase 9A/9B, Phases 10-13, and the Phase 14 qualification slice are implemented locally |
+| Jarvis product track | Repository implementation complete through Phase 16; all live J1-J8 acceptance remains evidence-gated |
 | Phase 9A implementation | Evidence packs, fixed read tools, append-only conversation/context/citation/feedback, deterministic bilingual Advisor, budgets, failure evidence, and authenticated Ask routes implemented on `codex/leozops-phase9a-conversation-core`; production model absent |
 | Phase 9B implementation | Pinned `gpt-5.6-sol` Responses adapter, strict structured output, no-tool/stateless request, pre-call cost guard, and 12-case eval implemented on `codex/leozops-phase9b-openai-adapter`; live key/eval/deployment absent |
 | Phase 10 implementation | Responsive medieval CEO cockpit, evidence drill-down, validated Ask reveal, and sealed Command Deck implemented on `codex/leozops-phase10-medieval-cockpit`; founder/live J2 acceptance absent |
 | Phase 11 implementation | Deterministic alerts, append-only state/outbox evidence, replay-safe delivery boundary, founder outcomes, shadow evaluator, and one-shot operator implemented on `codex/leozops-phase11-proactive-nervous-system`; live channel/scheduler/baseline and J3 acceptance absent |
 | Phase 12 implementation | Production image, fail-closed deployment preflight, one-shot poll/evaluate orchestration, append-only operations/recovery evidence, structured traces/logs, protected aggregate telemetry, and disposable-only restore drill implemented on `codex/leozops-phase12-live-observer`; named platform, elapsed shadow, and J4 absent |
 | Phase 13 implementation | Versioned goals/plans, evidence-bound deterministic steps, conflicts, simulations/comparison, decision/checkpoint/outcome history, Planner cockpit, and no-action enforcement implemented on `codex/leozops-phase13-goal-aware-planner`; named live review and J5 acceptance absent |
-| Phase 14 qualification | RepositoryRealms `task.create` source audit, exact PII-minimized candidate envelope, tenant-scoped supervised evidence projection, fail-closed preflight, and Command Deck ledger implemented on `codex/leozops-phase14-supervised-hand-readiness`; dedicated endpoint, preview, rollback, adapter, live G5/G6, and J6 remain blocked |
+| Phase 14 qualification | RepositoryRealms [PR #9](https://github.com/leozvu/repositoryrealms/pull/9) merged the default-off `task.create` preview/approval/receipt/rollback contract to `main@0c2b3ff`; the v2 qualification is canonical, while adapter registration, live G5/G6, credentials, and J6 remain blocked |
+| Phase 15 exact hand | Exact RepositoryRealms task adapter, receipt/reconciliation semantics, release binding, seven-way credential separation, and fail-closed preflight implemented locally; default registry remains empty |
+| Phase 16 Ambient Jarvis | Installable data-free PWA, push-to-talk/on-demand speech, action-shaped confirmation, append-only preferences, 30-day evaluation/J1-J8 blocker dashboard, sanitized export/delete-request controls, and release runbook implemented locally; live J8 absent |
+| Development harness | Ruflo scaffold is observe-only; CLI doctor passes config/native memory integrity, daemon/hooks/workers stay disabled, and the current Codex task needs a reload before newly discovered MCP methods are available |
 | Production integration | Not authorized |
 
 Sprint 1 completed the initial critical path:
@@ -131,6 +134,11 @@ path begin:
 36. [`docs/PHASE_14_SUPERVISED_HAND_READINESS.md`](docs/PHASE_14_SUPERVISED_HAND_READINESS.md)
     — pinned RepositoryRealms command audit, exact candidate payload, read-only
     evidence projection, fail-closed preflight, and remaining J6 blockers.
+37. [`docs/RUFLO_INTEGRATION.md`](docs/RUFLO_INTEGRATION.md) — Ruflo
+    observe-only policy, doctor evidence, SPARC dry-run, security scans, and
+    current MCP/runtime limitations.
+38. [`docs/LEOZOPS_V1_BLUEPRINT_ALIGNMENT.md`](docs/LEOZOPS_V1_BLUEPRINT_ALIGNMENT.md)
+    — mapping from the L0–L5 completion blueprint to repository and live truth.
 
 ## Non-negotiable boundaries
 
@@ -230,11 +238,11 @@ the separately gated G6 control plane. See
 [`docs/PHASE_13_GOAL_AWARE_PLANNER.md`](docs/PHASE_13_GOAL_AWARE_PLANNER.md).
 
 Phase 14 now qualifies one potential supervised hand: creating an unassigned
-RepositoryRealms task. The cockpit can inspect source qualification and
-existing G6 proposal/approval/receipt/incident evidence, but no adapter is
-registered and no HTTP execution route exists. The audited source still lacks
-the dedicated LeozOps endpoint required by G6, zero-mutation preview, and
-separately approved rollback, while real G5/G6 evidence is also absent. See
+RepositoryRealms task. RepositoryRealms PR #9 merged the dedicated default-off
+endpoint, zero-business-mutation preview, receipt, and separately approved
+rollback contract to canonical `main@0c2b3ff`. The cockpit remains read-only,
+the exact adapter is not registered, and real G5/G6 evidence, runtime
+credentials, and supervised history remain absent. See
 [`docs/PHASE_14_SUPERVISED_HAND_READINESS.md`](docs/PHASE_14_SUPERVISED_HAND_READINESS.md).
 
 Do not configure an Egoric production key, enable a production feature flag, or

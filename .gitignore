@@ -12,4 +12,13 @@ data/
 
 .claude/
 
-.claude/
+# Codex local configuration
+.codex/
+# Claude Flow runtime data
+.claude-flow/
+.swarm/
+ruvector.db
+
+# Environment variables
+.env.local
+.env.*.local
