@@ -751,3 +751,37 @@ Status: REPOSITORY COMPLETE; LIVE J6/J7/J8 BLOCKED
 
 The checked-in release remains inert. Voice, PWA, preference, evaluation, and
 data-request surfaces grant no RepositoryRealms mutation authority.
+
+26. PHASE 17 TALKING JARVIS FOUNDATION — REPOSITORY CANDIDATE
+---------------------------------------------------------------------
+Status: IMPLEMENTED LOCALLY; LIVE REALTIME/CEO ACCEPTANCE BLOCKED
+
+[x] Add a strict tenant-scoped, append-only voice-session and lifecycle-event
+    contract with deterministic transitions, barge-in, idempotency, integrity
+    fingerprints, terminal-state enforcement, and SQLite/PostgreSQL guards.
+[x] Add a fail-closed server broker for short-lived OpenAI Realtime client
+    secrets; keep the standard API key server-only and store neither secret.
+[x] Add Cockpit WebRTC Talking Mode with direct browser media, remote audio,
+    explicit start/stop, interruption, timeout/failure cleanup, and no browser
+    credential persistence.
+[x] Require every spoken turn to call the existing read-only `ask_leozops`
+    Advisor tool and block action-shaped voice requests pending reviewed text
+    confirmation. Voice action authority remains `none`.
+[x] Retain no raw audio or transcript in LeozOps. Persist only privacy-minimized
+    state, model/provider metadata, safe failures, hashes, and timestamps.
+[x] Add authenticated no-store voice APIs, exact CSP/provider boundaries,
+    focused contract/broker/HTTP/UI tests, migration rollback/reapply, and
+    Phase 17 PostgreSQL smoke coverage.
+[x] Pin provider credential egress to the reviewed OpenAI host, limit each
+    tenant to five session starts per minute, and cap credential replay at one
+    recovery issuance.
+[x] Complete final repository typecheck, full 370/370 regression, production
+    build, zero-finding dependency audit, PostgreSQL smoke, final local-staging
+    image verification, and Phase 17 restore drill.
+[ ] Pass every configured branch check and merge the exact reviewed revision to
+    canonical `main`.
+[ ] Install an approved server key in a named non-production runtime; prove
+    revocation, microphone/WebRTC/browser-device behavior, audible response,
+    interruption, grounding quality, latency/cost, privacy, and CEO usability.
+[ ] Accept every applicable live J1–J8 gate before calling Talking Jarvis live
+    or granting it any source action authority.

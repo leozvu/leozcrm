@@ -122,6 +122,15 @@ disabled pending retention/privacy acceptance. No local result supplies the
 named deployment, accepted J1–J7, 30 live days, recovery/security/privacy
 acceptance, or Product Owner J8 decision.
 
+Phase 17 implements a Talking Jarvis repository foundation: authenticated
+server-minted short-lived Realtime credentials, direct browser WebRTC,
+mandatory tenant-scoped read-only Advisor grounding, interruptible speech, and
+append-only privacy-minimized lifecycle evidence. LeozOps retains no raw audio
+or transcript, voice has no action authority, and action-shaped speech is
+blocked pending text confirmation. A disabled-by-default provider and passing
+repository tests do not satisfy live Realtime, privacy, usability, or J1–J8
+evidence.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.

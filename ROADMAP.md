@@ -399,6 +399,15 @@ and J6 acceptance still block any real hand.
 The product and production-truth lanes may overlap while waiting for external
 elapsed evidence, but they must converge before any real command is enabled.
 
+Phase 17 is implemented on `codex/phase17-talking-jarvis-foundation`: the CEO
+Cockpit has a full-duplex WebRTC Talking Mode backed by a server-minted
+short-lived Realtime credential, a mandatory read-only Advisor grounding tool,
+barge-in lifecycle evidence, and zero LeozOps audio/transcript retention. The
+voice provider is disabled by default, the source action registry remains
+empty, and action-shaped speech must move to reviewed text confirmation. No
+OpenAI key, live SDP/audio exchange, device matrix, CEO acceptance, or live
+J1–J8 evidence is claimed.
+
 ---
 
 ## Legacy Foundation (historical — completion evidence intact)

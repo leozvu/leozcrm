@@ -50,6 +50,9 @@ jobs:
       - name: Phase 14 supervised-hand readiness suite
         run: npm run test:phase14
 
+      - name: Phase 17 Talking Jarvis safety suite
+        run: npm run test:phase17
+
       - name: Full SQLite regression
         run: npm test
 

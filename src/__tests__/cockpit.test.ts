@@ -102,7 +102,7 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.equal(shellResponse.headers.get('cache-control'), 'no-store');
     const csp = shellResponse.headers.get('content-security-policy') ?? '';
     assert.match(csp, /default-src 'none'/);
-    assert.match(csp, /connect-src 'self'/);
+    assert.match(csp, /connect-src 'self' https:\/\/api\.openai\.com/);
     assert.match(csp, /worker-src 'self'/);
     assert.equal(csp.includes('unsafe-inline'), false);
     assert.equal(shellResponse.headers.get('referrer-policy'), 'no-referrer');
@@ -124,7 +124,8 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(shell, /id="command-blocker-list"/);
     assert.match(shell, /rel="manifest" href="\/cockpit\/manifest\.webmanifest"/);
     assert.match(shell, /id="voice-input-button"/);
-    assert.match(shell, /Voice only fills this composer\. It never sends or executes an action\./);
+    assert.match(shell, /id="talking-mode-button"/);
+    assert.match(shell, /Talking Mode uses grounded read-only advice and has no action authority\./);
     assert.match(shell, /id="preference-form"/);
     assert.match(shell, /id="advisory-confirmation-dialog"/);
     assert.match(shell, /Send as advisory question/);
@@ -171,6 +172,11 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(script, /SpeechRecognition/);
     assert.match(script, /SpeechSynthesisUtterance/);
     assert.match(script, /actionShaped/);
+    assert.match(script, /tool_choice: 'required'/);
+    assert.match(script, /response: \{ tool_choice: 'none' \}/);
+    assert.equal(script.includes("model: 'gpt-realtime-2.1'"), false);
+    assert.match(script, /blocked_requires_text_confirmation/);
+    assert.equal(script.includes('OPENAI_API_KEY'), false);
     assert.match(script, /\/jarvis\/preferences/);
     assert.match(script, /\/jarvis\/evaluation\?days=30/);
     assert.match(script, /\/jarvis\/readiness\?days=30/);
@@ -195,7 +201,7 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.equal(worker.includes('/v1'), false);
     assert.equal(worker.includes('Authorization'), false);
     assert.equal(worker.includes('localStorage'), false);
-    assert.match(worker, /leozops-cockpit-shell-v1/);
+    assert.match(worker, /leozops-cockpit-shell-v2/);
     assert.equal((await fetch(`${base}/cockpit/assets/icon.svg`)).status, 200);
   } finally {
     await closeServer(server);

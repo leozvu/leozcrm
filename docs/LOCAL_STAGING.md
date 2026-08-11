@@ -15,7 +15,8 @@ cloud database or RepositoryRealms deployment. It contains:
 - runtime-generated, private-key-isolated local TLS material and randomly
   generated secret bindings;
 - no action adapter, source task flag, scheduler, OpenAI credential, or live
-  business data.
+  business data. Talking Mode is installed but its provider is explicitly
+  `disabled`, so it fails closed instead of simulating a live voice session.
 
 The generated `.env.local-staging.local`, deployment manifest, certificate,
 and private key are ignored by Git. Bootstrap prints no secret values and
@@ -41,7 +42,7 @@ credential; use `staging:credential` to derive the current signed token.
 
 The restore drill creates only
 `leozops_local_staging_restore_drill` inside the isolated container, restores a
-custom-format backup, verifies Phase 16 tables, and removes both the disposable
+custom-format backup, verifies Phase 17 tables, and removes both the disposable
 database and dump in an exit trap.
 
 ## Stop and recover

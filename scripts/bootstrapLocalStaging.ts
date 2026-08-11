@@ -95,6 +95,7 @@ function main(): void {
     'LEOZOPS_DEPLOY_ENV=local-staging',
     'LEOZOPS_LOCAL_STAGING_ACK=PROVISION_ISOLATED_LOCAL_STAGING_ONLY',
     'LEOZOPS_ADVISOR_PROVIDER=deterministic',
+    'LEOZOPS_VOICE_PROVIDER=disabled',
     'LEOZOPS_LIVE_DEPLOYMENT_MANIFEST=/run/config/deployment.local.json',
     'LEOZOPS_RUNTIME_PROJECT_ID=leozops-local-staging',
     'LEOZOPS_DATABASE_ID=leozops-local-staging-postgres-16',
