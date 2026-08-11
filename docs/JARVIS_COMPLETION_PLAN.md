@@ -367,8 +367,8 @@ Repository deliverables:
 - exact authentication, CSP, timeout, size, idempotency, provider, migration,
   SQLite/PostgreSQL, and browser-script tests.
 
-Repository update (2026-08-11): these deliverables are implemented on
-`codex/phase17-talking-jarvis-foundation`. The provider defaults to disabled;
+Repository update (2026-08-11): these deliverables were merged through PR #22
+to canonical `main@875ec3295e4f577af44810d1a70ed73e4f5d747a`. The provider defaults to disabled;
 no OpenAI key or live call was available. Live exit therefore still requires a
 named non-production deployment, key/revocation proof, microphone and WebRTC
 device/browser coverage, grounding and interruption evals, latency/cost and

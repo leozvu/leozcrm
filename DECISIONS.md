@@ -933,3 +933,16 @@ Decision:
   privacy/latency/cost evidence, and CEO acceptance, label the result only a
   repository candidate and leave J1–J8 unchanged.
 Owner: Leoz. Recorded by Codex during Phase 17 Talking Jarvis implementation.
+
+DECISION-002 addendum 34 — 2026-08-11 — Phase 17 repository release recorded
+Status: Complete for repository release; live evidence remains blocked.
+Decision:
+- Record PR #22 as merged to canonical
+  `main@875ec3295e4f577af44810d1a70ed73e4f5d747a` only after all eight configured
+  push/PR checks passed, including Node 22/24, production-container, and
+  PostgreSQL 16 lifecycle jobs.
+- Keep `LEOZOPS_VOICE_PROVIDER=disabled` in isolated local staging. The merge
+  does not install a provider key, prove an audible Realtime call, accept CEO
+  usability/privacy/cost/latency evidence, grant action authority, or change
+  any J1–J8 live gate.
+Owner: Leoz. Recorded by Codex after the Phase 17 canonical merge.

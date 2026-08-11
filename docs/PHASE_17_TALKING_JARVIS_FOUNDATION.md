@@ -2,6 +2,10 @@
 
 Status: **repository candidate; live Realtime proof and CEO acceptance absent**
 
+Canonical repository revision: PR #22 merged to
+`main@875ec3295e4f577af44810d1a70ed73e4f5d747a` after all eight configured
+push/PR checks passed.
+
 Phase 17 turns the Cockpit's reviewed push-to-talk fallback into an
 interruptible, full-duplex conversation surface without giving voice any
 business mutation authority. The browser sends microphone media directly to

@@ -778,8 +778,8 @@ Status: IMPLEMENTED LOCALLY; LIVE REALTIME/CEO ACCEPTANCE BLOCKED
 [x] Complete final repository typecheck, full 370/370 regression, production
     build, zero-finding dependency audit, PostgreSQL smoke, final local-staging
     image verification, and Phase 17 restore drill.
-[ ] Pass every configured branch check and merge the exact reviewed revision to
-    canonical `main`.
+[x] Pass all eight push/PR checks and merge Phase 17 through PR #22 to canonical
+    `main@875ec3295e4f577af44810d1a70ed73e4f5d747a`.
 [ ] Install an approved server key in a named non-production runtime; prove
     revocation, microphone/WebRTC/browser-device behavior, audible response,
     interruption, grounding quality, latency/cost, privacy, and CEO usability.
