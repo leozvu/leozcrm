@@ -911,3 +911,25 @@ Decision:
   rehearsal. It cannot satisfy P1/P2, G5/G6/G7, J4-J8, supervised history, or
   any elapsed evidence window.
 Owner: Leoz. Recorded by Codex during local staging provisioning.
+
+DECISION-002 addendum 33 — 2026-08-11 — Talking Jarvis foundation authorized
+Status: Approved by Leoz (Product Owner) for repository implementation and evidence-bound release.
+Decision:
+- Treat the explicit instruction to continue toward a talking CEO Jarvis as
+  authorization to implement, test, publish, and merge the Phase 17 repository
+  foundation under the canonical integration-release rules in addendum 31.
+- Use browser WebRTC for microphone and remote audio. Mint only a short-lived
+  client secret through a server-side broker; the standard provider API key
+  must remain server-only and neither secret may enter durable evidence, logs,
+  browser storage, or checked-in configuration.
+- Require every spoken turn to call the existing tenant-scoped read-only
+  Advisor. Voice has `action_authority: none`; action-shaped speech is blocked
+  until the CEO uses the reviewed text and Command Deck confirmation path.
+- Retain no raw audio or transcript in LeozOps. Permit only append-only,
+  privacy-minimized session-state evidence, interruption metadata, safe failure
+  codes, hashes, provider/model identifiers, and timestamps.
+- Keep the voice provider disabled by default. Without an approved server key,
+  named deployment, live WebRTC/audio proof, grounding and interruption evals,
+  privacy/latency/cost evidence, and CEO acceptance, label the result only a
+  repository candidate and leave J1–J8 unchanged.
+Owner: Leoz. Recorded by Codex during Phase 17 Talking Jarvis implementation.

@@ -5,7 +5,7 @@ import { renderCockpitHtml } from '../cockpitView';
 
 const SECURITY_HEADERS = Object.freeze({
   'Cache-Control': 'no-store',
-  'Content-Security-Policy': "default-src 'none'; base-uri 'none'; connect-src 'self'; font-src 'self'; form-action 'none'; frame-ancestors 'none'; img-src 'self' data:; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'",
+  'Content-Security-Policy': "default-src 'none'; base-uri 'none'; connect-src 'self' https://api.openai.com; font-src 'self'; form-action 'none'; frame-ancestors 'none'; img-src 'self' data:; media-src blob:; object-src 'none'; script-src 'self'; style-src 'self'; worker-src 'self'",
   'Cross-Origin-Opener-Policy': 'same-origin',
   'Permissions-Policy': 'camera=(), geolocation=(), microphone=(self)',
   'Referrer-Policy': 'no-referrer',
@@ -31,7 +31,7 @@ const COCKPIT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 
 const COCKPIT_SERVICE_WORKER = String.raw`
 'use strict';
-const VERSION = 'leozops-cockpit-shell-v1';
+const VERSION = 'leozops-cockpit-shell-v2';
 const SHELL = ['/cockpit/', '/cockpit/assets/cockpit.css', '/cockpit/assets/cockpit.js', '/cockpit/manifest.webmanifest', '/cockpit/assets/icon.svg'];
 self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(VERSION).then(function (cache) { return cache.addAll(SHELL); }));

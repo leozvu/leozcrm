@@ -323,6 +323,32 @@ DISPOSABLE_CONTAINER_CLEANUP=PASS
 This closes the Phase 16 disposable PostgreSQL dialect/lifecycle check. It is
 not a managed staging deployment, production history, or action authority.
 
+## Phase 17 Talking Jarvis checkpoint — 2026-08-11
+
+The full lifecycle smoke was extended to require `jarvis_voice_sessions` and
+`jarvis_voice_session_events`, create one tenant-scoped session, append only
+safe credential metadata, derive the state from the immutable event chain,
+reject update/delete attempts on both tables, and remove both tables during
+the complete rollback.
+
+The smoke ran against the existing loopback-only PostgreSQL `16.10-alpine`
+local-staging service on port `55437`, but used a newly generated database name
+with the fixed `leozops_phase17_smoke_` prefix. The database was created solely
+for the smoke and dropped in a `finally` cleanup. It did not touch the staging
+application database, call OpenAI, retain audio/transcripts, or invoke an
+action adapter. Final output:
+
+```text
+source, Advisor, Planner, Ambient/Talking Jarvis, data governance, shadow,
+supervised-action, bounded-autonomy, assurance, external-evidence,
+activation-ceremony, and controlled-activation immutability verified.
+Postgres migrate/seed/rollback smoke PASSED.
+DISPOSABLE_DATABASE_CLEANUP=PASS
+```
+
+This proves the Phase 17 SQL dialect, lifecycle, guards, and rollback on real
+PostgreSQL only. It is not a successful Realtime voice call or live gate.
+
 ## Running on another approved disposable target
 
 Set either one connection string:

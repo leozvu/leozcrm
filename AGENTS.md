@@ -24,14 +24,16 @@ Owner decision, the newer decision and release-gate evidence win.
 
 ## Current boundary
 
-- Repository implementation is complete through the Phase 16 Ambient Jarvis
-  and v1 repository candidate on `codex/ruflo-phase14-contract-unlock`.
+- Repository implementation includes the Phase 17 Talking Jarvis foundation;
+  repository acceptance and live acceptance remain separate evidence gates.
 - Live release remains gate-bound. Do not fabricate G5, G6, G7, J1-J8,
   production history, named-environment evidence, credentials, or approvals.
 - The production action-adapter registry stays empty until the exact external
   source, preview, rollback, authority, and review gates pass.
 - PWA, voice, preferences, evaluation, and export are LeozOps-owned experience
-  surfaces. They never bypass confirmation, tenant scope, or G6/G7.
+  surfaces. Talking Mode is read-only, grounds every spoken turn through the
+  Advisor, retains no raw audio/transcript, and never bypasses confirmation,
+  tenant scope, or G6/G7.
 - Never add a generic Egoric CRUD path, direct database access, cross-tenant
   access, or an HTTP route that turns a recommendation into an action.
 

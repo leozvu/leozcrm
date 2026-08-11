@@ -20,6 +20,16 @@ export const COCKPIT_SCRIPT = String.raw`
     activeView: 'today',
     requestController: null,
     recognition: null,
+    voiceSessionId: null,
+    voicePeer: null,
+    voiceChannel: null,
+    voiceStream: null,
+    voiceAudio: null,
+    voiceLifecycle: 'off',
+    voiceEventQueue: Promise.resolve(),
+    voiceHandledCalls: {},
+    voiceTurnGeneration: 0,
+    voiceConnecting: false,
     pendingQuestion: '',
     deferredInstall: null
   };
@@ -80,6 +90,11 @@ export const COCKPIT_SCRIPT = String.raw`
     if (error && error.status === 403) return 'This credential cannot access the requested tenant.';
     if (error && error.status === 404) return 'No accepted business snapshot is available for this tenant.';
     if (error && error.code === 'provider_timeout') return 'LeozOps timed out before producing a validated answer. Retry the question.';
+    if (error && error.code === 'voice_provider_disabled') return 'Talking Mode is installed but the Realtime provider is disabled on this deployment.';
+    if (error && error.code === 'voice_provider_timeout') return 'The secure voice provider timed out before a session could start.';
+    if (error && error.code === 'voice_session_rate_limited') return 'Talking Mode start limit reached. Wait one minute before retrying.';
+    if (error && /^voice_provider_/.test(error.code || '')) return 'Talking Mode could not obtain a secure short-lived session. Retry later.';
+    if (error && error.code === 'voice_webrtc_failed') return 'The secure WebRTC voice connection could not be established.';
     return 'The cockpit could not complete this request. Retry or reconnect.';
   }
 
@@ -122,9 +137,11 @@ export const COCKPIT_SCRIPT = String.raw`
     all('.realm-nav button').forEach(function (button) { button.disabled = !enabled; });
     id('refresh-button').disabled = !enabled;
     id('disconnect-button').disabled = !enabled;
+    id('talking-mode-button').disabled = !enabled;
   }
 
   function resetWorkspace(message) {
+    stopTalkingMode(true);
     state.token = '';
     state.tenant = '';
     state.snapshot = null;
@@ -1029,6 +1046,337 @@ export const COCKPIT_SCRIPT = String.raw`
     return /\b(create|delete|send|publish|schedule|assign|update|close|approve|execute|run|launch|email|call)\b|(?:^|\s)(tạo|xóa|xoá|gửi|đăng|lên lịch|giao|cập nhật|đóng|duyệt|thực thi|chạy|gọi)(?:\s|$)/i.test(question);
   }
 
+  function setTalkingModeState(label, className, copy) {
+    var chip = id('talking-mode-state');
+    chip.className = 'state-chip ' + className;
+    chip.lastChild.textContent = label;
+    id('talking-mode-copy').textContent = copy;
+    var button = id('talking-mode-button');
+    var text = button.querySelector('span');
+    if (text) text.textContent = state.voiceSessionId ? 'End Talking Mode' : 'Start Talking Mode';
+  }
+
+  function directVoiceEvent(sessionId, eventType) {
+    if (!sessionId || !state.token) return Promise.resolve(null);
+    return api('/v1/tenants/' + encodeURIComponent(state.tenant)
+      + '/jarvis/voice/sessions/' + encodeURIComponent(sessionId) + '/events', {
+      method: 'POST',
+      body: JSON.stringify({
+        schema_version: 'leozops_voice_session_event_v1',
+        event_type: eventType,
+        client_event_id: idempotencyKey()
+      })
+    });
+  }
+
+  function queueVoiceEvent(eventType) {
+    var sessionId = state.voiceSessionId;
+    if (!sessionId) return;
+    state.voiceEventQueue = state.voiceEventQueue.then(function () {
+      return directVoiceEvent(sessionId, eventType);
+    }).then(function (output) {
+      if (output && state.voiceSessionId === sessionId) state.voiceLifecycle = output.session.state;
+    }).catch(function (error) {
+      if (error && (error.status === 401 || error.status === 403)) stopTalkingMode(false);
+    });
+  }
+
+  function cleanupTalkingMode() {
+    var channel = state.voiceChannel;
+    var peer = state.voicePeer;
+    var stream = state.voiceStream;
+    var audio = state.voiceAudio;
+    state.voiceSessionId = null;
+    state.voiceChannel = null;
+    state.voicePeer = null;
+    state.voiceStream = null;
+    state.voiceAudio = null;
+    state.voiceLifecycle = 'off';
+    state.voiceHandledCalls = {};
+    state.voiceTurnGeneration = 0;
+    state.voiceConnecting = false;
+    try { if (channel) channel.close(); } catch (_) { /* already closed */ }
+    try { if (peer) peer.close(); } catch (_) { /* already closed */ }
+    if (stream) stream.getTracks().forEach(function (track) { track.stop(); });
+    if (audio) {
+      audio.pause();
+      audio.srcObject = null;
+      audio.remove();
+    }
+    id('talking-mode-button').disabled = !state.token;
+    setTalkingModeState('Off', 'state-offline', 'Off · WebRTC audio is not retained by LeozOps.');
+  }
+
+  function stopTalkingMode(reportDisconnect) {
+    var sessionId = state.voiceSessionId;
+    if (reportDisconnect && sessionId && state.token) {
+      directVoiceEvent(sessionId, 'disconnected').catch(function () { /* best-effort terminal evidence */ });
+    }
+    cleanupTalkingMode();
+    if (sessionId) announce('Talking Mode ended. Microphone access and the short-lived session were released.');
+  }
+
+  function voiceToolResult(channel, callId, output, createResponse) {
+    if (!channel || channel.readyState !== 'open' || !callId) return;
+    channel.send(JSON.stringify({
+      type: 'conversation.item.create',
+      item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(output) }
+    }));
+    if (createResponse !== false) {
+      channel.send(JSON.stringify({ type: 'response.create', response: { tool_choice: 'none' } }));
+    }
+  }
+
+  async function executeVoiceAdvisorTool(item) {
+    var channel = state.voiceChannel;
+    var sessionId = state.voiceSessionId;
+    var turnGeneration = state.voiceTurnGeneration;
+    var callId = item && typeof item.call_id === 'string' ? item.call_id : '';
+    var raw;
+    try { raw = JSON.parse(String(item.arguments || '{}')); } catch {
+      voiceToolResult(channel, callId, { status: 'invalid_request', limitation: 'The spoken question could not be parsed.' });
+      return;
+    }
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)
+      || Object.keys(raw).length !== 1 || typeof raw.question !== 'string') {
+      voiceToolResult(channel, callId, { status: 'invalid_request', limitation: 'A single question is required.' });
+      return;
+    }
+    var question = raw.question.trim().slice(0, 1000);
+    if (!question) {
+      voiceToolResult(channel, callId, { status: 'invalid_request', limitation: 'The spoken question was empty.' });
+      return;
+    }
+    if (actionShaped(question)) {
+      voiceToolResult(channel, callId, {
+        status: 'blocked_requires_text_confirmation',
+        limitation: 'Talking Mode has no action authority. Enter this request in the text composer and confirm its advisory-only boundary.'
+      });
+      announce('Action-shaped voice request blocked. Use the text confirmation path.');
+      return;
+    }
+    announce('Talking Mode is grounding the question in LeozOps evidence.');
+    appendUserMessage(question);
+    try {
+      var result = await ask(question);
+      if (sessionId !== state.voiceSessionId || turnGeneration !== state.voiceTurnGeneration) {
+        voiceToolResult(channel, callId, {
+          status: 'interrupted',
+          limitation: 'This answer was superseded by a newer spoken turn.'
+        }, false);
+        return;
+      }
+      appendAdvisorMessage(result);
+      var answer = result.message.answer;
+      voiceToolResult(channel, callId, {
+        status: 'grounded',
+        answer: {
+          summary: answer.summary,
+          facts: answer.facts,
+          inferences: answer.inferences,
+          recommendations: answer.recommendations,
+          limitations: answer.limitations
+        },
+        citations: result.citations.slice(0, 12).map(function (citation) {
+          return {
+            label: citation.label,
+            evidence_key: citation.evidence_key,
+            value_hash: citation.value_hash
+          };
+        }),
+        authority: 'advisory_only'
+      });
+      announce('Grounded voice answer ready with ' + result.citations.length + ' citation(s).');
+    } catch (error) {
+      voiceToolResult(channel, callId, {
+        status: 'unavailable',
+        limitation: friendlyError(error),
+        authority: 'advisory_only'
+      });
+      setError(id('ask-error'), friendlyError(error));
+    }
+  }
+
+  function handleRealtimeEvent(event) {
+    if (!event || typeof event.type !== 'string') return;
+    if (event.type === 'input_audio_buffer.speech_started') {
+      var interrupted = state.voiceLifecycle === 'speaking' || state.voiceLifecycle === 'thinking';
+      state.voiceTurnGeneration += 1;
+      state.voiceLifecycle = interrupted ? 'interrupted' : 'listening';
+      queueVoiceEvent('user_turn_started');
+      setTalkingModeState(interrupted ? 'Interrupted' : 'Listening', 'state-stale',
+        interrupted ? 'Barge-in detected · the prior response was interrupted.' : 'Listening · audio is streamed and not retained by LeozOps.');
+      return;
+    }
+    if (event.type === 'input_audio_buffer.committed') {
+      state.voiceLifecycle = 'thinking';
+      queueVoiceEvent('user_turn_committed');
+      setTalkingModeState('Thinking', 'state-stale', 'Grounding the spoken turn through the read-only Advisor.');
+      return;
+    }
+    if ((event.type === 'output_audio_buffer.started' || event.type === 'response.output_audio.delta')
+      && state.voiceLifecycle !== 'speaking') {
+      state.voiceLifecycle = 'speaking';
+      queueVoiceEvent('assistant_response_started');
+      setTalkingModeState('Speaking', 'state-fresh', 'Speaking a grounded response · say something to interrupt.');
+      return;
+    }
+    if ((event.type === 'output_audio_buffer.stopped' || event.type === 'response.done')
+      && state.voiceLifecycle === 'speaking') {
+      state.voiceLifecycle = 'listening';
+      queueVoiceEvent('assistant_response_completed');
+      setTalkingModeState('Listening', 'state-fresh', 'Ready for the next spoken question.');
+      return;
+    }
+    if (event.type === 'response.function_call_arguments.done' && event.name === 'ask_leozops') {
+      if (!state.voiceHandledCalls[event.call_id]) {
+        state.voiceHandledCalls[event.call_id] = true;
+        executeVoiceAdvisorTool({ call_id: event.call_id, name: event.name, arguments: event.arguments });
+      }
+      return;
+    }
+    if (event.type === 'response.output_item.done' && event.item
+      && event.item.type === 'function_call' && event.item.name === 'ask_leozops') {
+      if (!state.voiceHandledCalls[event.item.call_id]) {
+        state.voiceHandledCalls[event.item.call_id] = true;
+        executeVoiceAdvisorTool(event.item);
+      }
+      return;
+    }
+    if (event.type === 'error') {
+      setError(id('ask-error'), 'Talking Mode reported a provider error. End the session and retry.');
+    }
+  }
+
+  function configureVoiceChannel(channel) {
+    channel.send(JSON.stringify({
+      type: 'session.update',
+      session: {
+        type: 'realtime',
+        tools: [{
+          type: 'function',
+          name: 'ask_leozops',
+          description: 'Get a tenant-scoped, evidence-grounded, read-only LeozOps answer. This tool cannot approve or execute actions.',
+          parameters: {
+            type: 'object',
+            properties: { question: { type: 'string', maxLength: 1000 } },
+            required: ['question'],
+            additionalProperties: false
+          }
+        }],
+        tool_choice: 'required'
+      }
+    }));
+  }
+
+  async function startTalkingMode() {
+    if (state.voiceSessionId || state.voiceConnecting) {
+      stopTalkingMode(true);
+      return;
+    }
+    setError(id('ask-error'), '');
+    if (!window.RTCPeerConnection || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setError(id('ask-error'), 'Secure WebRTC microphone access is unavailable in this browser.');
+      return;
+    }
+    state.voiceConnecting = true;
+    id('talking-mode-button').disabled = true;
+    setTalkingModeState('Authorizing', 'state-stale', 'Requesting microphone access and a short-lived tenant-scoped session.');
+    var micStream = null;
+    var sessionId = null;
+    try {
+      micStream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        video: false
+      });
+      var issued = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/jarvis/voice/sessions', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey() },
+        body: JSON.stringify({
+          schema_version: 'leozops_voice_session_request_v1',
+          locale: state.preferences && state.preferences.locale === 'vi' ? 'vi' : 'en'
+        })
+      });
+      if (!issued.client_secret || typeof issued.client_secret.value !== 'string'
+        || typeof issued.client_secret.expires_at !== 'number'
+        || issued.webrtc_url !== 'https://api.openai.com/v1/realtime/calls') {
+        throw new Error('Invalid short-lived voice credential response');
+      }
+      sessionId = issued.session.id;
+      state.voiceSessionId = sessionId;
+      state.voiceLifecycle = 'connecting';
+      state.voiceStream = micStream;
+      var peer = new RTCPeerConnection();
+      var channel = peer.createDataChannel('oai-events');
+      var audio = document.createElement('audio');
+      audio.autoplay = true;
+      audio.hidden = true;
+      document.body.append(audio);
+      state.voicePeer = peer;
+      state.voiceChannel = channel;
+      state.voiceAudio = audio;
+      peer.ontrack = function (event) { audio.srcObject = event.streams[0]; };
+      micStream.getAudioTracks().forEach(function (track) { peer.addTrack(track, micStream); });
+      channel.addEventListener('open', function () {
+        configureVoiceChannel(channel);
+        state.voiceLifecycle = 'listening';
+        queueVoiceEvent('connected');
+        setTalkingModeState('Listening', 'state-fresh', 'Live · ask a business question. Audio is not retained by LeozOps.');
+        announce('Talking Mode is live. Speak naturally; business answers use the grounded Advisor.');
+      });
+      channel.addEventListener('message', function (message) {
+        try { handleRealtimeEvent(JSON.parse(message.data)); } catch { /* malformed provider event is ignored */ }
+      });
+      peer.addEventListener('connectionstatechange', function () {
+        if (peer.connectionState === 'failed' && state.voiceSessionId === sessionId) {
+          directVoiceEvent(sessionId, 'connection_failed').catch(function () { /* evidence best effort */ });
+          cleanupTalkingMode();
+          setError(id('ask-error'), 'The secure WebRTC voice connection failed. Retry Talking Mode.');
+        }
+      });
+      var offer = await peer.createOffer();
+      await peer.setLocalDescription(offer);
+      var controller = new AbortController();
+      var timer = window.setTimeout(function () { controller.abort(); }, 15000);
+      var ephemeralKey = issued.client_secret.value;
+      var response;
+      try {
+        response = await fetch(issued.webrtc_url, {
+          method: 'POST',
+          body: offer.sdp,
+          headers: { Authorization: 'Bearer ' + ephemeralKey, 'Content-Type': 'application/sdp' },
+          credentials: 'omit',
+          redirect: 'error',
+          referrerPolicy: 'no-referrer',
+          signal: controller.signal
+        });
+      } finally {
+        ephemeralKey = '';
+        window.clearTimeout(timer);
+      }
+      if (!response.ok) {
+        var webrtcError = new Error('Realtime WebRTC rejected');
+        webrtcError.code = 'voice_webrtc_failed';
+        throw webrtcError;
+      }
+      var answerSdp = await response.text();
+      if (!answerSdp || answerSdp.length > 512 * 1024) throw new Error('Invalid Realtime SDP response');
+      await peer.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+      state.voiceConnecting = false;
+      id('talking-mode-button').disabled = false;
+      if (channel.readyState !== 'open') {
+        setTalkingModeState('Connecting', 'state-stale', 'Secure media negotiated · waiting for the voice channel.');
+      }
+    } catch (error) {
+      if (sessionId && state.token) {
+        directVoiceEvent(sessionId, 'connection_failed').catch(function () { /* evidence best effort */ });
+      }
+      if (!state.voiceSessionId && micStream) micStream.getTracks().forEach(function (track) { track.stop(); });
+      cleanupTalkingMode();
+      setError(id('ask-error'), friendlyError(error));
+    }
+  }
+
   async function sendQuestion(question) {
     var questionField = id('advisor-question');
     setError(id('ask-error'), '');
@@ -1164,6 +1512,7 @@ export const COCKPIT_SCRIPT = String.raw`
   });
 
   id('voice-input-button').addEventListener('click', startVoiceInput);
+  id('talking-mode-button').addEventListener('click', startTalkingMode);
 
   id('preference-form').addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -1271,6 +1620,7 @@ export const COCKPIT_SCRIPT = String.raw`
     });
   }
   window.addEventListener('pagehide', function () {
+    stopTalkingMode(true);
     state.token = '';
     if (state.recognition) state.recognition.abort();
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();

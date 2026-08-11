@@ -27,7 +27,7 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 6 implementation | Signed eight-row external-evidence admission and complete-but-unreleased assessment implemented on `codex/leozops-phase6-external-evidence` |
 | Phase 7 implementation | Exact target dossier, independent verification, sealed handoff, and additive recall implemented on `codex/leozops-phase7-activation-ceremony`; handoffs remain unexecuted |
 | Phase 8 implementation | Controlled single-activation control plane, explicit observation, crash-safe unknown reconciliation, and manual rollback implemented on `codex/leozops-phase8-controlled-activation`; production adapter registry remains empty |
-| Jarvis product track | Repository implementation complete through Phase 16; all live J1-J8 acceptance remains evidence-gated |
+| Jarvis product track | Repository implementation complete through Phase 17 Talking Jarvis foundation; live provider proof and all J1-J8 acceptance remain evidence-gated |
 | Phase 9A implementation | Evidence packs, fixed read tools, append-only conversation/context/citation/feedback, deterministic bilingual Advisor, budgets, failure evidence, and authenticated Ask routes implemented on `codex/leozops-phase9a-conversation-core`; production model absent |
 | Phase 9B implementation | Pinned `gpt-5.6-sol` Responses adapter, strict structured output, no-tool/stateless request, pre-call cost guard, and 12-case eval implemented on `codex/leozops-phase9b-openai-adapter`; live key/eval/deployment absent |
 | Phase 10 implementation | Responsive medieval CEO cockpit, evidence drill-down, validated Ask reveal, and sealed Command Deck implemented on `codex/leozops-phase10-medieval-cockpit`; founder/live J2 acceptance absent |
@@ -37,6 +37,7 @@ Autopilot, with human authority and evidence gates at every step.
 | Phase 14 qualification | RepositoryRealms [PR #9](https://github.com/leozvu/repositoryrealms/pull/9) merged the default-off `task.create` preview/approval/receipt/rollback contract to `main@0c2b3ff`; the v2 qualification is canonical, while adapter registration, live G5/G6, credentials, and J6 remain blocked |
 | Phase 15 exact hand | Exact RepositoryRealms task adapter, receipt/reconciliation semantics, release binding, seven-way credential separation, and fail-closed preflight implemented locally; default registry remains empty |
 | Phase 16 Ambient Jarvis | Installable data-free PWA, push-to-talk/on-demand speech, action-shaped confirmation, append-only preferences, 30-day evaluation/J1-J8 blocker dashboard, sanitized export/delete-request controls, and release runbook implemented locally; live J8 absent |
+| Phase 17 Talking Jarvis | Browser WebRTC Talking Mode, server-minted short-lived Realtime credential, mandatory read-only Advisor grounding, barge-in lifecycle evidence, and zero application audio/transcript retention implemented locally; OpenAI key, live call/eval, and CEO acceptance absent |
 | Development harness | Ruflo scaffold is observe-only; CLI doctor passes config/native memory integrity, daemon/hooks/workers stay disabled, and the current Codex task needs a reload before newly discovered MCP methods are available |
 | Production integration | Not authorized |
 

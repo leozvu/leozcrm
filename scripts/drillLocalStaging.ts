@@ -29,7 +29,7 @@ function main(): void {
     'pg_dump -U "$POSTGRES_USER" -d "$POSTGRES_DB" --format=custom --no-owner --no-privileges --file="$dump"',
     'createdb -U "$POSTGRES_USER" "$drill_db"',
     'pg_restore -U "$POSTGRES_USER" -d "$drill_db" --no-owner --no-privileges "$dump"',
-    'test "$(psql -U "$POSTGRES_USER" -d "$drill_db" -Atqc "SELECT count(*) FROM information_schema.tables WHERE table_schema = \'public\' AND table_name IN (\'tenants\', \'jarvis_preference_revisions\')")" = "2"',
+    'test "$(psql -U "$POSTGRES_USER" -d "$drill_db" -Atqc "SELECT count(*) FROM information_schema.tables WHERE table_schema = \'public\' AND table_name IN (\'tenants\', \'jarvis_preference_revisions\', \'jarvis_voice_sessions\', \'jarvis_voice_session_events\')")" = "4"',
     'echo RESTORE_DRILL=PASS',
   ].join('; ');
   const result = spawnSync('docker', [

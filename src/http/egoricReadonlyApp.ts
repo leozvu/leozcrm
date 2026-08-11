@@ -44,6 +44,14 @@ import { JARVIS_V1_TABLES, JarvisV1Error } from '../domain/jarvisV1';
 import { JarvisV1Repository } from '../repositories/jarvisV1Repository';
 import { JarvisV1Service } from '../services/jarvisV1Service';
 import { createJarvisV1Router } from './routes/jarvisV1';
+import { VOICE_SESSION_TABLES, VoiceSessionError } from '../domain/voiceSession';
+import {
+  buildVoiceClientSecretProviderFromEnv,
+  VoiceClientSecretProvider,
+} from '../integrations/voice/realtimeClientSecretProvider';
+import { VoiceSessionRepository } from '../repositories/voiceSessionRepository';
+import { VoiceSessionService } from '../services/voiceSessionService';
+import { createVoiceSessionRouter } from './routes/voiceSessions';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -59,6 +67,8 @@ export interface EgoricReadonlyAppOptions {
   maxFreshnessSeconds?: number;
   plannerClock?: () => Date;
   supervisedHandClock?: () => Date;
+  voiceClientSecretProvider?: VoiceClientSecretProvider;
+  voiceClock?: () => Date;
 }
 
 /** Read-only-to-Egoric runtime: health, cockpit, brief, and tenant-scoped Advisor memory. */
@@ -130,6 +140,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         ...Object.values(PLANNER_TABLES),
         ...Object.values(AMBIENT_JARVIS_TABLES),
         ...Object.values(JARVIS_V1_TABLES),
+        ...Object.values(VOICE_SESSION_TABLES),
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();
@@ -185,6 +196,13 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     ambientPreferences,
     clock,
   );
+  const voiceClock = options.voiceClock ?? clock;
+  const voiceSessions = new VoiceSessionService(
+    new VoiceSessionRepository(knex, voiceClock),
+    repository,
+    options.voiceClientSecretProvider ?? buildVoiceClientSecretProviderFromEnv(),
+    voiceClock,
+  );
   const advisor = new AdvisorConversationService(
     repository,
     advisorRepository,
@@ -211,6 +229,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   app.use('/v1/tenants', createSupervisedHandRouter(supervisedHand));
   app.use('/v1/tenants', createAmbientJarvisRouter(ambientJarvis));
   app.use('/v1/tenants', createJarvisV1Router(jarvisV1));
+  app.use('/v1/tenants', createVoiceSessionRouter(voiceSessions));
 
   app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
     if (error.type === 'entity.too.large') {
@@ -242,6 +261,14 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
       return;
     }
     if (error instanceof JarvisV1Error) {
+      res.status(error.status).json({ error: error.message, code: error.code });
+      return;
+    }
+    if (error instanceof VoiceSessionError) {
+      if (error.status === 429) res.setHeader('Retry-After', '60');
+      if (error.status >= 500) {
+        options.structuredLogger?.log('warn', 'voice_session_request_failed', { code: error.code });
+      }
       res.status(error.status).json({ error: error.message, code: error.code });
       return;
     }

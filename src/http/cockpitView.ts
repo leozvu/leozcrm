@@ -137,13 +137,18 @@ export function renderCockpitHtml(): string {
           <header class="section-heading"><div><p class="eyebrow">EVIDENCE-GROUNDED ADVISOR</p><h2 tabindex="-1">Ask LeozOps</h2><p>Answers are validated in full before this cockpit reveals them progressively.</p></div><span class="authority-label">Advisory only</span></header>
           <div class="ask-layout">
             <div class="conversation-panel realm-panel">
+              <div class="talking-mode-bar">
+                <div><p class="eyebrow">SECURE REALTIME VOICE</p><strong>Talking Mode</strong><small id="talking-mode-copy">Off · WebRTC audio is not retained by LeozOps.</small></div>
+                <span id="talking-mode-state" class="state-chip state-offline"><span></span>Off</span>
+                <button id="talking-mode-button" type="button" class="secondary-button"><span>Start Talking Mode</span></button>
+              </div>
               <div id="conversation-log" class="conversation-log" role="log" aria-live="polite" aria-label="Advisor conversation">
                 <div class="conversation-empty"><span class="realm-sigil">${icon('ask')}</span><h3>Ask from the evidence already in the room</h3><p>Try “What needs my attention?” or “What can this snapshot not tell me?”</p></div>
               </div>
               <form id="ask-form" class="ask-composer">
                 <label for="advisor-question">Question for LeozOps</label>
                 <div><textarea id="advisor-question" rows="2" maxlength="1000" placeholder="Ask about current business evidence…" required></textarea><button id="voice-input-button" type="button" class="icon-button voice-button" aria-label="Start push-to-talk voice input" title="Push to talk">${icon('mic')}</button><button id="ask-button" type="submit" class="send-button" aria-label="Send question">${icon('send')}</button></div>
-                <small id="voice-boundary-copy">Voice only fills this composer. It never sends or executes an action.</small>
+                <small id="voice-boundary-copy">The mic button only fills this composer. Talking Mode uses grounded read-only advice and has no action authority.</small>
                 <p id="ask-error" class="form-error" role="alert" hidden></p>
               </form>
             </div>

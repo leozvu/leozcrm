@@ -349,6 +349,31 @@ and an operator release/incident runbook. This is the repository candidate
 only; the named deployment, live windows, accepted J1–J7, policy acceptance,
 drills, and Product Owner J8 decision remain external.
 
+### Phase 17 — Talking Jarvis foundation
+
+Goal: move from reviewed one-shot speech controls to an interruptible CEO
+conversation while preserving the existing evidence and authority boundaries.
+
+Repository deliverables:
+
+- browser WebRTC media direct to OpenAI Realtime using a server-minted,
+  short-lived client secret;
+- an append-only, tenant-scoped voice-session state machine with barge-in and
+  safe failure evidence, but no retained raw audio or transcript;
+- mandatory `ask_leozops` grounding for every spoken turn through the existing
+  read-only Advisor contract;
+- deterministic refusal of action-shaped speech until the CEO moves to the
+  reviewed text/Command Deck confirmation flow;
+- exact authentication, CSP, timeout, size, idempotency, provider, migration,
+  SQLite/PostgreSQL, and browser-script tests.
+
+Repository update (2026-08-11): these deliverables are implemented on
+`codex/phase17-talking-jarvis-foundation`. The provider defaults to disabled;
+no OpenAI key or live call was available. Live exit therefore still requires a
+named non-production deployment, key/revocation proof, microphone and WebRTC
+device/browser coverage, grounding and interruption evals, latency/cost and
+privacy evidence, CEO usability acceptance, and all applicable J1–J8 gates.
+
 ## 6. Phase 9A repository baseline
 
 Implemented on `codex/leozops-phase9a-conversation-core`:

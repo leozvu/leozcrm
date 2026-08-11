@@ -110,6 +110,12 @@ import {
 import { AmbientJarvisRepository } from '../repositories/ambientJarvisRepository';
 import { JARVIS_V1_TABLES, jarvisV1Hash } from '../domain/jarvisV1';
 import { JarvisV1Repository } from '../repositories/jarvisV1Repository';
+import {
+  VOICE_SESSION_REQUEST_SCHEMA,
+  VOICE_SESSION_TABLES,
+  voiceSessionHash,
+} from '../domain/voiceSession';
+import { VoiceSessionRepository } from '../repositories/voiceSessionRepository';
 
 function postgresConfigured(): boolean {
   return Boolean(process.env.DATABASE_URL || process.env.PGHOST);
@@ -186,6 +192,7 @@ async function main(): Promise<void> {
       ...Object.values(PLANNER_TABLES),
       ...Object.values(AMBIENT_JARVIS_TABLES),
       ...Object.values(JARVIS_V1_TABLES),
+      ...Object.values(VOICE_SESSION_TABLES),
     ];
     for (const t of expectedTables) {
       if (!(await tableExists(db, t))) {
@@ -239,6 +246,28 @@ async function main(): Promise<void> {
       kind: 'export',
       confirmationHash: jarvisV1Hash({ confirmation: 'EXPORT pg-smoke-egoric' }),
       idempotencyKey: 'pg-smoke-jarvis-export',
+    });
+    const voiceRepository = new VoiceSessionRepository(db, () => sourceNow);
+    const voiceSession = await voiceRepository.create({
+      tenantId: tenant.id,
+      locale: 'en',
+      provider: 'openai_realtime',
+      idempotencyKey: 'pg-smoke-voice-session',
+      requestHash: voiceSessionHash({
+        schema_version: VOICE_SESSION_REQUEST_SCHEMA,
+        locale: 'en',
+        provider: 'openai_realtime',
+        model: 'gpt-realtime-2.1',
+        voice: 'marin',
+      }),
+    });
+    const voiceEvent = await voiceRepository.appendEvent({
+      tenantId: tenant.id,
+      sessionId: voiceSession.record.id,
+      eventKey: 'pg-smoke-voice-credential',
+      eventType: 'credential_issued',
+      source: 'server',
+      providerCredentialExpiresAt: new Date(sourceNow.getTime() + 60_000).toISOString(),
     });
     const connection = await memory.ensureSourceConnection({
       tenantId: tenant.id,
@@ -1494,6 +1523,8 @@ async function main(): Promise<void> {
       ]),
       db(AMBIENT_JARVIS_TABLES.preferences).where({ id: ambientPreference.record.id }).update({ version: 99 }),
       db(JARVIS_V1_TABLES.dataRequests).where({ id: jarvisDataRequest.record.id }).delete(),
+      db(VOICE_SESSION_TABLES.sessions).where({ id: voiceSession.record.id }).update({ action_authority: 'write' }),
+      db(VOICE_SESSION_TABLES.events).where({ id: voiceEvent.record.id }).delete(),
     ]) {
       let rejected = false;
       try {
@@ -1503,7 +1534,7 @@ async function main(): Promise<void> {
       }
       if (!rejected) throw new Error('expected immutable evidence mutation to be rejected');
     }
-    console.log('  source, Advisor, Planner, Ambient Jarvis, data governance, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
+    console.log('  source, Advisor, Planner, Ambient/Talking Jarvis, data governance, shadow, supervised-action, bounded-autonomy, assurance, external-evidence, activation-ceremony, and controlled-activation immutability verified.');
 
     console.log('Postgres smoke: rolling back…');
     await db.migrate.rollback();
