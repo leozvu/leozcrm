@@ -7,6 +7,7 @@ import {
   validateJarvisReleaseManifest,
 } from './domain/jarvisRelease';
 import { inspectLiveObserverPreflight } from './liveObserverPreflight';
+import { runtimeSecretIsUsable } from './security/runtimeSecret';
 
 dotenv.config();
 
@@ -44,11 +45,14 @@ export function inspectJarvisReleasePreflight(
   issues.push(...livePreflight.issues.map((issue) => `live_preflight: ${issue}`));
   for (const reference of Object.values(release.value.secret_bindings)) {
     const name = jarvisSecretEnvironmentName(reference);
-    if (!name || !env[name]) issues.push(`${reference} is not injected`);
+    if (!name || !runtimeSecretIsUsable(env[name], { maxLength: name === 'OPENAI_API_KEY' ? 512 : 4_096 })) {
+      issues.push(`${reference} is not injected with a usable value`);
+    }
   }
   const openaiName = jarvisSecretEnvironmentName(release.value.secret_bindings.openai_api_key);
   const readAuthName = jarvisSecretEnvironmentName(release.value.secret_bindings.integration_read_auth_secret);
-  if (openaiName === readAuthName || (env[openaiName] && env[openaiName] === env[readAuthName])) {
+  if (openaiName === readAuthName || (runtimeSecretIsUsable(env[openaiName], { maxLength: 512 })
+    && env[openaiName] === env[readAuthName])) {
     issues.push('OpenAI and tenant read-auth credentials must be distinct');
   }
   return {

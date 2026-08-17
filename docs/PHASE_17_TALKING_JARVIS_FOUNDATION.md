@@ -93,6 +93,14 @@ most five sessions per minute, and an idempotent session permits only one
 credential recovery, preventing an authenticated client from turning replay
 into an unbounded broker loop.
 
+The runtime binding must be a trimmed, non-placeholder value with no control
+characters; key material is never returned by preflight. Provider responses are
+read as a byte-bounded stream rather than trusting `Content-Length`, must use the
+JSON media type, and must contain a syntactically valid `ek_` credential with at
+least five seconds and at most fifteen minutes remaining. The request carries
+only the application-derived 64-hex safety identifier. A separate deadline
+rejects and aborts the request even if an injected transport ignores abort.
+
 The implementation follows the current official
 [Realtime WebRTC guide](https://developers.openai.com/api/docs/guides/realtime-webrtc),
 [voice-agent guide](https://developers.openai.com/api/docs/guides/voice-agents),

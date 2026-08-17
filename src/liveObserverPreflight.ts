@@ -5,6 +5,7 @@ import {
   secretEnvironmentName,
   validateLiveObserverDeployment,
 } from './domain/liveObserver';
+import { runtimeSecretIsUsable } from './security/runtimeSecret';
 
 dotenv.config();
 
@@ -41,7 +42,7 @@ export function inspectLiveObserverPreflight(
   for (const key of bindingKeys) {
     const reference = validation.value.secret_bindings[key];
     const name = secretEnvironmentName(reference);
-    if (!name || !env[name]) issues.push(`${reference} is not injected`);
+    if (!name || !runtimeSecretIsUsable(env[name])) issues.push(`${reference} is not injected with a usable value`);
   }
   if (env.LEOZOPS_RUNTIME_PROJECT_ID !== validation.value.target.project_id) {
     issues.push('runtime project identity does not match deployment');

@@ -19,6 +19,7 @@ import { DeterministicAdvisorProvider } from '../integrations/advisor/determinis
 import {
   DisabledVoiceClientSecretProvider,
   OpenAIRealtimeClientSecretProvider,
+  OpenAIRealtimeClientSecretProviderOptions,
   VoiceClientSecretProvider,
 } from '../integrations/voice/realtimeClientSecretProvider';
 import { VoiceSessionRepository } from '../repositories/voiceSessionRepository';
@@ -28,6 +29,7 @@ import { seedEgoricMemory } from './support/egoricMemoryScenario';
 const db = knexFactory(config.test);
 const AUTH = { secret: 'phase17-voice-test-secret', adminKey: 'phase17-admin' };
 const CLOCK = new Date('2026-08-10T12:00:00.000Z');
+const SAFETY_IDENTIFIER = 'a'.repeat(64);
 
 class StubVoiceProvider implements VoiceClientSecretProvider {
   readonly issued: Array<{ locale: string; safetyIdentifier: string }> = [];
@@ -254,7 +256,7 @@ test('explicit consent, grounded-turn telemetry, terminal review, and quality me
 test('OpenAI client-secret provider uses the current Realtime contract and sanitizes rejection bodies', async () => {
   let captured: { url?: string; init?: RequestInit } = {};
   const expires = Math.floor((Date.now() + 60_000) / 1000);
-  const provider = new OpenAIRealtimeClientSecretProvider({
+  const providerOptions: OpenAIRealtimeClientSecretProviderOptions = {
     apiKey: 'server-only-openai-key',
     fetchImpl: async (url, init) => {
       captured = { url, init };
@@ -262,13 +264,15 @@ test('OpenAI client-secret provider uses the current Realtime contract and sanit
         status: 200, headers: { 'content-type': 'application/json' },
       });
     },
-  });
-  const issued = await provider.issue({ locale: 'vi', safetyIdentifier: 'privacy-preserving-user-id' });
+  };
+  const provider = new OpenAIRealtimeClientSecretProvider(providerOptions);
+  providerOptions.apiKey = 'mutated-after-construction-key';
+  const issued = await provider.issue({ locale: 'vi', safetyIdentifier: SAFETY_IDENTIFIER });
   assert.equal(issued.expires_at, expires);
   assert.equal(captured.url, 'https://api.openai.com/v1/realtime/client_secrets');
   const headers = captured.init?.headers as Record<string, string>;
   assert.equal(headers.Authorization, 'Bearer server-only-openai-key');
-  assert.equal(headers['OpenAI-Safety-Identifier'], 'privacy-preserving-user-id');
+  assert.equal(headers['OpenAI-Safety-Identifier'], SAFETY_IDENTIFIER);
   const body = JSON.parse(String(captured.init?.body));
   assert.equal(body.session.model, 'gpt-realtime-2.1');
   assert.equal(body.session.audio.output.voice, 'marin');
@@ -276,15 +280,114 @@ test('OpenAI client-secret provider uses the current Realtime contract and sanit
   assert.equal(body.session.instructions.includes('không có quyền thực thi'), true);
 
   const rejected = new OpenAIRealtimeClientSecretProvider({
-    apiKey: 'must-never-leak',
-    fetchImpl: async () => new Response('must-never-leak and provider internals', { status: 401 }),
+    apiKey: 'must-never-leak-runtime-value',
+    fetchImpl: async () => new Response('must-never-leak-runtime-value and provider internals', { status: 401 }),
   });
   await assert.rejects(
-    () => rejected.issue({ locale: 'en', safetyIdentifier: 'safe-id' }),
+    () => rejected.issue({ locale: 'en', safetyIdentifier: SAFETY_IDENTIFIER }),
     (error: unknown) => error instanceof VoiceSessionError
       && error.code === 'voice_provider_rejected'
-      && !error.message.includes('must-never-leak'),
+      && !error.message.includes('must-never-leak-runtime-value'),
   );
+});
+
+test('OpenAI client-secret provider fails closed on malformed config, identity, transport, body, and credential lifetime', async () => {
+  for (const apiKey of ['', 'placeholder', ' leading-or-trailing-secret ', `valid-prefix-${'x'.repeat(500)}`]) {
+    assert.throws(
+      () => new OpenAIRealtimeClientSecretProvider({ apiKey }),
+      (error: unknown) => error instanceof VoiceSessionError && error.code === 'voice_provider_misconfigured',
+    );
+  }
+  for (const timeoutMs of [499, 15_001, 1_000.5]) {
+    assert.throws(
+      () => new OpenAIRealtimeClientSecretProvider({ apiKey: 'valid-runtime-openai-key', timeoutMs }),
+      (error: unknown) => error instanceof VoiceSessionError && error.code === 'voice_provider_misconfigured',
+    );
+  }
+
+  const valid = (body: unknown, init: ResponseInit = {}) => new Response(JSON.stringify(body), {
+    status: 200, headers: { 'content-type': 'application/json', ...init.headers }, ...init,
+  });
+  const issueWith = (fetchImpl: (input: string, init?: RequestInit) => Promise<Response>) => new OpenAIRealtimeClientSecretProvider({
+    apiKey: 'valid-runtime-openai-key', fetchImpl,
+  }).issue({ locale: 'en', safetyIdentifier: SAFETY_IDENTIFIER });
+  const expires = Math.floor((Date.now() + 60_000) / 1000);
+
+  await assert.rejects(
+    () => new OpenAIRealtimeClientSecretProvider({
+      apiKey: 'valid-runtime-openai-key', fetchImpl: async () => valid({ value: 'ek_valid_value_12345', expires_at: expires }),
+    }).issue({ locale: 'en', safetyIdentifier: 'unsafe-identifier' }),
+    (error: unknown) => error instanceof VoiceSessionError && error.code === 'voice_provider_misconfigured',
+  );
+
+  const invalidResponses: Array<[string, () => Promise<Response>]> = [
+    ['oversized declared body', async () => new Response('{}', {
+      status: 200, headers: { 'content-type': 'application/json', 'content-length': String(64 * 1024 + 1) },
+    })],
+    ['invalid declared length', async () => new Response('{}', {
+      status: 200, headers: { 'content-type': 'application/json', 'content-length': 'unknown' },
+    })],
+    ['oversized streamed body', async () => new Response('x'.repeat(64 * 1024 + 1), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    })],
+    ['invalid utf8', async () => new Response(new Uint8Array([0xc3, 0x28]), {
+      status: 200, headers: { 'content-type': 'application/json' },
+    })],
+    ['wrong media type', async () => new Response('{}', {
+      status: 200, headers: { 'content-type': 'text/plain' },
+    })],
+    ['invalid json', async () => new Response('{', {
+      status: 200, headers: { 'content-type': 'application/json' },
+    })],
+    ['array body', async () => valid([])],
+    ['invalid ephemeral secret', async () => valid({ value: 'not-ephemeral', expires_at: expires })],
+    ['expired ephemeral secret', async () => valid({ value: 'ek_valid_value_12345', expires_at: Math.floor(Date.now() / 1000) - 1 })],
+    ['nearly expired secret', async () => valid({ value: 'ek_valid_value_12345', expires_at: Math.floor((Date.now() + 2_000) / 1000) })],
+    ['overlong lifetime', async () => valid({ value: 'ek_valid_value_12345', expires_at: Math.floor((Date.now() + 16 * 60_000) / 1000) })],
+  ];
+  for (const [label, fetchImpl] of invalidResponses) {
+    await assert.rejects(
+      () => issueWith(fetchImpl),
+      (error: unknown) => error instanceof VoiceSessionError
+        && error.code === 'voice_provider_invalid_response',
+      label,
+    );
+  }
+
+  await assert.rejects(
+    () => issueWith(async () => { throw new Error('network internals must not escape'); }),
+    (error: unknown) => error instanceof VoiceSessionError
+      && error.code === 'voice_provider_unavailable'
+      && !error.message.includes('network internals'),
+  );
+  const abort = new Error('aborted provider details');
+  abort.name = 'AbortError';
+  await assert.rejects(
+    () => issueWith(async () => { throw abort; }),
+    (error: unknown) => error instanceof VoiceSessionError
+      && error.code === 'voice_provider_timeout'
+      && !error.message.includes('provider details'),
+  );
+  const timeoutStarted = Date.now();
+  await assert.rejects(
+    () => new OpenAIRealtimeClientSecretProvider({
+      apiKey: 'valid-runtime-openai-key', timeoutMs: 500,
+      fetchImpl: async () => new Promise<Response>(() => { /* transport ignores AbortSignal */ }),
+    }).issue({ locale: 'en', safetyIdentifier: SAFETY_IDENTIFIER }),
+    (error: unknown) => error instanceof VoiceSessionError && error.code === 'voice_provider_timeout',
+  );
+  assert.equal(Date.now() - timeoutStarted < 2_000, true);
+  const bodyTimeoutStarted = Date.now();
+  await assert.rejects(
+    () => new OpenAIRealtimeClientSecretProvider({
+      apiKey: 'valid-runtime-openai-key', timeoutMs: 500,
+      fetchImpl: async () => new Response(new ReadableStream<Uint8Array>({ start() { /* body never completes */ } }), {
+        status: 200, headers: { 'content-type': 'application/json' },
+      }),
+    }).issue({ locale: 'en', safetyIdentifier: SAFETY_IDENTIFIER }),
+    (error: unknown) => error instanceof VoiceSessionError && error.code === 'voice_provider_timeout',
+  );
+  assert.equal(Date.now() - bodyTimeoutStarted < 2_000, true);
 });
 
 test('tenant-authenticated voice API returns no-store secrets and disabled composition fails honestly', async () => {

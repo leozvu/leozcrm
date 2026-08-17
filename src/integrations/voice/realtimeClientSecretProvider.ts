@@ -4,6 +4,7 @@ import {
   VoiceLocale,
   VoiceSessionError,
 } from '../../domain/voiceSession';
+import { runtimeSecretIsUsable } from '../../security/runtimeSecret';
 
 export interface VoiceClientSecret {
   value: string;
@@ -61,15 +62,63 @@ export interface OpenAIRealtimeClientSecretProviderOptions {
 }
 
 const OPENAI_REALTIME_CLIENT_SECRET_URL = 'https://api.openai.com/v1/realtime/client_secrets';
+const MAX_PROVIDER_RESPONSE_BYTES = 64 * 1024;
+const SAFETY_IDENTIFIER = /^[0-9a-f]{64}$/;
+
+async function boundedResponseText(response: Response, signal: AbortSignal): Promise<string> {
+  const contentLength = response.headers.get('content-length');
+  if (contentLength !== null) {
+    const parsedLength = Number(contentLength);
+    if (!Number.isSafeInteger(parsedLength) || parsedLength < 0 || parsedLength > MAX_PROVIDER_RESPONSE_BYTES) {
+      throw new VoiceSessionError('voice_provider_invalid_response', 'voice provider response exceeded the safe limit', 502);
+    }
+  }
+  if (!response.body) return '';
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder('utf-8', { fatal: true });
+  let rejectAborted: ((reason: VoiceSessionError) => void) | undefined;
+  const aborted = new Promise<never>((_, reject) => { rejectAborted = reject; });
+  const abort = () => {
+    rejectAborted?.(new VoiceSessionError('voice_provider_timeout', 'voice provider timed out', 504));
+    void reader.cancel().catch(() => undefined);
+  };
+  signal.addEventListener('abort', abort, { once: true });
+  if (signal.aborted) abort();
+  let bytes = 0;
+  let text = '';
+  try {
+    while (true) {
+      const { done, value } = await Promise.race([reader.read(), aborted]);
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > MAX_PROVIDER_RESPONSE_BYTES) {
+        await reader.cancel();
+        throw new VoiceSessionError('voice_provider_invalid_response', 'voice provider response exceeded the safe limit', 502);
+      }
+      text += decoder.decode(value, { stream: true });
+    }
+    text += decoder.decode();
+    return text;
+  } catch (error) {
+    try { await reader.cancel(); } catch { /* response is already terminal */ }
+    if (error instanceof VoiceSessionError) throw error;
+    throw new VoiceSessionError('voice_provider_invalid_response', 'voice provider returned an invalid response body', 502);
+  } finally {
+    signal.removeEventListener('abort', abort);
+    reader.releaseLock();
+  }
+}
 
 export class OpenAIRealtimeClientSecretProvider implements VoiceClientSecretProvider {
+  private readonly apiKey: string;
   private readonly fetchImpl: FetchLike;
   private readonly timeoutMs: number;
 
-  constructor(private readonly options: OpenAIRealtimeClientSecretProviderOptions) {
-    if (!options.apiKey || options.apiKey.length > 512) {
+  constructor(options: OpenAIRealtimeClientSecretProviderOptions) {
+    if (!runtimeSecretIsUsable(options.apiKey, { maxLength: 512 })) {
       throw new VoiceSessionError('voice_provider_misconfigured', 'OpenAI voice credential is missing or invalid', 503);
     }
+    this.apiKey = options.apiKey;
     this.fetchImpl = options.fetchImpl ?? fetch;
     this.timeoutMs = options.timeoutMs ?? 8_000;
     if (!Number.isInteger(this.timeoutMs) || this.timeoutMs < 500 || this.timeoutMs > 15_000) {
@@ -82,13 +131,22 @@ export class OpenAIRealtimeClientSecretProvider implements VoiceClientSecretProv
   }
 
   async issue(input: { locale: VoiceLocale; safetyIdentifier: string }): Promise<VoiceClientSecret> {
+    if ((input.locale !== 'en' && input.locale !== 'vi') || !SAFETY_IDENTIFIER.test(input.safetyIdentifier)) {
+      throw new VoiceSessionError('voice_provider_misconfigured', 'voice provider request identity is invalid', 503);
+    }
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), this.timeoutMs);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const deadline = new Promise<never>((_, reject) => {
+      timer = setTimeout(() => {
+        controller.abort();
+        reject(new VoiceSessionError('voice_provider_timeout', 'voice provider timed out', 504));
+      }, this.timeoutMs);
+    });
     try {
-      const response = await this.fetchImpl(OPENAI_REALTIME_CLIENT_SECRET_URL, {
+      const response = await Promise.race([this.fetchImpl(OPENAI_REALTIME_CLIENT_SECRET_URL, {
         method: 'POST',
         headers: {
-          Authorization: `Bearer ${this.options.apiKey}`,
+          Authorization: `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
           'OpenAI-Safety-Identifier': input.safetyIdentifier,
         },
@@ -110,17 +168,14 @@ export class OpenAIRealtimeClientSecretProvider implements VoiceClientSecretProv
           },
         }),
         signal: controller.signal,
-      });
-      const length = Number(response.headers.get('content-length') ?? 0);
-      if (length > 64 * 1024) {
-        throw new VoiceSessionError('voice_provider_invalid_response', 'voice provider response exceeded the safe limit', 502);
-      }
-      const text = await response.text();
-      if (text.length > 64 * 1024) {
-        throw new VoiceSessionError('voice_provider_invalid_response', 'voice provider response exceeded the safe limit', 502);
-      }
+      }), deadline]);
+      const text = await boundedResponseText(response, controller.signal);
       if (!response.ok) {
         throw new VoiceSessionError('voice_provider_rejected', 'voice provider rejected the session request', 502);
+      }
+      const contentType = response.headers.get('content-type')?.split(';', 1)[0]?.trim().toLowerCase();
+      if (contentType !== 'application/json') {
+        throw new VoiceSessionError('voice_provider_invalid_response', 'voice provider returned an invalid content type', 502);
       }
       let raw: unknown;
       try { raw = JSON.parse(text); } catch {
@@ -133,7 +188,7 @@ export class OpenAIRealtimeClientSecretProvider implements VoiceClientSecretProv
       const expiresAt = (raw as Record<string, unknown>).expires_at;
       if (typeof value !== 'string' || !/^ek_[A-Za-z0-9._-]{8,2040}$/.test(value)
         || typeof expiresAt !== 'number' || !Number.isInteger(expiresAt)
-        || expiresAt * 1000 <= Date.now() || expiresAt * 1000 > Date.now() + 15 * 60_000) {
+        || expiresAt * 1000 <= Date.now() + 5_000 || expiresAt * 1000 > Date.now() + 15 * 60_000) {
         throw new VoiceSessionError('voice_provider_invalid_response', 'voice provider returned an invalid credential', 502);
       }
       return { value, expires_at: expiresAt };
@@ -144,7 +199,7 @@ export class OpenAIRealtimeClientSecretProvider implements VoiceClientSecretProv
       }
       throw new VoiceSessionError('voice_provider_unavailable', 'voice provider is unavailable', 503);
     } finally {
-      clearTimeout(timer);
+      if (timer) clearTimeout(timer);
     }
   }
 }

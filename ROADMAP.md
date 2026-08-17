@@ -442,6 +442,15 @@ operator truth. A deployment can no longer qualify by echoing
 times. This strengthens candidate evidence only and does not manufacture live
 acceptance.
 
+The credential boundary now also refuses to treat a merely present environment
+variable as deployment evidence. Live/Jarvis preflight accepts only structurally
+usable, non-placeholder bindings without disclosing them. The Realtime broker
+enforces an anonymous 64-hex safety identifier, byte-bounded streaming response,
+JSON media type and credential lifetime, sanitized errors, and a deadline that
+still fires when a transport ignores abort. These controls close repository
+false-positive and resource-exhaustion paths; they do not prove a real OpenAI key
+or satisfy a named-runtime, revocation, device, CEO, or J1–J8 gate.
+
 ---
 
 ## Legacy Foundation (historical — completion evidence intact)

@@ -849,6 +849,21 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     clients, rerun the full PostgreSQL 16 migrate/exercise/immutability/rollback
     lifecycle with `--throw-deprecation`, and promote future driver deprecations
     to CI failures.
+[x] Reject empty, short, whitespace-padded, control-character and known
+    placeholder runtime secret bindings without returning or fingerprinting the
+    supplied value. Apply this gate to live-observer and Jarvis release preflight.
+[x] Harden the OpenAI Realtime client-secret broker with an exact anonymous
+    safety identifier, byte-bounded streaming reads, declared-length and media-
+    type checks, strict JSON/ephemeral-lifetime validation, sanitized transport
+    failures, and an independent deadline even when a transport ignores abort.
+[x] Add adversarial Phase 17/18 regression for malformed configuration,
+    identity, network failure, timeout, oversized/malformed provider payloads,
+    unusable live bindings and secret non-disclosure.
+[x] Pass the secret/provider hardening baseline on Node 22 and the pinned Node 24
+    image: strict TypeScript, 12/12 Phase 17, 24/24 Phase 18, 379/379 full SQLite,
+    production build, zero-vulnerability production audit, PostgreSQL 16 with
+    deprecations as errors, local-staging verification/restore, and the pending
+    Jarvis preflight exit-2 fail-closed assertion.
 [ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
     named HTTPS staging runtime, real source and current read credential.
 [ ] Complete the real five-session/ten-turn/five-review device sample, key
