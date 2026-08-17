@@ -1066,3 +1066,26 @@ Decision:
   16 rerun must still migrate, exercise every current subsystem, prove immutable
   guards and roll back without a warning.
 Owner: Leoz. Recorded by Codex after reproducing and removing the PostgreSQL warning.
+
+DECISION-002 addendum 41 — 2026-08-17 — Runtime credentials require usable-value proof
+Status: Approved and implemented as fail-closed provider and preflight hardening.
+Decision:
+- Treat environment-variable presence as insufficient evidence of a credential.
+  Live-observer and Jarvis preflight must reject empty, too-short, oversized,
+  whitespace-padded, control-character, and known placeholder values while never
+  returning, hashing, or including the supplied value in an issue.
+- Keep OpenAI key format forward-compatible rather than depending on a particular
+  prefix, but enforce the same structural controls and a 512-character maximum.
+  Continue to require it to differ from the tenant read-auth credential.
+- Read Realtime client-secret responses through a 64 KiB byte-bounded stream,
+  validate any declared length, require JSON media type, strict JSON shape,
+  `ek_` syntax, and a usable lifetime between five seconds and fifteen minutes.
+  Sanitize every provider/transport failure.
+- Enforce the configured deadline with an independent rejection in addition to
+  aborting the request, so an adapter that ignores `AbortSignal` cannot hang the
+  credential broker. Require only the application-derived 64-hex safety
+  identifier at the provider boundary.
+- This validation proves only that bindings and provider responses are
+  structurally usable. It cannot prove a key is authentic, current, least-
+  privilege, revoked on demand, or accepted by a real named deployment.
+Owner: Leoz. Recorded by Codex after the Phase 18 secret/provider boundary audit.

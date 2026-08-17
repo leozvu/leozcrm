@@ -73,11 +73,11 @@ function environment(liveManifest = live()): NodeJS.ProcessEnv {
     LEOZOPS_RUNTIME_SOURCE_REVISION: 'a'.repeat(40), LEOZOPS_CONTAINER_IMAGE_DIGEST: `sha256:${'b'.repeat(64)}`,
     LEOZOPS_PUBLIC_BASE_URL: 'https://jarvis.repositoryrealms.com', LEOZOPS_RUNTIME_PROJECT_ID: liveManifest.target.project_id,
     LEOZOPS_DATABASE_ID: liveManifest.target.database_id, LEOZOPS_EGORIC_PROJECT_ID: liveManifest.source.egoric_project_id,
-    OPENAI_API_KEY: 'openai-test-key', LEOZOPS_OUTPUT_AUTH_SECRET: 'read-auth-test-key',
+    OPENAI_API_KEY: 'openai-test-key-long-enough', LEOZOPS_OUTPUT_AUTH_SECRET: 'read-auth-test-key-long-enough',
   };
   Object.values(liveManifest.secret_bindings).forEach((reference) => { env[reference.slice(6)] ??= `secret-${reference}`; });
-  env.OPENAI_API_KEY = 'openai-test-key';
-  env.LEOZOPS_OUTPUT_AUTH_SECRET = 'read-auth-test-key';
+  env.OPENAI_API_KEY = 'openai-test-key-long-enough';
+  env.LEOZOPS_OUTPUT_AUTH_SECRET = 'read-auth-test-key-long-enough';
   return env;
 }
 
@@ -185,10 +185,10 @@ test('Jarvis preflight verifies the entire live chain and never returns injected
   const env = environment(liveManifest);
   const result = inspectJarvisReleasePreflight(manifest, liveManifest, env);
   assert.equal(result.ok, true, result.issues.join('\n'));
-  assert.equal(JSON.stringify(result).includes('openai-test-key'), false);
+  assert.equal(JSON.stringify(result).includes('openai-test-key-long-enough'), false);
   delete env.OPENAI_API_KEY;
   assert.equal(inspectJarvisReleasePreflight(manifest, liveManifest, env).ok, false);
-  env.OPENAI_API_KEY = 'openai-test-key';
+  env.OPENAI_API_KEY = 'openai-test-key-long-enough';
   env.LEOZOPS_RUNTIME_SOURCE_REVISION = 'c'.repeat(40);
   assert.equal(inspectJarvisReleasePreflight(manifest, liveManifest, env).ok, false);
   const serverEnv = environment(liveManifest);
@@ -197,6 +197,11 @@ test('Jarvis preflight verifies the entire live chain and never returns injected
   delete serverEnv.LEOZOPS_PROACTIVE_OPERATOR_TOKEN;
   delete serverEnv.LEOZOPS_LIVE_OBSERVER_TOKEN;
   assert.equal(inspectJarvisReleasePreflight(manifest, liveManifest, serverEnv, 'server').ok, true);
+  const unusable = environment(liveManifest);
+  unusable.OPENAI_API_KEY = ' placeholder ';
+  const unusableResult = inspectJarvisReleasePreflight(manifest, liveManifest, unusable);
+  assert.equal(unusableResult.ok, false);
+  assert.equal(JSON.stringify(unusableResult).includes('placeholder'), false);
 });
 
 test('pending example and mismatched live fingerprint fail closed', () => {

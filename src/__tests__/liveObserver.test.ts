@@ -88,10 +88,15 @@ test('preflight verifies exact identities and bindings without returning values'
     LEOZOPS_DATABASE_ID: deployment.target.database_id,
     LEOZOPS_EGORIC_PROJECT_ID: deployment.source.egoric_project_id,
   };
-  for (const reference of Object.values(deployment.secret_bindings)) env[reference.slice(6)] = 'injected-secret';
+  for (const reference of Object.values(deployment.secret_bindings)) env[reference.slice(6)] = 'injected-runtime-secret-value';
   const result = inspectLiveObserverPreflight(deployment, env);
   assert.equal(result.ok, true);
-  assert.equal(JSON.stringify(result).includes('injected-secret'), false);
+  assert.equal(JSON.stringify(result).includes('injected-runtime-secret-value'), false);
+  env.DATABASE_URL = ' placeholder ';
+  const unusable = inspectLiveObserverPreflight(deployment, env);
+  assert.equal(unusable.ok, false);
+  assert.equal(JSON.stringify(unusable).includes('placeholder'), false);
+  env.DATABASE_URL = 'injected-runtime-secret-value';
   delete env.LEOZOPS_SOURCE_BEARER_TOKEN;
   assert.equal(inspectLiveObserverPreflight(deployment, env).ok, false);
   assert.equal(inspectLiveObserverPreflight(deployment, env, 'server').ok, true);
