@@ -333,7 +333,7 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 | 15 | Exact RepositoryRealms hand | ✅ Adapter and release boundary complete locally; registration/live gates blocked | J6 / real G6 history |
 | 16 | Ambient Jarvis and v1 | ✅ Repository candidate complete; live 30-day acceptance blocked | J8 / 30-day release acceptance |
 | 17 | Talking Mode | ✅ Merged; provider/device/live voice acceptance blocked | J1 voice qualification / J8 |
-| 18 | Jarvis live qualification | 🚧 Repository candidate complete; named deployment and CEO acceptance blocked | Exact J1–J8 live evidence |
+| 18 | Jarvis live qualification | ✅ Repository candidate merged; named deployment and CEO acceptance blocked | Exact J1–J8 live evidence |
 
 Phase 9A is implemented on `codex/leozops-phase9a-conversation-core`:
 conversation evidence contracts, durable CEO context, six fixed read tools, an
@@ -411,7 +411,8 @@ empty, and action-shaped speech must move to reviewed text confirmation. No
 OpenAI key, live SDP/audio exchange, device matrix, CEO acceptance, or live
 J1–J8 evidence is claimed.
 
-Phase 18 is implemented on `codex/phase18-jarvis-live-qualification`: every
+Phase 18 was merged through PR #24 to canonical
+`main@10b99ae3844e13a9ddf41f5728218885d49f54a6`: every
 Talking Mode start requires versioned microphone consent; immutable,
 content-free events and terminal CEO reviews produce tenant-scoped candidate
 quality metrics; the Advisor server—not the browser—attests grounded turns.
