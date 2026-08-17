@@ -1,6 +1,8 @@
 # Phase 18 — Jarvis Live Qualification
 
-Status: repository implementation complete; named deployment and CEO live acceptance remain external.
+Status: repository implementation merged through PR #24 at
+`main@10b99ae3844e13a9ddf41f5728218885d49f54a6`; named deployment and CEO live
+acceptance remain external.
 
 ## Outcome
 

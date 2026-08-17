@@ -970,3 +970,20 @@ Decision:
   invent RepositoryRealms data, expose credentials, register the production
   action adapter, enable G6/G7 authority, or shorten any external gate.
 Owner: Leoz. Recorded by Codex before Phase 18 implementation.
+
+DECISION-002 addendum 36 — 2026-08-17 — Phase 18 repository release recorded
+Status: Complete for repository release; named activation and live acceptance remain blocked.
+Decision:
+- Record PR #24 as merged to canonical
+  `main@10b99ae3844e13a9ddf41f5728218885d49f54a6` only after all eight replacement
+  push/PR checks passed on the final head, including Node 22/24 SQLite
+  regressions, PostgreSQL 16 lifecycle and production-container jobs.
+- Record the Node 24.19 native cleanup failure as fixed by moving
+  `better-sqlite3` from the unsupported 11.x line to 12.11.1, then passing the
+  complete 375-test suite under both the local Node line and an isolated
+  official Node 24 container before rerunning CI.
+- Keep the isolated local staging provider disabled and the production action
+  registry empty. This merge installs no OpenAI key, named HTTPS deployment,
+  accepted live manifests, real RepositoryRealms source, voice device sample,
+  elapsed operating history or CEO acceptance; J1–J8 remain unchanged.
+Owner: Leoz. Recorded by Codex after the Phase 18 canonical merge.

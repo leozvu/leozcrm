@@ -6,7 +6,8 @@ Approved by: Leoz, Product Owner
 
 Effective: 2026-08-01
 
-Current repository baseline: canonical Phase 17 release plus the active Phase 18 qualification branch
+Current repository baseline: canonical Phase 18 release through PR #24 at
+`main@10b99ae3844e13a9ddf41f5728218885d49f54a6`
 
 ## 1. Outcome
 

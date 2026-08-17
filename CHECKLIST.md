@@ -788,7 +788,7 @@ Status: IMPLEMENTED LOCALLY; LIVE REALTIME/CEO ACCEPTANCE BLOCKED
 
 27. PHASE 18 JARVIS LIVE QUALIFICATION — REPOSITORY CANDIDATE
 ---------------------------------------------------------------------
-Status: IMPLEMENTED LOCALLY; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
+Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
 
 [x] Require explicit versioned microphone consent before every Talking Mode
     session and persist only immutable consent metadata.
@@ -813,6 +813,10 @@ Status: IMPLEMENTED LOCALLY; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
 [x] Pass the final repository QA baseline: 375/375 full regression, 20/20
     Phase 18 tests, production build, Phase 12 regression, zero-finding
     production dependency audit, PostgreSQL 16 smoke and local staging drills.
+[x] Upgrade the SQLite native driver to the supported Node 22/24 line after
+    reproducing the Node 24.19 cleanup failure; pass all eight replacement
+    push/PR checks and merge PR #24 to canonical
+    `main@10b99ae3844e13a9ddf41f5728218885d49f54a6`.
 [ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
     immutable image, named staging URL, real source and current read credential.
 [ ] Complete the real five-session/ten-turn/five-review device sample, key
