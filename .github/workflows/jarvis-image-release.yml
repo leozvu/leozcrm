@@ -1,0 +1,117 @@
+name: Publish Jarvis candidate image
+
+on:
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Full canonical main revision to publish
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: jarvis-image-release-${{ inputs.revision }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Immutable GHCR image and provenance
+    runs-on: ubuntu-latest
+    permissions:
+      attestations: write
+      contents: read
+      id-token: write
+      packages: write
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository }}
+      RELEASE_REVISION: ${{ inputs.revision }}
+    steps:
+      - name: Check out requested revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+          ref: ${{ inputs.revision }}
+
+      - name: Require a full revision already reachable from canonical main
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "${RELEASE_REVISION}" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "revision must be a full lowercase Git SHA" >&2
+            exit 2
+          fi
+          test "$(git rev-parse HEAD)" = "${RELEASE_REVISION}"
+          git fetch --no-tags origin main
+          git merge-base --is-ancestor "${RELEASE_REVISION}" origin/main
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
+        with:
+          cache-image: false
+          image: docker.io/tonistiigi/binfmt@sha256:d3b963f787999e6c0219a48dba02978769286ff61a5f4d26245cb6a6e5567ea3
+          platforms: arm64
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
+        with:
+          driver-opts: image=docker.io/moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Refuse to move an existing revision tag
+        shell: bash
+        run: |
+          set +e
+          probe="$(docker buildx imagetools inspect "${IMAGE_NAME}:${RELEASE_REVISION}" 2>&1)"
+          probe_status=$?
+          set -e
+          if [[ ${probe_status} -eq 0 ]]; then
+            echo "the immutable revision tag already exists" >&2
+            exit 2
+          fi
+          if ! grep -Eiq 'manifest unknown|not found|404' <<<"${probe}"; then
+            echo "registry existence check failed closed" >&2
+            exit 2
+          fi
+
+      - name: Build and publish immutable multi-architecture image
+        id: image
+        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
+        with:
+          context: .
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ inputs.revision }}
+            org.opencontainers.image.title=LeoZOps Jarvis candidate
+          platforms: linux/amd64,linux/arm64
+          provenance: mode=max
+          push: true
+          sbom: true
+          tags: ${{ env.IMAGE_NAME }}:${{ inputs.revision }}
+
+      - name: Attest the published image digest
+        uses: actions/attest@1e69f48acb82d1966a394da916b4c1698aa569d6 # v4
+        with:
+          subject-name: ${{ env.IMAGE_NAME }}
+          subject-digest: ${{ steps.image.outputs.digest }}
+          push-to-registry: true
+
+      - name: Record non-deployment release evidence
+        shell: bash
+        run: |
+          {
+            echo "## Jarvis candidate image"
+            echo
+            echo "- Revision: ${RELEASE_REVISION}"
+            echo "- Image: ${IMAGE_NAME}:${RELEASE_REVISION}"
+            echo "- Digest: ${{ steps.image.outputs.digest }}"
+            echo "- Architectures: linux/amd64, linux/arm64"
+            echo "- Deployment or live gate claimed: no"
+          } >> "${GITHUB_STEP_SUMMARY}"

@@ -193,7 +193,11 @@ test('live observer stays one-shot and is never an HTTP background loop', () => 
 
 test('production container is compiled, non-root, and carries no checked-in environment', () => {
   const dockerfile = fs.readFileSync(path.resolve(__dirname, '../../Dockerfile'), 'utf8');
-  assert.match(dockerfile, /FROM node:24-bookworm-slim AS runtime/);
+  const baseImages = [...dockerfile.matchAll(
+    /^FROM node:24-bookworm-slim@(sha256:[0-9a-f]{64}) AS (?:build|runtime)$/gm,
+  )];
+  assert.equal(baseImages.length, 2);
+  assert.equal(baseImages[0]?.[1], baseImages[1]?.[1]);
   assert.match(dockerfile, /USER leozops/);
   assert.match(dockerfile, /CMD \["node", "dist\/src\/server\.js"\]/);
   assert.equal(/COPY\s+\.env/m.test(dockerfile), false);
