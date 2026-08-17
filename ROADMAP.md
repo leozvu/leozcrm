@@ -451,6 +451,16 @@ still fires when a transport ignores abort. These controls close repository
 false-positive and resource-exhaustion paths; they do not prove a real OpenAI key
 or satisfy a named-runtime, revocation, device, CEO, or J1–J8 gate.
 
+After those runtime changes merged through PR #31, the current executable
+candidate was republished from canonical
+`main@a0a5ae642c29a9601874e92fccaf0f3c5ae86ec3` by Actions run 31996371713 as
+`ghcr.io/leozvu/leozcrm@sha256:b18d66fe55268b1ca31dcde31d40c191c6c62deb0d8f685b1e64da6c8b38f593`.
+Registry/platform inspection, GitHub and OCI-bundle attestation verification,
+the source-revision label and an exact-digest non-root/read-only readiness smoke
+all passed. The earlier digest remains immutable historical evidence; the new
+digest is the artifact to bind in a future accepted release manifest. It is not
+a deployment and changes no external gate.
+
 ---
 
 ## Legacy Foundation (historical — completion evidence intact)

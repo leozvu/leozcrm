@@ -864,6 +864,18 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     production build, zero-vulnerability production audit, PostgreSQL 16 with
     deprecations as errors, local-staging verification/restore, and the pending
     Jarvis preflight exit-2 fail-closed assertion.
+[x] Merge qualifier/PostgreSQL and credential/provider hardening through PRs #30
+    and #31, then pass the exact post-merge canonical QA run 31996270877 at
+    `main@a0a5ae642c29a9601874e92fccaf0f3c5ae86ec3`.
+[x] Publish the current executable Jarvis candidate from that exact SHA as
+    `ghcr.io/leozvu/leozcrm@sha256:b18d66fe55268b1ca31dcde31d40c191c6c62deb0d8f685b1e64da6c8b38f593`.
+    Actions run 31996371713 emitted `linux/amd64` and `linux/arm64`, SBOM/
+    provenance, GitHub/Sigstore attestation 41068664, and no mutable tag.
+[x] Independently verify the tag/index/platform digests, GitHub attestation and
+    registry bundle, OCI source-revision label, and a fresh pull-by-digest
+    `/health`/`/startup`/`/ready` smoke as non-root `leozops`, read-only root,
+    no-new-privileges and all capabilities dropped. This remains non-deployment
+    fixture evidence and claims no live gate.
 [ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
     named HTTPS staging runtime, real source and current read credential.
 [ ] Complete the real five-session/ten-turn/five-review device sample, key
