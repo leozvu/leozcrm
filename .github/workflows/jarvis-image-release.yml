@@ -56,6 +56,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
         with:
+          buildkitd-flags: --debug
           driver-opts: image=docker.io/moby/buildkit@sha256:28a898719c18a33f4e8000685287fa36fd0dd9560c6440227d3a732d79bb41d8
 
       - name: Log in to GitHub Container Registry
@@ -93,7 +94,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           provenance: mode=max
           push: true
-          sbom: true
+          sbom: generator=docker.io/docker/buildkit-syft-scanner@sha256:79e7b013cbec16bbb436f312819a49a4a57752b2270c1a9332ae1a10fcc82a68
           tags: ${{ env.IMAGE_NAME }}:${{ inputs.revision }}
 
       - name: Attest the published image digest

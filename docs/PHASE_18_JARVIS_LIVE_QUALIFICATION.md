@@ -22,8 +22,9 @@ boundary. Its input must be a full revision already reachable from canonical
 `linux/amd64` and `linux/arm64`, with SBOM, maximum provenance and a GitHub
 artifact attestation. Every referenced action is pinned by commit SHA.
 The Node production base, QEMU helper and BuildKit worker are also pinned by
-digest, and a registry probe fails closed instead of moving an existing
-revision tag.
+digest. The SBOM scanner is digest-pinned, BuildKit starts without the setup
+action's default insecure entitlements, and a registry probe fails closed
+instead of moving an existing revision tag.
 
 The workflow intentionally creates no `latest` tag and performs no deployment.
 Its digest may populate an accepted release manifest only after the other exact

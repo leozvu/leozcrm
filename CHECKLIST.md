@@ -822,6 +822,8 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     tag, pins every action and build-support image, pins the production base
     image by digest, and emits multi-architecture SBOM/provenance plus the
     immutable digest.
+[x] Pin the SBOM scanner by digest and replace the BuildKit setup action's
+    default insecure entitlements with an explicit debug-only daemon flag.
 [ ] Publish and verify the canonical Phase 18 image digest. Artifact publication
     alone is not a deployment and cannot satisfy any live gate.
 [ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
