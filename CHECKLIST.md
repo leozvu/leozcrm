@@ -579,8 +579,10 @@ Status: IMPLEMENTED ON `codex/leozops-phase11-proactive-nervous-system`; LIVE J3
 [x] Focused Phase 11 + cockpit suite 20/20; full regression 348/348;
     TypeScript, in-app browser desktop/mobile, 59 local links, diff check,
     changed-file secret scan, and high/critical dependency audit PASS.
-[ ] Execute the registered Phase 11 PostgreSQL lifecycle on a disposable real
-    PostgreSQL target; this workstation had no Docker, server, or DB credential.
+[x] Execute the registered Phase 11 PostgreSQL lifecycle on disposable real
+    PostgreSQL 16 targets. The complete migration/table/query/immutability/
+    rollback smoke now covers every `PROACTIVE_TABLES` table and passes in the
+    canonical PostgreSQL lifecycle job, including main run 31994562004.
 [ ] Live J3: named scheduler/channel, 20 genuine reviews, <=10% false positives,
     <=3 alerts/day, accepted delivery SLO/incidents, named deployment, real G5,
     and Product Owner acceptance.
@@ -612,9 +614,10 @@ Status: IMPLEMENTED ON `codex/leozops-phase12-live-observer`; LIVE J4 OPEN
 [x] Focused Phase 12 suite 8/8; full registered regression 348/348; strict
     TypeScript, production compile, compiled-JavaScript migration, 54 local
     documentation links, diff check, and high/critical dependency audit PASS.
-[ ] Execute the container-build and Phase 12 PostgreSQL lifecycle jobs. The
-    local Docker CLI exists but its Linux daemon was not running; CI is
-    registered but this branch has not been pushed.
+[x] Execute the production-container build and Phase 12 PostgreSQL lifecycle.
+    Both pass locally where applicable and in repeated canonical CI, including
+    main run 31994562004; the PostgreSQL smoke covers every `PHASE12_TABLES`
+    table and proves migrate/exercise/immutability/rollback behavior.
 [ ] Fill and accept the exact provider/project/service/region/database/source
     deployment manifest; provision runtime, PostgreSQL, scheduler, secrets,
     dashboard, alert route, and least-privilege Egoric credential.
@@ -838,6 +841,7 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     revocation, audible/barge-in, incident/recovery and CEO qualification run.
 [ ] Earn J1–J8 through their existing live evidence and elapsed-time gates.
 
-Repository implementation cannot close the last three items without external
-provider credentials, a named deployment, real RepositoryRealms data and elapsed
-CEO operation. No fixture or local Docker result may be substituted.
+Every remaining unchecked item in this checklist requires external provider or
+source credentials, a named deployment, real RepositoryRealms data, human/device
+evidence or an elapsed operating window. No fixture, repository edit or local
+Docker result may be substituted.
