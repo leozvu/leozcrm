@@ -190,15 +190,17 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     ambientPreferences,
     repository,
   );
+  const voiceClock = options.voiceClock ?? clock;
+  const voiceRepository = new VoiceSessionRepository(knex, voiceClock);
   const jarvisV1 = new JarvisV1Service(
     new JarvisV1Repository(knex, clock),
     repository,
     ambientPreferences,
     clock,
+    voiceRepository,
   );
-  const voiceClock = options.voiceClock ?? clock;
   const voiceSessions = new VoiceSessionService(
-    new VoiceSessionRepository(knex, voiceClock),
+    voiceRepository,
     repository,
     options.voiceClientSecretProvider ?? buildVoiceClientSecretProviderFromEnv(),
     voiceClock,
@@ -223,7 +225,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   app.use('/v1', authenticateIntegrationRead(auth));
   app.use('/v1/tenants', createEgoricBriefRouter(brief));
   app.use('/v1/tenants', createCockpitApiRouter(cockpit));
-  app.use('/v1/tenants', createAdvisorConversationRouter(advisor));
+  app.use('/v1/tenants', createAdvisorConversationRouter(advisor, voiceSessions));
   app.use('/v1/tenants', createProactiveAlertRouter(proactive));
   app.use('/v1/tenants', createPlannerRouter(planner));
   app.use('/v1/tenants', createSupervisedHandRouter(supervisedHand));

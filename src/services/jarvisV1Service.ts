@@ -9,6 +9,7 @@ import { AmbientJarvisRepository } from '../repositories/ambientJarvisRepository
 import { BusinessMemoryRepository } from '../repositories/businessMemoryRepository';
 import { JarvisV1Repository } from '../repositories/jarvisV1Repository';
 import { defaultAmbientJarvisPreferences, parseAmbientJarvisPreferenceRecord } from '../domain/ambientJarvis';
+import { VoiceSessionRepository } from '../repositories/voiceSessionRepository';
 
 export class JarvisV1Service {
   constructor(
@@ -16,6 +17,7 @@ export class JarvisV1Service {
     private readonly memory: BusinessMemoryRepository,
     private readonly preferences: AmbientJarvisRepository,
     private readonly clock: () => Date = () => new Date(),
+    private readonly voice?: VoiceSessionRepository,
   ) {}
 
   private async tenant(tenantKey: string) {
@@ -30,9 +32,15 @@ export class JarvisV1Service {
   }
 
   async readiness(tenantKey: string, days = 30) {
-    const evaluation = await this.evaluation(tenantKey, days);
+    const tenant = await this.tenant(tenantKey);
+    const [evaluation, voiceQuality] = await Promise.all([
+      this.repository.evaluation(tenant.id, days),
+      this.voice ? this.voice.quality(tenant.id, days) : Promise.resolve(null),
+    ]);
+    const voiceBlockers = voiceQuality?.candidate_status === 'meets_candidate_thresholds'
+      ? [] : ['voice_candidate_quality_not_met'];
     const checkpoints = [
-      ['J1', 'Grounded conversation', ['live_model_credential_and_revocation_not_evidenced', 'privacy_and_live_eval_not_accepted', 'production_slo_not_accepted']],
+      ['J1', 'Grounded conversation', [...voiceBlockers, 'live_model_credential_and_revocation_not_evidenced', 'privacy_and_live_eval_not_accepted', 'production_slo_not_accepted']],
       ['J2', 'Evidence cockpit', ['named_deployment_founder_usability_run_absent', 'live_J1_and_G5_required']],
       ['J3', 'Trustworthy alerts', ['named_scheduler_and_channel_absent', 'genuine_20_review_baseline_not_accepted', 'live_J1_J2_G5_required']],
       ['J4', 'Live Observer', ['named_deployment_and_real_G5_go_absent', 'elapsed_shadow_and_live_drills_absent']],
@@ -53,6 +61,8 @@ export class JarvisV1Service {
       overall: 'blocked_external',
       grants_action_authority: false,
       evaluation_hash: evaluation.evaluation_hash,
+      voice_quality_hash: voiceQuality?.quality_hash ?? null,
+      voice_candidate_status: voiceQuality?.candidate_status ?? 'unavailable',
       checkpoints,
       retention_policy: JARVIS_RETENTION_POLICY,
       operator_truth: {
@@ -62,6 +72,8 @@ export class JarvisV1Service {
         automatic_delete_enabled: false,
         production_restore_proven: false,
         external_action_registry_enabled_by_default: false,
+        voice_action_authority: 'none',
+        raw_audio_or_transcript_retained: false,
       },
     };
     return { ...readiness, readiness_hash: jarvisV1Hash(readiness) };

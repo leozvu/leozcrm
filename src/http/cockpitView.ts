@@ -142,6 +142,12 @@ export function renderCockpitHtml(): string {
                 <span id="talking-mode-state" class="state-chip state-offline"><span></span>Off</span>
                 <button id="talking-mode-button" type="button" class="secondary-button"><span>Start Talking Mode</span></button>
               </div>
+              <div id="voice-session-feedback" class="voice-session-feedback" hidden>
+                <div><strong>How was that voice session?</strong><small>Only the rating and privacy flag are stored—never audio or transcript.</small></div>
+                <button class="feedback-button" type="button" data-voice-rating="useful">Useful</button>
+                <button class="feedback-button" type="button" data-voice-rating="not_useful">Not useful</button>
+                <label><input id="voice-privacy-concern" type="checkbox"> Privacy concern</label>
+              </div>
               <div id="conversation-log" class="conversation-log" role="log" aria-live="polite" aria-label="Advisor conversation">
                 <div class="conversation-empty"><span class="realm-sigil">${icon('ask')}</span><h3>Ask from the evidence already in the room</h3><p>Try “What needs my attention?” or “What can this snapshot not tell me?”</p></div>
               </div>
@@ -243,6 +249,13 @@ export function renderCockpitHtml(): string {
     <div class="dialog-heading"><div><p class="eyebrow">ADVISORY BOUNDARY</p><h2 id="advisory-confirmation-title">This sounds action-shaped</h2></div><button id="advisory-confirmation-close" class="icon-button" type="button" aria-label="Cancel question">${icon('close')}</button></div>
     <p>LeozOps will treat this only as a question. Sending it cannot approve, schedule, mutate, or execute anything in RepositoryRealms.</p>
     <div class="dialog-actions"><button id="advisory-confirmation-cancel" class="secondary-button" type="button">Cancel</button><button id="advisory-confirmation-send" class="primary-button" type="button">Send as advisory question</button></div>
+  </dialog>
+  <dialog id="voice-consent-dialog" aria-labelledby="voice-consent-title">
+    <div class="dialog-heading"><div><p class="eyebrow">JARVIS VOICE PRIVACY</p><h2 id="voice-consent-title">Before the microphone opens</h2></div><button id="voice-consent-close" class="icon-button" type="button" aria-label="Cancel Talking Mode">${icon('close')}</button></div>
+    <ul class="voice-privacy-list"><li>Audio streams directly over secure WebRTC and is not retained by LeozOps.</li><li>Voice telemetry stores lifecycle, grounding, latency, and rating evidence—never transcript, raw audio, device ID, or browser user-agent.</li><li>The grounded question and answer enter the separately governed Advisor conversation history. Voice has no action authority.</li></ul>
+    <label class="voice-consent-check"><input id="voice-consent-check" type="checkbox"> I understand and consent to <code>jarvis_voice_privacy_v1</code> for this session.</label>
+    <p id="voice-consent-error" class="form-error" role="alert" hidden></p>
+    <div class="dialog-actions"><button id="voice-consent-cancel" class="secondary-button" type="button">Cancel</button><button id="voice-consent-start" class="primary-button" type="button">Open microphone</button></div>
   </dialog>
   <script src="/cockpit/assets/cockpit.js" defer></script>
 </body>

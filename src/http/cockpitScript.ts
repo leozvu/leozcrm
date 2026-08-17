@@ -15,6 +15,7 @@ export const COCKPIT_SCRIPT = String.raw`
     preferences: null,
     evaluation: null,
     readiness: null,
+    voiceQuality: null,
     dataRequests: [],
     conversationId: null,
     activeView: 'today',
@@ -30,6 +31,8 @@ export const COCKPIT_SCRIPT = String.raw`
     voiceHandledCalls: {},
     voiceTurnGeneration: 0,
     voiceConnecting: false,
+    voiceConsentGranted: false,
+    lastVoiceSessionId: null,
     pendingQuestion: '',
     deferredInstall: null
   };
@@ -95,6 +98,8 @@ export const COCKPIT_SCRIPT = String.raw`
     if (error && error.code === 'voice_session_rate_limited') return 'Talking Mode start limit reached. Wait one minute before retrying.';
     if (error && /^voice_provider_/.test(error.code || '')) return 'Talking Mode could not obtain a secure short-lived session. Retry later.';
     if (error && error.code === 'voice_webrtc_failed') return 'The secure WebRTC voice connection could not be established.';
+    if (error && error.code === 'voice_privacy_consent_required') return 'Talking Mode requires explicit consent to the current voice privacy notice.';
+    if (error && error.code === 'voice_review_requires_terminal_session') return 'The voice session is still closing. Wait a moment and rate it again.';
     return 'The cockpit could not complete this request. Retry or reconnect.';
   }
 
@@ -154,9 +159,12 @@ export const COCKPIT_SCRIPT = String.raw`
     state.preferences = null;
     state.evaluation = null;
     state.readiness = null;
+    state.voiceQuality = null;
     state.dataRequests = [];
     state.conversationId = null;
     state.pendingQuestion = '';
+    state.lastVoiceSessionId = null;
+    setHidden(id('voice-session-feedback'), true);
     if (state.recognition) state.recognition.abort();
     state.recognition = null;
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
@@ -700,6 +708,15 @@ export const COCKPIT_SCRIPT = String.raw`
         commandCard('Safety', evaluation.safety.candidate_status, evaluation.safety.open_incidents + ' open incident(s)')
       );
     }
+    if (state.voiceQuality) {
+      var voice = state.voiceQuality;
+      grid.append(
+        commandCard('Voice qualification', titleCase(voice.candidate_status), voice.sessions.requested + ' session(s) · live acceptance not inferred'),
+        commandCard('Grounded spoken turns', voice.turns.grounding_success_rate === null ? 'insufficient' : formatPercent(voice.turns.grounding_success_rate), voice.turns.grounding_completed + ' completed · ' + voice.turns.grounding_failed + ' failed'),
+        commandCard('Audible response p95', voice.turns.response_latency_p95_ms + ' ms', voice.turns.audible_responses + ' audible response(s)'),
+        commandCard('Voice CEO feedback', voice.reviews.useful_rate === null ? 'insufficient' : formatPercent(voice.reviews.useful_rate), voice.reviews.reviewed + ' review(s) · ' + voice.reviews.privacy_concerns + ' privacy concern(s)')
+      );
+    }
     var readiness = id('jarvis-readiness-status');
     readiness.className = 'state-chip state-blocked';
     readiness.lastChild.textContent = state.readiness ? titleCase(state.readiness.overall) : 'Unavailable';
@@ -833,7 +850,8 @@ export const COCKPIT_SCRIPT = String.raw`
       api('/v1/tenants/' + tenant + '/jarvis/preferences', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/jarvis/evaluation?days=30', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/jarvis/readiness?days=30', { signal: state.requestController.signal }),
-      api('/v1/tenants/' + tenant + '/jarvis/data-requests', { signal: state.requestController.signal })
+      api('/v1/tenants/' + tenant + '/jarvis/data-requests', { signal: state.requestController.signal }),
+      api('/v1/tenants/' + tenant + '/jarvis/voice/quality?days=30', { signal: state.requestController.signal })
     ]);
     if (results[0].status === 'rejected') throw results[0].reason;
     state.context = results[1].status === 'fulfilled' && Array.isArray(results[1].value.entries)
@@ -852,6 +870,7 @@ export const COCKPIT_SCRIPT = String.raw`
     state.readiness = results[9].status === 'fulfilled' ? results[9].value : null;
     state.dataRequests = results[10].status === 'fulfilled' && Array.isArray(results[10].value.requests)
       ? results[10].value.requests : [];
+    state.voiceQuality = results[11].status === 'fulfilled' ? results[11].value : null;
     setError(id('alert-error'), results[2].status === 'fulfilled' ? '' : 'Proactive alert state is temporarily unavailable. Refresh to retry.');
     setError(id('planner-error'), results[4].status === 'fulfilled' && results[5].status === 'fulfilled'
       ? '' : 'Planner state is temporarily unavailable. Refresh to retry.');
@@ -1033,11 +1052,13 @@ export const COCKPIT_SCRIPT = String.raw`
     return Array.prototype.map.call(bytes, function (value) { return value.toString(16); }).join('-');
   }
 
-  async function ask(question) {
+  async function ask(question, voiceSessionId) {
     var conversationId = await ensureConversation();
+    var headers = { 'Idempotency-Key': idempotencyKey() };
+    if (voiceSessionId) headers['X-LeozOps-Voice-Session'] = voiceSessionId;
     return api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/conversations/' + encodeURIComponent(conversationId) + '/messages', {
       method: 'POST',
-      headers: { 'Idempotency-Key': idempotencyKey() },
+      headers: headers,
       body: JSON.stringify({ question: question })
     });
   }
@@ -1095,6 +1116,7 @@ export const COCKPIT_SCRIPT = String.raw`
     state.voiceHandledCalls = {};
     state.voiceTurnGeneration = 0;
     state.voiceConnecting = false;
+    state.voiceConsentGranted = false;
     try { if (channel) channel.close(); } catch (_) { /* already closed */ }
     try { if (peer) peer.close(); } catch (_) { /* already closed */ }
     if (stream) stream.getTracks().forEach(function (track) { track.stop(); });
@@ -1110,10 +1132,43 @@ export const COCKPIT_SCRIPT = String.raw`
   function stopTalkingMode(reportDisconnect) {
     var sessionId = state.voiceSessionId;
     if (reportDisconnect && sessionId && state.token) {
-      directVoiceEvent(sessionId, 'disconnected').catch(function () { /* best-effort terminal evidence */ });
+      directVoiceEvent(sessionId, 'disconnected').then(function () {
+        if (!state.token) return;
+        state.lastVoiceSessionId = sessionId;
+        id('voice-privacy-concern').checked = false;
+        setHidden(id('voice-session-feedback'), false);
+      }).catch(function () { /* best-effort terminal evidence */ });
     }
     cleanupTalkingMode();
     if (sessionId) announce('Talking Mode ended. Microphone access and the short-lived session were released.');
+  }
+
+  async function submitVoiceReview(rating) {
+    var sessionId = state.lastVoiceSessionId;
+    if (!sessionId) return;
+    var buttons = all('[data-voice-rating]');
+    buttons.forEach(function (button) { button.disabled = true; });
+    try {
+      await api('/v1/tenants/' + encodeURIComponent(state.tenant)
+        + '/jarvis/voice/sessions/' + encodeURIComponent(sessionId) + '/review', {
+        method: 'POST',
+        headers: { 'Idempotency-Key': idempotencyKey() },
+        body: JSON.stringify({
+          schema_version: 'leozops_voice_session_review_v1',
+          rating: rating,
+          privacy_concern: id('voice-privacy-concern').checked
+        })
+      });
+      state.voiceQuality = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/jarvis/voice/quality?days=30');
+      state.lastVoiceSessionId = null;
+      setHidden(id('voice-session-feedback'), true);
+      renderJarvisV1();
+      announce('Voice session review recorded without audio, transcript, or device metadata.');
+    } catch (error) {
+      setError(id('ask-error'), friendlyError(error));
+    } finally {
+      buttons.forEach(function (button) { button.disabled = false; });
+    }
   }
 
   function voiceToolResult(channel, callId, output, createResponse) {
@@ -1148,6 +1203,7 @@ export const COCKPIT_SCRIPT = String.raw`
       return;
     }
     if (actionShaped(question)) {
+      queueVoiceEvent('action_request_blocked');
       voiceToolResult(channel, callId, {
         status: 'blocked_requires_text_confirmation',
         limitation: 'Talking Mode has no action authority. Enter this request in the text composer and confirm its advisory-only boundary.'
@@ -1156,9 +1212,11 @@ export const COCKPIT_SCRIPT = String.raw`
       return;
     }
     announce('Talking Mode is grounding the question in LeozOps evidence.');
+    queueVoiceEvent('advisor_grounding_started');
     appendUserMessage(question);
     try {
-      var result = await ask(question);
+      await state.voiceEventQueue;
+      var result = await ask(question, sessionId);
       if (sessionId !== state.voiceSessionId || turnGeneration !== state.voiceTurnGeneration) {
         voiceToolResult(channel, callId, {
           status: 'interrupted',
@@ -1188,6 +1246,7 @@ export const COCKPIT_SCRIPT = String.raw`
       });
       announce('Grounded voice answer ready with ' + result.citations.length + ' citation(s).');
     } catch (error) {
+      queueVoiceEvent('advisor_grounding_failed');
       voiceToolResult(channel, callId, {
         status: 'unavailable',
         limitation: friendlyError(error),
@@ -1274,12 +1333,21 @@ export const COCKPIT_SCRIPT = String.raw`
       stopTalkingMode(true);
       return;
     }
+    if (!state.voiceConsentGranted) {
+      id('voice-consent-check').checked = false;
+      setError(id('voice-consent-error'), '');
+      id('voice-consent-dialog').showModal();
+      id('voice-consent-check').focus();
+      return;
+    }
     setError(id('ask-error'), '');
     if (!window.RTCPeerConnection || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       setError(id('ask-error'), 'Secure WebRTC microphone access is unavailable in this browser.');
       return;
     }
     state.voiceConnecting = true;
+    state.lastVoiceSessionId = null;
+    setHidden(id('voice-session-feedback'), true);
     id('talking-mode-button').disabled = true;
     setTalkingModeState('Authorizing', 'state-stale', 'Requesting microphone access and a short-lived tenant-scoped session.');
     var micStream = null;
@@ -1293,8 +1361,11 @@ export const COCKPIT_SCRIPT = String.raw`
         method: 'POST',
         headers: { 'Idempotency-Key': idempotencyKey() },
         body: JSON.stringify({
-          schema_version: 'leozops_voice_session_request_v1',
-          locale: state.preferences && state.preferences.locale === 'vi' ? 'vi' : 'en'
+          schema_version: 'leozops_voice_session_request_v2',
+          locale: state.preferences && state.preferences.locale === 'vi' ? 'vi' : 'en',
+          privacy_notice_version: 'jarvis_voice_privacy_v1',
+          consent: true,
+          capability_profile: 'webrtc_audio_barge_in_v1'
         })
       });
       if (!issued.client_secret || typeof issued.client_secret.value !== 'string'
@@ -1513,6 +1584,26 @@ export const COCKPIT_SCRIPT = String.raw`
 
   id('voice-input-button').addEventListener('click', startVoiceInput);
   id('talking-mode-button').addEventListener('click', startTalkingMode);
+  all('[data-voice-rating]').forEach(function (button) {
+    button.addEventListener('click', function () { submitVoiceReview(button.dataset.voiceRating); });
+  });
+
+  function closeVoiceConsent() {
+    state.voiceConsentGranted = false;
+    id('voice-consent-dialog').close();
+    id('talking-mode-button').focus();
+  }
+  id('voice-consent-close').addEventListener('click', closeVoiceConsent);
+  id('voice-consent-cancel').addEventListener('click', closeVoiceConsent);
+  id('voice-consent-start').addEventListener('click', function () {
+    if (!id('voice-consent-check').checked) {
+      setError(id('voice-consent-error'), 'Confirm the current privacy notice before opening the microphone.');
+      return;
+    }
+    state.voiceConsentGranted = true;
+    id('voice-consent-dialog').close();
+    startTalkingMode();
+  });
 
   id('preference-form').addEventListener('submit', async function (event) {
     event.preventDefault();

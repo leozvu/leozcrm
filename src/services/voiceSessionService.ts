@@ -6,10 +6,12 @@ import {
   voiceSessionHash,
   validateVoiceClientEventRequest,
   validateVoiceSessionRequest,
+  validateVoiceSessionReviewRequest,
 } from '../domain/voiceSession';
 import { VoiceClientSecretProvider } from '../integrations/voice/realtimeClientSecretProvider';
 import { BusinessMemoryRepository } from '../repositories/businessMemoryRepository';
 import { VoiceSessionRepository, VoiceSessionViewRecord } from '../repositories/voiceSessionRepository';
+import type { AdvisorAskResponse } from './advisorConversationService';
 
 export class VoiceSessionService {
   constructor(
@@ -48,7 +50,16 @@ export class VoiceSessionService {
         raw_audio_retention: view.session.raw_audio_retention,
         business_tool: 'ask_leozops_read_only',
         action_shaped_voice_requests: 'blocked_requires_text_confirmation',
+        privacy_notice_version: view.consent.privacy_notice_version,
+        transcript_retention: 'none',
+        device_or_user_agent_retention: 'none',
       },
+      review: view.review ? {
+        rating: view.review.rating,
+        privacy_concern: view.review.privacy_concern,
+        reviewed_at: view.review.reviewed_at,
+        fingerprint: view.review.review_fingerprint,
+      } : null,
       fingerprint: view.session.session_fingerprint,
     };
   }
@@ -68,7 +79,12 @@ export class VoiceSessionService {
         provider: configuration.provider,
         model: configuration.model,
         voice: configuration.voice,
+        privacy_notice_version: request.privacy_notice_version,
+        consent: request.consent,
+        capability_profile: request.capability_profile,
       }),
+      privacyNoticeVersion: request.privacy_notice_version,
+      capabilityProfile: request.capability_profile,
     });
     const before = await this.repository.view(tenant.id, created.record.id);
     if (before.state !== 'authorizing' && before.state !== 'connecting') {
@@ -150,5 +166,67 @@ export class VoiceSessionService {
       session: this.present(await this.repository.view(tenant.id, sessionId)),
       replayed: appended.replayed,
     };
+  }
+
+  async recordVerifiedAdvisorGrounding(
+    tenantKey: string,
+    sessionId: string,
+    output: AdvisorAskResponse,
+  ) {
+    const tenant = await this.tenant(tenantKey);
+    if (output.run.tenant_id !== tenant.id || output.result.status !== 'completed'
+      || !output.result.answer_hash || !output.result.evidence_pack_hash) {
+      throw new VoiceSessionError('voice_grounding_not_verified', 'Advisor grounding evidence is incomplete', 409);
+    }
+    const proof = voiceSessionHash({
+      session_id: sessionId,
+      advisor_run_id: output.run.id,
+      advisor_result_id: output.result.id,
+      answer_hash: output.result.answer_hash,
+      evidence_pack_hash: output.result.evidence_pack_hash,
+      citation_value_hashes: output.citations.map((citation) => citation.value_hash).sort(),
+      advisory_only: output.answer.advisory_only,
+    });
+    const appended = await this.repository.appendEvent({
+      tenantId: tenant.id,
+      sessionId,
+      eventKey: `server-grounded-${proof.slice('sha256:'.length)}`,
+      eventType: 'advisor_grounding_completed',
+      source: 'server',
+    });
+    return { proof_hash: proof, replayed: appended.replayed };
+  }
+
+  async review(tenantKey: string, sessionId: string, raw: unknown, idempotencyKey: string) {
+    const tenant = await this.tenant(tenantKey);
+    const review = validateVoiceSessionReviewRequest(raw);
+    const output = await this.repository.review({
+      tenantId: tenant.id,
+      sessionId,
+      idempotencyKey,
+      rating: review.rating,
+      privacyConcern: review.privacy_concern,
+    });
+    const record = output.record;
+    return {
+      review: {
+        schema_version: record.schema_version,
+        session_id: record.session_id,
+        rating: record.rating,
+        privacy_concern: record.privacy_concern,
+        reviewed_at: record.reviewed_at,
+        evidence: {
+          session_fingerprint: record.session_fingerprint,
+          event_chain_hash: record.event_chain_hash,
+          review_fingerprint: record.review_fingerprint,
+        },
+      },
+      replayed: output.replayed,
+    };
+  }
+
+  async quality(tenantKey: string, days = 30) {
+    const tenant = await this.tenant(tenantKey);
+    return this.repository.quality(tenant.id, days);
   }
 }

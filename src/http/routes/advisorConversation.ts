@@ -3,6 +3,7 @@ import { AdvisorAnswer } from '../../domain/advisorConversation';
 import { AdvisorAskResponse, AdvisorConversationService } from '../../services/advisorConversationService';
 import { asyncHandler } from '../asyncHandler';
 import { enforceTenantReadScope } from '../integrationReadAuth';
+import type { VoiceSessionService } from '../../services/voiceSessionService';
 
 function body(value: unknown): Record<string, unknown> {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return {};
@@ -59,7 +60,10 @@ function askResponse(output: AdvisorAskResponse) {
   };
 }
 
-export function createAdvisorConversationRouter(service: AdvisorConversationService): Router {
+export function createAdvisorConversationRouter(
+  service: AdvisorConversationService,
+  voiceSessions?: VoiceSessionService,
+): Router {
   const router = Router();
   const parseJson = express.json({ limit: '32kb', strict: true });
 
@@ -106,6 +110,15 @@ export function createAdvisorConversationRouter(service: AdvisorConversationServ
       question: input.question,
       asOf: input.asOf,
     });
+    const voiceSessionId = req.header('X-LeozOps-Voice-Session');
+    if (voiceSessionId) {
+      if (!voiceSessions) {
+        res.status(409).json({ error: 'voice grounding is unavailable', code: 'voice_grounding_unavailable' });
+        return;
+      }
+      await voiceSessions.recordVerifiedAdvisorGrounding(tenantKey, voiceSessionId, output);
+      res.setHeader('X-LeozOps-Voice-Grounding', 'verified');
+    }
     res.setHeader('Cache-Control', 'no-store');
     res.status(output.replayed ? 200 : 201).json(askResponse(output));
   }));

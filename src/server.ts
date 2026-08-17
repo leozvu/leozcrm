@@ -7,6 +7,7 @@ import path from 'node:path';
 import { inspectLiveObserverPreflight } from './liveObserverPreflight';
 import { validateLiveObserverDeployment } from './domain/liveObserver';
 import { StructuredLogger } from './observability/structuredLogger';
+import { inspectJarvisReleasePreflight } from './jarvisReleasePreflight';
 
 dotenv.config();
 
@@ -46,6 +47,18 @@ if ((process.env.NODE_ENV ?? 'development') === 'production' && profile === 'ego
   if (!preflight.ok || !validation.value || !validation.fingerprint) {
     logger.log('error', 'production_preflight_blocked', { issue_count: preflight.issues.length });
     throw new Error('Phase 12 production preflight is blocked.');
+  }
+  const jarvisProviderEnabled = process.env.LEOZOPS_ADVISOR_PROVIDER === 'openai'
+    || process.env.LEOZOPS_VOICE_PROVIDER === 'openai_realtime';
+  if (jarvisProviderEnabled) {
+    const jarvisManifestPath = process.env.LEOZOPS_JARVIS_RELEASE_MANIFEST;
+    if (!jarvisManifestPath) throw new Error('LEOZOPS_JARVIS_RELEASE_MANIFEST is required when a Jarvis provider is enabled.');
+    const jarvisRaw = JSON.parse(fs.readFileSync(path.resolve(jarvisManifestPath), 'utf8')) as unknown;
+    const jarvisPreflight = inspectJarvisReleasePreflight(jarvisRaw, raw, process.env, 'server');
+    if (!jarvisPreflight.ok) {
+      logger.log('error', 'jarvis_release_preflight_blocked', { issue_count: jarvisPreflight.issues.length });
+      throw new Error('Jarvis release preflight is blocked.');
+    }
   }
   deploymentFingerprint = validation.fingerprint;
   maxFreshnessSeconds = validation.value.schedule.max_freshness_seconds;

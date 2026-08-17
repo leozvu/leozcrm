@@ -53,6 +53,9 @@ jobs:
       - name: Phase 17 Talking Jarvis safety suite
         run: npm run test:phase17
 
+      - name: Phase 18 Jarvis live-qualification suite
+        run: npm run test:phase18
+
       - name: Full SQLite regression
         run: npm test
 

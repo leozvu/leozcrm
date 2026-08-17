@@ -113,6 +113,8 @@ import { JarvisV1Repository } from '../repositories/jarvisV1Repository';
 import {
   VOICE_SESSION_REQUEST_SCHEMA,
   VOICE_SESSION_TABLES,
+  VOICE_PRIVACY_NOTICE_VERSION,
+  VOICE_CAPABILITY_PROFILE,
   voiceSessionHash,
 } from '../domain/voiceSession';
 import { VoiceSessionRepository } from '../repositories/voiceSessionRepository';
@@ -259,7 +261,12 @@ async function main(): Promise<void> {
         provider: 'openai_realtime',
         model: 'gpt-realtime-2.1',
         voice: 'marin',
+        privacy_notice_version: VOICE_PRIVACY_NOTICE_VERSION,
+        consent: true,
+        capability_profile: VOICE_CAPABILITY_PROFILE,
       }),
+      privacyNoticeVersion: VOICE_PRIVACY_NOTICE_VERSION,
+      capabilityProfile: VOICE_CAPABILITY_PROFILE,
     });
     const voiceEvent = await voiceRepository.appendEvent({
       tenantId: tenant.id,
@@ -268,6 +275,27 @@ async function main(): Promise<void> {
       eventType: 'credential_issued',
       source: 'server',
       providerCredentialExpiresAt: new Date(sourceNow.getTime() + 60_000).toISOString(),
+    });
+    await voiceRepository.appendEvent({
+      tenantId: tenant.id,
+      sessionId: voiceSession.record.id,
+      eventKey: 'pg-smoke-voice-connected',
+      eventType: 'connected',
+      source: 'browser',
+    });
+    await voiceRepository.appendEvent({
+      tenantId: tenant.id,
+      sessionId: voiceSession.record.id,
+      eventKey: 'pg-smoke-voice-ended',
+      eventType: 'disconnected',
+      source: 'browser',
+    });
+    const voiceReview = await voiceRepository.review({
+      tenantId: tenant.id,
+      sessionId: voiceSession.record.id,
+      idempotencyKey: 'pg-smoke-voice-review',
+      rating: 'useful',
+      privacyConcern: false,
     });
     const connection = await memory.ensureSourceConnection({
       tenantId: tenant.id,
@@ -1525,6 +1553,8 @@ async function main(): Promise<void> {
       db(JARVIS_V1_TABLES.dataRequests).where({ id: jarvisDataRequest.record.id }).delete(),
       db(VOICE_SESSION_TABLES.sessions).where({ id: voiceSession.record.id }).update({ action_authority: 'write' }),
       db(VOICE_SESSION_TABLES.events).where({ id: voiceEvent.record.id }).delete(),
+      db(VOICE_SESSION_TABLES.consents).where({ session_id: voiceSession.record.id }).delete(),
+      db(VOICE_SESSION_TABLES.reviews).where({ id: voiceReview.record.id }).update({ rating: 'not_useful' }),
     ]) {
       let rejected = false;
       try {

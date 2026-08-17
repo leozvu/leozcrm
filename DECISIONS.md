@@ -946,3 +946,27 @@ Decision:
   usability/privacy/cost/latency evidence, grant action authority, or change
   any J1–J8 live gate.
 Owner: Leoz. Recorded by Codex after the Phase 17 canonical merge.
+
+DECISION-002 addendum 35 — 2026-08-16 — Jarvis completion and live qualification authorized
+Status: Approved by Leoz (Product Owner) for repository implementation, release publication, and evidence-bound promotion attempts.
+Decision:
+- Treat the explicit instruction to complete everything still missing for
+  Jarvis as authorization to implement, test, publish and merge the Phase 18
+  qualification path under addendum 31, and to attempt a named non-production
+  activation only where exact target credentials and evidence already exist.
+- Require explicit versioned microphone consent; retain no raw audio,
+  transcript, device ID or browser user-agent in voice qualification evidence.
+  Permit immutable lifecycle/grounding/timing hashes and optional CEO rating/
+  privacy flag only.
+- Require an exact Jarvis release manifest binding canonical code, immutable
+  image, Phase 12 live source, named HTTPS target, provider configuration,
+  secret references, operational owners/runbooks and J1–J8 sequence. Fail
+  production startup closed when live Advisor or voice is enabled without it.
+- Permit automated named-deployment preflight and qualification. Its maximum
+  conclusion is `candidate_ready_for_ceo_acceptance`; it may never synthesize
+  the key-revocation drill, real browser/audio sample, source history, elapsed
+  30-day window, incident closure, CEO review or J1–J8 acceptance.
+- This authorization does not purchase or create a cloud account/provider key,
+  invent RepositoryRealms data, expose credentials, register the production
+  action adapter, enable G6/G7 authority, or shorten any external gate.
+Owner: Leoz. Recorded by Codex before Phase 18 implementation.

@@ -1,12 +1,12 @@
 # LeozOps Jarvis Completion Plan
 
-Status: **Repository candidate complete; Phase 14 source is canonical, live gates remain gate-bound**
+Status: **Phase 18 repository candidate complete; live gates remain gate-bound**
 
 Approved by: Leoz, Product Owner
 
 Effective: 2026-08-01
 
-Current repository baseline: `codex/ruflo-phase14-contract-unlock`
+Current repository baseline: canonical Phase 17 release plus the active Phase 18 qualification branch
 
 ## 1. Outcome
 
@@ -35,11 +35,12 @@ unrestricted computer control, or a general employee replacement.
 | Conversation and durable CEO context | Phase 9A/9B implemented locally | No accepted live model/deployment evidence |
 | Proactive event loop and notifications | Phase 11 deterministic one-shot loop and delivery boundary implemented locally | No scheduler, channel adapter, measured baseline, or accepted J3 evidence |
 | Jarvis cockpit | Phase 10 implemented locally on its feature branch | Not deployed; founder/live J2 run absent |
-| Voice / ambient access | Deliberately deferred | Not available |
+| Voice / ambient access | Phase 16 ambient preferences/PWA and Phase 17–18 WebRTC, consent, grounding telemetry, review and quality qualification implemented | Provider disabled locally; no approved server key, named deployment, real device sample or CEO acceptance |
 
-The repository has a strong safety and evidence spine. The remaining distance
-is primarily product experience, live data, model orchestration, proactive
-delivery, and one real narrow integration.
+The repository has a strong safety/evidence spine and a talking product
+candidate. The remaining distance is primarily external: live data, named
+deployment, provider credentials, proactive delivery, one registered narrow
+integration, genuine operating history and J1–J8 acceptance.
 
 ## 3. Product architecture at completion
 

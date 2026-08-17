@@ -6,6 +6,9 @@ import config from '../../knexfile';
 import {
   VOICE_SESSION_EVENT_SCHEMA,
   VOICE_SESSION_REQUEST_SCHEMA,
+  VOICE_SESSION_REVIEW_SCHEMA,
+  VOICE_PRIVACY_NOTICE_VERSION,
+  VOICE_CAPABILITY_PROFILE,
   VOICE_SESSION_TABLES,
   VoiceSessionError,
   voiceTransition,
@@ -57,7 +60,13 @@ async function harness(tenantKey: string, provider: VoiceClientSecretProvider = 
 }
 
 function request(locale: 'en' | 'vi' = 'vi') {
-  return { schema_version: VOICE_SESSION_REQUEST_SCHEMA, locale };
+  return {
+    schema_version: VOICE_SESSION_REQUEST_SCHEMA,
+    locale,
+    privacy_notice_version: VOICE_PRIVACY_NOTICE_VERSION,
+    consent: true,
+    capability_profile: VOICE_CAPABILITY_PROFILE,
+  };
 }
 
 function event(eventType: string, clientEventId: string) {
@@ -169,6 +178,79 @@ test('strict request, event idempotency, terminal sessions, and tenant isolation
   );
 });
 
+test('explicit consent, grounded-turn telemetry, terminal review, and quality metrics stay content-free', async () => {
+  const run = await harness('phase18-quality');
+  await assert.rejects(
+    () => run.service.create('phase18-quality', { ...request(), consent: false }, 'consent-denied'),
+    (error: unknown) => error instanceof VoiceSessionError && error.code === 'voice_privacy_consent_required',
+  );
+  const created = await run.service.create('phase18-quality', request(), 'quality-session');
+  const beforeGrounding = [
+    ['connected', 'quality-connected'],
+    ['user_turn_started', 'quality-turn-start'],
+    ['user_turn_committed', 'quality-turn-commit'],
+    ['advisor_grounding_started', 'quality-ground-start'],
+  ] as const;
+  for (const [kind, key] of beforeGrounding) {
+    await run.service.recordClientEvent('phase18-quality', created.session.id, event(kind, key));
+  }
+  await assert.rejects(
+    () => run.service.recordClientEvent(
+      'phase18-quality', created.session.id, event('advisor_grounding_completed', 'browser-faked-grounding'),
+    ),
+    (error: unknown) => error instanceof VoiceSessionError && error.code === 'invalid_voice_request',
+  );
+  await run.repository.appendEvent({
+    tenantId: run.seeded.tenant.id,
+    sessionId: created.session.id,
+    eventKey: `server-grounded-${'a'.repeat(64)}`,
+    eventType: 'advisor_grounding_completed',
+    source: 'server',
+  });
+  const afterGrounding = [
+    ['assistant_response_started', 'quality-audio-start'],
+    ['assistant_response_completed', 'quality-audio-done'],
+    ['disconnected', 'quality-disconnected'],
+  ] as const;
+  for (const [kind, key] of afterGrounding) {
+    await run.service.recordClientEvent('phase18-quality', created.session.id, event(kind, key));
+  }
+  const reviewed = await run.service.review('phase18-quality', created.session.id, {
+    schema_version: VOICE_SESSION_REVIEW_SCHEMA,
+    rating: 'useful',
+    privacy_concern: false,
+  }, 'quality-review');
+  assert.equal(reviewed.review.rating, 'useful');
+  assert.match(reviewed.review.evidence.event_chain_hash, /^sha256:[0-9a-f]{64}$/);
+  const replay = await run.service.review('phase18-quality', created.session.id, {
+    schema_version: VOICE_SESSION_REVIEW_SCHEMA,
+    rating: 'useful',
+    privacy_concern: false,
+  }, 'quality-review');
+  assert.equal(replay.replayed, true);
+  await assert.rejects(
+    () => run.service.review('phase18-quality', created.session.id, {
+      schema_version: VOICE_SESSION_REVIEW_SCHEMA,
+      rating: 'not_useful',
+      privacy_concern: false,
+    }, 'different-review'),
+    (error: unknown) => error instanceof VoiceSessionError && error.code === 'voice_review_conflict',
+  );
+  const quality = await run.service.quality('phase18-quality');
+  assert.equal(quality.candidate_status, 'insufficient_sample');
+  assert.equal(quality.live_acceptance, 'not_inferred');
+  assert.equal(quality.sessions.connected, 1);
+  assert.equal(quality.turns.grounding_success_rate, 1);
+  assert.equal(quality.turns.audible_response_rate, 1);
+  assert.equal(quality.reviews.useful_rate, 1);
+  assert.equal(quality.privacy.transcript_retention, 'none');
+  assert.equal(JSON.stringify(quality).toLowerCase().includes('transcript_text'), false);
+  await assert.rejects(
+    () => run.service.quality('phase18-quality', 0),
+    (error: unknown) => error instanceof VoiceSessionError && error.code === 'invalid_voice_quality_window',
+  );
+});
+
 test('OpenAI client-secret provider uses the current Realtime contract and sanitizes rejection bodies', async () => {
   let captured: { url?: string; init?: RequestInit } = {};
   const expires = Math.floor((Date.now() + 60_000) / 1000);
@@ -238,6 +320,61 @@ test('tenant-authenticated voice API returns no-store secrets and disabled compo
     const payload = await created.json() as any;
     assert.equal(payload.client_secret.value.startsWith('ek_'), true);
     assert.equal(JSON.stringify(payload).includes('tenant_id'), false);
+    const eventPath = `${path}/${payload.session.id}/events`;
+    for (const [kind, key] of [
+      ['connected', 'http-connected'],
+      ['user_turn_started', 'http-turn-start'],
+      ['user_turn_committed', 'http-turn-commit'],
+      ['advisor_grounding_started', 'http-ground-start'],
+    ]) {
+      const response = await fetch(base + eventPath, {
+        method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' },
+        body: JSON.stringify(event(kind, key)),
+      });
+      assert.equal(response.status, 201);
+    }
+    const conversationResponse = await fetch(`${base}/v1/tenants/phase17-http/conversations`, {
+      method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'Verified voice grounding' }),
+    });
+    assert.equal(conversationResponse.status, 201);
+    const conversation = (await conversationResponse.json() as any).conversation;
+    const advisorResponse = await fetch(`${base}/v1/tenants/phase17-http/conversations/${conversation.id}/messages`, {
+      method: 'POST',
+      headers: {
+        ...auth, 'Content-Type': 'application/json', 'Idempotency-Key': 'http-grounded-advisor',
+        'X-LeozOps-Voice-Session': payload.session.id,
+      },
+      body: JSON.stringify({ question: 'What needs my attention?' }),
+    });
+    assert.equal(advisorResponse.status, 201);
+    assert.equal(advisorResponse.headers.get('x-leozops-voice-grounding'), 'verified');
+    const serverGrounding = await db(VOICE_SESSION_TABLES.events)
+      .where({ tenant_id: run.seeded.tenant.id, session_id: payload.session.id, event_type: 'advisor_grounding_completed' })
+      .first();
+    assert.equal(serverGrounding.source, 'server');
+    assert.match(serverGrounding.event_key, /^server-grounded-[0-9a-f]{64}$/);
+    const groundedView = await fetch(`${base}${path}/${payload.session.id}`, { headers: auth });
+    assert.equal((await groundedView.json() as any).session.event_count, 6);
+    for (const [kind, key] of [
+      ['assistant_response_started', 'http-response-start'],
+      ['assistant_response_completed', 'http-response-done'],
+      ['disconnected', 'http-disconnected'],
+    ]) {
+      assert.equal((await fetch(base + eventPath, {
+        method: 'POST', headers: { ...auth, 'Content-Type': 'application/json' },
+        body: JSON.stringify(event(kind, key)),
+      })).status, 201);
+    }
+    const reviewResponse = await fetch(`${base}${path}/${payload.session.id}/review`, {
+      method: 'POST', headers: {
+        ...auth, 'Content-Type': 'application/json', 'Idempotency-Key': 'http-voice-review',
+      },
+      body: JSON.stringify({
+        schema_version: VOICE_SESSION_REVIEW_SCHEMA, rating: 'useful', privacy_concern: false,
+      }),
+    });
+    assert.equal(reviewResponse.status, 201);
     for (let index = 2; index <= 5; index += 1) {
       const extra = await fetch(base + path, {
         method: 'POST',
@@ -256,6 +393,7 @@ test('tenant-authenticated voice API returns no-store secrets and disabled compo
     assert.equal(((await rateLimited.json()) as any).code, 'voice_session_rate_limited');
     assert.equal((run.provider as StubVoiceProvider).issued.length, 5);
     assert.equal((await fetch(`${base}/ready`)).status, 200);
+    assert.equal((await fetch(`${base}/v1/tenants/phase17-http/jarvis/voice/quality?days=30`, { headers: auth })).status, 200);
     const shell = await fetch(`${base}/cockpit/`);
     const csp = shell.headers.get('content-security-policy') ?? '';
     assert.equal(csp.includes("connect-src 'self' https://api.openai.com"), true);
@@ -292,11 +430,15 @@ test('tenant-authenticated voice API returns no-store secrets and disabled compo
   }
 });
 
-test('Phase 17 migration rolls back and reapplies both immutable evidence tables', async () => {
+test('voice migrations roll back and reapply session, consent, event, and review evidence tables', async () => {
   await db.migrate.rollback();
   assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.sessions), false);
   assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.events), false);
+  assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.consents), false);
+  assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.reviews), false);
   await db.migrate.latest();
   assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.sessions), true);
   assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.events), true);
+  assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.consents), true);
+  assert.equal(await db.schema.hasTable(VOICE_SESSION_TABLES.reviews), true);
 });

@@ -24,7 +24,7 @@ Owner decision, the newer decision and release-gate evidence win.
 
 ## Current boundary
 
-- Repository implementation includes the Phase 17 Talking Jarvis foundation;
+- Repository implementation includes the Phase 18 Jarvis live-qualification candidate;
   repository acceptance and live acceptance remain separate evidence gates.
 - Live release remains gate-bound. Do not fabricate G5, G6, G7, J1-J8,
   production history, named-environment evidence, credentials, or approvals.
@@ -34,6 +34,9 @@ Owner decision, the newer decision and release-gate evidence win.
   surfaces. Talking Mode is read-only, grounds every spoken turn through the
   Advisor, retains no raw audio/transcript, and never bypasses confirmation,
   tenant scope, or G6/G7.
+- Enabling a live Advisor or Realtime voice provider requires the exact Phase
+  18 release manifest. Voice quality can reach only candidate readiness; it
+  never infers named-deployment, CEO, J1-J8, or production acceptance.
 - Never add a generic Egoric CRUD path, direct database access, cross-tenant
   access, or an HTTP route that turns a recommendation into an action.
 
@@ -79,5 +82,5 @@ npm run build
 ```
 
 For the current phase use its focused script when available, such as
-`npm run test:phase14`. Record failures honestly and distinguish repository
+`npm run test:phase18`. Record failures honestly and distinguish repository
 proof from live-environment proof.
