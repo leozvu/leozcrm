@@ -1028,3 +1028,41 @@ Decision:
   source credential, accepted live manifest, named HTTPS runtime, genuine voice
   sample, elapsed operating evidence, CEO acceptance, G5/G6/G7 or J1–J8.
 Owner: Leoz. Recorded by Codex after independent registry and attestation verification.
+
+DECISION-002 addendum 39 — 2026-08-17 — Independent Jarvis qualification evidence required
+Status: Approved and implemented within the existing Phase 18 fail-closed qualification boundary.
+Decision:
+- Do not trust the remote `candidate_status` label, reported rates, evidence-hash
+  shape, or checkpoint count by itself. The operator-side qualifier must
+  independently verify the canonical voice and readiness hashes and recompute
+  the candidate invariants from the returned counters.
+- Require at least five sessions, ten committed grounded/audible turns, five CEO
+  reviews, the exact OpenAI Realtime sample, one-to-one grounding and audible
+  response, at least one interruption, accepted latency/usefulness thresholds,
+  zero failed sessions/privacy concerns, and the exact privacy/threshold/window
+  contract.
+- Require the exact ordered J1 through J8 checkpoint identities, each still
+  `blocked_external` with a non-empty blocker set; bind readiness to the verified
+  voice hash/status, evaluation hash, and safe operator truth. A valid count of
+  eight duplicated or malformed checkpoints is insufficient.
+- Treat hash drift, zero-sample label spoofing, unsafe authority truth, malformed
+  HTTPS origin/tenant/credential identity, oversized response, or invalid JSON as
+  a blocked qualification. Continue to expose no credential and never infer live
+  or CEO acceptance.
+Owner: Leoz. Recorded by Codex after the Phase 18 coverage-gap audit.
+
+DECISION-002 addendum 40 — 2026-08-17 — PostgreSQL transaction reads must be serial
+Status: Approved and implemented as production-compatibility hardening.
+Decision:
+- Treat the `pg` warning for calling `client.query()` while the same client is
+  already executing as a real upgrade blocker, not harmless smoke output. A
+  Knex transaction owns one PostgreSQL client and must not issue its Planner
+  integrity reads through `Promise.all`.
+- Read Planner steps, conflicts, simulations, decisions, checkpoints and outcomes
+  serially whenever validating a plan view. Preserve the same deterministic
+  ordering, hash verification and advisory-only result.
+- Run the canonical PostgreSQL lifecycle with `NODE_OPTIONS=--throw-deprecation`
+  so a reintroduced driver deprecation fails CI. The clean disposable PostgreSQL
+  16 rerun must still migrate, exercise every current subsystem, prove immutable
+  guards and roll back without a warning.
+Owner: Leoz. Recorded by Codex after reproducing and removing the PostgreSQL warning.

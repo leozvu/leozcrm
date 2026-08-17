@@ -364,5 +364,10 @@ variables, then run:
 npm run db:smoke:pg
 ```
 
+Canonical CI sets `NODE_OPTIONS=--throw-deprecation`. Local release verification
+should do the same. Planner integrity reads inside a Knex transaction are
+deliberately serial because the transaction owns one PostgreSQL client; issuing
+them concurrently is deprecated by `pg` 8 and rejected by `pg` 9.
+
 Never use an existing application database. Confirm the target identity,
 backup/retention expectation, and destruction authority before execution.

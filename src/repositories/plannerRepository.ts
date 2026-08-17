@@ -400,14 +400,21 @@ export class PlannerRepository {
     const goalRow = await connection<PlannerGoalRecord>(PLANNER_TABLES.goals)
       .where({ tenant_id: plan.tenant_id, id: plan.goal_version_id }).first();
     if (!goalRow) throw new PlannerError('corrupt_plan', 'plan goal is missing', 500);
-    const [steps, conflicts, simulations, decisions, checkpoints, outcomes] = await Promise.all([
-      connection<PlannerStepRecord>(PLANNER_TABLES.steps).where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('ordinal', 'asc'),
-      connection<PlannerConflictRecord>(PLANNER_TABLES.conflicts).where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('conflict_key', 'asc'),
-      connection<PlannerSimulationRecord>(PLANNER_TABLES.simulations).where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('scenario', 'asc'),
-      connection<PlannerDecisionRecord>(PLANNER_TABLES.decisions).where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('created_at', 'asc'),
-      connection<PlannerCheckpointRecord>(PLANNER_TABLES.checkpoints).where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('observed_at', 'asc'),
-      connection<PlannerOutcomeRecord>(PLANNER_TABLES.outcomes).where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('created_at', 'asc'),
-    ]);
+    // `connection` can be a transaction, which is backed by one PostgreSQL
+    // client. Concurrent queries on that client are deprecated in pg 8 and
+    // rejected by pg 9, so keep this integrity read deterministic and serial.
+    const steps = await connection<PlannerStepRecord>(PLANNER_TABLES.steps)
+      .where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('ordinal', 'asc');
+    const conflicts = await connection<PlannerConflictRecord>(PLANNER_TABLES.conflicts)
+      .where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('conflict_key', 'asc');
+    const simulations = await connection<PlannerSimulationRecord>(PLANNER_TABLES.simulations)
+      .where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('scenario', 'asc');
+    const decisions = await connection<PlannerDecisionRecord>(PLANNER_TABLES.decisions)
+      .where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('created_at', 'asc');
+    const checkpoints = await connection<PlannerCheckpointRecord>(PLANNER_TABLES.checkpoints)
+      .where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('observed_at', 'asc');
+    const outcomes = await connection<PlannerOutcomeRecord>(PLANNER_TABLES.outcomes)
+      .where({ tenant_id: plan.tenant_id, plan_id: plan.id }).orderBy('created_at', 'asc');
     const goal = normalizeGoal(goalRow);
     const goalManifest = parsePlannerGoal(goal);
     const graph = normalizeGraph(plan, steps, conflicts, simulations);

@@ -157,8 +157,19 @@ The command uses bounded no-redirect HTTPS requests to verify:
 1. `/startup` exposes the expected deployment fingerprint;
 2. `/ready` proves current database migrations;
 3. the Cockpit responds with its Content Security Policy;
-4. voice evidence meets the candidate thresholds;
-5. Jarvis readiness still denies action authority and exposes all J1–J8 gates.
+4. the canonical voice evidence hash recomputes exactly;
+5. the actual five-session/ten-turn/five-review OpenAI Realtime counters satisfy
+   connection, one-to-one grounding, audible-response, interruption, latency,
+   usefulness, failed-session and privacy thresholds;
+6. the quality window, threshold constants and retention contract have not drifted;
+7. the canonical readiness hash recomputes and binds the verified voice evidence;
+8. Jarvis readiness still denies action authority and exposes the exact ordered,
+   blocked J1–J8 gates with safe operator truth.
+
+The qualifier deliberately does not trust `meets_candidate_thresholds`, a hash
+with the correct shape, or an array length of eight on its own. Zero-sample label
+spoofing, duplicated checkpoints, hash drift, malformed/oversized responses and
+unsafe authority truth all fail closed.
 
 The highest possible result is `candidate_ready_for_ceo_acceptance`. The read
 credential is never printed. A passing result is an input to the CEO review; it
