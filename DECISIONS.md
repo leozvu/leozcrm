@@ -999,7 +999,9 @@ Decision:
   create or move `latest`. Generate SBOM, maximum build provenance and a GitHub
   artifact attestation, pin all workflow actions to reviewed commit SHAs, and
   pin the production base and build-support images by digest. Refuse to move an
-  existing full-revision tag.
+  existing full-revision tag. Pin the SBOM scanner explicitly and do not grant
+  BuildKit the setup action's default `network.host` or `security.insecure`
+  entitlements.
 - Treat image publication as supply-chain evidence only. It does not create a
   named runtime, inject provider/source credentials, accept a release manifest,
   run a canary, grant action authority or change G5/G6/G7/J1–J8.
