@@ -131,6 +131,12 @@ blocked pending text confirmation. A disabled-by-default provider and passing
 repository tests do not satisfy live Realtime, privacy, usability, or J1–J8
 evidence.
 
+Phase 18 adds explicit voice privacy consent, content-free grounding/quality
+evidence, CEO session reviews, an exact Jarvis release manifest and bounded
+named-deployment qualification. `meets_candidate_thresholds` and
+`candidate_ready_for_ceo_acceptance` are repository/deployment evidence only;
+neither accepts J1, J8, the 30-day window, or any action authority.
+
 ## Gate ownership
 
 - Product Owner accepts product value, scope, and external risk.

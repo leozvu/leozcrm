@@ -332,6 +332,8 @@ v1 is [`docs/JARVIS_COMPLETION_PLAN.md`](docs/JARVIS_COMPLETION_PLAN.md).
 | 14 | One real supervised hand | ✅ Source command contract canonical on RepositoryRealms `main@0c2b3ff`; registration/live gates blocked | J6 / real G6 history |
 | 15 | Exact RepositoryRealms hand | ✅ Adapter and release boundary complete locally; registration/live gates blocked | J6 / real G6 history |
 | 16 | Ambient Jarvis and v1 | ✅ Repository candidate complete; live 30-day acceptance blocked | J8 / 30-day release acceptance |
+| 17 | Talking Mode | ✅ Merged; provider/device/live voice acceptance blocked | J1 voice qualification / J8 |
+| 18 | Jarvis live qualification | 🚧 Repository candidate complete; named deployment and CEO acceptance blocked | Exact J1–J8 live evidence |
 
 Phase 9A is implemented on `codex/leozops-phase9a-conversation-core`:
 conversation evidence contracts, durable CEO context, six fixed read tools, an
@@ -408,6 +410,18 @@ voice provider is disabled by default, the source action registry remains
 empty, and action-shaped speech must move to reviewed text confirmation. No
 OpenAI key, live SDP/audio exchange, device matrix, CEO acceptance, or live
 J1–J8 evidence is claimed.
+
+Phase 18 is implemented on `codex/phase18-jarvis-live-qualification`: every
+Talking Mode start requires versioned microphone consent; immutable,
+content-free events and terminal CEO reviews produce tenant-scoped candidate
+quality metrics; the Advisor server—not the browser—attests grounded turns.
+An exact release manifest, production startup preflight and bounded HTTPS
+qualifier bind revision, immutable image, deployment/source fingerprint,
+provider configuration, secret references and J1–J8 operations. The qualifier
+can report only `candidate_ready_for_ceo_acceptance`, never live acceptance.
+Repository, PostgreSQL and production-shaped local-staging evidence do not
+replace a named HTTPS deployment, approved provider/source credentials, real
+device samples, elapsed operating windows or CEO acceptance.
 
 ---
 

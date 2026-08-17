@@ -95,6 +95,34 @@ async function main(): Promise<void> {
     headers: { Authorization: `Bearer ${tenantReadToken}` },
   });
   assert(cockpit.response.status === 200 && cockpit.body.tenant?.key === validation.value.source.tenant_key, 'local_staging_cockpit_read_failed');
+  const shell = await fetch(`${base}/cockpit/`, { signal: AbortSignal.timeout(10_000) });
+  const shellBody = await shell.text();
+  assert(shell.status === 200
+    && (shell.headers.get('content-security-policy') ?? '').includes("default-src 'none'")
+    && shellBody.includes('jarvis_voice_privacy_v1'), 'local_staging_phase18_shell_failed');
+  const voiceQuality = await json(`${base}/v1/tenants/${validation.value.source.tenant_key}/jarvis/voice/quality?days=30`, {
+    headers: { Authorization: `Bearer ${tenantReadToken}` },
+  });
+  assert(voiceQuality.response.status === 200
+    && voiceQuality.body.schema_version === 'leozops_voice_quality_v1'
+    && voiceQuality.body.candidate_status === 'insufficient_sample'
+    && voiceQuality.body.live_acceptance === 'not_inferred', 'local_staging_voice_quality_boundary_failed');
+  const disabledVoice = await json(`${base}/v1/tenants/${validation.value.source.tenant_key}/jarvis/voice/sessions`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${tenantReadToken}`,
+      'Content-Type': 'application/json',
+      'Idempotency-Key': `local-staging-disabled-voice-${Date.now()}`,
+    },
+    body: JSON.stringify({
+      schema_version: 'leozops_voice_session_request_v2', locale: 'en',
+      privacy_notice_version: 'jarvis_voice_privacy_v1', consent: true,
+      capability_profile: 'webrtc_audio_barge_in_v1',
+    }),
+  });
+  assert(disabledVoice.response.status === 503
+    && disabledVoice.body.code === 'voice_provider_disabled'
+    && !JSON.stringify(disabledVoice.body).includes('client_secret'), 'local_staging_voice_provider_fail_closed_failed');
   const operationsDenied = await fetch(`${base}/internal/operations/snapshot`, { signal: AbortSignal.timeout(10_000) });
   assert(operationsDenied.status === 401, 'local_staging_operations_auth_boundary_failed');
   const operations = await json(`${base}/internal/operations/snapshot`, {
@@ -137,6 +165,12 @@ async function main(): Promise<void> {
     runtime: { profile: 'egoric-readonly', user: 'leozops' },
     source: { kind: 'fixture_stub', user: 'node', pii_minimized: true, etag_replay: true },
     auth: { tenant_boundary: true, cockpit_read: true, operations_boundary: true, secrets_printed: false },
+    voice: {
+      privacy_notice_present: true,
+      quality_status: voiceQuality.body.candidate_status,
+      live_acceptance: voiceQuality.body.live_acceptance,
+      provider: 'disabled_fail_closed',
+    },
     live_gate_claimed: false,
   }, null, 2));
 }

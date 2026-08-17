@@ -1,0 +1,50 @@
+{
+  "schema_version": "leozops_jarvis_release_v1",
+  "status": "pending",
+  "environment": "staging",
+  "release": {
+    "source_repository": "leozvu/leozcrm",
+    "source_revision": "0000000000000000000000000000000000000000",
+    "container_image": "registry.example/leozops:pending",
+    "image_digest": "sha256:0000000000000000000000000000000000000000000000000000000000000000",
+    "live_observer_fingerprint": "sha256:0000000000000000000000000000000000000000000000000000000000000000"
+  },
+  "endpoint": {
+    "public_base_url": "https://jarvis-staging.example.com",
+    "cockpit_path": "/cockpit"
+  },
+  "intelligence": {
+    "advisor_provider": "openai",
+    "advisor_model": "gpt-5.6-sol",
+    "voice_provider": "openai_realtime",
+    "voice_model": "gpt-realtime-2.1",
+    "voice": "marin",
+    "transport": "webrtc",
+    "privacy_notice_version": "jarvis_voice_privacy_v1"
+  },
+  "secret_bindings": {
+    "openai_api_key": "env://OPENAI_API_KEY",
+    "integration_read_auth_secret": "env://LEOZOPS_OUTPUT_AUTH_SECRET"
+  },
+  "operations": {
+    "dashboard_id": "pending-dashboard",
+    "alert_route_id": "pending-alert-route",
+    "backup_policy_id": "pending-backup-policy",
+    "key_rotation_runbook_id": "phase18-key-rotation",
+    "incident_runbook_id": "phase18-incident-response",
+    "evidence_store_id": "pending-evidence-store"
+  },
+  "acceptance": {
+    "ceo_owner": "solo-founder",
+    "runtime_owner": "solo-founder",
+    "qualification_window_days": 30,
+    "required_checkpoints": ["J1", "J2", "J3", "J4", "J5", "J6", "J7", "J8"]
+  },
+  "safety": {
+    "action_authority": "none",
+    "raw_audio_retention": "none",
+    "transcript_retention": "none",
+    "production_acceptance_inferred": false,
+    "waivers_allowed": false
+  }
+}

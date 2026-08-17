@@ -26,6 +26,7 @@ npm test
 npm run build
 npm run test:phase15
 npm run test:phase16
+npm run test:phase18
 npm audit --omit=dev --audit-level=high
 ```
 
@@ -44,6 +45,10 @@ jobs. A local SQLite pass cannot substitute for PostgreSQL or image evidence.
   HTTP service starts no loop.
 - Enable the OpenAI advisor only after its project privacy/retention decision,
   budget, revocation, live eval, and monitoring have been accepted.
+- Accept the exact Phase 18 Jarvis release manifest, run `jarvis:preflight`,
+  then enable Realtime voice only for the named target. Complete explicit
+  consent, five sessions, ten grounded turns, five CEO reviews, audible output,
+  barge-in and key-revocation proof before running `jarvis:qualify`.
 - Record the named deployment, region, service, database, source project,
   dashboards, alerts, on-call owner, and trace correlation procedure.
 
@@ -51,6 +56,8 @@ jobs. A local SQLite pass cannot substitute for PostgreSQL or image evidence.
 
 Inspect `/internal/operations/snapshot`, Prometheus metrics, and each tenant's
 `jarvis/evaluation?days=30` plus `jarvis/readiness`.
+Also inspect `jarvis/voice/quality?days=30`; its candidate status never replaces
+the named-deployment CEO decision.
 
 Stop promotion for any of the following:
 

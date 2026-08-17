@@ -785,3 +785,40 @@ Status: IMPLEMENTED LOCALLY; LIVE REALTIME/CEO ACCEPTANCE BLOCKED
     interruption, grounding quality, latency/cost, privacy, and CEO usability.
 [ ] Accept every applicable live J1–J8 gate before calling Talking Jarvis live
     or granting it any source action authority.
+
+27. PHASE 18 JARVIS LIVE QUALIFICATION — REPOSITORY CANDIDATE
+---------------------------------------------------------------------
+Status: IMPLEMENTED LOCALLY; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
+
+[x] Require explicit versioned microphone consent before every Talking Mode
+    session and persist only immutable consent metadata.
+[x] Record content-free grounding start/completion/failure and action-block
+    events without copying question text, transcript, audio, device ID, or UA.
+[x] Add terminal CEO useful/not-useful review plus privacy-concern flag bound to
+    exact session and event-chain fingerprints.
+[x] Add tenant-scoped 1–90-day voice quality metrics for connection, grounding,
+    audible response, interruption, latency, usefulness, failures and privacy.
+[x] Keep quality status candidate-only with explicit minimum samples and
+    `live_acceptance: not_inferred`.
+[x] Surface voice qualification in the medieval Cockpit and integrate its hash/
+    candidate status into Jarvis J1 readiness without weakening live blockers.
+[x] Add an exact Jarvis release manifest for canonical revision, image digest,
+    live-observer fingerprint, named URL, providers, secrets, operations and J1–J8.
+[x] Fail production startup closed when a live Advisor/voice provider is enabled
+    without the accepted manifest and matching runtime/source/secret identities.
+[x] Add bounded `jarvis:preflight` and `jarvis:qualify` commands whose outputs
+    contain no credential and cannot claim more than CEO-acceptance readiness.
+[x] Add immutable consent/review migrations, SQLite tests, PostgreSQL coverage,
+    Phase 18 CI registration, operator runbook, pending example and env contract.
+[x] Pass the final repository QA baseline: 375/375 full regression, 20/20
+    Phase 18 tests, production build, Phase 12 regression, zero-finding
+    production dependency audit, PostgreSQL 16 smoke and local staging drills.
+[ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
+    immutable image, named staging URL, real source and current read credential.
+[ ] Complete the real five-session/ten-turn/five-review device sample, key
+    revocation, audible/barge-in, incident/recovery and CEO qualification run.
+[ ] Earn J1–J8 through their existing live evidence and elapsed-time gates.
+
+Repository implementation cannot close the last three items without external
+provider credentials, a named deployment, real RepositoryRealms data and elapsed
+CEO operation. No fixture or local Docker result may be substituted.

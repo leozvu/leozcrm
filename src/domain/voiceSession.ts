@@ -2,13 +2,20 @@ import { createHash } from 'node:crypto';
 import { canonicalStringify } from './businessMemory';
 
 export const VOICE_SESSION_SCHEMA = 'leozops_voice_session_v1' as const;
-export const VOICE_SESSION_REQUEST_SCHEMA = 'leozops_voice_session_request_v1' as const;
+export const VOICE_SESSION_REQUEST_SCHEMA = 'leozops_voice_session_request_v2' as const;
 export const VOICE_SESSION_EVENT_SCHEMA = 'leozops_voice_session_event_v1' as const;
+export const VOICE_SESSION_CONSENT_SCHEMA = 'leozops_voice_session_consent_v1' as const;
+export const VOICE_SESSION_REVIEW_SCHEMA = 'leozops_voice_session_review_v1' as const;
+export const VOICE_QUALITY_SCHEMA = 'leozops_voice_quality_v1' as const;
+export const VOICE_PRIVACY_NOTICE_VERSION = 'jarvis_voice_privacy_v1' as const;
+export const VOICE_CAPABILITY_PROFILE = 'webrtc_audio_barge_in_v1' as const;
 export const VOICE_SESSION_MODEL = 'gpt-realtime-2.1' as const;
 export const VOICE_SESSION_VOICE = 'marin' as const;
 export const VOICE_SESSION_TABLES = {
   sessions: 'jarvis_voice_sessions',
   events: 'jarvis_voice_session_events',
+  consents: 'jarvis_voice_session_consents',
+  reviews: 'jarvis_voice_session_reviews',
 } as const;
 
 export type VoiceLocale = 'en' | 'vi';
@@ -29,12 +36,16 @@ export type VoiceClientEventType =
   | 'assistant_response_started'
   | 'assistant_response_completed'
   | 'assistant_response_interrupted'
+  | 'advisor_grounding_started'
+  | 'advisor_grounding_failed'
+  | 'action_request_blocked'
   | 'disconnected'
   | 'connection_failed';
 
 export type VoiceServerEventType =
   | 'credential_issued'
   | 'credential_reissued'
+  | 'advisor_grounding_completed'
   | 'provider_failed'
   | 'session_ended';
 
@@ -43,6 +54,15 @@ export type VoiceSessionEventType = VoiceClientEventType | VoiceServerEventType;
 export interface VoiceSessionRequest {
   schema_version: typeof VOICE_SESSION_REQUEST_SCHEMA;
   locale: VoiceLocale;
+  privacy_notice_version: typeof VOICE_PRIVACY_NOTICE_VERSION;
+  consent: true;
+  capability_profile: typeof VOICE_CAPABILITY_PROFILE;
+}
+
+export interface VoiceSessionReviewRequest {
+  schema_version: typeof VOICE_SESSION_REVIEW_SCHEMA;
+  rating: 'useful' | 'not_useful';
+  privacy_concern: boolean;
 }
 
 export interface VoiceClientEventRequest {
@@ -86,6 +106,34 @@ export interface VoiceSessionEventRecord {
   event_fingerprint: string;
 }
 
+export interface VoiceSessionConsentRecord {
+  id: string;
+  tenant_id: string;
+  session_id: string;
+  schema_version: typeof VOICE_SESSION_CONSENT_SCHEMA;
+  privacy_notice_version: typeof VOICE_PRIVACY_NOTICE_VERSION;
+  capability_profile: typeof VOICE_CAPABILITY_PROFILE;
+  granted: true;
+  granted_by: 'tenant_read_credential_holder';
+  granted_at: string;
+  consent_fingerprint: string;
+}
+
+export interface VoiceSessionReviewRecord {
+  id: string;
+  tenant_id: string;
+  session_id: string;
+  schema_version: typeof VOICE_SESSION_REVIEW_SCHEMA;
+  idempotency_key: string;
+  request_hash: string;
+  rating: 'useful' | 'not_useful';
+  privacy_concern: boolean;
+  session_fingerprint: string;
+  event_chain_hash: string;
+  reviewed_at: string;
+  review_fingerprint: string;
+}
+
 export class VoiceSessionError extends Error {
   constructor(
     public readonly code: string,
@@ -120,14 +168,50 @@ export function voiceSessionHash(value: unknown): string {
 
 export function validateVoiceSessionRequest(raw: unknown): VoiceSessionRequest {
   const root = object(raw, 'voice_session');
-  exact(root, ['schema_version', 'locale'], 'voice_session');
+  exact(root, [
+    'schema_version', 'locale', 'privacy_notice_version', 'consent', 'capability_profile',
+  ], 'voice_session');
   if (root.schema_version !== VOICE_SESSION_REQUEST_SCHEMA) {
     throw new VoiceSessionError('invalid_voice_request', `schema_version must equal ${VOICE_SESSION_REQUEST_SCHEMA}`);
   }
   if (root.locale !== 'en' && root.locale !== 'vi') {
     throw new VoiceSessionError('invalid_voice_request', 'voice_session.locale is unsupported');
   }
-  return { schema_version: VOICE_SESSION_REQUEST_SCHEMA, locale: root.locale };
+  if (root.privacy_notice_version !== VOICE_PRIVACY_NOTICE_VERSION || root.consent !== true) {
+    throw new VoiceSessionError(
+      'voice_privacy_consent_required',
+      `explicit consent to ${VOICE_PRIVACY_NOTICE_VERSION} is required`,
+    );
+  }
+  if (root.capability_profile !== VOICE_CAPABILITY_PROFILE) {
+    throw new VoiceSessionError('voice_capability_unsupported', 'the secure voice capability profile is unsupported');
+  }
+  return {
+    schema_version: VOICE_SESSION_REQUEST_SCHEMA,
+    locale: root.locale,
+    privacy_notice_version: VOICE_PRIVACY_NOTICE_VERSION,
+    consent: true,
+    capability_profile: VOICE_CAPABILITY_PROFILE,
+  };
+}
+
+export function validateVoiceSessionReviewRequest(raw: unknown): VoiceSessionReviewRequest {
+  const root = object(raw, 'voice_review');
+  exact(root, ['schema_version', 'rating', 'privacy_concern'], 'voice_review');
+  if (root.schema_version !== VOICE_SESSION_REVIEW_SCHEMA) {
+    throw new VoiceSessionError('invalid_voice_review', `schema_version must equal ${VOICE_SESSION_REVIEW_SCHEMA}`);
+  }
+  if (root.rating !== 'useful' && root.rating !== 'not_useful') {
+    throw new VoiceSessionError('invalid_voice_review', 'voice_review.rating is unsupported');
+  }
+  if (typeof root.privacy_concern !== 'boolean') {
+    throw new VoiceSessionError('invalid_voice_review', 'voice_review.privacy_concern must be boolean');
+  }
+  return {
+    schema_version: VOICE_SESSION_REVIEW_SCHEMA,
+    rating: root.rating,
+    privacy_concern: root.privacy_concern,
+  };
 }
 
 export function validateVoiceClientEventRequest(raw: unknown): VoiceClientEventRequest {
@@ -143,6 +227,9 @@ export function validateVoiceClientEventRequest(raw: unknown): VoiceClientEventR
     'assistant_response_started',
     'assistant_response_completed',
     'assistant_response_interrupted',
+    'advisor_grounding_started',
+    'advisor_grounding_failed',
+    'action_request_blocked',
     'disconnected',
     'connection_failed',
   ];
@@ -182,6 +269,10 @@ export function voiceTransition(
     thinking: {
       user_turn_started: 'interrupted',
       assistant_response_started: 'speaking',
+      advisor_grounding_started: 'thinking',
+      advisor_grounding_completed: 'thinking',
+      advisor_grounding_failed: 'thinking',
+      action_request_blocked: 'thinking',
     },
     speaking: {
       user_turn_started: 'interrupted',

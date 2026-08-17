@@ -125,6 +125,11 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(shell, /rel="manifest" href="\/cockpit\/manifest\.webmanifest"/);
     assert.match(shell, /id="voice-input-button"/);
     assert.match(shell, /id="talking-mode-button"/);
+    assert.match(shell, /id="voice-consent-dialog"/);
+    assert.match(shell, /jarvis_voice_privacy_v1/);
+    assert.match(shell, /id="voice-session-feedback"/);
+    assert.match(shell, /never audio or transcript/);
+    assert.match(shell, /separately governed Advisor conversation history/);
     assert.match(shell, /Talking Mode uses grounded read-only advice and has no action authority\./);
     assert.match(shell, /id="preference-form"/);
     assert.match(shell, /id="advisory-confirmation-dialog"/);
@@ -176,6 +181,10 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(script, /response: \{ tool_choice: 'none' \}/);
     assert.equal(script.includes("model: 'gpt-realtime-2.1'"), false);
     assert.match(script, /blocked_requires_text_confirmation/);
+    assert.match(script, /leozops_voice_session_request_v2/);
+    assert.match(script, /X-LeozOps-Voice-Session/);
+    assert.match(script, /leozops_voice_session_review_v1/);
+    assert.match(script, /\/jarvis\/voice\/quality\?days=30/);
     assert.equal(script.includes('OPENAI_API_KEY'), false);
     assert.match(script, /\/jarvis\/preferences/);
     assert.match(script, /\/jarvis\/evaluation\?days=30/);
