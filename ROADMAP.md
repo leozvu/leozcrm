@@ -424,6 +424,15 @@ Repository, PostgreSQL and production-shaped local-staging evidence do not
 replace a named HTTPS deployment, approved provider/source credentials, real
 device samples, elapsed operating windows or CEO acceptance.
 
+The hardened Phase 18 release image was published from canonical
+`main@18ce627ce1bbf59d0e3e9221a69b84afcba13d9d` by Actions run 31994132176 as
+`ghcr.io/leozvu/leozcrm@sha256:8be1b29008ac38c740e8431e490b2fc34ff3fb4c714ca70cd4fa8371cc0717d7`.
+The immutable OCI index contains `linux/amd64` and `linux/arm64` manifests,
+digest-pinned SBOM/provenance and GitHub/Sigstore attestation 41064915. Registry,
+attestation and an exact-digest non-root/read-only readiness smoke passed. This
+closes the repository artifact gate only; it creates no deployment, credential,
+live source, device evidence, elapsed acceptance window or action authority.
+
 ---
 
 ## Legacy Foundation (historical — completion evidence intact)

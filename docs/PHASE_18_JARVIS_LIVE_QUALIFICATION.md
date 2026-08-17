@@ -30,6 +30,30 @@ The workflow intentionally creates no `latest` tag and performs no deployment.
 Its digest may populate an accepted release manifest only after the other exact
 environment, source, secret, operations and ownership fields exist.
 
+### Published canonical artifact
+
+The hardened workflow was merged through PR #27 and published canonical
+`main@18ce627ce1bbf59d0e3e9221a69b84afcba13d9d` in Actions run
+[31994132176](https://github.com/leozvu/leozcrm/actions/runs/31994132176):
+
+```text
+ghcr.io/leozvu/leozcrm:18ce627ce1bbf59d0e3e9221a69b84afcba13d9d
+ghcr.io/leozvu/leozcrm@sha256:8be1b29008ac38c740e8431e490b2fc34ff3fb4c714ca70cd4fa8371cc0717d7
+```
+
+The OCI index resolves to `linux/amd64` and `linux/arm64` image manifests plus
+their SBOM/provenance attestation manifests. GitHub/Sigstore attestation
+[41064915](https://github.com/leozvu/leozcrm/attestations/41064915) verifies the
+same subject digest and has Rekor transparency-log index 2495416343. Verification
+passed both against GitHub's stored record and with `--bundle-from-oci`. A fresh
+pull by digest also passed `/health`, `/startup` and `/ready` while running as the
+non-root `leozops` user with a read-only root filesystem, no new privileges and
+all capabilities dropped.
+
+These facts close only the immutable artifact-publication gate. They do not
+constitute a named deployment, accepted release manifest, source/provider
+credential, voice/device sample, canary, elapsed window or live acceptance.
+
 ## Voice evidence contract
 
 Every microphone session requires explicit consent to
