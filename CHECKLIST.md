@@ -817,6 +817,13 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     reproducing the Node 24.19 cleanup failure; pass all eight replacement
     push/PR checks and merge PR #24 to canonical
     `main@10b99ae3844e13a9ddf41f5728218885d49f54a6`.
+[x] Add a manual, fail-closed GHCR publication workflow that accepts only a
+    full revision already reachable from canonical `main`, publishes no mutable
+    tag, pins every action and build-support image, pins the production base
+    image by digest, and emits multi-architecture SBOM/provenance plus the
+    immutable digest.
+[ ] Publish and verify the canonical Phase 18 image digest. Artifact publication
+    alone is not a deployment and cannot satisfy any live gate.
 [ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
     immutable image, named staging URL, real source and current read credential.
 [ ] Complete the real five-session/ten-turn/five-review device sample, key

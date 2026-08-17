@@ -987,3 +987,20 @@ Decision:
   accepted live manifests, real RepositoryRealms source, voice device sample,
   elapsed operating history or CEO acceptance; J1–J8 remain unchanged.
 Owner: Leoz. Recorded by Codex after the Phase 18 canonical merge.
+
+DECISION-002 addendum 37 — 2026-08-17 — Immutable Jarvis artifact publication authorized
+Status: Approved within the Phase 18 release-publication authority; deployment remains blocked.
+Decision:
+- Permit one manually dispatched GitHub Actions workflow to publish a canonical
+  `leozcrm` production image to GHCR using only the repository-scoped
+  `GITHUB_TOKEN` after the requested full revision is proven reachable from
+  `origin/main`.
+- Publish only a full-revision tag for `linux/amd64` and `linux/arm64`; do not
+  create or move `latest`. Generate SBOM, maximum build provenance and a GitHub
+  artifact attestation, pin all workflow actions to reviewed commit SHAs, and
+  pin the production base and build-support images by digest. Refuse to move an
+  existing full-revision tag.
+- Treat image publication as supply-chain evidence only. It does not create a
+  named runtime, inject provider/source credentials, accept a release manifest,
+  run a canary, grant action authority or change G5/G6/G7/J1–J8.
+Owner: Leoz. Recorded by Codex before the Phase 18 artifact publication attempt.

@@ -14,6 +14,21 @@ and one bounded named-deployment qualification command.
 It does not manufacture a cloud target, provider key, live business source,
 elapsed 30-day window, or J1–J8 acceptance.
 
+## Immutable image publication
+
+`.github/workflows/jarvis-image-release.yml` is a manual artifact-publication
+boundary. Its input must be a full revision already reachable from canonical
+`main`. It publishes only the revision tag to `ghcr.io/leozvu/leozcrm`, for
+`linux/amd64` and `linux/arm64`, with SBOM, maximum provenance and a GitHub
+artifact attestation. Every referenced action is pinned by commit SHA.
+The Node production base, QEMU helper and BuildKit worker are also pinned by
+digest, and a registry probe fails closed instead of moving an existing
+revision tag.
+
+The workflow intentionally creates no `latest` tag and performs no deployment.
+Its digest may populate an accepted release manifest only after the other exact
+environment, source, secret, operations and ownership fields exist.
+
 ## Voice evidence contract
 
 Every microphone session requires explicit consent to
