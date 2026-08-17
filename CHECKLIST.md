@@ -811,6 +811,13 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     without the accepted manifest and matching runtime/source/secret identities.
 [x] Add bounded `jarvis:preflight` and `jarvis:qualify` commands whose outputs
     contain no credential and cannot claim more than CEO-acceptance readiness.
+[x] Harden `jarvis:qualify` so it independently recomputes voice/readiness
+    hashes, minimum live-provider sample, connection/grounding/audible/barge-in/
+    latency/usefulness/privacy invariants, the exact threshold contract, and the
+    ordered blocked J1–J8 set instead of trusting declared status strings or an
+    eight-row count. Counterfeit zero-sample, duplicated-checkpoint, tampered-hash,
+    unsafe-operator-truth, malformed-origin/credential and oversized/invalid-JSON
+    cases fail closed.
 [x] Add immutable consent/review migrations, SQLite tests, PostgreSQL coverage,
     Phase 18 CI registration, operator runbook, pending example and env contract.
 [x] Pass the final repository QA baseline: 375/375 full regression, 20/20
@@ -835,6 +842,13 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     41064915, and the exact digest passed an isolated non-root/read-only
     `/health`, `/startup`, `/ready` smoke. Artifact publication alone is not a
     deployment and cannot satisfy any live gate.
+[x] Pass the post-release qualifier hardening baseline: 23/23 Phase 18 tests,
+    378/378 full SQLite regression, strict TypeScript, and direct qualifier
+    coverage of approximately 92% lines / 84% branches before CI publication.
+[x] Remove concurrent Planner integrity reads from transaction-bound PostgreSQL
+    clients, rerun the full PostgreSQL 16 migrate/exercise/immutability/rollback
+    lifecycle with `--throw-deprecation`, and promote future driver deprecations
+    to CI failures.
 [ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
     named HTTPS staging runtime, real source and current read credential.
 [ ] Complete the real five-session/ten-turn/five-review device sample, key

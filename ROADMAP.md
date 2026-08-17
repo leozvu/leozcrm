@@ -433,6 +433,15 @@ attestation and an exact-digest non-root/read-only readiness smoke passed. This
 closes the repository artifact gate only; it creates no deployment, credential,
 live source, device evidence, elapsed acceptance window or action authority.
 
+A post-release qualification audit removed another false-positive path: the
+named-deployment qualifier now recomputes both evidence hashes, verifies the
+actual five-session/ten-turn/five-review OpenAI Realtime sample and all quality/
+privacy invariants, and requires the exact ordered blocked J1–J8 set plus safe
+operator truth. A deployment can no longer qualify by echoing
+`meets_candidate_thresholds`, returning zero counters, or duplicating J1 eight
+times. This strengthens candidate evidence only and does not manufacture live
+acceptance.
+
 ---
 
 ## Legacy Foundation (historical — completion evidence intact)
