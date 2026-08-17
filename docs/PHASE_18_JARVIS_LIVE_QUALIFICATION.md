@@ -1,7 +1,7 @@
 # Phase 18 — Jarvis Live Qualification
 
-Status: repository implementation merged through PR #24 at
-`main@10b99ae3844e13a9ddf41f5728218885d49f54a6`; named deployment and CEO live
+Status: runtime hardening merged through PR #31 at
+`main@a0a5ae642c29a9601874e92fccaf0f3c5ae86ec3`; named deployment and CEO live
 acceptance remain external.
 
 ## Outcome
@@ -30,7 +30,35 @@ The workflow intentionally creates no `latest` tag and performs no deployment.
 Its digest may populate an accepted release manifest only after the other exact
 environment, source, secret, operations and ownership fields exist.
 
-### Published canonical artifact
+### Current executable candidate artifact
+
+After qualifier, PostgreSQL and credential/provider hardening, the current
+runtime candidate was published from canonical
+`main@a0a5ae642c29a9601874e92fccaf0f3c5ae86ec3` in Actions run
+[31996371713](https://github.com/leozvu/leozcrm/actions/runs/31996371713):
+
+```text
+ghcr.io/leozvu/leozcrm:a0a5ae642c29a9601874e92fccaf0f3c5ae86ec3
+ghcr.io/leozvu/leozcrm@sha256:b18d66fe55268b1ca31dcde31d40c191c6c62deb0d8f685b1e64da6c8b38f593
+```
+
+The OCI index resolves to exact `linux/amd64` manifest
+`sha256:0a776ba342cab2cb8f14be8ba6cb156420dbd971cc2ebba5a39c9e0237f68585`
+and `linux/arm64` manifest
+`sha256:26d578a473b4331a9f9f585e8ae917de7575c99a5394f50190fc2754b2815fc0`,
+plus their SBOM/provenance manifests. GitHub/Sigstore attestation
+[41068664](https://github.com/leozvu/leozcrm/attestations/41068664) binds the
+same subject and Rekor log index 2495785656. GitHub-record and OCI-bundle
+verification passed. The pulled image's OCI labels bind the exact repository and
+source revision.
+
+A separate pull-by-digest container passed `/health`, `/startup` and `/ready`
+against the local fixture boundary under production `egoric-readonly`, running
+as non-root `leozops` with read-only root, `no-new-privileges` and all
+capabilities dropped. The disposable container was removed and no live gate was
+claimed.
+
+### Historical first hardened publication
 
 The hardened workflow was merged through PR #27 and published canonical
 `main@18ce627ce1bbf59d0e3e9221a69b84afcba13d9d` in Actions run
@@ -50,7 +78,9 @@ pull by digest also passed `/health`, `/startup` and `/ready` while running as t
 non-root `leozops` user with a read-only root filesystem, no new privileges and
 all capabilities dropped.
 
-These facts close only the immutable artifact-publication gate. They do not
+Both publications remain immutable audit evidence. The current executable
+candidate is the `a0a5ae6…` digest above. These facts close only the immutable
+artifact-publication gate. They do not
 constitute a named deployment, accepted release manifest, source/provider
 credential, voice/device sample, canary, elapsed window or live acceptance.
 

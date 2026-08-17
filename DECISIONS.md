@@ -1089,3 +1089,32 @@ Decision:
   structurally usable. It cannot prove a key is authentic, current, least-
   privilege, revoked on demand, or accepted by a real named deployment.
 Owner: Leoz. Recorded by Codex after the Phase 18 secret/provider boundary audit.
+
+DECISION-002 addendum 42 — 2026-08-17 — Current Jarvis runtime artifact recorded
+Status: Complete for current executable artifact; deployment and acceptance remain blocked.
+Decision:
+- Record PRs #30 and #31 as merged only after all push/PR checks passed. Record
+  canonical post-merge QA run 31996270877 as passing Node 22/24, production
+  container build and PostgreSQL lifecycle for
+  `main@a0a5ae642c29a9601874e92fccaf0f3c5ae86ec3`.
+- Because the earlier published image predates qualifier, PostgreSQL and runtime
+  credential/provider hardening, designate a new immutable candidate rather than
+  treating the earlier digest as current executable evidence.
+- Record Actions run 31996371713 and immutable OCI index
+  `ghcr.io/leozvu/leozcrm@sha256:b18d66fe55268b1ca31dcde31d40c191c6c62deb0d8f685b1e64da6c8b38f593`.
+  Its exact `linux/amd64` manifest is
+  `sha256:0a776ba342cab2cb8f14be8ba6cb156420dbd971cc2ebba5a39c9e0237f68585`;
+  its exact `linux/arm64` manifest is
+  `sha256:26d578a473b4331a9f9f585e8ae917de7575c99a5394f50190fc2754b2815fc0`.
+- Record GitHub/Sigstore attestation 41068664 and Rekor log index 2495785656.
+  Verification passed against GitHub's record and the OCI registry bundle; the
+  pulled image label binds the exact canonical revision and repository.
+- Record a separate exact-digest container smoke against the local fixture
+  boundary as passing `/health`, `/startup` and `/ready` under production
+  `egoric-readonly`, non-root `leozops`, read-only root, `no-new-privileges`, and
+  all capabilities dropped. The disposable container was removed.
+- Keep both the old and current artifacts immutable for audit history. Neither
+  artifact is a named deployment, accepted manifest, real source/provider
+  credential, key-revocation proof, device sample, CEO acceptance, operating
+  window, G5/G6/G7 authority or J1–J8 evidence.
+Owner: Leoz. Recorded by Codex after registry, attestation and digest smoke verification.
