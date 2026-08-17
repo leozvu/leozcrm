@@ -1006,3 +1006,25 @@ Decision:
   named runtime, inject provider/source credentials, accept a release manifest,
   run a canary, grant action authority or change G5/G6/G7/J1–J8.
 Owner: Leoz. Recorded by Codex before the Phase 18 artifact publication attempt.
+
+DECISION-002 addendum 38 — 2026-08-17 — Hardened Jarvis artifact evidence recorded
+Status: Complete for immutable artifact publication; deployment and live acceptance remain blocked.
+Decision:
+- Record GitHub Actions run 31994132176 as the successful canonical publication
+  from `main@18ce627ce1bbf59d0e3e9221a69b84afcba13d9d`. This publication created
+  only its full source-revision tag; no mutable or `latest` tag was created.
+- Record the immutable OCI index as
+  `ghcr.io/leozvu/leozcrm@sha256:8be1b29008ac38c740e8431e490b2fc34ff3fb4c714ca70cd4fa8371cc0717d7`,
+  with exact `linux/amd64` manifest `sha256:e9d497b3a78006873a722670e94dd07703332823cd7c3897db71192108e58463`
+  and `linux/arm64` manifest `sha256:824d27eb2ae84f7334acc45e648c89b0a78be77ea6b4fed937119dee5e9f5c86`.
+- Record GitHub/Sigstore attestation 41064915 and Rekor log index 2495416343.
+  Verification passed from both GitHub's attestation record and the bundle stored
+  in the OCI registry. Build evidence proves the SBOM scanner resolved exactly to
+  `sha256:79e7b013cbec16bbb436f312819a49a4a57752b2270c1a9332ae1a10fcc82a68`.
+- Record an isolated pull-by-digest smoke as passing `/health`, `/startup` and
+  `/ready`, with the runtime user `leozops`, a read-only root filesystem,
+  `no-new-privileges` and all Linux capabilities dropped.
+- Keep the artifact explicitly non-deployed. This evidence supplies no OpenAI or
+  source credential, accepted live manifest, named HTTPS runtime, genuine voice
+  sample, elapsed operating evidence, CEO acceptance, G5/G6/G7 or J1–J8.
+Owner: Leoz. Recorded by Codex after independent registry and attestation verification.

@@ -824,10 +824,16 @@ Status: MERGED TO MAIN; NAMED DEPLOYMENT/CEO ACCEPTANCE BLOCKED
     immutable digest.
 [x] Pin the SBOM scanner by digest and replace the BuildKit setup action's
     default insecure entitlements with an explicit debug-only daemon flag.
-[ ] Publish and verify the canonical Phase 18 image digest. Artifact publication
-    alone is not a deployment and cannot satisfy any live gate.
+[x] Publish and verify the canonical Phase 18 image from
+    `main@18ce627ce1bbf59d0e3e9221a69b84afcba13d9d` as the immutable
+    `ghcr.io/leozvu/leozcrm@sha256:8be1b29008ac38c740e8431e490b2fc34ff3fb4c714ca70cd4fa8371cc0717d7`.
+    GitHub Actions run 31994132176 published `linux/amd64` and `linux/arm64`
+    manifests, digest-pinned SBOM/provenance, GitHub/Sigstore attestation
+    41064915, and the exact digest passed an isolated non-root/read-only
+    `/health`, `/startup`, `/ready` smoke. Artifact publication alone is not a
+    deployment and cannot satisfy any live gate.
 [ ] Supply an approved server key, accepted live-observer and Jarvis manifests,
-    immutable image, named staging URL, real source and current read credential.
+    named HTTPS staging runtime, real source and current read credential.
 [ ] Complete the real five-session/ten-turn/five-review device sample, key
     revocation, audible/barge-in, incident/recovery and CEO qualification run.
 [ ] Earn J1–J8 through their existing live evidence and elapsed-time gates.
