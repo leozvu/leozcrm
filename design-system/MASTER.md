@@ -25,6 +25,11 @@ freshness, limitations, and authority state always win the hierarchy.
 | `--realm-text` | `#f3f5f7` | primary text |
 | `--realm-text-2` | `#aab4be` | secondary text |
 | `--realm-muted` | `#82909c` | metadata that still meets contrast |
+| `--realm-obsidian` | `#070b0f` | Character Presence depth layer |
+| `--realm-malachite` | `#4fa47a` | observing/grounded character aura |
+| `--realm-arcane` | `#4ec4b7` | listening character aura |
+| `--realm-ember` | `#d69a4c` | warning character aura |
+| `--realm-parchment` | `#ead7ad` | ceremonial display text |
 
 Use a humanist system sans for controls and body. A restrained Georgia-style
 serif is allowed only for the product wordmark and one page display heading.
@@ -49,6 +54,9 @@ Glass blur is reserved for modal isolation; it is not the default card style.
   changes move focus to the destination heading.
 - Mobile prioritizes brief, attention, and Ask; dense business data becomes a
   vertical list rather than a compressed desktop dashboard.
+- Character Presence is an ambient status visualization, never an authority
+  indicator. Its six text-labelled states are specified in
+  `design-system/components/jarvis-presence.md`.
 
 ## Breakpoints
 

@@ -138,6 +138,60 @@ export const COCKPIT_SCRIPT = String.raw`
     chip.lastChild.textContent = label;
   }
 
+  function setPresenceState(name, title, copy, className) {
+    var allowed = ['dormant', 'observing', 'listening', 'thinking', 'speaking', 'warning'];
+    var resolved = allowed.indexOf(name) >= 0 ? name : 'warning';
+    var presence = id('jarvis-presence');
+    presence.setAttribute('data-presence-state', resolved);
+    id('jarvis-presence-title').textContent = title;
+    id('jarvis-presence-copy').textContent = copy;
+    var chip = id('jarvis-presence-state');
+    chip.className = 'state-chip ' + className;
+    chip.lastChild.textContent = titleCase(resolved);
+  }
+
+  function restorePresenceState() {
+    if (!state.token) {
+      setPresenceState('dormant', 'LeoZOps is dormant',
+        'Connect a tenant-scoped read credential to awaken the evidence-bound advisor.', 'state-offline');
+      return;
+    }
+    if (!navigator.onLine) {
+      setPresenceState('warning', 'LeoZOps has lost the courier line',
+        'The network is offline. Existing evidence remains visible, but no fresh claim can be inferred.', 'state-stale');
+      return;
+    }
+    var freshness = state.snapshot && state.snapshot.freshness ? state.snapshot.freshness : null;
+    if (!freshness || freshness.status !== 'fresh' || Number(freshness.age_seconds) < 0) {
+      setPresenceState('warning', 'LeoZOps needs your attention',
+        'Evidence is stale, future-dated, or unavailable. The advisor remains read-only and no action is permitted.', 'state-stale');
+      return;
+    }
+    setPresenceState('observing', 'LeoZOps is observing the realm',
+      'Reading accepted tenant evidence. Every claim stays cited; authority remains advisory only.', 'state-fresh');
+  }
+
+  function presenceFromVoice(label) {
+    if (label === 'Listening') {
+      setPresenceState('listening', 'LeoZOps is listening',
+        'Microphone stream active. Audio is not retained by LeozOps.', 'state-fresh');
+    } else if (label === 'Thinking') {
+      setPresenceState('thinking', 'LeoZOps is reading the runes',
+        'Grounding the spoken turn in accepted evidence and Business Memory.', 'state-stale');
+    } else if (label === 'Speaking') {
+      setPresenceState('speaking', 'LeoZOps is speaking',
+        'Delivering a validated, cited answer. Speak again to interrupt.', 'state-fresh');
+    } else if (label === 'Interrupted') {
+      setPresenceState('warning', 'LeoZOps was interrupted',
+        'The prior spoken turn stopped. No action was taken or implied.', 'state-stale');
+    } else if (label === 'Authorizing' || label === 'Connecting') {
+      setPresenceState('observing', 'LeoZOps is opening the voice channel',
+        'Negotiating a short-lived tenant-scoped session with no action authority.', 'state-stale');
+    } else {
+      restorePresenceState();
+    }
+  }
+
   function enableWorkspace(enabled) {
     all('.realm-nav button').forEach(function (button) { button.disabled = !enabled; });
     id('refresh-button').disabled = !enabled;
@@ -175,6 +229,7 @@ export const COCKPIT_SCRIPT = String.raw`
     setHidden(id('connection-chamber'), false);
     id('tenant-label').textContent = 'Awaiting secure connection';
     setConnectionChip('Disconnected', 'state-offline');
+    restorePresenceState();
     setError(id('connection-error'), message || '');
     id('read-token').value = '';
     id('read-token').focus();
@@ -803,6 +858,7 @@ export const COCKPIT_SCRIPT = String.raw`
     chip.lastChild.textContent = titleCase(status);
     var direction = snapshot.freshness.age_seconds < 0 ? 'Source is ahead of cutoff by ' : 'Source age: ';
     id('freshness-copy').textContent = direction + formatAge(snapshot.freshness.age_seconds) + ' · target ' + formatAge(snapshot.freshness.target_seconds);
+    if (!state.voiceSessionId && !state.voiceConnecting) restorePresenceState();
   }
 
   function renderSnapshot(snapshot) {
@@ -838,6 +894,8 @@ export const COCKPIT_SCRIPT = String.raw`
     state.requestController = new AbortController();
     announce('Loading verified cockpit evidence.');
     setConnectionChip('Connecting', 'state-stale');
+    setPresenceState('observing', 'LeoZOps is opening the grimoire',
+      'Loading tenant-scoped evidence without acquiring action authority.', 'state-stale');
     var tenant = encodeURIComponent(state.tenant);
     var results = await Promise.allSettled([
       api('/v1/tenants/' + tenant + '/cockpit', { signal: state.requestController.signal }),
@@ -1075,6 +1133,7 @@ export const COCKPIT_SCRIPT = String.raw`
     var button = id('talking-mode-button');
     var text = button.querySelector('span');
     if (text) text.textContent = state.voiceSessionId ? 'End Talking Mode' : 'Start Talking Mode';
+    presenceFromVoice(label);
   }
 
   function directVoiceEvent(sessionId, eventType) {
@@ -1697,10 +1756,12 @@ export const COCKPIT_SCRIPT = String.raw`
   });
   window.addEventListener('offline', function () {
     setConnectionChip('Offline', 'state-stale');
+    restorePresenceState();
     announce('Network connection lost. Existing evidence remains visible.');
   });
   window.addEventListener('online', function () {
     if (state.token) setConnectionChip('Connected', 'state-fresh');
+    restorePresenceState();
     announce('Network connection restored. Refresh when ready.');
   });
   if ('serviceWorker' in navigator) {
