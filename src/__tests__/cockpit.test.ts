@@ -138,6 +138,13 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(shell, /id="jarvis-checkpoint-list"/);
     assert.match(shell, /id="data-request-form"/);
     assert.match(shell, /Delete requests preserve evidence/);
+    assert.match(shell, /id="jarvis-presence"/);
+    assert.match(shell, /data-presence-state="dormant"/);
+    assert.match(shell, /REALM ARCHMAGE \/ CHARACTER PRESENCE/);
+    assert.match(shell, /Advisory only · no action authority/);
+    assert.match(shell, /src="\/cockpit\/assets\/observatory\.webp"/);
+    assert.match(shell, /src="\/cockpit\/assets\/archmage-presence\.webp"/);
+    assert.match(shell, /src="\/cockpit\/assets\/arcane-orb\.webp"/);
     assert.match(shell, /Read only/);
     assert.match(shell, /href="#main-content"/);
     assert.equal(shell.includes('<style'), false);
@@ -158,6 +165,11 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(css, /@media \(max-width:390px\)/);
     assert.match(css, /prefers-reduced-motion:reduce/);
     assert.match(css, /prefers-contrast:more/);
+    for (const presenceState of ['observing', 'listening', 'thinking', 'speaking', 'warning']) {
+      assert.match(css, new RegExp(`data-presence-state="${presenceState}"`));
+    }
+    assert.match(css, /@keyframes presence-orbit/);
+    assert.match(css, /--realm-arcane:#4ec4b7/);
 
     const scriptResponse = await fetch(`${base}/cockpit/assets/cockpit.js`);
     assert.equal(scriptResponse.status, 200);
@@ -193,6 +205,11 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.match(script, /sanitized-export\.json/);
     assert.match(script, /No data was deleted/);
     assert.match(script, /serviceWorker\.register\('\/cockpit\/sw\.js'/);
+    assert.match(script, /function setPresenceState/);
+    assert.match(script, /function restorePresenceState/);
+    assert.match(script, /\['dormant', 'observing', 'listening', 'thinking', 'speaking', 'warning'\]/);
+    assert.match(script, /authority remains advisory only/);
+    assert.match(script, /no action is permitted/);
 
     const manifestResponse = await fetch(`${base}/cockpit/manifest.webmanifest`);
     assert.equal(manifestResponse.status, 200);
@@ -210,8 +227,17 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.equal(worker.includes('/v1'), false);
     assert.equal(worker.includes('Authorization'), false);
     assert.equal(worker.includes('localStorage'), false);
-    assert.match(worker, /leozops-cockpit-shell-v2/);
+    assert.match(worker, /leozops-cockpit-shell-v3/);
+    assert.match(worker, /\/cockpit\/assets\/observatory\.webp/);
+    assert.match(worker, /\/cockpit\/assets\/archmage-presence\.webp/);
+    assert.match(worker, /\/cockpit\/assets\/arcane-orb\.webp/);
     assert.equal((await fetch(`${base}/cockpit/assets/icon.svg`)).status, 200);
+    for (const asset of ['observatory.webp', 'archmage-presence.webp', 'arcane-orb.webp']) {
+      const assetResponse = await fetch(`${base}/cockpit/assets/${asset}`);
+      assert.equal(assetResponse.status, 200);
+      assert.match(assetResponse.headers.get('content-type') ?? '', /^image\/webp/);
+      assert.ok((await assetResponse.arrayBuffer()).byteLength > 10_000);
+    }
   } finally {
     await closeServer(server);
   }

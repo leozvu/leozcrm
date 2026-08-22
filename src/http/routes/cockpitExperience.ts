@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import path from 'node:path';
 import { COCKPIT_SCRIPT } from '../cockpitScript';
 import { COCKPIT_STYLES } from '../cockpitStyles';
 import { renderCockpitHtml } from '../cockpitView';
@@ -31,8 +32,8 @@ const COCKPIT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 
 const COCKPIT_SERVICE_WORKER = String.raw`
 'use strict';
-const VERSION = 'leozops-cockpit-shell-v2';
-const SHELL = ['/cockpit/', '/cockpit/assets/cockpit.css', '/cockpit/assets/cockpit.js', '/cockpit/manifest.webmanifest', '/cockpit/assets/icon.svg'];
+const VERSION = 'leozops-cockpit-shell-v3';
+const SHELL = ['/cockpit/', '/cockpit/assets/cockpit.css', '/cockpit/assets/cockpit.js', '/cockpit/manifest.webmanifest', '/cockpit/assets/icon.svg', '/cockpit/assets/observatory.webp', '/cockpit/assets/archmage-presence.webp', '/cockpit/assets/arcane-orb.webp'];
 self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(VERSION).then(function (cache) { return cache.addAll(SHELL); }));
 });
@@ -62,6 +63,12 @@ function secure(res: { setHeader(name: string, value: string): void }): void {
   for (const [name, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(name, value);
 }
 
+const COCKPIT_ASSETS = path.resolve(process.cwd(), 'assets', 'cockpit');
+
+function cockpitAsset(name: string): string {
+  return path.join(COCKPIT_ASSETS, name);
+}
+
 export function createCockpitExperienceRouter(): Router {
   const router = Router();
   router.get('/', (_req, res) => {
@@ -83,6 +90,18 @@ export function createCockpitExperienceRouter(): Router {
   router.get('/assets/icon.svg', (_req, res) => {
     secure(res);
     res.type('image/svg+xml').send(COCKPIT_ICON);
+  });
+  router.get('/assets/observatory.webp', (_req, res) => {
+    secure(res);
+    res.type('image/webp').sendFile(cockpitAsset('observatory.webp'));
+  });
+  router.get('/assets/archmage-presence.webp', (_req, res) => {
+    secure(res);
+    res.type('image/webp').sendFile(cockpitAsset('archmage-presence.webp'));
+  });
+  router.get('/assets/arcane-orb.webp', (_req, res) => {
+    secure(res);
+    res.type('image/webp').sendFile(cockpitAsset('arcane-orb.webp'));
   });
   router.get('/sw.js', (_req, res) => {
     secure(res);

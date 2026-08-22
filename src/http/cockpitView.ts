@@ -104,6 +104,26 @@ export function renderCockpitHtml(): string {
           </div>
         </header>
 
+        <section id="jarvis-presence" class="jarvis-presence" data-presence-state="dormant" aria-labelledby="jarvis-presence-title">
+          <div class="presence-stage" aria-hidden="true">
+            <img class="presence-observatory" src="/cockpit/assets/observatory.webp" alt="" width="1672" height="941" decoding="async">
+            <div class="presence-veil"></div>
+            <div class="presence-rune presence-rune-outer"></div>
+            <div class="presence-rune presence-rune-inner"></div>
+            <img class="presence-orb" src="/cockpit/assets/arcane-orb.webp" alt="" width="960" height="960" decoding="async">
+            <img class="presence-archmage" src="/cockpit/assets/archmage-presence.webp" alt="" width="1024" height="1024" decoding="async">
+          </div>
+          <div class="presence-copy">
+            <p class="eyebrow">REALM ARCHMAGE / CHARACTER PRESENCE</p>
+            <h2 id="jarvis-presence-title">LeoZOps is dormant</h2>
+            <p id="jarvis-presence-copy">Connect a tenant-scoped read credential to awaken the evidence-bound advisor.</p>
+            <div class="presence-meta">
+              <span id="jarvis-presence-state" class="state-chip state-offline" aria-live="polite"><span></span>Dormant</span>
+              <span class="authority-label">Advisory only · no action authority</span>
+            </div>
+          </div>
+        </section>
+
         <section id="view-today" class="cockpit-view" role="tabpanel" aria-labelledby="nav-today" data-panel="today">
           <h2 class="sr-only" tabindex="-1">Today</h2>
           <div id="headline-metrics" class="metric-grid" aria-label="Current business headline"></div>

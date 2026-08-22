@@ -11,12 +11,14 @@ when representative data exists.
 ## Hierarchy
 
 1. Realm identity, tenant, and source freshness.
-2. Current business state and evidence-backed attention items.
-3. Ask LeozOps composer and validated answer/citation stream.
-4. Funnel, source quality, and explicit historical-data limitation.
-5. Planner: advisory recommendations feed versioned goals, deterministic plans,
+2. LeoZOps Character Presence, with text-labelled evidence/voice state and a
+   permanent `Advisory only · no action authority` boundary.
+3. Current business state and evidence-backed attention items.
+4. Ask LeozOps composer and validated answer/citation stream.
+5. Funnel, source quality, and explicit historical-data limitation.
+6. Planner: advisory recommendations feed versioned goals, deterministic plans,
    comparisons, decisions, checkpoints, and outcomes.
-6. Command Deck authority boundary.
+7. Command Deck authority boundary.
 
 The Command Deck uses a visible sealed state. `Approval is not execution` is
 permanent copy until a later gate replaces the read-only capability contract.
@@ -41,6 +43,9 @@ change, cooldown, and snooze gates instead of implying monitoring failed.
 - Ask timeout/failure: keep the question visible and offer retry.
 - Reduced motion/high contrast: no progressive animation requirement and
   stronger system borders/focus colors.
+- Character Presence: dormant before auth; observing only on accepted fresh
+  evidence; warning on stale/future/offline evidence; listening/thinking/
+  speaking only while the corresponding voice lifecycle is current.
 
 ## Phase 13 planner boundary
 

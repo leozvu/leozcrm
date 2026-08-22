@@ -21,6 +21,7 @@ COPY package.json package-lock.json ./
 RUN npm ci --omit=dev \
     && npm cache clean --force
 COPY --from=build /app/dist ./dist
+COPY assets ./assets
 USER leozops
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
