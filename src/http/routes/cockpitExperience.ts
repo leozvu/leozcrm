@@ -32,7 +32,7 @@ const COCKPIT_ICON = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 5
 
 const COCKPIT_SERVICE_WORKER = String.raw`
 'use strict';
-const VERSION = 'leozops-cockpit-shell-v3';
+const VERSION = 'leozops-cockpit-shell-v4';
 const SHELL = ['/cockpit/', '/cockpit/assets/cockpit.css', '/cockpit/assets/cockpit.js', '/cockpit/manifest.webmanifest', '/cockpit/assets/icon.svg', '/cockpit/assets/observatory.webp', '/cockpit/assets/archmage-presence.webp', '/cockpit/assets/arcane-orb.webp'];
 self.addEventListener('install', function (event) {
   event.waitUntil(caches.open(VERSION).then(function (cache) { return cache.addAll(SHELL); }));

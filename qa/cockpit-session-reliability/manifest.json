@@ -1,0 +1,79 @@
+{
+  "recordedAt": "2026-09-13T01:57:09.8830386Z",
+  "nodeVersion": "v24.19.0",
+  "typecheckExitCode": 0,
+  "buildExitCode": 0,
+  "fullSuite": {
+    "skipped": 0,
+    "passed": 402,
+    "failed": 0
+  },
+  "focusedSuite": {
+    "skipped": 0,
+    "passed": 35,
+    "failed": 0
+  },
+  "files": [
+    {
+      "path": "src/http/cockpitScript.ts",
+      "sha256": "ac90b5a734b5b8fa46166eabdc2837d2560073f82681a54ef8e442e30bc420df"
+    },
+    {
+      "path": "src/__tests__/cockpitClientLifecycle.test.ts",
+      "sha256": "e67e303adb321a007b014a79f082561d5f47c366aba42a3137cd62f6e65ef8fc"
+    },
+    {
+      "path": "src/__tests__/support/cockpitClientHarness.ts",
+      "sha256": "b99641021cc3b5aabda07492d61296a9f1404b0eff18e9b560810a42841a75ea"
+    },
+    {
+      "path": "package.json",
+      "sha256": "47245294c392b012dc04b5477118a809a578fbee39352399b4e7d16cd52eaf1a"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/full-tests.log",
+      "sha256": "c3f1663d82815674b04ddf2bed5e82c764c95ac273a0cf7fb43642fc8b8f73ab"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/focused-tests.log",
+      "sha256": "46b26a1f2c908bae75fb7f218084b4f66db1d1b0eeea6a287d934a5a19f502c1"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/typecheck.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/browser-smoke.cjs",
+      "sha256": "254e96ba169daa07f46b733e9378e5fadd98d0c422e3dc091654ad725b7dfdb2"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/browser-results.json",
+      "sha256": "9985281eb0b0150adbeffdbe9712d02cbf4d4896466909784b4454dbd7db06b0"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/browser.log",
+      "sha256": "023ac0cbf083b53c9ab7ac43647d54bde9c6ece1341ef926f9393b24f77fc9dd"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/desktop-reconnected.png",
+      "sha256": "08643557255359527af51709238e7735ad2baf2e1f1e05da035214a56e82c2ed"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/mobile-reconnected.png",
+      "sha256": "14f4e866e1cb7a2d7695f6de25c94d394bd3bb6eec7be0cbea7ea3b84585de27"
+    },
+    {
+      "path": "qa/cockpit-session-reliability/REPORT.md",
+      "sha256": "b4cb5469cb080211532bef3ae17fdd01c5e2c07e692f21b8ab88c695a3a3d452"
+    }
+  ],
+  "browserSuite": {
+    "pageErrors": 0,
+    "mode": "Chromium intercepted fixture APIs",
+    "passed": 7
+  }
+}

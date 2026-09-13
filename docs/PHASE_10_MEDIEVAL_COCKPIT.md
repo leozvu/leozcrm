@@ -2,6 +2,11 @@
 
 Status: **Repository-local implementation complete; live J2 acceptance pending**
 
+2026-09-08 update: [F14 human session entry](HUMAN_SESSION_SSO.md) adds a
+disabled-until-configured workspace sign-in receiver and HttpOnly sessions.
+The original manual-token connection below remains the advanced compatibility
+path. This update changes neither the data-free shell nor live J2 acceptance.
+
 Branch: `codex/leozops-phase10-medieval-cockpit`
 
 ## Outcome

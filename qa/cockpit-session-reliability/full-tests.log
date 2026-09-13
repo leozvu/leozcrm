@@ -1,0 +1,2428 @@
+TAP version 13
+# Subtest: Phase 7 policy is exact, credential-separated, handoff-only, and has no executor
+ok 1 - Phase 7 policy is exact, credential-separated, handoff-only, and has no executor
+  ---
+  duration_ms: 1927.963
+  type: 'test'
+  ...
+# Subtest: acceptance requires authority credential, exact fresh Phase 6 assessment, exact target, and empty registry
+ok 2 - acceptance requires authority credential, exact fresh Phase 6 assessment, exact target, and empty registry
+  ---
+  duration_ms: 1201.0243
+  type: 'test'
+  ...
+# Subtest: ceremony derives an immutable dossier, independent approval, and sealed external handoff without activation
+ok 3 - ceremony derives an immutable dossier, independent approval, and sealed external handoff without activation
+  ---
+  duration_ms: 958.9581
+  type: 'test'
+  ...
+# Subtest: separate credentials enforce all three solo roles and rejection cannot be sealed
+ok 4 - separate credentials enforce all three solo roles and rejection cannot be sealed
+  ---
+  duration_ms: 1118.7968
+  type: 'test'
+  ...
+# Subtest: freshness and latest-assessment drift fail closed before dossier creation
+ok 5 - freshness and latest-assessment drift fail closed before dossier creation
+  ---
+  duration_ms: 1371.7806
+  type: 'test'
+  ...
+# Subtest: revocation after dossier creation prevents sealing even with a prior approval
+ok 6 - revocation after dossier creation prevents sealing even with a prior approval
+  ---
+  duration_ms: 1083.4016
+  type: 'test'
+  ...
+# Subtest: verification expires and handoff idempotency cannot be retargeted
+ok 7 - verification expires and handoff idempotency cannot be retargeted
+  ---
+  duration_ms: 2011.4371
+  type: 'test'
+  ...
+# Subtest: dual-credential recall is additive, immutable, and never executes recovery
+ok 8 - dual-credential recall is additive, immutable, and never executes recovery
+  ---
+  duration_ms: 829.7481
+  type: 'test'
+  ...
+# Subtest: all Phase 7 persistence tables reject update and delete
+ok 9 - all Phase 7 persistence tables reject update and delete
+  ---
+  duration_ms: 806.0579
+  type: 'test'
+  ...
+# Subtest: raw ceremony credentials are never persisted
+ok 10 - raw ceremony credentials are never persisted
+  ---
+  duration_ms: 566.2858
+  type: 'test'
+  ...
+# Subtest: Phase 7 implementation contains no network, scheduler, or activation execution primitive
+ok 11 - Phase 7 implementation contains no network, scheduler, or activation execution primitive
+  ---
+  duration_ms: 2.7009
+  type: 'test'
+  ...
+# Subtest: directly inserted corrupt Phase 7 evidence fails closed on read
+ok 12 - directly inserted corrupt Phase 7 evidence fails closed on read
+  ---
+  duration_ms: 442.3665
+  type: 'test'
+  ...
+# Subtest: Phase 7 migration completes SQLite latest, rollback, and latest lifecycle
+ok 13 - Phase 7 migration completes SQLite latest, rollback, and latest lifecycle
+  ---
+  duration_ms: 481.9511
+  type: 'test'
+  ...
+# Subtest: Phase 8 policy exactly binds Phase 7 and requires four new credentials
+ok 14 - Phase 8 policy exactly binds Phase 7 and requires four new credentials
+  ---
+  duration_ms: 2306.1042
+  type: 'test'
+  ...
+# Subtest: acceptance requires the exact registered adapter and release credential
+ok 15 - acceptance requires the exact registered adapter and release credential
+  ---
+  duration_ms: 1312.1126
+  type: 'test'
+  ...
+# Subtest: production registry is empty by default and activation cannot bypass preview and release
+ok 16 - production registry is empty by default and activation cannot bypass preview and release
+  ---
+  duration_ms: 1121.344
+  type: 'test'
+  ...
+# Subtest: zero-mutation preview is idempotent and cannot be retargeted
+ok 17 - zero-mutation preview is idempotent and cannot be retargeted
+  ---
+  duration_ms: 1168.8534
+  type: 'test'
+  ...
+# Subtest: release requires independent credentials and expires fail-closed
+ok 18 - release requires independent credentials and expires fail-closed
+  ---
+  duration_ms: 1468.5443
+  type: 'test'
+  ...
+# Subtest: one successful activation consumes the claim and every retry is read-only
+ok 19 - one successful activation consumes the claim and every retry is read-only
+  ---
+  duration_ms: 1295.1082
+  type: 'test'
+  ...
+# Subtest: concurrent activation requests still invoke the adapter exactly once
+ok 20 - concurrent activation requests still invoke the adapter exactly once
+  ---
+  duration_ms: 1161.8139
+  type: 'test'
+  ...
+# Subtest: lost activation response becomes terminal unknown with no automatic retry
+ok 21 - lost activation response becomes terminal unknown with no automatic retry
+  ---
+  duration_ms: 1054.8325
+  type: 'test'
+  ...
+# Subtest: expired orphan claim reconciles to unknown without invoking the adapter
+ok 22 - expired orphan claim reconciles to unknown without invoking the adapter
+  ---
+  duration_ms: 819.9547
+  type: 'test'
+  ...
+# Subtest: healthy observation waits for the exact canary window and is idempotent
+ok 23 - healthy observation waits for the exact canary window and is idempotent
+  ---
+  duration_ms: 709.7553
+  type: 'test'
+  ...
+# Subtest: unhealthy or unknown observation opens an incident and never auto-rolls back
+ok 24 - unhealthy or unknown observation opens an incident and never auto-rolls back
+  ---
+  duration_ms: 1165.3474
+  type: 'test'
+  ...
+# Subtest: rollback is explicit, dual-authorized, bounded, and idempotent
+ok 25 - rollback is explicit, dual-authorized, bounded, and idempotent
+  ---
+  duration_ms: 630.9763
+  type: 'test'
+  ...
+# Subtest: failed activation cannot be observed or rolled back
+ok 26 - failed activation cannot be observed or rolled back
+  ---
+  duration_ms: 517.1948
+  type: 'test'
+  ...
+# Subtest: Phase 7 recall before claim blocks activation without touching the adapter
+ok 27 - Phase 7 recall before claim blocks activation without touching the adapter
+  ---
+  duration_ms: 520.5699
+  type: 'test'
+  ...
+# Subtest: all Phase 8 tables are append-only and raw credentials are never persisted
+ok 28 - all Phase 8 tables are append-only and raw credentials are never persisted
+  ---
+  duration_ms: 567.1199
+  type: 'test'
+  ...
+# Subtest: Phase 8 production builder has no network adapter or scheduler primitive
+ok 29 - Phase 8 production builder has no network adapter or scheduler primitive
+  ---
+  duration_ms: 1.3481
+  type: 'test'
+  ...
+# Subtest: Phase 8 migration completes SQLite latest, rollback, and latest lifecycle
+ok 30 - Phase 8 migration completes SQLite latest, rollback, and latest lifecycle
+  ---
+  duration_ms: 419.0629
+  type: 'test'
+  ...
+# Subtest: evidence pack contains deterministic brief facts and no raw lead identity
+ok 31 - evidence pack contains deterministic brief facts and no raw lead identity
+  ---
+  duration_ms: 721.5547
+  type: 'test'
+  ...
+# Subtest: typed read-tool registry exposes only fixed evidence projections
+ok 32 - typed read-tool registry exposes only fixed evidence projections
+  ---
+  duration_ms: 14.9473
+  type: 'test'
+  ...
+# Subtest: Ask LeozOps persists an evidence-cited answer and a readable thread
+ok 33 - Ask LeozOps persists an evidence-cited answer and a readable thread
+  ---
+  duration_ms: 56.9801
+  type: 'test'
+  ...
+# Subtest: Phase 9B OpenAI adapter fits the default budget and completes through the Phase 9A trust boundary
+ok 34 - Phase 9B OpenAI adapter fits the default budget and completes through the Phase 9A trust boundary
+  ---
+  duration_ms: 56.8128
+  type: 'test'
+  ...
+# Subtest: idempotent replay returns stored evidence and never calls the provider twice
+ok 35 - idempotent replay returns stored evidence and never calls the provider twice
+  ---
+  duration_ms: 189.4133
+  type: 'test'
+  ...
+# Subtest: an in-flight idempotency claim rejects a second request before another provider call
+ok 36 - an in-flight idempotency claim rejects a second request before another provider call
+  ---
+  duration_ms: 43.8308
+  type: 'test'
+  ...
+# Subtest: historical and prompt-injection questions fail closed with no invented fact or action
+ok 37 - historical and prompt-injection questions fail closed with no invented fact or action
+  ---
+  duration_ms: 46.3151
+  type: 'test'
+  ...
+# Subtest: golden question matrix stays grounded across facts, unknowns, and action-shaped requests
+ok 38 - golden question matrix stays grounded across facts, unknowns, and action-shaped requests
+  ---
+  duration_ms: 273.9196
+  type: 'test'
+  ...
+# Subtest: stale source state is explicit in the grounded freshness answer
+ok 39 - stale source state is explicit in the grounded freshness answer
+  ---
+  duration_ms: 61.127
+  type: 'test'
+  ...
+# Subtest: versioned goal, constraint, and decision context is tenant-scoped and grounded
+ok 40 - versioned goal, constraint, and decision context is tenant-scoped and grounded
+  ---
+  duration_ms: 30.7294
+  type: 'test'
+  ...
+# Subtest: conversation and context identities never cross tenant boundaries
+ok 41 - conversation and context identities never cross tenant boundaries
+  ---
+  duration_ms: 17.37
+  type: 'test'
+  ...
+# Subtest: invalid provider output is sealed as failed and cannot be retried with the same key
+ok 42 - invalid provider output is sealed as failed and cannot be retried with the same key
+  ---
+  duration_ms: 15.4237
+  type: 'test'
+  ...
+# Subtest: timeout and usage budgets fail safely with immutable terminal evidence
+ok 43 - timeout and usage budgets fail safely with immutable terminal evidence
+  ---
+  duration_ms: 36.0618
+  type: 'test'
+  ...
+# Subtest: provider maximum-cost preflight blocks a billable call and seals the run
+ok 44 - provider maximum-cost preflight blocks a billable call and seals the run
+  ---
+  duration_ms: 18.4849
+  type: 'test'
+  ...
+# Subtest: credentials and unsupported personal identifiers are rejected before persistence
+ok 45 - credentials and unsupported personal identifiers are rejected before persistence
+  ---
+  duration_ms: 7.8511
+  type: 'test'
+  ...
+# Subtest: feedback is immutable, idempotent for the same value, and conflicting edits are denied
+ok 46 - feedback is immutable, idempotent for the same value, and conflicting edits are denied
+  ---
+  duration_ms: 27.1722
+  type: 'test'
+  ...
+# Subtest: all Phase 9A tables reject direct update and delete
+ok 47 - all Phase 9A tables reject direct update and delete
+  ---
+  duration_ms: 48.9088
+  type: 'test'
+  ...
+# Subtest: authenticated HTTP surface creates, asks, replays, reads context, and enforces tenant scope
+ok 48 - authenticated HTTP surface creates, asks, replays, reads context, and enforces tenant scope
+  ---
+  duration_ms: 517.6903
+  type: 'test'
+  ...
+# Subtest: Phase 9A migration completes SQLite latest, rollback, and latest lifecycle
+ok 49 - Phase 9A migration completes SQLite latest, rollback, and latest lifecycle
+  ---
+  duration_ms: 584.6036
+  type: 'test'
+  ...
+# Subtest: checked-in Phase 9A provider has no network, credential, generic tool, or action primitive
+ok 50 - checked-in Phase 9A provider has no network, credential, generic tool, or action primitive
+  ---
+  duration_ms: 127.7928
+  type: 'test'
+  ...
+# Subtest: expanded golden evaluator requires perfect contract and at least 90% behavior
+ok 51 - expanded golden evaluator requires perfect contract and at least 90% behavior
+  ---
+  duration_ms: 5.9642
+  type: 'test'
+  ...
+# Subtest: one invalid provider answer fails the perfect contract threshold
+ok 52 - one invalid provider answer fails the perfect contract threshold
+  ---
+  duration_ms: 1.4674
+  type: 'test'
+  ...
+# Subtest: preferences start with explicit safe defaults and advance as immutable revisions
+ok 53 - preferences start with explicit safe defaults and advance as immutable revisions
+  ---
+  duration_ms: 722.8632
+  type: 'test'
+  ...
+# Subtest: validation and idempotency fail closed without leaking tenant state
+ok 54 - validation and idempotency fail closed without leaking tenant state
+  ---
+  duration_ms: 68.9197
+  type: 'test'
+  ...
+# Subtest: authenticated preference API is tenant-scoped, strict, idempotent, and PII-minimized
+ok 55 - authenticated preference API is tenant-scoped, strict, idempotent, and PII-minimized
+  ---
+  duration_ms: 682.8891
+  type: 'test'
+  ...
+# Subtest: ambient migration rolls back and reapplies with its immutable guard
+ok 56 - ambient migration rolls back and reapplies with its immutable guard
+  ---
+  duration_ms: 441.5175
+  type: 'test'
+  ...
+# Subtest: a signed client token verifies back to its client id
+ok 57 - a signed client token verifies back to its client id
+  ---
+  duration_ms: 2.335
+  type: 'test'
+  ...
+# Subtest: a token signed with a different secret is rejected
+ok 58 - a token signed with a different secret is rejected
+  ---
+  duration_ms: 0.4676
+  type: 'test'
+  ...
+# Subtest: a tampered client id (same signature) is rejected
+ok 59 - a tampered client id (same signature) is rejected
+  ---
+  duration_ms: 0.3816
+  type: 'test'
+  ...
+# Subtest: malformed tokens and an empty secret fail closed
+ok 60 - malformed tokens and an empty secret fail closed
+  ---
+  duration_ms: 0.2352
+  type: 'test'
+  ...
+# Subtest: production composition remains empty and G7 policy is exact, low-risk, and credential-separated
+ok 61 - production composition remains empty and G7 policy is exact, low-risk, and credential-separated
+  ---
+  duration_ms: 1378.7907
+  type: 'test'
+  ...
+# Subtest: canonical simulator covers every safety branch and persists immutable exact evidence
+ok 62 - canonical simulator covers every safety branch and persists immutable exact evidence
+  ---
+  duration_ms: 446.4099
+  type: 'test'
+  ...
+# Subtest: policy acceptance requires real qualifying G6 history and the initial kill switch is engaged
+ok 63 - policy acceptance requires real qualifying G6 history and the initial kill switch is engaged
+  ---
+  duration_ms: 433.5478
+  type: 'test'
+  ...
+# Subtest: kill-switch release requires two distinct credentials and manual engagement ignores broken prerequisites
+ok 64 - kill-switch release requires two distinct credentials and manual engagement ignores broken prerequisites
+  ---
+  duration_ms: 330.9205
+  type: 'test'
+  ...
+# Subtest: one bounded candidate dry-runs, executes once, and replays without another adapter call
+ok 65 - one bounded candidate dry-runs, executes once, and replays without another adapter call
+  ---
+  duration_ms: 430.4742
+  type: 'test'
+  ...
+# Subtest: G5 revoke and stale source deny before dry-run or command execution
+ok 66 - G5 revoke and stale source deny before dry-run or command execution
+  ---
+  duration_ms: 763.5753
+  type: 'test'
+  ...
+# Subtest: cooldown and rolling rate/cost limits deny atomically without a second execution
+ok 67 - cooldown and rolling rate/cost limits deny atomically without a second execution
+  ---
+  duration_ms: 1045.1584
+  type: 'test'
+  ...
+# Subtest: unknown adapter outcome becomes reconciliation-required, opens incident, engages kill switch, and never retries
+ok 68 - unknown adapter outcome becomes reconciliation-required, opens incident, engages kill switch, and never retries
+  ---
+  duration_ms: 265.0468
+  type: 'test'
+  ...
+# Subtest: incident resolution is separately authenticated and does not silently release the kill switch
+ok 69 - incident resolution is separately authenticated and does not silently release the kill switch
+  ---
+  duration_ms: 300.9138
+  type: 'test'
+  ...
+# Subtest: database guards reject policy, evaluation, event, incident, and terminal-attempt rewrites
+ok 70 - database guards reject policy, evaluation, event, incident, and terminal-attempt rewrites
+  ---
+  duration_ms: 276.0029
+  type: 'test'
+  ...
+# Subtest: raw release, executor, kill-switch, and command credentials are never persisted
+ok 71 - raw release, executor, kill-switch, and command credentials are never persisted
+  ---
+  duration_ms: 211.7131
+  type: 'test'
+  ...
+# Subtest: an expired claimed lease is sealed with incident evidence and cannot call the adapter
+ok 72 - an expired claimed lease is sealed with incident evidence and cannot call the adapter
+  ---
+  duration_ms: 267.3114
+  type: 'test'
+  ...
+# Subtest: human recovery requires kill switch, fresh preview, separate approval, and stays available after G5 revoke
+ok 73 - human recovery requires kill switch, fresh preview, separate approval, and stays available after G5 revoke
+  ---
+  duration_ms: 381.2767
+  type: 'test'
+  ...
+# Subtest: generate rejects a date-shaped but invalid asOf with a 400 ValidationError
+ok 74 - generate rejects a date-shaped but invalid asOf with a 400 ValidationError
+  ---
+  duration_ms: 1076.8125
+  type: 'test'
+  ...
+# Subtest: brief headline and funnel exactly match the KPI API output
+ok 75 - brief headline and funnel exactly match the KPI API output
+  ---
+  duration_ms: 35.9162
+  type: 'test'
+  ...
+# Subtest: brief metadata reflects the requested as-of date
+ok 76 - brief metadata reflects the requested as-of date
+  ---
+  duration_ms: 7.3769
+  type: 'test'
+  ...
+# Subtest: acquisition delta compares the recent window to the prior one
+ok 77 - acquisition delta compares the recent window to the prior one
+  ---
+  duration_ms: 35.6172
+  type: 'test'
+  ...
+# Subtest: anomalies are the expected deterministic set, in order
+ok 78 - anomalies are the expected deterministic set, in order
+  ---
+  duration_ms: 20.2966
+  type: 'test'
+  ...
+# Subtest: recommended actions map from the detected anomalies
+ok 79 - recommended actions map from the detected anomalies
+  ---
+  duration_ms: 4.1845
+  type: 'test'
+  ...
+# Subtest: renderBriefText produces a readable summary with the key facts
+ok 80 - renderBriefText produces a readable summary with the key facts
+  ---
+  duration_ms: 18.6251
+  type: 'test'
+  ...
+# Subtest: a client with no leads yields a zeroed brief and a maintain-momentum action
+ok 81 - a client with no leads yields a zeroed brief and a maintain-momentum action
+  ---
+  duration_ms: 17.5224
+  type: 'test'
+  ...
+# Subtest: GET /brief — 200 JSON brief matching the seeded CRM state
+ok 82 - GET /brief — 200 JSON brief matching the seeded CRM state
+  ---
+  duration_ms: 1146.0337
+  type: 'test'
+  ...
+# Subtest: GET /brief?format=text — 200 plain-text rendering
+ok 83 - GET /brief?format=text — 200 plain-text rendering
+  ---
+  duration_ms: 24.4915
+  type: 'test'
+  ...
+# Subtest: GET /brief — defaults asOf to today when omitted
+ok 84 - GET /brief — defaults asOf to today when omitted
+  ---
+  duration_ms: 16.4222
+  type: 'test'
+  ...
+# Subtest: GET /brief — 400 when clientId is missing
+ok 85 - GET /brief — 400 when clientId is missing
+  ---
+  duration_ms: 5.186
+  type: 'test'
+  ...
+# Subtest: GET /brief — 400 when asOf is malformed
+ok 86 - GET /brief — 400 when asOf is malformed
+  ---
+  duration_ms: 31.7742
+  type: 'test'
+  ...
+# Subtest: GET /brief — 400 (not 500) for a date-shaped but invalid asOf
+ok 87 - GET /brief — 400 (not 500) for a date-shaped but invalid asOf
+  ---
+  duration_ms: 70.3315
+  type: 'test'
+  ...
+# Subtest: GET /brief — 404 when the client does not exist
+ok 88 - GET /brief — 404 when the client does not exist
+  ---
+  duration_ms: 15.0499
+  type: 'test'
+  ...
+# Subtest: egoric_sales_v1 validator accepts exact native-funnel facts and content hash
+ok 89 - egoric_sales_v1 validator accepts exact native-funnel facts and content hash
+  ---
+  duration_ms: 938.5139
+  type: 'test'
+  ...
+# Subtest: validator fails closed on unknown version, extra PII, unknown stage, or tampered hash
+ok 90 - validator fails closed on unknown version, extra PII, unknown stage, or tampered hash
+  ---
+  duration_ms: 1.8787
+  type: 'test'
+  ...
+# Subtest: source adapter emits GET only, no body, scoped bearer auth, ETag, and correlation id
+ok 91 - source adapter emits GET only, no body, scoped bearer auth, ETag, and correlation id
+  ---
+  duration_ms: 72.2509
+  type: 'test'
+  ...
+# Subtest: adapter rejects unsafe endpoint, auth failure, unsupported schema, and ETag mismatch
+ok 92 - adapter rejects unsafe endpoint, auth failure, unsupported schema, and ETag mismatch
+  ---
+  duration_ms: 7.2648
+  type: 'test'
+  ...
+# Subtest: adapter discards a malformed source correlation header
+ok 93 - adapter discards a malformed source correlation header
+  ---
+  duration_ms: 2.6721
+  type: 'test'
+  ...
+# Subtest: tenant and source connection identities are idempotent and separate from legacy Client
+ok 94 - tenant and source connection identities are idempotent and separate from legacy Client
+  ---
+  duration_ms: 16.0105
+  type: 'test'
+  ...
+# Subtest: source connection rejects credential-bearing or generic URLs before persistence
+ok 95 - source connection rejects credential-bearing or generic URLs before persistence
+  ---
+  duration_ms: 4.9603
+  type: 'test'
+  ...
+# Subtest: replaying the same 200 snapshot stores exactly one immutable snapshot and one run
+ok 96 - replaying the same 200 snapshot stores exactly one immutable snapshot and one run
+  ---
+  duration_ms: 75.5428
+  type: 'test'
+  ...
+# Subtest: 304 performs no snapshot or intelligence-run work
+ok 97 - 304 performs no snapshot or intelligence-run work
+  ---
+  duration_ms: 12.0244
+  type: 'test'
+  ...
+# Subtest: schema failure persists nothing and disables the affected connection
+ok 98 - schema failure persists nothing and disables the affected connection
+  ---
+  duration_ms: 10.665
+  type: 'test'
+  ...
+# Subtest: tenant scoping is enforced in repository lookups and by composite foreign keys
+ok 99 - tenant scoping is enforced in repository lookups and by composite foreign keys
+  ---
+  duration_ms: 13.1213
+  type: 'test'
+  ...
+# Subtest: database rejects direct snapshot UPDATE and DELETE mutations
+ok 100 - database rejects direct snapshot UPDATE and DELETE mutations
+  ---
+  duration_ms: 10.7862
+  type: 'test'
+  ...
+# Subtest: Business Memory migration rolls back tables and immutability triggers cleanly
+ok 101 - Business Memory migration rolls back tables and immutability triggers cleanly
+  ---
+  duration_ms: 183.9178
+  type: 'test'
+  ...
+# Subtest: cockpit projection is PII-minimized, evidence-backed, and action sealed
+ok 102 - cockpit projection is PII-minimized, evidence-backed, and action sealed
+  ---
+  duration_ms: 639.7125
+  type: 'test'
+  ...
+# Subtest: freshness risk outranks pipeline warnings and no warning yields an honest empty queue
+ok 103 - freshness risk outranks pipeline warnings and no warning yields an honest empty queue
+  ---
+  duration_ms: 17.3221
+  type: 'test'
+  ...
+# Subtest: cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe
+ok 104 - cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe
+  ---
+  duration_ms: 617.6454
+  type: 'test'
+  ...
+# Subtest: cockpit API requires exact tenant auth and exposes no execution route
+ok 105 - cockpit API requires exact tenant auth and exposes no execution route
+  ---
+  duration_ms: 173.7487
+  type: 'test'
+  ...
+# Subtest: disconnect aborts every pending read and late ignored-abort responses cannot reopen the workspace
+ok 106 - disconnect aborts every pending read and late ignored-abort responses cannot reopen the workspace
+  ---
+  duration_ms: 218.6678
+  type: 'test'
+  ...
+# Subtest: a newer refresh wins even when the earlier transport later returns a 401
+ok 107 - a newer refresh wins even when the earlier transport later returns a 401
+  ---
+  duration_ms: 106.4689
+  type: 'test'
+  ...
+# Subtest: late automatic SSO restoration cannot overwrite a newer manual connection
+ok 108 - late automatic SSO restoration cannot overwrite a newer manual connection
+  ---
+  duration_ms: 6.5636
+  type: 'test'
+  ...
+# Subtest: pagehide clears rendered business evidence, conversation, drafts, dialogs and old evidence callback
+ok 109 - pagehide clears rendered business evidence, conversation, drafts, dialogs and old evidence callback
+  ---
+  duration_ms: 6.9485
+  type: 'test'
+  ...
+# Subtest: duplicate Ask events send one request; an old answer and finally cannot alter a new session composer
+ok 110 - duplicate Ask events send one request; an old answer and finally cannot alter a new session composer
+  ---
+  duration_ms: 10.4639
+  type: 'test'
+  ...
+# Subtest: text and voice share one pending conversation and cannot assign an old conversation after switching
+ok 111 - text and voice share one pending conversation and cannot assign an old conversation after switching
+  ---
+  duration_ms: 22.9229
+  type: 'test'
+  ...
+# Subtest: read deadline includes a body reader that ignores abort, releases tracking, and never retries
+ok 112 - read deadline includes a body reader that ignores abort, releases tracking, and never retries
+  ---
+  duration_ms: 19.114
+  type: 'test'
+  ...
+# Subtest: timed-out and malformed writes are uncertain and never automatically resubmitted
+ok 113 - timed-out and malformed writes are uncertain and never automatically resubmitted
+  ---
+  duration_ms: 10.324
+  type: 'test'
+  ...
+# Subtest: late microphone permission is released without starting a session in the new tenant
+ok 114 - late microphone permission is released without starting a session in the new tenant
+  ---
+  duration_ms: 55.1622
+  type: 'test'
+  ...
+# Subtest: queued voice events and recognition callbacks cannot act on another tenant
+ok 115 - queued voice events and recognition callbacks cannot act on another tenant
+  ---
+  duration_ms: 14.9143
+  type: 'test'
+  ...
+# Subtest: API keeps explicit tenant and cookie/CSRF isolation
+ok 116 - API keeps explicit tenant and cookie/CSRF isolation
+  ---
+  duration_ms: 8.2368
+  type: 'test'
+  ...
+# Subtest: a current 401 closes the workspace and clears private evidence on any API route
+ok 117 - a current 401 closes the workspace and clears private evidence on any API route
+  ---
+  duration_ms: 10.1273
+  type: 'test'
+  ...
+# Subtest: the WebRTC deadline covers a hanging SDP body and releases the microphone and peer
+ok 118 - the WebRTC deadline covers a hanging SDP body and releases the microphone and peer
+  ---
+  duration_ms: 12.3333
+  type: 'test'
+  ...
+# Subtest: migration seeds the 9 funnel stages in order
+ok 119 - migration seeds the 9 funnel stages in order
+  ---
+  duration_ms: 922.4953
+  type: 'test'
+  ...
+# Subtest: client -> campaign -> lead creates and funnel counts aggregate
+ok 120 - client -> campaign -> lead creates and funnel counts aggregate
+  ---
+  duration_ms: 6.2836
+  type: 'test'
+  ...
+# Subtest: campaign create with unknown client_id is rejected (400)
+ok 121 - campaign create with unknown client_id is rejected (400)
+  ---
+  duration_ms: 2.8283
+  type: 'test'
+  ...
+# Subtest: lead create with unknown client_id is rejected (400)
+ok 122 - lead create with unknown client_id is rejected (400)
+  ---
+  duration_ms: 2.3644
+  type: 'test'
+  ...
+# Subtest: lead create with unknown funnel_stage_id is rejected (400)
+ok 123 - lead create with unknown funnel_stage_id is rejected (400)
+  ---
+  duration_ms: 2.6987
+  type: 'test'
+  ...
+# Subtest: cross-client lead/campaign mismatch is rejected by the repository (409)
+ok 124 - cross-client lead/campaign mismatch is rejected by the repository (409)
+  ---
+  duration_ms: 6.2733
+  type: 'test'
+  ...
+# Subtest: cross-client mismatch is ALSO rejected at the DB level (composite FK backstop)
+ok 125 - cross-client mismatch is ALSO rejected at the DB level (composite FK backstop)
+  ---
+  duration_ms: 14.8106
+  type: 'test'
+  ...
+# Subtest: unattributed lead (null campaign_id) is allowed
+ok 126 - unattributed lead (null campaign_id) is allowed
+  ---
+  duration_ms: 5.0677
+  type: 'test'
+  ...
+# Subtest: deleting a campaign nulls its leads (SET NULL) and leads survive
+ok 127 - deleting a campaign nulls its leads (SET NULL) and leads survive
+  ---
+  duration_ms: 26.4946
+  type: 'test'
+  ...
+# Subtest: moveToStage with unknown stage is rejected (400)
+ok 128 - moveToStage with unknown stage is rejected (400)
+  ---
+  duration_ms: 14.3728
+  type: 'test'
+  ...
+# Subtest: rollback drops all four tables cleanly
+ok 129 - rollback drops all four tables cleanly
+  ---
+  duration_ms: 213.8062
+  type: 'test'
+  ...
+# Subtest: build assembles funnel, brief, recommendations, and leads for the seeded client
+ok 130 - build assembles funnel, brief, recommendations, and leads for the seeded client
+  ---
+  duration_ms: 998.0548
+  type: 'test'
+  ...
+# Subtest: lead list carries each lead with its joined funnel stage name
+ok 131 - lead list carries each lead with its joined funnel stage name
+  ---
+  duration_ms: 25.0902
+  type: 'test'
+  ...
+# Subtest: an empty client renders honest no-data states (no fabricated values)
+ok 132 - an empty client renders honest no-data states (no fabricated values)
+  ---
+  duration_ms: 12.8624
+  type: 'test'
+  ...
+# Subtest: build returns null for an unknown client
+ok 133 - build returns null for an unknown client
+  ---
+  duration_ms: 1.0532
+  type: 'test'
+  ...
+# Subtest: build rejects a date-shaped but invalid asOf with a 400 ValidationError
+ok 134 - build rejects a date-shaped but invalid asOf with a 400 ValidationError
+  ---
+  duration_ms: 1.5951
+  type: 'test'
+  ...
+# Subtest: GET /dashboard — client picker lists seeded clients
+ok 135 - GET /dashboard — client picker lists seeded clients
+  ---
+  duration_ms: 1040.8708
+  type: 'test'
+  ...
+# Subtest: GET /dashboard?clientId&asOf — renders all four views from live data
+ok 136 - GET /dashboard?clientId&asOf — renders all four views from live data
+  ---
+  duration_ms: 120.0932
+  type: 'test'
+  ...
+# Subtest: GET /dashboard for an empty client renders explicit no-data states
+ok 137 - GET /dashboard for an empty client renders explicit no-data states
+  ---
+  duration_ms: 51.2807
+  type: 'test'
+  ...
+# Subtest: GET /dashboard?clientId=unknown — 404 not-found page
+ok 138 - GET /dashboard?clientId=unknown — 404 not-found page
+  ---
+  duration_ms: 6.8858
+  type: 'test'
+  ...
+# Subtest: GET /dashboard?clientId&asOf=invalid — 400 for a bad date
+ok 139 - GET /dashboard?clientId&asOf=invalid — 400 for a bad date
+  ---
+  duration_ms: 6.2917
+  type: 'test'
+  ...
+# Subtest: brief is exact, deterministic, Egoric-native, and fully provenance-labelled
+ok 140 - brief is exact, deterministic, Egoric-native, and fully provenance-labelled
+  ---
+  duration_ms: 1066.252
+  type: 'test'
+  ...
+# Subtest: brief exposes deterministic current-state attention facts without claiming history
+ok 141 - brief exposes deterministic current-state attention facts without claiming history
+  ---
+  duration_ms: 10.6972
+  type: 'test'
+  ...
+# Subtest: asOf selects the latest accepted run at or before the requested cutoff
+ok 142 - asOf selects the latest accepted run at or before the requested cutoff
+  ---
+  duration_ms: 13.9796
+  type: 'test'
+  ...
+# Subtest: unsafe source labels are withheld from the CEO Brief
+ok 143 - unsafe source labels are withheld from the CEO Brief
+  ---
+  duration_ms: 55.4145
+  type: 'test'
+  ...
+# Subtest: non-finite aggregate values fail closed instead of serializing misleading nulls
+ok 144 - non-finite aggregate values fail closed instead of serializing misleading nulls
+  ---
+  duration_ms: 62.2013
+  type: 'test'
+  ...
+# Subtest: unknown tenant, invalid asOf, missing snapshot, and corrupt stored payload fail closed
+ok 145 - unknown tenant, invalid asOf, missing snapshot, and corrupt stored payload fail closed
+  ---
+  duration_ms: 73.1525
+  type: 'test'
+  ...
+# Subtest: egoric-readonly profile exposes public health and an authenticated tenant brief
+ok 146 - egoric-readonly profile exposes public health and an authenticated tenant brief
+  ---
+  duration_ms: 1157.2789
+  type: 'test'
+  ...
+# Subtest: tenant read token is scoped; separate read admin may access either tenant
+ok 147 - tenant read token is scoped; separate read admin may access either tenant
+  ---
+  duration_ms: 60.649
+  type: 'test'
+  ...
+# Subtest: legacy CRM, task, onboarding, email, dashboard, and write routes are absent
+ok 148 - legacy CRM, task, onboarding, email, dashboard, and write routes are absent
+  ---
+  duration_ms: 256.592
+  type: 'test'
+  ...
+# Subtest: runtime profile selection is strict and can resolve from INTEGRATION_MODE
+ok 149 - runtime profile selection is strict and can resolve from INTEGRATION_MODE
+  ---
+  duration_ms: 1.0915
+  type: 'test'
+  ...
+# Subtest: sandbox: a valid message sends and returns the provider id
+ok 150 - sandbox: a valid message sends and returns the provider id
+  ---
+  duration_ms: 55.4611
+  type: 'test'
+  ...
+# Subtest: validation: bad recipient / missing subject / empty body never reach the provider
+ok 151 - validation: bad recipient / missing subject / empty body never reach the provider
+  ---
+  duration_ms: 0.6512
+  type: 'test'
+  ...
+# Subtest: not configured: missing API key/transport yields an explicit not_configured failure
+ok 152 - not configured: missing API key/transport yields an explicit not_configured failure
+  ---
+  duration_ms: 1.4254
+  type: 'test'
+  ...
+# Subtest: failure handling: a persistent provider error is reported after exhausting retries
+ok 153 - failure handling: a persistent provider error is reported after exhausting retries
+  ---
+  duration_ms: 4.6825
+  type: 'test'
+  ...
+# Subtest: timeout handling: a slow provider is aborted and classified as timeout
+ok 154 - timeout handling: a slow provider is aborted and classified as timeout
+  ---
+  duration_ms: 97.1022
+  type: 'test'
+  ...
+# Subtest: retry/backoff: transient failures retry with exponential backoff, then succeed
+ok 155 - retry/backoff: transient failures retry with exponential backoff, then succeed
+  ---
+  duration_ms: 2.4461
+  type: 'test'
+  ...
+# Subtest: spend guard: daily cap blocks further sends for the tenant
+ok 156 - spend guard: daily cap blocks further sends for the tenant
+  ---
+  duration_ms: 1.2676
+  type: 'test'
+  ...
+# Subtest: spend guard: rate limit blocks bursts within the window
+ok 157 - spend guard: rate limit blocks bursts within the window
+  ---
+  duration_ms: 0.5613
+  type: 'test'
+  ...
+# Subtest: spend guard: stop-on-failure opens the circuit after consecutive failures
+ok 158 - spend guard: stop-on-failure opens the circuit after consecutive failures
+  ---
+  duration_ms: 0.9964
+  type: 'test'
+  ...
+# Subtest: guardrails are isolated per tenant
+ok 159 - guardrails are isolated per tenant
+  ---
+  duration_ms: 1.1581
+  type: 'test'
+  ...
+# Subtest: each retry consumes a daily-quota unit (not one unit per logical publish)
+ok 160 - each retry consumes a daily-quota unit (not one unit per logical publish)
+  ---
+  duration_ms: 0.5909
+  type: 'test'
+  ...
+# Subtest: the daily cap bounds total provider calls across retries
+ok 161 - the daily cap bounds total provider calls across retries
+  ---
+  duration_ms: 0.5116
+  type: 'test'
+  ...
+# Subtest: the rate limit bounds total provider calls across retries
+ok 162 - the rate limit bounds total provider calls across retries
+  ---
+  duration_ms: 0.3609
+  type: 'test'
+  ...
+# Subtest: the circuit breaker counts every failed attempt and bounds retries within one publish
+ok 163 - the circuit breaker counts every failed attempt and bounds retries within one publish
+  ---
+  duration_ms: 0.7455
+  type: 'test'
+  ...
+# Subtest: per-attempt failures open the circuit, blocking subsequent publishes
+ok 164 - per-attempt failures open the circuit, blocking subsequent publishes
+  ---
+  duration_ms: 0.4801
+  type: 'test'
+  ...
+# Subtest: maxRetries is hard-capped at the ceiling (no unbounded retry path)
+ok 165 - maxRetries is hard-capped at the ceiling (no unbounded retry path)
+  ---
+  duration_ms: 0.6589
+  type: 'test'
+  ...
+# Subtest: missing EMAIL_FROM is rejected (not_configured) before any provider call
+ok 166 - missing EMAIL_FROM is rejected (not_configured) before any provider call
+  ---
+  duration_ms: 0.3488
+  type: 'test'
+  ...
+# Subtest: invalid EMAIL_FROM is rejected (not_configured) before any provider call
+ok 167 - invalid EMAIL_FROM is rejected (not_configured) before any provider call
+  ---
+  duration_ms: 0.3738
+  type: 'test'
+  ...
+# Subtest: a caller-provided "from" is rejected when no allowlist is configured
+ok 168 - a caller-provided "from" is rejected when no allowlist is configured
+  ---
+  duration_ms: 0.2698
+  type: 'test'
+  ...
+# Subtest: a caller-provided "from" on the allowlist is honoured
+ok 169 - a caller-provided "from" on the allowlist is honoured
+  ---
+  duration_ms: 0.6024
+  type: 'test'
+  ...
+# Subtest: Resend request contract: the adapter builds the documented POST body + credentials
+ok 170 - Resend request contract: the adapter builds the documented POST body + credentials
+  ---
+  duration_ms: 0.3834
+  type: 'test'
+  ...
+# Subtest: fetchEmailTransport issues the documented Resend HTTP request and parses the response
+ok 171 - fetchEmailTransport issues the documented Resend HTTP request and parses the response
+  ---
+  duration_ms: 0.9301
+  type: 'test'
+  ...
+# Subtest: publish requires authentication
+ok 172 - publish requires authentication
+  ---
+  duration_ms: 230.3355
+  type: 'test'
+  ...
+# Subtest: publish is tenant-scoped: a client cannot send for another tenant
+ok 173 - publish is tenant-scoped: a client cannot send for another tenant
+  ---
+  duration_ms: 20.4758
+  type: 'test'
+  ...
+# Subtest: publish succeeds for an in-scope client (sandbox) and for admin
+ok 174 - publish succeeds for an in-scope client (sandbox) and for admin
+  ---
+  duration_ms: 71.3867
+  type: 'test'
+  ...
+# [email] publish failed for client 11111111-1111-4111-8111-111111111111: invalid_message — a valid "to" email address is required
+# Subtest: publish rejects missing fields and invalid messages with 400
+ok 175 - publish rejects missing fields and invalid messages with 400
+  ---
+  duration_ms: 72.922
+  type: 'test'
+  ...
+# [email] publish failed for client 11111111-1111-4111-8111-111111111111: invalid_message — a caller-provided "from" sender is not allowed
+# Subtest: a caller-provided "from" is rejected at the boundary (no allowlist)
+ok 176 - a caller-provided "from" is rejected at the boundary (no allowlist)
+  ---
+  duration_ms: 13.6866
+  type: 'test'
+  ...
+# [email] publish failed for client 11111111-1111-4111-8111-111111111111: daily_cap_exceeded — blocked by daily_cap_exceeded guardrail
+# Subtest: daily cap returns 429 with Retry-After
+ok 177 - daily cap returns 429 with Retry-After
+  ---
+  duration_ms: 33.4746
+  type: 'test'
+  ...
+# [email] publish failed for client 11111111-1111-4111-8111-111111111111: provider_error — provider responded 500
+# [email] publish failed for client 11111111-1111-4111-8111-111111111111: circuit_open — blocked by circuit_open guardrail
+# Subtest: a provider error maps to 502; a tripped circuit maps to 503
+ok 178 - a provider error maps to 502; a tripped circuit maps to 503
+  ---
+  duration_ms: 24.933
+  type: 'test'
+  ...
+# [email] publish failed for client 11111111-1111-4111-8111-111111111111: not_configured — email provider is not configured (set RESEND_API_KEY and a valid EMAIL_FROM)
+# Subtest: an unconfigured provider returns 503 not_configured
+ok 179 - an unconfigured provider returns 503 not_configured
+  ---
+  duration_ms: 34.5606
+  type: 'test'
+  ...
+# Subtest: no autonomous sending: generating recommendations sends no email
+ok 180 - no autonomous sending: generating recommendations sends no email
+  ---
+  duration_ms: 1165.3212
+  type: 'test'
+  ...
+# Subtest: Phase 6 policy is exact, key-pinned, credential-separated, and grants no release authority
+ok 181 - Phase 6 policy is exact, key-pinned, credential-separated, and grants no release authority
+  ---
+  duration_ms: 1355.2545
+  type: 'test'
+  ...
+# Subtest: policy acceptance requires exact passing Phase 5 package and trust-authority credential
+ok 182 - policy acceptance requires exact passing Phase 5 package and trust-authority credential
+  ---
+  duration_ms: 538.4086
+  type: 'test'
+  ...
+# Subtest: empty evidence derives an eight-row incomplete matrix and stays activation-blocked
+ok 183 - empty evidence derives an eight-row incomplete matrix and stays activation-blocked
+  ---
+  duration_ms: 491.2936
+  type: 'test'
+  ...
+# Subtest: admission rejects invalid signature, unpinned identity, wrong package, stale evidence, and future issuance
+ok 184 - admission rejects invalid signature, unpinned identity, wrong package, stale evidence, and future issuance
+  ---
+  duration_ms: 569.1865
+  type: 'test'
+  ...
+# Subtest: eight valid signed attestations produce complete_unreleased, never release
+ok 185 - eight valid signed attestations produce complete_unreleased, never release
+  ---
+  duration_ms: 1242.5484
+  type: 'test'
+  ...
+# Subtest: attestation replay is idempotent only for identical evidence; nonce reuse conflicts
+ok 186 - attestation replay is idempotent only for identical evidence; nonce reuse conflicts
+  ---
+  duration_ms: 557.2886
+  type: 'test'
+  ...
+# Subtest: signed revocation supersedes the latest pass and immediately reopens its blocker
+ok 187 - signed revocation supersedes the latest pass and immediately reopens its blocker
+  ---
+  duration_ms: 472.4874
+  type: 'test'
+  ...
+# Subtest: a once-valid pass expires in the derived matrix without mutating old evidence
+ok 188 - a once-valid pass expires in the derived matrix without mutating old evidence
+  ---
+  duration_ms: 444.5996
+  type: 'test'
+  ...
+# Subtest: a later local G5 revoke blocks further admission even with a valid external signature
+ok 189 - a later local G5 revoke blocks further admission even with a valid external signature
+  ---
+  duration_ms: 410.1528
+  type: 'test'
+  ...
+# Subtest: later G7 incident state invalidates the bound Phase 5 package before admission
+ok 190 - later G7 incident state invalidates the bound Phase 5 package before admission
+  ---
+  duration_ms: 353.65
+  type: 'test'
+  ...
+# Subtest: Phase 6 rows are immutable and raw credentials/private keys are never persisted
+ok 191 - Phase 6 rows are immutable and raw credentials/private keys are never persisted
+  ---
+  duration_ms: 428.911
+  type: 'test'
+  ...
+# Subtest: Phase 6 implementation contains no network, scheduler, or release execution primitive
+ok 192 - Phase 6 implementation contains no network, scheduler, or release execution primitive
+  ---
+  duration_ms: 5.6648
+  type: 'test'
+  ...
+# Subtest: directly inserted corrupt Phase 6 evidence fails closed on read
+ok 193 - directly inserted corrupt Phase 6 evidence fails closed on read
+  ---
+  duration_ms: 390.0658
+  type: 'test'
+  ...
+# Subtest: client create rejects a malformed email (400, not 500)
+ok 194 - client create rejects a malformed email (400, not 500)
+  ---
+  duration_ms: 1208.5662
+  type: 'test'
+  ...
+# Subtest: client create rejects an unknown status enum
+ok 195 - client create rejects an unknown status enum
+  ---
+  duration_ms: 15.5761
+  type: 'test'
+  ...
+# Subtest: campaign create rejects an unknown channel and a negative/ non-integer budget
+ok 196 - campaign create rejects an unknown channel and a negative/ non-integer budget
+  ---
+  duration_ms: 167.4127
+  type: 'test'
+  ...
+# Subtest: lead create rejects out-of-range / non-integer score
+ok 197 - lead create rejects out-of-range / non-integer score
+  ---
+  duration_ms: 64.0422
+  type: 'test'
+  ...
+# Subtest: lead create rejects a malformed email and unknown status
+ok 198 - lead create rejects a malformed email and unknown status
+  ---
+  duration_ms: 81.4755
+  type: 'test'
+  ...
+# Subtest: lead create with a cross-client campaign is a clean 409
+ok 199 - lead create with a cross-client campaign is a clean 409
+  ---
+  duration_ms: 16.5119
+  type: 'test'
+  ...
+# Subtest: unknown ids return 404, not 500
+ok 200 - unknown ids return 404, not 500
+  ---
+  duration_ms: 90.2167
+  type: 'test'
+  ...
+# Subtest: repository blocks reassigning a campaign or lead to another client (409)
+ok 201 - repository blocks reassigning a campaign or lead to another client (409)
+  ---
+  duration_ms: 3.257
+  type: 'test'
+  ...
+# Subtest: pinned issuer configuration fails closed and does not infer tenant membership
+ok 202 - pinned issuer configuration fails closed and does not infer tenant membership
+  ---
+  duration_ms: 500.6684
+  type: 'test'
+  ...
+# Subtest: handoff rejects wrong issuer/audience/subject/tenant/scopes, algorithm confusion, tampering and invalid lifetimes
+ok 203 - handoff rejects wrong issuer/audience/subject/tenant/scopes, algorithm confusion, tampering and invalid lifetimes
+  ---
+  duration_ms: 42.84
+  type: 'test'
+  ...
+# Subtest: unconfigured installation serves a disabled human entry without creating sessions or broadening API access
+ok 204 - unconfigured installation serves a disabled human entry without creating sessions or broadening API access
+  ---
+  duration_ms: 251.8397
+  type: 'test'
+  ...
+# Subtest: one-time handoff establishes an opaque HttpOnly session, survives repository recreation, and enforces tenant/CSRF scopes
+ok 205 - one-time handoff establishes an opaque HttpOnly session, survives repository recreation, and enforces tenant/CSRF scopes
+  ---
+  duration_ms: 549.3696
+  type: 'test'
+  ...
+# Subtest: login CSRF, wrong nonce and replay are rejected; concurrent exchange creates exactly one session
+ok 206 - login CSRF, wrong nonce and replay are rejected; concurrent exchange creates exactly one session
+  ---
+  duration_ms: 122.2057
+  type: 'test'
+  ...
+# Subtest: HTTPS composition issues host-only Secure cookies and a recreated HTTP app restores only session metadata
+ok 207 - HTTPS composition issues host-only Secure cookies and a recreated HTTP app restores only session metadata
+  ---
+  duration_ms: 88.332
+  type: 'test'
+  ...
+# Subtest: expired browser challenge and issuer JTI reuse on a new challenge are rejected
+ok 208 - expired browser challenge and issuer JTI reuse on a new challenge are rejected
+  ---
+  duration_ms: 27.048
+  type: 'test'
+  ...
+# Subtest: read-only human scope cannot write advisory records, and expiry/revoke/logout invalidate the session
+ok 209 - read-only human scope cannot write advisory records, and expiry/revoke/logout invalidate the session
+  ---
+  duration_ms: 358.9735
+  type: 'test'
+  ...
+# Subtest: key removal and subject mapping changes invalidate existing sessions; database failure leaves challenge retryable
+ok 210 - key removal and subject mapping changes invalidate existing sessions; database failure leaves challenge retryable
+  ---
+  duration_ms: 13.9833
+  type: 'test'
+  ...
+# Subtest: browser entry clears handoff history before exchange and uses no durable credential storage
+ok 211 - browser entry clears handoff history before exchange and uses no durable credential storage
+  ---
+  duration_ms: 2.0056
+  type: 'test'
+  ...
+# Subtest: registry exposes five channels: social/AI placeholder, email live
+ok 212 - registry exposes five channels: social/AI placeholder, email live
+  ---
+  duration_ms: 4.6494
+  type: 'test'
+  ...
+# Subtest: every adapter execute is a no-op: performed:false, no_op:true (email included)
+ok 213 - every adapter execute is a no-op: performed:false, no_op:true (email included)
+  ---
+  duration_ms: 0.6153
+  type: 'test'
+  ...
+# Subtest: execute echoes payload key names only — never payload values (no secret leakage)
+ok 214 - execute echoes payload key names only — never payload values (no secret leakage)
+  ---
+  duration_ms: 0.3422
+  type: 'test'
+  ...
+# Subtest: execute rejects a capability the adapter does not declare
+ok 215 - execute rejects a capability the adapter does not declare
+  ---
+  duration_ms: 0.8232
+  type: 'test'
+  ...
+# Subtest: execute performs NO network I/O even when every egress path is armed to throw
+ok 216 - execute performs NO network I/O even when every egress path is armed to throw
+  ---
+  duration_ms: 0.6905
+  type: 'test'
+  ...
+# Subtest: get/has resolve known channels and reject unknown ones
+ok 217 - get/has resolve known channels and reject unknown ones
+  ---
+  duration_ms: 1.1213
+  type: 'test'
+  ...
+# Subtest: GET /integrations — lists channels with per-adapter mode/advisory flags
+ok 218 - GET /integrations — lists channels with per-adapter mode/advisory flags
+  ---
+  duration_ms: 225.2263
+  type: 'test'
+  ...
+# Subtest: GET /integrations/:channel — returns one adapter info (live email)
+ok 219 - GET /integrations/:channel — returns one adapter info (live email)
+  ---
+  duration_ms: 20.5756
+  type: 'test'
+  ...
+# Subtest: GET /integrations/:channel — 404 for an unknown channel
+ok 220 - GET /integrations/:channel — 404 for an unknown channel
+  ---
+  duration_ms: 40.6512
+  type: 'test'
+  ...
+# Subtest: social/AI channels have no publish endpoint (only email is live)
+ok 221 - social/AI channels have no publish endpoint (only email is live)
+  ---
+  duration_ms: 110.958
+  type: 'test'
+  ...
+# Subtest: GET /integrations — 401 without authentication (no unauthenticated bypass)
+ok 222 - GET /integrations — 401 without authentication (no unauthenticated bypass)
+  ---
+  duration_ms: 8.1494
+  type: 'test'
+  ...
+# Subtest: GET /integrations — metadata contract exposes no credential-like fields
+ok 223 - GET /integrations — metadata contract exposes no credential-like fields
+  ---
+  duration_ms: 17.4988
+  type: 'test'
+  ...
+# Subtest: Jarvis release manifest pins code, image, live source, providers, privacy, operations, and J1-J8
+ok 224 - Jarvis release manifest pins code, image, live source, providers, privacy, operations, and J1-J8
+  ---
+  duration_ms: 6.4707
+  type: 'test'
+  ...
+# Subtest: Jarvis preflight verifies the entire live chain and never returns injected secrets
+ok 225 - Jarvis preflight verifies the entire live chain and never returns injected secrets
+  ---
+  duration_ms: 5.3367
+  type: 'test'
+  ...
+# Subtest: pending example and mismatched live fingerprint fail closed
+ok 226 - pending example and mismatched live fingerprint fail closed
+  ---
+  duration_ms: 1.612
+  type: 'test'
+  ...
+# Subtest: named-deployment qualification requires runtime identity, migrations, CSP, and voice thresholds
+ok 227 - named-deployment qualification requires runtime identity, migrations, CSP, and voice thresholds
+  ---
+  duration_ms: 104.089
+  type: 'test'
+  ...
+# Subtest: qualification verifies evidence hashes and exact blocked J1-J8 identities instead of trusting labels
+ok 228 - qualification verifies evidence hashes and exact blocked J1-J8 identities instead of trusting labels
+  ---
+  duration_ms: 8.4668
+  type: 'test'
+  ...
+# Subtest: qualification independently recomputes every voice candidate safety invariant
+ok 229 - qualification independently recomputes every voice candidate safety invariant
+  ---
+  duration_ms: 108.8537
+  type: 'test'
+  ...
+# Subtest: qualification independently binds readiness safety truth and rejects malformed targets or responses
+ok 230 - qualification independently binds readiness safety truth and rejects malformed targets or responses
+  ---
+  duration_ms: 50.3506
+  type: 'test'
+  ...
+# Subtest: evaluation reports measured quality, citations, latency, cost, and honest sample limits
+ok 231 - evaluation reports measured quality, citations, latency, cost, and honest sample limits
+  ---
+  duration_ms: 1067.7345
+  type: 'test'
+  ...
+# Subtest: J1-J8 readiness never converts repository evidence into live acceptance
+ok 232 - J1-J8 readiness never converts repository evidence into live acceptance
+  ---
+  duration_ms: 23.5712
+  type: 'test'
+  ...
+# Subtest: confirmed export is sanitized while delete remains an immutable blocked request
+ok 233 - confirmed export is sanitized while delete remains an immutable blocked request
+  ---
+  duration_ms: 60.1466
+  type: 'test'
+  ...
+# Subtest: Jarvis v1 HTTP routes are tenant-scoped and export requires a confirmed request
+ok 234 - Jarvis v1 HTTP routes are tenant-scoped and export requires a confirmed request
+  ---
+  duration_ms: 778.5004
+  type: 'test'
+  ...
+# Subtest: Jarvis v1 governance migration rolls back and reapplies
+ok 235 - Jarvis v1 governance migration rolls back and reapplies
+  ---
+  duration_ms: 463.2088
+  type: 'test'
+  ...
+# Subtest: MetricsRepository.funnelByClient — stage counts, cumulative reach, and conversion rates
+ok 236 - MetricsRepository.funnelByClient — stage counts, cumulative reach, and conversion rates
+  ---
+  duration_ms: 692.8001
+  type: 'test'
+  ...
+# Subtest: MetricsRepository.volumeBySource — lead volume grouped by source
+ok 237 - MetricsRepository.volumeBySource — lead volume grouped by source
+  ---
+  duration_ms: 2.9719
+  type: 'test'
+  ...
+# Subtest: MetricsRepository.volumeByChannel — lead volume grouped by campaign channel
+ok 238 - MetricsRepository.volumeByChannel — lead volume grouped by campaign channel
+  ---
+  duration_ms: 2.7882
+  type: 'test'
+  ...
+# Subtest: MetricsRepository.campaignAttribution — per-campaign attribution + unattributed count
+ok 239 - MetricsRepository.campaignAttribution — per-campaign attribution + unattributed count
+  ---
+  duration_ms: 4.5063
+  type: 'test'
+  ...
+# Subtest: MetricsRepository.leadTrends — lead-creation volume bucketed by day
+ok 240 - MetricsRepository.leadTrends — lead-creation volume bucketed by day
+  ---
+  duration_ms: 1.4888
+  type: 'test'
+  ...
+# Subtest: MetricsRepository scopes per client — an unknown client yields zeroed metrics
+ok 241 - MetricsRepository scopes per client — an unknown client yields zeroed metrics
+  ---
+  duration_ms: 2.2192
+  type: 'test'
+  ...
+# Subtest: GET /metrics/funnel — 200 with stage counts, reach, and conversion rates
+ok 242 - GET /metrics/funnel — 200 with stage counts, reach, and conversion rates
+  ---
+  duration_ms: 1274.7906
+  type: 'test'
+  ...
+# Subtest: GET /metrics/sources — 200 with lead volume grouped by source
+ok 243 - GET /metrics/sources — 200 with lead volume grouped by source
+  ---
+  duration_ms: 15.6878
+  type: 'test'
+  ...
+# Subtest: GET /metrics/channels — 200 with lead volume grouped by channel
+ok 244 - GET /metrics/channels — 200 with lead volume grouped by channel
+  ---
+  duration_ms: 10.8259
+  type: 'test'
+  ...
+# Subtest: GET /metrics/campaigns — 200 with per-campaign attribution + unattributed count
+ok 245 - GET /metrics/campaigns — 200 with per-campaign attribution + unattributed count
+  ---
+  duration_ms: 27.4385
+  type: 'test'
+  ...
+# Subtest: GET /metrics/trends — 200 with lead-creation volume bucketed by day
+ok 246 - GET /metrics/trends — 200 with lead-creation volume bucketed by day
+  ---
+  duration_ms: 13.6695
+  type: 'test'
+  ...
+# Subtest: GET /metrics/funnel — 400 when clientId is missing
+ok 247 - GET /metrics/funnel — 400 when clientId is missing
+  ---
+  duration_ms: 18.0962
+  type: 'test'
+  ...
+# Subtest: GET /metrics/funnel — 400 when clientId is blank
+ok 248 - GET /metrics/funnel — 400 when clientId is blank
+  ---
+  duration_ms: 6.3958
+  type: 'test'
+  ...
+# Subtest: GET /metrics/sources — 404 when the client does not exist
+ok 249 - GET /metrics/sources — 404 when the client does not exist
+  ---
+  duration_ms: 6.8822
+  type: 'test'
+  ...
+# Subtest: GET /metrics/funnel — a whitespace-padded valid clientId resolves (trimmed)
+ok 250 - GET /metrics/funnel — a whitespace-padded valid clientId resolves (trimmed)
+  ---
+  duration_ms: 43.369
+  type: 'test'
+  ...
+# Subtest: onboard provisions a tenant and reports platform readiness
+ok 251 - onboard provisions a tenant and reports platform readiness
+  ---
+  duration_ms: 785.6019
+  type: 'test'
+  ...
+# Subtest: onboard requires both name and email (clean 400)
+ok 252 - onboard requires both name and email (clean 400)
+  ---
+  duration_ms: 1.2025
+  type: 'test'
+  ...
+# Subtest: onboard rejects a malformed email at the repository boundary (400)
+ok 253 - onboard rejects a malformed email at the repository boundary (400)
+  ---
+  duration_ms: 1.369
+  type: 'test'
+  ...
+# Subtest: onboard refuses to duplicate an existing tenant email (409)
+ok 254 - onboard refuses to duplicate an existing tenant email (409)
+  ---
+  duration_ms: 2.3259
+  type: 'test'
+  ...
+# Subtest: readiness reports not-ready on a migrated-but-unseeded database
+ok 255 - readiness reports not-ready on a migrated-but-unseeded database
+  ---
+  duration_ms: 633.2998
+  type: 'test'
+  ...
+# Subtest: health and readiness probes are public; readiness confirms the platform is seeded
+ok 256 - health and readiness probes are public; readiness confirms the platform is seeded
+  ---
+  duration_ms: 1190.4062
+  type: 'test'
+  ...
+# Subtest: onboarding is admin-only
+ok 257 - onboarding is admin-only
+  ---
+  duration_ms: 124.9483
+  type: 'test'
+  ...
+# Subtest: admin onboards a tenant and receives a working API token
+ok 258 - admin onboards a tenant and receives a working API token
+  ---
+  duration_ms: 97.9083
+  type: 'test'
+  ...
+# Subtest: onboarding rejects malformed input with a clean 400 (never 500)
+ok 259 - onboarding rejects malformed input with a clean 400 (never 500)
+  ---
+  duration_ms: 26.8035
+  type: 'test'
+  ...
+# Subtest: onboarding will not duplicate an existing tenant email (409)
+ok 260 - onboarding will not duplicate an existing tenant email (409)
+  ---
+  duration_ms: 40.1075
+  type: 'test'
+  ...
+# Subtest: factory is offline by default and fails closed for incomplete OpenAI configuration
+ok 261 - factory is offline by default and fails closed for incomplete OpenAI configuration
+  ---
+  duration_ms: 2.944
+  type: 'test'
+  ...
+# Subtest: OpenAI adapter emits one pinned, stateless, no-tool structured-output request
+ok 262 - OpenAI adapter emits one pinned, stateless, no-tool structured-output request
+  ---
+  duration_ms: 4.5817
+  type: 'test'
+  ...
+# Subtest: cost policy accounts for ordinary, cached, cache-write, output, and long-context rates
+ok 263 - cost policy accounts for ordinary, cached, cache-write, output, and long-context rates
+  ---
+  duration_ms: 1.0637
+  type: 'test'
+  ...
+# Subtest: cost preflight is conservative and versioned before any billable call
+ok 264 - cost preflight is conservative and versioned before any billable call
+  ---
+  duration_ms: 0.9687
+  type: 'test'
+  ...
+# Subtest: provider rejects bad status without reflecting provider body or secret
+ok 265 - provider rejects bad status without reflecting provider body or secret
+  ---
+  duration_ms: 0.8105
+  type: 'test'
+  ...
+# Subtest: provider rejects malformed, incomplete, mismatched, refused, and invalid-usage responses
+ok 266 - provider rejects malformed, incomplete, mismatched, refused, and invalid-usage responses
+  ---
+  duration_ms: 2.2238
+  type: 'test'
+  ...
+# Subtest: already-aborted calls stop before transport
+ok 267 - already-aborted calls stop before transport
+  ---
+  duration_ms: 4.1462
+  type: 'test'
+  ...
+# Subtest: adapter rejects custom models, malformed keys, and unsafe output limits
+ok 268 - adapter rejects custom models, malformed keys, and unsafe output limits
+  ---
+  duration_ms: 0.7411
+  type: 'test'
+  ...
+# Subtest: Phase 5 policy is exact, credential-separated, local-only, and production composition remains empty
+ok 269 - Phase 5 policy is exact, credential-separated, local-only, and production composition remains empty
+  ---
+  duration_ms: 1377.843
+  type: 'test'
+  ...
+# Subtest: acceptance requires the exact G7 binding, current upstream authority, and authority credential
+ok 270 - acceptance requires the exact G7 binding, current upstream authority, and authority credential
+  ---
+  duration_ms: 507.605
+  type: 'test'
+  ...
+# Subtest: assessment derives missing local evidence from the database and fails closed
+ok 271 - assessment derives missing local evidence from the database and fails closed
+  ---
+  duration_ms: 399.7316
+  type: 'test'
+  ...
+# Subtest: passing local evidence produces an immutable package that remains externally blocked
+ok 272 - passing local evidence produces an immutable package that remains externally blocked
+  ---
+  duration_ms: 474.1137
+  type: 'test'
+  ...
+# Subtest: assessment and release packaging replay immutable evidence without duplicate events
+ok 273 - assessment and release packaging replay immutable evidence without duplicate events
+  ---
+  duration_ms: 486.8419
+  type: 'test'
+  ...
+# Subtest: a later G5 revoke is reflected as a failed local assessment
+ok 274 - a later G5 revoke is reflected as a failed local assessment
+  ---
+  duration_ms: 404.0101
+  type: 'test'
+  ...
+# Subtest: release packaging rechecks current G5 and rejects a previously passing assessment after revoke
+ok 275 - release packaging rechecks current G5 and rejects a previously passing assessment after revoke
+  ---
+  duration_ms: 378.9186
+  type: 'test'
+  ...
+# Subtest: release packaging rejects an assessment outside the configured freshness window
+ok 276 - release packaging rejects an assessment outside the configured freshness window
+  ---
+  duration_ms: 240.6602
+  type: 'test'
+  ...
+# Subtest: an open incident and released kill switch are database-derived failures
+ok 277 - an open incident and released kill switch are database-derived failures
+  ---
+  duration_ms: 191.752
+  type: 'test'
+  ...
+# Subtest: all Phase 5 facts are database-immutable and event order is monotonic
+ok 278 - all Phase 5 facts are database-immutable and event order is monotonic
+  ---
+  duration_ms: 167.0356
+  type: 'test'
+  ...
+# Subtest: raw Phase 5 credentials are never persisted
+ok 279 - raw Phase 5 credentials are never persisted
+  ---
+  duration_ms: 170.556
+  type: 'test'
+  ...
+# Subtest: inserted corrupt assessment evidence fails closed on read
+ok 280 - inserted corrupt assessment evidence fails closed on read
+  ---
+  duration_ms: 171.4064
+  type: 'test'
+  ...
+# Subtest: accepts a complete solo-founder P1 decision and emits a secret-free summary
+ok 281 - accepts a complete solo-founder P1 decision and emits a secret-free summary
+  ---
+  duration_ms: 76.6384
+  type: 'test'
+  ...
+# Subtest: fails closed while the Product Owner decision is pending or placeholder-filled
+ok 282 - fails closed while the Product Owner decision is pending or placeholder-filled
+  ---
+  duration_ms: 4.6018
+  type: 'test'
+  ...
+# Subtest: rejects raw credentials, credential-bearing URLs, and unknown fields
+ok 283 - rejects raw credentials, credential-bearing URLs, and unknown fields
+  ---
+  duration_ms: 5.8488
+  type: 'test'
+  ...
+# Subtest: requires independent test and production identities
+ok 284 - requires independent test and production identities
+  ---
+  duration_ms: 18.076
+  type: 'test'
+  ...
+# Subtest: reuses the bounded poll-policy contract and enforces a two-interval stale window
+ok 285 - reuses the bounded poll-policy contract and enforces a two-interval stale window
+  ---
+  duration_ms: 10.2334
+  type: 'test'
+  ...
+# Subtest: rejects invalid calendars and broad evidence access
+ok 286 - rejects invalid calendars and broad evidence access
+  ---
+  duration_ms: 1.0254
+  type: 'test'
+  ...
+# Subtest: Checkpoint B and P2 form a fingerprint-bound, fail-closed authorization chain
+ok 287 - Checkpoint B and P2 form a fingerprint-bound, fail-closed authorization chain
+  ---
+  duration_ms: 77.2712
+  type: 'test'
+  ...
+# Subtest: production remains blocked without both external checkpoints
+ok 288 - production remains blocked without both external checkpoints
+  ---
+  duration_ms: 3.9368
+  type: 'test'
+  ...
+# Subtest: tampering with a P1 identity or Checkpoint B proof invalidates P2
+ok 289 - tampering with a P1 identity or Checkpoint B proof invalidates P2
+  ---
+  duration_ms: 5.236
+  type: 'test'
+  ...
+# Subtest: Checkpoint B rejects any non-GET/body/mutation/PII/secret claim
+ok 290 - Checkpoint B rejects any non-GET/body/mutation/PII/secret claim
+  ---
+  duration_ms: 1.556
+  type: 'test'
+  ...
+# Subtest: policy is explicit, bounded, and preserves the approved 15-minute cadence
+ok 291 - policy is explicit, bounded, and preserves the approved 15-minute cadence
+  ---
+  duration_ms: 792.7335
+  type: 'test'
+  ...
+# Subtest: poll state is one-to-one, tenant-scoped, and contains no credential field
+ok 292 - poll state is one-to-one, tenant-scoped, and contains no credential field
+  ---
+  duration_ms: 22.6261
+  type: 'test'
+  ...
+# Subtest: atomic lease permits only one in-flight cycle and persists no bearer token
+ok 293 - atomic lease permits only one in-flight cycle and persists no bearer token
+  ---
+  duration_ms: 22.7242
+  type: 'test'
+  ...
+# Subtest: bounded retry honors sanitized Retry-After and reuses one correlation id
+ok 294 - bounded retry honors sanitized Retry-After and reuses one correlation id
+  ---
+  duration_ms: 31.2961
+  type: 'test'
+  ...
+# Subtest: exponential jitter is deterministically capped and eligible 5xx retries
+ok 295 - exponential jitter is deterministically capped and eligible 5xx retries
+  ---
+  duration_ms: 17.7904
+  type: 'test'
+  ...
+# Subtest: adapter retains only bounded numeric Retry-After metadata
+ok 296 - adapter retains only bounded numeric Retry-After metadata
+  ---
+  duration_ms: 72.5294
+  type: 'test'
+  ...
+# Subtest: 401 and schema failures disable immediately without retry or persistence
+ok 297 - 401 and schema failures disable immediately without retry or persistence
+  ---
+  duration_ms: 80.1669
+  type: 'test'
+  ...
+# Subtest: unexpected source 404 is permanent, disabled, and never retried
+ok 298 - unexpected source 404 is permanent, disabled, and never retried
+  ---
+  duration_ms: 35.3658
+  type: 'test'
+  ...
+# Subtest: circuit opens across failed cycles, survives restart, and closes after one probe
+ok 299 - circuit opens across failed cycles, survives restart, and closes after one probe
+  ---
+  duration_ms: 58.1409
+  type: 'test'
+  ...
+# Subtest: an expired lease can be recovered after a crashed process
+ok 300 - an expired lease can be recovered after a crashed process
+  ---
+  duration_ms: 10.3455
+  type: 'test'
+  ...
+# Subtest: request timeout is bounded, retried, and recorded without leaking details
+ok 301 - request timeout is bounded, retried, and recorded without leaking details
+  ---
+  duration_ms: 38.5884
+  type: 'test'
+  ...
+# Subtest: 200 then due 304 remains GET-only and creates one snapshot/run
+ok 302 - 200 then due 304 remains GET-only and creates one snapshot/run
+  ---
+  duration_ms: 37.1818
+  type: 'test'
+  ...
+# Subtest: corrupt persistent state fails closed before a source request
+ok 303 - corrupt persistent state fails closed before a source request
+  ---
+  duration_ms: 7.3183
+  type: 'test'
+  ...
+# Subtest: duplicate cycles and duplicate source snapshots cannot duplicate logical alerts
+ok 304 - duplicate cycles and duplicate source snapshots cannot duplicate logical alerts
+  ---
+  duration_ms: 863.0302
+  type: 'test'
+  ...
+# Subtest: a failed cycle rolls back alerts and outbox atomically, then safely retries
+ok 305 - a failed cycle rolls back alerts and outbox atomically, then safely retries
+  ---
+  duration_ms: 40.5046
+  type: 'test'
+  ...
+# Subtest: stale, future, and partial evidence suppress every confident alert
+ok 306 - stale, future, and partial evidence suppress every confident alert
+  ---
+  duration_ms: 162.3932
+  type: 'test'
+  ...
+# Subtest: worsening signals obey cooldown and snooze while a cleared condition resolves append-only
+ok 307 - worsening signals obey cooldown and snooze while a cleared condition resolves append-only
+  ---
+  duration_ms: 95.8824
+  type: 'test'
+  ...
+# Subtest: acknowledgement and snooze are idempotent, tenant-scoped state evidence
+ok 308 - acknowledgement and snooze are idempotent, tenant-scoped state evidence
+  ---
+  duration_ms: 34.1103
+  type: 'test'
+  ...
+# Subtest: quiet hours defer urgent delivery and one daily brief is staged per UTC day
+ok 309 - quiet hours defer urgent delivery and one daily brief is staged per UTC day
+  ---
+  duration_ms: 60.9311
+  type: 'test'
+  ...
+# Subtest: immutable outcomes produce a deterministic shadow false-positive baseline
+ok 310 - immutable outcomes produce a deterministic shadow false-positive baseline
+  ---
+  duration_ms: 34.7807
+  type: 'test'
+  ...
+# Subtest: delivery replay uses one logical key; definitive failure may retry and unknown blocks retry
+ok 311 - delivery replay uses one logical key; definitive failure may retry and unknown blocks retry
+  ---
+  duration_ms: 73.603
+  type: 'test'
+  ...
+# Subtest: an in-flight delivery attempt blocks a second provider call for the same logical notification
+ok 312 - an in-flight delivery attempt blocks a second provider call for the same logical notification
+  ---
+  duration_ms: 26.5745
+  type: 'test'
+  ...
+# Subtest: authenticated alert APIs enforce tenant scope and expose no cycle or delivery mutation route
+ok 313 - authenticated alert APIs enforce tenant scope and expose no cycle or delivery mutation route
+  ---
+  duration_ms: 259.0103
+  type: 'test'
+  ...
+# Subtest: all Phase 11 records are immutable and the migration rolls back and reapplies
+ok 314 - all Phase 11 records are immutable and the migration rolls back and reapplies
+  ---
+  duration_ms: 301.5263
+  type: 'test'
+  ...
+# Subtest: checked-in composition and operator contain no channel adapter, daemon, or automatic loop
+ok 315 - checked-in composition and operator contain no channel adapter, daemon, or automatic loop
+  ---
+  duration_ms: 2.6139
+  type: 'test'
+  ...
+# Subtest: recommendations are derived, categorised, and prioritised from funnel state
+ok 316 - recommendations are derived, categorised, and prioritised from funnel state
+  ---
+  duration_ms: 952.7691
+  type: 'test'
+  ...
+# Subtest: every recommendation and the report are advisory-only
+ok 317 - every recommendation and the report are advisory-only
+  ---
+  duration_ms: 17.9148
+  type: 'test'
+  ...
+# Subtest: reports are sorted by priority, high first
+ok 318 - reports are sorted by priority, high first
+  ---
+  duration_ms: 34.2678
+  type: 'test'
+  ...
+# Subtest: an empty client (no leads) gets no recommendations
+ok 319 - an empty client (no leads) gets no recommendations
+  ---
+  duration_ms: 5.8551
+  type: 'test'
+  ...
+# Subtest: generate rejects a date-shaped but invalid asOf with a 400 ValidationError
+ok 320 - generate rejects a date-shaped but invalid asOf with a 400 ValidationError
+  ---
+  duration_ms: 1.6579
+  type: 'test'
+  ...
+# Subtest: GET /recommendations — 200 advisory JSON report matching the seeded state
+ok 321 - GET /recommendations — 200 advisory JSON report matching the seeded state
+  ---
+  duration_ms: 911.8066
+  type: 'test'
+  ...
+# Subtest: GET /recommendations — defaults asOf to today when omitted
+ok 322 - GET /recommendations — defaults asOf to today when omitted
+  ---
+  duration_ms: 25.6598
+  type: 'test'
+  ...
+# Subtest: GET /recommendations — 400 when clientId is missing
+ok 323 - GET /recommendations — 400 when clientId is missing
+  ---
+  duration_ms: 28.8393
+  type: 'test'
+  ...
+# Subtest: GET /recommendations — 400 for malformed or invalid asOf
+ok 324 - GET /recommendations — 400 for malformed or invalid asOf
+  ---
+  duration_ms: 41.9679
+  type: 'test'
+  ...
+# Subtest: GET /recommendations — 404 when the client does not exist
+ok 325 - GET /recommendations — 404 when the client does not exist
+  ---
+  duration_ms: 14.2709
+  type: 'test'
+  ...
+# Subtest: exact adapter performs fresh preview, separated approval, execute, observation, and rollback
+ok 326 - exact adapter performs fresh preview, separated approval, execute, observation, and rollback
+  ---
+  duration_ms: 47.8151
+  type: 'test'
+  ...
+# Subtest: bounded-autonomy human recovery maps to the same fresh separately approved source rollback
+ok 327 - bounded-autonomy human recovery maps to the same fresh separately approved source rollback
+  ---
+  duration_ms: 5.0516
+  type: 'test'
+  ...
+# Subtest: payload, endpoint, tenant, project, credential, and approval separation fail before transport
+ok 328 - payload, endpoint, tenant, project, credential, and approval separation fail before transport
+  ---
+  duration_ms: 4.4095
+  type: 'test'
+  ...
+# Subtest: definitive pre-mutation rejection is failed evidence while 5xx remains unknown
+ok 329 - definitive pre-mutation rejection is failed evidence while 5xx remains unknown
+  ---
+  duration_ms: 24.2757
+  type: 'test'
+  ...
+# Subtest: tampered provider preview fails closed and no mutation operation follows
+ok 330 - tampered provider preview fails closed and no mutation operation follows
+  ---
+  duration_ms: 4.4436
+  type: 'test'
+  ...
+# Subtest: explicit release binding can compose exactly one adapter while default production composition stays empty
+ok 331 - explicit release binding can compose exactly one adapter while default production composition stays empty
+  ---
+  duration_ms: 58.7477
+  type: 'test'
+  ...
+# Subtest: release binding rejects working-tree source, G6 drift, configuration drift, and credential mismatch
+ok 332 - release binding rejects working-tree source, G6 drift, configuration drift, and credential mismatch
+  ---
+  duration_ms: 4.7858
+  type: 'test'
+  ...
+# Subtest: daily evidence aggregates exact read-only poll proof and is database-immutable
+ok 333 - daily evidence aggregates exact read-only poll proof and is database-immutable
+  ---
+  duration_ms: 982.9334
+  type: 'test'
+  ...
+# Subtest: one-shot worker records safe accepted evidence and rejects correlation conflicts
+ok 334 - one-shot worker records safe accepted evidence and rejects correlation conflicts
+  ---
+  duration_ms: 16.1053
+  type: 'test'
+  ...
+# Subtest: ten consecutive business days unlock go and bind the immutable decision to evaluation
+ok 335 - ten consecutive business days unlock go and bind the immutable decision to evaluation
+  ---
+  duration_ms: 1255.9768
+  type: 'test'
+  ...
+# Subtest: failed or incomplete evidence blocks go but still permits an honest revoke
+ok 336 - failed or incomplete evidence blocks go but still permits an honest revoke
+  ---
+  duration_ms: 87.0258
+  type: 'test'
+  ...
+# Subtest: authorization mixing and material false claims fail a shadow day
+ok 337 - authorization mixing and material false claims fail a shadow day
+  ---
+  duration_ms: 101.0479
+  type: 'test'
+  ...
+# Subtest: polls outside the approved business window cannot satisfy daily schedule coverage
+ok 338 - polls outside the approved business window cannot satisfy daily schedule coverage
+  ---
+  duration_ms: 91.5516
+  type: 'test'
+  ...
+# Subtest: operator credential rotation rejects the previous token without retaining either token
+ok 339 - operator credential rotation rejects the previous token without retaining either token
+  ---
+  duration_ms: 572.7079
+  type: 'test'
+  ...
+# Subtest: exact reconciliation is immutable, idempotent, and stores counts/hashes without payload or PII
+ok 340 - exact reconciliation is immutable, idempotent, and stores counts/hashes without payload or PII
+  ---
+  duration_ms: 96.8604
+  type: 'test'
+  ...
+# Subtest: brief mismatch fails the day, emits one safe alert, and replay does not duplicate it
+ok 341 - brief mismatch fails the day, emits one safe alert, and replay does not duplicate it
+  ---
+  duration_ms: 29.1633
+  type: 'test'
+  ...
+# Subtest: missing or corrupt source evidence records a safe failure instead of a false pass
+ok 342 - missing or corrupt source evidence records a safe failure instead of a false pass
+  ---
+  duration_ms: 21.4392
+  type: 'test'
+  ...
+# Subtest: operator health requires authentication and returns stale sanitized state only
+ok 343 - operator health requires authentication and returns stale sanitized state only
+  ---
+  duration_ms: 18.6919
+  type: 'test'
+  ...
+# Subtest: authenticated disable and recovery are tenant-scoped and reset persistent circuit state
+ok 344 - authenticated disable and recovery are tenant-scoped and reset persistent circuit state
+  ---
+  duration_ms: 16.4954
+  type: 'test'
+  ...
+# Subtest: recovery refuses an active lease and succeeds after explicit lease expiry
+ok 345 - recovery refuses an active lease and succeeds after explicit lease expiry
+  ---
+  duration_ms: 22.5338
+  type: 'test'
+  ...
+# Subtest: one-shot poll clears due state, runs exactly once, and persists no operator/source token
+ok 346 - one-shot poll clears due state, runs exactly once, and persists no operator/source token
+  ---
+  duration_ms: 23.4361
+  type: 'test'
+  ...
+# Subtest: corrupt persisted reconciliation state fails closed in repository and health reads
+ok 347 - corrupt persisted reconciliation state fails closed in repository and health reads
+  ---
+  duration_ms: 9.1039
+  type: 'test'
+  ...
+# Subtest: database evidence failure propagates and cannot be reported as reconciliation success
+ok 348 - database evidence failure propagates and cannot be reported as reconciliation success
+  ---
+  duration_ms: 17.2501
+  type: 'test'
+  ...
+# Subtest: operations migration rolls back table and immutability triggers cleanly
+ok 349 - operations migration rolls back table and immutability triggers cleanly
+  ---
+  duration_ms: 191.6546
+  type: 'test'
+  ...
+# Subtest: checked-in operator composition has no real command adapter
+ok 350 - checked-in operator composition has no real command adapter
+  ---
+  duration_ms: 578.49
+  type: 'test'
+  ...
+# Subtest: G6 policy is exact, G5-bound, pending-intolerant, and requires separate credentials
+ok 351 - G6 policy is exact, G5-bound, pending-intolerant, and requires separate credentials
+  ---
+  duration_ms: 39.7984
+  type: 'test'
+  ...
+# Subtest: proposal rejects sensitive payload fields and command-schema drift before persistence
+ok 352 - proposal rejects sensitive payload fields and command-schema drift before persistence
+  ---
+  duration_ms: 48.7298
+  type: 'test'
+  ...
+# Subtest: dry-run must match the exact command request and records zero immutable mutations
+ok 353 - dry-run must match the exact command request and records zero immutable mutations
+  ---
+  duration_ms: 70.3295
+  type: 'test'
+  ...
+# Subtest: approval is separately authenticated, immutable, and a rejection cannot execute
+ok 354 - approval is separately authenticated, immutable, and a rejection cannot execute
+  ---
+  duration_ms: 98.67
+  type: 'test'
+  ...
+# Subtest: execution is explicit and idempotent; replay returns evidence without a second adapter call
+ok 355 - execution is explicit and idempotent; replay returns evidence without a second adapter call
+  ---
+  duration_ms: 94.6649
+  type: 'test'
+  ...
+# Subtest: expired approval and a later G5 revoke both block execution before the adapter
+ok 356 - expired approval and a later G5 revoke both block execution before the adapter
+  ---
+  duration_ms: 73.4272
+  type: 'test'
+  ...
+# Subtest: unknown adapter outcome becomes reconciliation-required and is never retried
+ok 357 - unknown adapter outcome becomes reconciliation-required and is never retried
+  ---
+  duration_ms: 49.9551
+  type: 'test'
+  ...
+# Subtest: an expired in-progress lease is sealed for manual reconciliation, not retried
+ok 358 - an expired in-progress lease is sealed for manual reconciliation, not retried
+  ---
+  duration_ms: 50.607
+  type: 'test'
+  ...
+# Subtest: hourly and budget limits are checked atomically before another adapter call
+ok 359 - hourly and budget limits are checked atomically before another adapter call
+  ---
+  duration_ms: 199.0912
+  type: 'test'
+  ...
+# Subtest: rollback requires a new dry-run and approval, then stays available after G5 revoke
+ok 360 - rollback requires a new dry-run and approval, then stays available after G5 revoke
+  ---
+  duration_ms: 91.9736
+  type: 'test'
+  ...
+# Subtest: policy and audit facts are immutable while attempt permits exactly one terminal transition
+ok 361 - policy and audit facts are immutable while attempt permits exactly one terminal transition
+  ---
+  duration_ms: 44.9968
+  type: 'test'
+  ...
+# Subtest: create defaults to open and records the initial status as the first audit event
+ok 362 - create defaults to open and records the initial status as the first audit event
+  ---
+  duration_ms: 561.9461
+  type: 'test'
+  ...
+# Subtest: create rejects malformed input cleanly (400)
+ok 363 - create rejects malformed input cleanly (400)
+  ---
+  duration_ms: 6.1106
+  type: 'test'
+  ...
+# Subtest: a full legal lifecycle transitions and appends an audit event per change
+ok 364 - a full legal lifecycle transitions and appends an audit event per change
+  ---
+  duration_ms: 12.0568
+  type: 'test'
+  ...
+# Subtest: illegal transitions are rejected (409) and write no audit event
+ok 365 - illegal transitions are rejected (409) and write no audit event
+  ---
+  duration_ms: 5.3219
+  type: 'test'
+  ...
+# Subtest: field updates do not change status and do not write audit events
+ok 366 - field updates do not change status and do not write audit events
+  ---
+  duration_ms: 5.0931
+  type: 'test'
+  ...
+# Subtest: status and ownership cannot be changed through the field-update path
+ok 367 - status and ownership cannot be changed through the field-update path
+  ---
+  duration_ms: 2.9431
+  type: 'test'
+  ...
+# Subtest: a malformed (non-string / non-UUID) client_id is a clean 400 before any DB query
+ok 368 - a malformed (non-string / non-UUID) client_id is a clean 400 before any DB query
+  ---
+  duration_ms: 0.6103
+  type: 'test'
+  ...
+# Subtest: field-update validation rejects malformed input (covers the update path)
+ok 369 - field-update validation rejects malformed input (covers the update path)
+  ---
+  duration_ms: 4.143
+  type: 'test'
+  ...
+# Subtest: a malformed audit note is rejected (400) and never written
+ok 370 - a malformed audit note is rejected (400) and never written
+  ---
+  duration_ms: 4.5042
+  type: 'test'
+  ...
+# Subtest: audit events are ordered by a monotonic per-task seq, not by timestamp
+ok 371 - audit events are ordered by a monotonic per-task seq, not by timestamp
+  ---
+  duration_ms: 44.334
+  type: 'test'
+  ...
+# Subtest: the task migration is reversible (down drops both tables cleanly)
+ok 372 - the task migration is reversible (down drops both tables cleanly)
+  ---
+  duration_ms: 449.2269
+  type: 'test'
+  ...
+# Subtest: task routes require authentication
+ok 373 - task routes require authentication
+  ---
+  duration_ms: 405.1827
+  type: 'test'
+  ...
+# Subtest: create + read are tenant-scoped
+ok 374 - create + read are tenant-scoped
+  ---
+  duration_ms: 95.9751
+  type: 'test'
+  ...
+# Subtest: list is auto-scoped to the caller; admin must name a client
+ok 375 - list is auto-scoped to the caller; admin must name a client
+  ---
+  duration_ms: 35.6988
+  type: 'test'
+  ...
+# Subtest: malformed input is rejected with 400 (never 500)
+ok 376 - malformed input is rejected with 400 (never 500)
+  ---
+  duration_ms: 14.0483
+  type: 'test'
+  ...
+# Subtest: a malformed clientId returns a clean 400 (not a DB error/500)
+ok 377 - a malformed clientId returns a clean 400 (not a DB error/500)
+  ---
+  duration_ms: 20.7166
+  type: 'test'
+  ...
+# Subtest: a malformed status-change note returns a clean 400
+ok 378 - a malformed status-change note returns a clean 400
+  ---
+  duration_ms: 18.8643
+  type: 'test'
+  ...
+# Subtest: status transitions: legal moves succeed, illegal moves 409, unknown 400
+ok 379 - status transitions: legal moves succeed, illegal moves 409, unknown 400
+  ---
+  duration_ms: 34.1735
+  type: 'test'
+  ...
+# Subtest: illegal skip transition (open → done) is a 409
+ok 380 - illegal skip transition (open → done) is a 409
+  ---
+  duration_ms: 11.5713
+  type: 'test'
+  ...
+# Subtest: PATCH cannot change status; status edits must use the transition endpoint
+ok 381 - PATCH cannot change status; status edits must use the transition endpoint
+  ---
+  duration_ms: 18.6614
+  type: 'test'
+  ...
+# Subtest: PATCH and status transition are tenant-scoped (cross-tenant → 404, no mutation)
+ok 382 - PATCH and status transition are tenant-scoped (cross-tenant → 404, no mutation)
+  ---
+  duration_ms: 21.8095
+  type: 'test'
+  ...
+# Subtest: the audit-trail endpoint is read-only and tenant-scoped
+ok 383 - the audit-trail endpoint is read-only and tenant-scoped
+  ---
+  duration_ms: 25.0018
+  type: 'test'
+  ...
+# Subtest: delete is tenant-scoped and idempotent on a missing id
+ok 384 - delete is tenant-scoped and idempotent on a missing id
+  ---
+  duration_ms: 21.4933
+  type: 'test'
+  ...
+# Subtest: no token is 401 on a protected route
+ok 385 - no token is 401 on a protected route
+  ---
+  duration_ms: 431.0894
+  type: 'test'
+  ...
+# Subtest: an invalid token is 401
+ok 386 - an invalid token is 401
+  ---
+  duration_ms: 8.3187
+  type: 'test'
+  ...
+# Subtest: health stays public (no token required)
+ok 387 - health stays public (no token required)
+  ---
+  duration_ms: 6.8364
+  type: 'test'
+  ...
+# Subtest: a client token reads its own KPIs but not another tenant’s
+ok 388 - a client token reads its own KPIs but not another tenant’s
+  ---
+  duration_ms: 20.7159
+  type: 'test'
+  ...
+# Subtest: brief and recommendations enforce the same client scope
+ok 389 - brief and recommendations enforce the same client scope
+  ---
+  duration_ms: 39.9861
+  type: 'test'
+  ...
+# Subtest: listing all clients is admin-only
+ok 390 - listing all clients is admin-only
+  ---
+  duration_ms: 14.8129
+  type: 'test'
+  ...
+# Subtest: a client can read its own client record but not another
+ok 391 - a client can read its own client record but not another
+  ---
+  duration_ms: 12.6614
+  type: 'test'
+  ...
+# Subtest: a cross-tenant resource is reported as 404 (existence not leaked)
+ok 392 - a cross-tenant resource is reported as 404 (existence not leaked)
+  ---
+  duration_ms: 12.0988
+  type: 'test'
+  ...
+# Subtest: the lead/campaign list is auto-scoped to the caller’s tenant
+ok 393 - the lead/campaign list is auto-scoped to the caller’s tenant
+  ---
+  duration_ms: 15.8173
+  type: 'test'
+  ...
+# Subtest: the dashboard picker is admin-only; clients see only their own dashboard
+ok 394 - the dashboard picker is admin-only; clients see only their own dashboard
+  ---
+  duration_ms: 24.6072
+  type: 'test'
+  ...
+# Subtest: voice lifecycle permits exact barge-in transitions and rejects invalid authority changes
+ok 395 - voice lifecycle permits exact barge-in transitions and rejects invalid authority changes
+  ---
+  duration_ms: 366.6642
+  type: 'test'
+  ...
+# Subtest: session and lifecycle evidence are immutable while audio and ephemeral credentials are never persisted
+ok 396 - session and lifecycle evidence are immutable while audio and ephemeral credentials are never persisted
+  ---
+  duration_ms: 63.1615
+  type: 'test'
+  ...
+# Subtest: strict request, event idempotency, terminal sessions, and tenant isolation fail closed
+ok 397 - strict request, event idempotency, terminal sessions, and tenant isolation fail closed
+  ---
+  duration_ms: 42.2151
+  type: 'test'
+  ...
+# Subtest: explicit consent, grounded-turn telemetry, terminal review, and quality metrics stay content-free
+ok 398 - explicit consent, grounded-turn telemetry, terminal review, and quality metrics stay content-free
+  ---
+  duration_ms: 92.7038
+  type: 'test'
+  ...
+# Subtest: OpenAI client-secret provider uses the current Realtime contract and sanitizes rejection bodies
+ok 399 - OpenAI client-secret provider uses the current Realtime contract and sanitizes rejection bodies
+  ---
+  duration_ms: 34.424
+  type: 'test'
+  ...
+# Subtest: OpenAI client-secret provider fails closed on malformed config, identity, transport, body, and credential lifetime
+ok 400 - OpenAI client-secret provider fails closed on malformed config, identity, transport, body, and credential lifetime
+  ---
+  duration_ms: 1012.0296
+  type: 'test'
+  ...
+# Subtest: tenant-authenticated voice API returns no-store secrets and disabled composition fails honestly
+ok 401 - tenant-authenticated voice API returns no-store secrets and disabled composition fails honestly
+  ---
+  duration_ms: 404.4857
+  type: 'test'
+  ...
+# Subtest: voice migrations roll back and reapply session, consent, event, and review evidence tables
+ok 402 - voice migrations roll back and reapply session, consent, event, and review evidence tables
+  ---
+  duration_ms: 202.8249
+  type: 'test'
+  ...
+1..402
+# tests 402
+# suites 0
+# pass 402
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19805.656

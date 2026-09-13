@@ -9,6 +9,9 @@ export interface IntegrationReadAuthConfig {
 export interface IntegrationReadAuthContext {
   tenantKey: string | null;
   admin: boolean;
+  humanUserId?: string;
+  humanSessionId?: string;
+  scopes?: string[];
 }
 
 declare global {
@@ -56,6 +59,7 @@ function extractToken(req: Request): string | null {
 
 export function authenticateIntegrationRead(config: IntegrationReadAuthConfig): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
+    if (req.integrationReadAuth?.humanSessionId) { next(); return; }
     const token = extractToken(req);
     if (!token) {
       res.status(401).json({ error: 'authentication required', code: 'unauthenticated' });

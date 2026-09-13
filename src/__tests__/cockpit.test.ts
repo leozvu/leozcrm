@@ -179,7 +179,7 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.equal(/localStorage|sessionStorage|\.innerHTML|eval\s*\(/.test(script), false);
     assert.match(script, /textContent/);
     assert.match(script, /Authorization/);
-    assert.match(script, /credentials: 'omit'/);
+    assert.match(script, /credentials: state\.humanSession \? 'same-origin' : 'omit'/);
     assert.match(script, /pagehide/);
     assert.match(script, /founder_cockpit_accept/);
     assert.match(script, /No action authority was granted/);
@@ -227,7 +227,7 @@ test('cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe', async
     assert.equal(worker.includes('/v1'), false);
     assert.equal(worker.includes('Authorization'), false);
     assert.equal(worker.includes('localStorage'), false);
-    assert.match(worker, /leozops-cockpit-shell-v3/);
+    assert.match(worker, /leozops-cockpit-shell-v4/);
     assert.match(worker, /\/cockpit\/assets\/observatory\.webp/);
     assert.match(worker, /\/cockpit\/assets\/archmage-presence\.webp/);
     assert.match(worker, /\/cockpit\/assets\/arcane-orb\.webp/);

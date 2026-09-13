@@ -1,0 +1,220 @@
+TAP version 13
+# Subtest: cockpit projection is PII-minimized, evidence-backed, and action sealed
+ok 1 - cockpit projection is PII-minimized, evidence-backed, and action sealed
+  ---
+  duration_ms: 417.3501
+  type: 'test'
+  ...
+# Subtest: freshness risk outranks pipeline warnings and no warning yields an honest empty queue
+ok 2 - freshness risk outranks pipeline warnings and no warning yields an honest empty queue
+  ---
+  duration_ms: 12.8373
+  type: 'test'
+  ...
+# Subtest: cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe
+ok 3 - cockpit shell is data-free, CSP-hardened, responsive, and DOM-safe
+  ---
+  duration_ms: 173.1496
+  type: 'test'
+  ...
+# Subtest: cockpit API requires exact tenant auth and exposes no execution route
+ok 4 - cockpit API requires exact tenant auth and exposes no execution route
+  ---
+  duration_ms: 56.1813
+  type: 'test'
+  ...
+# Subtest: disconnect aborts every pending read and late ignored-abort responses cannot reopen the workspace
+ok 5 - disconnect aborts every pending read and late ignored-abort responses cannot reopen the workspace
+  ---
+  duration_ms: 67.1606
+  type: 'test'
+  ...
+# Subtest: a newer refresh wins even when the earlier transport later returns a 401
+ok 6 - a newer refresh wins even when the earlier transport later returns a 401
+  ---
+  duration_ms: 92.8744
+  type: 'test'
+  ...
+# Subtest: late automatic SSO restoration cannot overwrite a newer manual connection
+ok 7 - late automatic SSO restoration cannot overwrite a newer manual connection
+  ---
+  duration_ms: 10.7415
+  type: 'test'
+  ...
+# Subtest: pagehide clears rendered business evidence, conversation, drafts, dialogs and old evidence callback
+ok 8 - pagehide clears rendered business evidence, conversation, drafts, dialogs and old evidence callback
+  ---
+  duration_ms: 9.0163
+  type: 'test'
+  ...
+# Subtest: duplicate Ask events send one request; an old answer and finally cannot alter a new session composer
+ok 9 - duplicate Ask events send one request; an old answer and finally cannot alter a new session composer
+  ---
+  duration_ms: 6.2002
+  type: 'test'
+  ...
+# Subtest: text and voice share one pending conversation and cannot assign an old conversation after switching
+ok 10 - text and voice share one pending conversation and cannot assign an old conversation after switching
+  ---
+  duration_ms: 4.1049
+  type: 'test'
+  ...
+# Subtest: read deadline includes a body reader that ignores abort, releases tracking, and never retries
+ok 11 - read deadline includes a body reader that ignores abort, releases tracking, and never retries
+  ---
+  duration_ms: 9.0579
+  type: 'test'
+  ...
+# Subtest: timed-out and malformed writes are uncertain and never automatically resubmitted
+ok 12 - timed-out and malformed writes are uncertain and never automatically resubmitted
+  ---
+  duration_ms: 12.2794
+  type: 'test'
+  ...
+# Subtest: late microphone permission is released without starting a session in the new tenant
+ok 13 - late microphone permission is released without starting a session in the new tenant
+  ---
+  duration_ms: 6.8693
+  type: 'test'
+  ...
+# Subtest: queued voice events and recognition callbacks cannot act on another tenant
+ok 14 - queued voice events and recognition callbacks cannot act on another tenant
+  ---
+  duration_ms: 4.5617
+  type: 'test'
+  ...
+# Subtest: API keeps explicit tenant and cookie/CSRF isolation
+ok 15 - API keeps explicit tenant and cookie/CSRF isolation
+  ---
+  duration_ms: 5.7701
+  type: 'test'
+  ...
+# Subtest: a current 401 closes the workspace and clears private evidence on any API route
+ok 16 - a current 401 closes the workspace and clears private evidence on any API route
+  ---
+  duration_ms: 5.7479
+  type: 'test'
+  ...
+# Subtest: the WebRTC deadline covers a hanging SDP body and releases the microphone and peer
+ok 17 - the WebRTC deadline covers a hanging SDP body and releases the microphone and peer
+  ---
+  duration_ms: 11.5081
+  type: 'test'
+  ...
+# Subtest: pinned issuer configuration fails closed and does not infer tenant membership
+ok 18 - pinned issuer configuration fails closed and does not infer tenant membership
+  ---
+  duration_ms: 382.8955
+  type: 'test'
+  ...
+# Subtest: handoff rejects wrong issuer/audience/subject/tenant/scopes, algorithm confusion, tampering and invalid lifetimes
+ok 19 - handoff rejects wrong issuer/audience/subject/tenant/scopes, algorithm confusion, tampering and invalid lifetimes
+  ---
+  duration_ms: 10.4747
+  type: 'test'
+  ...
+# Subtest: unconfigured installation serves a disabled human entry without creating sessions or broadening API access
+ok 20 - unconfigured installation serves a disabled human entry without creating sessions or broadening API access
+  ---
+  duration_ms: 106.3598
+  type: 'test'
+  ...
+# Subtest: one-time handoff establishes an opaque HttpOnly session, survives repository recreation, and enforces tenant/CSRF scopes
+ok 21 - one-time handoff establishes an opaque HttpOnly session, survives repository recreation, and enforces tenant/CSRF scopes
+  ---
+  duration_ms: 147.0666
+  type: 'test'
+  ...
+# Subtest: login CSRF, wrong nonce and replay are rejected; concurrent exchange creates exactly one session
+ok 22 - login CSRF, wrong nonce and replay are rejected; concurrent exchange creates exactly one session
+  ---
+  duration_ms: 41.6096
+  type: 'test'
+  ...
+# Subtest: HTTPS composition issues host-only Secure cookies and a recreated HTTP app restores only session metadata
+ok 23 - HTTPS composition issues host-only Secure cookies and a recreated HTTP app restores only session metadata
+  ---
+  duration_ms: 42.1745
+  type: 'test'
+  ...
+# Subtest: expired browser challenge and issuer JTI reuse on a new challenge are rejected
+ok 24 - expired browser challenge and issuer JTI reuse on a new challenge are rejected
+  ---
+  duration_ms: 14.0492
+  type: 'test'
+  ...
+# Subtest: read-only human scope cannot write advisory records, and expiry/revoke/logout invalidate the session
+ok 25 - read-only human scope cannot write advisory records, and expiry/revoke/logout invalidate the session
+  ---
+  duration_ms: 69.4528
+  type: 'test'
+  ...
+# Subtest: key removal and subject mapping changes invalidate existing sessions; database failure leaves challenge retryable
+ok 26 - key removal and subject mapping changes invalidate existing sessions; database failure leaves challenge retryable
+  ---
+  duration_ms: 9.5533
+  type: 'test'
+  ...
+# Subtest: browser entry clears handoff history before exchange and uses no durable credential storage
+ok 27 - browser entry clears handoff history before exchange and uses no durable credential storage
+  ---
+  duration_ms: 0.8125
+  type: 'test'
+  ...
+# Subtest: voice lifecycle permits exact barge-in transitions and rejects invalid authority changes
+ok 28 - voice lifecycle permits exact barge-in transitions and rejects invalid authority changes
+  ---
+  duration_ms: 397.8332
+  type: 'test'
+  ...
+# Subtest: session and lifecycle evidence are immutable while audio and ephemeral credentials are never persisted
+ok 29 - session and lifecycle evidence are immutable while audio and ephemeral credentials are never persisted
+  ---
+  duration_ms: 62.7642
+  type: 'test'
+  ...
+# Subtest: strict request, event idempotency, terminal sessions, and tenant isolation fail closed
+ok 30 - strict request, event idempotency, terminal sessions, and tenant isolation fail closed
+  ---
+  duration_ms: 49.8964
+  type: 'test'
+  ...
+# Subtest: explicit consent, grounded-turn telemetry, terminal review, and quality metrics stay content-free
+ok 31 - explicit consent, grounded-turn telemetry, terminal review, and quality metrics stay content-free
+  ---
+  duration_ms: 88.8794
+  type: 'test'
+  ...
+# Subtest: OpenAI client-secret provider uses the current Realtime contract and sanitizes rejection bodies
+ok 32 - OpenAI client-secret provider uses the current Realtime contract and sanitizes rejection bodies
+  ---
+  duration_ms: 39.1869
+  type: 'test'
+  ...
+# Subtest: OpenAI client-secret provider fails closed on malformed config, identity, transport, body, and credential lifetime
+ok 33 - OpenAI client-secret provider fails closed on malformed config, identity, transport, body, and credential lifetime
+  ---
+  duration_ms: 1014.508
+  type: 'test'
+  ...
+# Subtest: tenant-authenticated voice API returns no-store secrets and disabled composition fails honestly
+ok 34 - tenant-authenticated voice API returns no-store secrets and disabled composition fails honestly
+  ---
+  duration_ms: 408.3267
+  type: 'test'
+  ...
+# Subtest: voice migrations roll back and reapply session, consent, event, and review evidence tables
+ok 35 - voice migrations roll back and reapply session, consent, event, and review evidence tables
+  ---
+  duration_ms: 202.6515
+  type: 'test'
+  ...
+1..35
+# tests 35
+# suites 0
+# pass 35
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4408.1992

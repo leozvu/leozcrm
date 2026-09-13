@@ -72,7 +72,11 @@ export function renderCockpitHtml(): string {
         <div class="connection-crest">${icon('realm')}</div>
         <p class="eyebrow">SECURE ENTRY</p>
         <h1 id="connection-title">Enter the founder cockpit</h1>
-        <p class="lede">Your credential stays in this page's memory, is sent only to same-origin LeozOps APIs, and is discarded when you disconnect or close the page.</p>
+        <p class="lede">Sign in through your trusted workspace. Your session stays in a protected cookie and can be revoked by your administrator.</p>
+        <button id="human-signin-button" class="primary-button" type="button" disabled>${icon('shield')}<span>Sign in with your workspace</span></button>
+        <p id="human-signin-status" role="status">Checking secure sign-in…</p>
+        <p id="connection-error" class="form-error" role="alert" hidden></p>
+        <details id="service-connection" hidden><summary>Advanced service credential</summary>
         <form id="connection-form" autocomplete="off" novalidate>
           <div class="field">
             <label for="tenant-key">Tenant key</label>
@@ -84,9 +88,8 @@ export function renderCockpitHtml(): string {
             <input id="read-token" name="token" type="password" autocomplete="off" maxlength="2048" required aria-describedby="token-help">
             <small id="token-help">Never persisted in local or session storage.</small>
           </div>
-          <p id="connection-error" class="form-error" role="alert" hidden></p>
           <button id="connect-button" class="primary-button" type="submit">${icon('shield')}<span>Open read-only cockpit</span></button>
-        </form>
+        </form></details>
         <div class="trust-strip"><span>Tenant scoped</span><span>Evidence cited</span><span>Actions sealed</span></div>
       </section>
 
