@@ -4,6 +4,8 @@ export const COCKPIT_SCRIPT = String.raw`
 
   var state = {
     token: '',
+    humanSession: null,
+    csrf: '',
     tenant: '',
     snapshot: null,
     context: [],
@@ -19,6 +21,12 @@ export const COCKPIT_SCRIPT = String.raw`
     dataRequests: [],
     conversationId: null,
     activeView: 'today',
+    sessionEpoch: 0,
+    requests: new Set(),
+    questionPending: false,
+    conversationPending: null,
+    voiceGeneration: 0,
+    voiceRequestController: null,
     requestController: null,
     recognition: null,
     voiceSessionId: null,
@@ -88,8 +96,11 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   function friendlyError(error) {
+    if (error && error.uncertain) return 'The response was interrupted. This record may already have been saved. Refresh its evidence before submitting again.';
+    if (error && error.code === 'request_timeout') return 'The request took too long. Refresh to try reading the evidence again.';
     if (!navigator.onLine) return 'You appear to be offline. Reconnect and try again.';
-    if (error && error.status === 401) return 'The read credential was rejected. Re-enter a current credential.';
+    if (error && error.code === 'human_scope_rejected') return 'Your workspace sign-in does not include permission for this feature.';
+    if (error && error.status === 401) return state.humanSession ? 'Your session expired or was revoked. Sign in with your workspace again.' : 'The read credential was rejected. Re-enter a current credential.';
     if (error && error.status === 403) return 'This credential cannot access the requested tenant.';
     if (error && error.status === 404) return 'No accepted business snapshot is available for this tenant.';
     if (error && error.code === 'provider_timeout') return 'LeozOps timed out before producing a validated answer. Retry the question.';
@@ -103,33 +114,146 @@ export const COCKPIT_SCRIPT = String.raw`
     return 'The cockpit could not complete this request. Retry or reconnect.';
   }
 
+  function connected() { return Boolean(state.token || state.humanSession); }
+  function hasHumanScope(scope) { return !state.humanSession || state.humanSession.scopes.indexOf(scope) >= 0; }
+
+  function obsoleteRequest() {
+    var error = new Error('Request belongs to an inactive workspace');
+    error.code = 'workspace_superseded';
+    return error;
+  }
+  function isObsolete(error) {
+    return Boolean(error && (error.code === 'workspace_superseded'
+      || (error.workspaceEpoch !== undefined && error.workspaceEpoch !== state.sessionEpoch)));
+  }
+  function assertCurrent(epoch) { if (epoch !== state.sessionEpoch) throw obsoleteRequest(); }
+  function invalidateRequests() {
+    state.sessionEpoch += 1;
+    state.requests.forEach(function (controller) { controller.abort(); });
+    state.requests.clear();
+    state.conversationPending = null;
+    state.questionPending = false;
+  }
+
+  // A deadline rejects independently of fetch: adapters and body readers may
+  // ignore abort. The generation check also fences already-resolved responses.
+  async function requestJson(path, request) {
+    var epoch = state.sessionEpoch;
+    var controller = new AbortController();
+    var timedOut = false;
+    var externalSignal = request.signal;
+    var timeout = request.method === 'GET' ? 20000 : 90000;
+    var abortExternal = function () { controller.abort(); };
+    var rejectAbort;
+    var cancelled = new Promise(function (_, reject) { rejectAbort = reject; });
+    var onAbort = function () { rejectAbort(obsoleteRequest()); };
+    controller.signal.addEventListener('abort', onAbort, { once: true });
+    if (externalSignal) {
+      externalSignal.addEventListener('abort', abortExternal, { once: true });
+      if (externalSignal.aborted) controller.abort();
+    }
+    state.requests.add(controller);
+    var timer = window.setTimeout(function () { timedOut = true; controller.abort(); }, timeout);
+    try {
+      var transport = (async function () {
+        if (controller.signal.aborted) throw obsoleteRequest();
+        var response = await fetch(path, Object.assign({}, request, { signal: controller.signal }));
+        assertCurrent(epoch);
+        var contentType = response.headers.get('content-type') || '';
+        var payload = contentType.indexOf('application/json') >= 0 ? await response.json() : null;
+        assertCurrent(epoch);
+        if (controller.signal.aborted) throw obsoleteRequest();
+        if (!response.ok) {
+          var failure = new Error('Cockpit API request failed');
+          failure.status = response.status;
+          failure.code = payload && typeof payload.code === 'string' ? payload.code : 'request_failed';
+          throw failure;
+        }
+        if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('Invalid response');
+        return payload;
+      })();
+      var payload = await Promise.race([transport, cancelled]);
+      assertCurrent(epoch);
+      return payload;
+    } catch (error) {
+      assertCurrent(epoch);
+      if (timedOut) { error = new Error('Cockpit request deadline exceeded'); error.code = 'request_timeout'; }
+      if (!timedOut && controller.signal.aborted) throw obsoleteRequest();
+      if (request.method !== 'GET' && (!error.status || error.status >= 500)) error.uncertain = true;
+      error.workspaceEpoch = epoch;
+      throw error;
+    } finally {
+      window.clearTimeout(timer);
+      controller.signal.removeEventListener('abort', onAbort);
+      if (externalSignal) externalSignal.removeEventListener('abort', abortExternal);
+      state.requests.delete(controller);
+    }
+  }
+
   async function api(path, options) {
-    if (!state.token) throw new Error('No in-memory credential');
+    if (!connected()) throw new Error('No authenticated session');
+    if (path.indexOf('/v1/tenants/' + encodeURIComponent(state.tenant) + '/') !== 0) throw obsoleteRequest();
     var request = options || {};
     var headers = new Headers(request.headers || {});
-    headers.set('Authorization', 'Bearer ' + state.token);
+    if (state.token) headers.set('Authorization', 'Bearer ' + state.token);
+    if (state.humanSession && request.method && request.method !== 'GET') headers.set('X-Leozops-CSRF', state.csrf);
     headers.set('Accept', 'application/json');
     if (request.body) headers.set('Content-Type', 'application/json');
-    var response = await fetch(path, {
+    try {
+      return await requestJson(path, {
       method: request.method || 'GET',
       headers: headers,
       body: request.body,
       cache: 'no-store',
-      credentials: 'omit',
+      credentials: state.humanSession ? 'same-origin' : 'omit',
       redirect: 'error',
       referrerPolicy: 'no-referrer',
       signal: request.signal
-    });
-    var contentType = response.headers.get('content-type') || '';
-    var payload = contentType.indexOf('application/json') >= 0 ? await response.json() : null;
-    if (!response.ok) {
-      var error = new Error('Cockpit API request failed');
-      error.status = response.status;
-      error.code = payload && typeof payload.code === 'string' ? payload.code : 'request_failed';
+      });
+    } catch (error) {
+      if (!isObsolete(error) && error.status === 401) resetWorkspace(friendlyError(error));
       throw error;
     }
-    if (!payload || typeof payload !== 'object') throw new Error('Cockpit API returned an invalid response');
-    return payload;
+  }
+
+  async function humanRequest(path, options) {
+    var request = options || {};
+    return requestJson('/auth/human/' + path, {
+      method: request.method || 'GET', credentials: 'same-origin', cache: 'no-store', redirect: 'error',
+      referrerPolicy: 'no-referrer', headers: Object.assign({ 'Accept': 'application/json', 'Content-Type': 'application/json' }, request.headers || {}),
+      body: request.body
+    });
+  }
+
+  async function restoreHumanSession() {
+    var epoch = state.sessionEpoch;
+    // A short-lived signed handoff is delivered in the fragment, never sent in
+    // HTTP URLs or retained in browser storage. Clear history before exchange.
+    var handoff = new URLSearchParams(window.location.hash.slice(1)).get('handoff');
+    if (handoff !== null) window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    try {
+      var session = handoff !== null
+        ? await humanRequest('exchange', { method: 'POST', body: JSON.stringify({ handoff: handoff }) })
+        : await humanRequest('session');
+      handoff = null;
+      assertCurrent(epoch);
+      var enabled = session.enabled !== false;
+      id('human-signin-button').disabled = !enabled;
+      id('human-signin-status').textContent = enabled ? 'Use your approved workspace identity. Operational actions remain sealed.' : 'Workspace sign-in is not configured on this installation. Ask the operator to configure the trusted issuer.';
+      id('service-connection').hidden = enabled;
+      id('service-connection').open = !enabled;
+      if (session.authenticated) {
+        state.humanSession = session;
+        state.csrf = session.csrfToken;
+        state.tenant = session.tenantKey;
+        await loadCockpit();
+      }
+    } catch (error) {
+      handoff = null;
+      if (isObsolete(error)) return;
+      resetWorkspace(error.code === 'human_sso_not_configured' ? 'Workspace sign-in is not configured.' : 'Secure sign-in expired or could not be verified. Start a new sign-in from this page.');
+      id('human-signin-button').disabled = false;
+    }
   }
 
   function setConnectionChip(label, className) {
@@ -151,7 +275,7 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   function restorePresenceState() {
-    if (!state.token) {
+    if (!connected()) {
       setPresenceState('dormant', 'LeoZOps is dormant',
         'Connect a tenant-scoped read credential to awaken the evidence-bound advisor.', 'state-offline');
       return;
@@ -196,12 +320,46 @@ export const COCKPIT_SCRIPT = String.raw`
     all('.realm-nav button').forEach(function (button) { button.disabled = !enabled; });
     id('refresh-button').disabled = !enabled;
     id('disconnect-button').disabled = !enabled;
-    id('talking-mode-button').disabled = !enabled;
+    id('talking-mode-button').disabled = !enabled || !hasHumanScope('voice:use');
+    id('ask-button').disabled = !enabled || state.questionPending || !hasHumanScope('advisory:write');
+  }
+
+  function clearTenantPresentation() {
+    [
+      'conversation-log', 'context-list', 'evidence-items', 'evidence-title', 'evidence-description',
+      'headline-metrics', 'today-priorities', 'changes-state', 'provenance-summary', 'alert-list', 'today-limitations',
+      'funnel-list', 'source-list', 'quality-grid', 'recommendation-list', 'planner-summary', 'planner-list',
+      'command-reason', 'command-state-grid', 'command-contract-copy', 'command-blocker-list',
+      'command-record-list', 'jarvis-evaluation-grid', 'jarvis-checkpoint-list', 'data-request-list'
+    ].forEach(function (name) { clear(id(name)); });
+    all('#cockpit-workspace .form-error').forEach(function (node) { setError(node, ''); });
+    all('#cockpit-workspace form').forEach(function (form) { form.reset(); });
+    ['evidence-dialog', 'advisory-confirmation-dialog', 'voice-consent-dialog'].forEach(function (name) {
+      if (id(name).open) id(name).close();
+    });
+    id('advisor-question').value = '';
+    id('data-request-confirmation').value = '';
+    id('business-evidence-button').onclick = null;
+    id('conversation-log').append(element('div', 'conversation-empty', 'Ask about the evidence in your connected workspace.'));
+    id('alert-count').textContent = '—';
+    id('attention-count').textContent = '—';
+    id('freshness-copy').textContent = 'Awaiting verified evidence';
+    id('freshness-chip').lastChild.textContent = 'Unavailable';
+    id('command-contract-status').lastChild.textContent = 'Unavailable';
+    id('jarvis-readiness-status').lastChild.textContent = 'Unavailable';
+    id('preference-version').textContent = 'Defaults';
+    id('voice-input-button').classList.remove('voice-listening');
+    id('voice-input-button').setAttribute('aria-label', 'Start push-to-talk voice input');
+    setBusy(id('preference-save'), false, 'Saving…', 'Save preferences');
+    setBusy(id('data-request-submit'), false, 'Recording…', 'Create request');
   }
 
   function resetWorkspace(message) {
     stopTalkingMode(true);
+    invalidateRequests();
     state.token = '';
+    state.humanSession = null;
+    state.csrf = '';
     state.tenant = '';
     state.snapshot = null;
     state.context = [];
@@ -216,6 +374,7 @@ export const COCKPIT_SCRIPT = String.raw`
     state.voiceQuality = null;
     state.dataRequests = [];
     state.conversationId = null;
+    state.activeView = 'today';
     state.pendingQuestion = '';
     state.lastVoiceSessionId = null;
     setHidden(id('voice-session-feedback'), true);
@@ -224,6 +383,7 @@ export const COCKPIT_SCRIPT = String.raw`
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     if (state.requestController) state.requestController.abort();
     state.requestController = null;
+    clearTenantPresentation();
     enableWorkspace(false);
     setHidden(id('cockpit-workspace'), true);
     setHidden(id('connection-chamber'), false);
@@ -232,7 +392,7 @@ export const COCKPIT_SCRIPT = String.raw`
     restorePresenceState();
     setError(id('connection-error'), message || '');
     id('read-token').value = '';
-    id('read-token').focus();
+    if (id('service-connection').hidden) id('human-signin-button').focus(); else id('read-token').focus();
   }
 
   function showView(name, moveFocus) {
@@ -375,6 +535,7 @@ export const COCKPIT_SCRIPT = String.raw`
       await loadAlertState();
       announce(action === 'acknowledgements' ? 'Alert acknowledged in LeozOps.' : 'Alert snoozed for four hours in LeozOps.');
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('alert-error'), friendlyError(error));
       button.disabled = false;
       button.textContent = original;
@@ -393,6 +554,7 @@ export const COCKPIT_SCRIPT = String.raw`
       await loadAlertState();
       announce(outcome === 'useful' ? 'Alert marked useful for the shadow baseline.' : 'Alert marked as a false positive for the shadow baseline.');
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('alert-error'), friendlyError(error));
       buttons.forEach(function (button) { button.disabled = false; });
     }
@@ -570,6 +732,7 @@ export const COCKPIT_SCRIPT = String.raw`
       ];
       openEvidence(plan.goal_title, 'Immutable goal, evidence, plan, conflict, and simulation fingerprints.', items);
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('planner-error'), friendlyError(error));
     } finally {
       button.disabled = false;
@@ -593,6 +756,7 @@ export const COCKPIT_SCRIPT = String.raw`
         ? 'Plan accepted as advisory intent. No action authority was granted.'
         : 'Plan rejected. The immutable decision was recorded.');
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('planner-error'), error && error.code === 'plan_has_blocking_conflicts'
         ? 'Resolve the recorded blocking conflicts by creating a new goal or plan version before acceptance.'
         : friendlyError(error));
@@ -742,6 +906,7 @@ export const COCKPIT_SCRIPT = String.raw`
       URL.revokeObjectURL(url);
       announce('Sanitized tenant export downloaded.');
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('data-request-error'), friendlyError(error));
     }
   }
@@ -835,7 +1000,7 @@ export const COCKPIT_SCRIPT = String.raw`
     id('preference-quiet-start').value = preferences.quiet_hours.start;
     id('preference-quiet-end').value = preferences.quiet_hours.end;
     id('preference-version').textContent = view && view.revision ? 'Revision ' + view.revision.version : 'Defaults';
-    id('voice-input-button').disabled = !(window.SpeechRecognition || window.webkitSpeechRecognition);
+    id('voice-input-button').disabled = state.questionPending || !(window.SpeechRecognition || window.webkitSpeechRecognition);
     id('voice-input-button').title = id('voice-input-button').disabled
       ? 'Voice input is unavailable in this browser' : 'Push to talk; transcript only';
   }
@@ -892,6 +1057,8 @@ export const COCKPIT_SCRIPT = String.raw`
   async function loadCockpit() {
     if (state.requestController) state.requestController.abort();
     state.requestController = new AbortController();
+    var controller = state.requestController;
+    var epoch = state.sessionEpoch;
     announce('Loading verified cockpit evidence.');
     setConnectionChip('Connecting', 'state-stale');
     setPresenceState('observing', 'LeoZOps is opening the grimoire',
@@ -911,6 +1078,8 @@ export const COCKPIT_SCRIPT = String.raw`
       api('/v1/tenants/' + tenant + '/jarvis/data-requests', { signal: state.requestController.signal }),
       api('/v1/tenants/' + tenant + '/jarvis/voice/quality?days=30', { signal: state.requestController.signal })
     ]);
+    assertCurrent(epoch);
+    if (controller !== state.requestController || controller.signal.aborted) throw obsoleteRequest();
     if (results[0].status === 'rejected') throw results[0].reason;
     state.context = results[1].status === 'fulfilled' && Array.isArray(results[1].value.entries)
       ? results[1].value.entries : [];
@@ -956,11 +1125,13 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   async function loadAlertState() {
+    var epoch = state.sessionEpoch;
     var tenant = encodeURIComponent(state.tenant);
     var results = await Promise.allSettled([
       api('/v1/tenants/' + tenant + '/alerts'),
       api('/v1/tenants/' + tenant + '/notification-deliveries')
     ]);
+    assertCurrent(epoch);
     if (results[0].status === 'rejected') throw results[0].reason;
     state.alerts = Array.isArray(results[0].value.alerts) ? results[0].value.alerts : [];
     state.deliveries = results[1].status === 'fulfilled' && Array.isArray(results[1].value.deliveries)
@@ -969,11 +1140,13 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   async function loadPlannerState() {
+    var epoch = state.sessionEpoch;
     var tenant = encodeURIComponent(state.tenant);
     var results = await Promise.all([
       api('/v1/tenants/' + tenant + '/goals'),
       api('/v1/tenants/' + tenant + '/plans')
     ]);
+    assertCurrent(epoch);
     state.goals = Array.isArray(results[0].goals) ? results[0].goals : [];
     state.plans = Array.isArray(results[1].plans) ? results[1].plans : [];
     renderPlanner();
@@ -994,6 +1167,7 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   function progressiveText(target, text) {
+    var epoch = state.sessionEpoch;
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     var words = String(text).split(/\s+/);
     if (reduced || words.length < 5) {
@@ -1003,6 +1177,7 @@ export const COCKPIT_SCRIPT = String.raw`
     target.textContent = '';
     var index = 0;
     function reveal() {
+      if (epoch !== state.sessionEpoch || !target.isConnected) return;
       var end = Math.min(index + 4, words.length);
       target.textContent += (index === 0 ? '' : ' ') + words.slice(index, end).join(' ');
       index = end;
@@ -1030,6 +1205,7 @@ export const COCKPIT_SCRIPT = String.raw`
       announce('Feedback recorded.');
       buttons.forEach(function (button) { button.textContent = button.dataset.rating === rating ? 'Recorded' : button.textContent; });
     } catch (error) {
+      if (isObsolete(error)) return;
       announce(friendlyError(error));
       buttons.forEach(function (button) { button.disabled = false; });
     }
@@ -1096,11 +1272,19 @@ export const COCKPIT_SCRIPT = String.raw`
 
   async function ensureConversation() {
     if (state.conversationId) return state.conversationId;
-    var output = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/conversations', {
+    if (state.conversationPending) return state.conversationPending;
+    var epoch = state.sessionEpoch;
+    var pending = api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/conversations', {
       method: 'POST', body: JSON.stringify({ title: 'Founder cockpit' })
+    }).then(function (output) {
+      assertCurrent(epoch);
+      state.conversationId = output.conversation.id;
+      return state.conversationId;
+    }).finally(function () {
+      if (epoch === state.sessionEpoch) state.conversationPending = null;
     });
-    state.conversationId = output.conversation.id;
-    return state.conversationId;
+    state.conversationPending = pending;
+    return pending;
   }
 
   function idempotencyKey() {
@@ -1111,7 +1295,9 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   async function ask(question, voiceSessionId) {
+    var epoch = state.sessionEpoch;
     var conversationId = await ensureConversation();
+    assertCurrent(epoch);
     var headers = { 'Idempotency-Key': idempotencyKey() };
     if (voiceSessionId) headers['X-LeozOps-Voice-Session'] = voiceSessionId;
     return api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/conversations/' + encodeURIComponent(conversationId) + '/messages', {
@@ -1137,7 +1323,7 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   function directVoiceEvent(sessionId, eventType) {
-    if (!sessionId || !state.token) return Promise.resolve(null);
+    if (!sessionId || !connected()) return Promise.resolve(null);
     return api('/v1/tenants/' + encodeURIComponent(state.tenant)
       + '/jarvis/voice/sessions/' + encodeURIComponent(sessionId) + '/events', {
       method: 'POST',
@@ -1151,17 +1337,24 @@ export const COCKPIT_SCRIPT = String.raw`
 
   function queueVoiceEvent(eventType) {
     var sessionId = state.voiceSessionId;
+    var epoch = state.sessionEpoch;
     if (!sessionId) return;
     state.voiceEventQueue = state.voiceEventQueue.then(function () {
+      assertCurrent(epoch);
+      if (state.voiceSessionId !== sessionId) throw obsoleteRequest();
       return directVoiceEvent(sessionId, eventType);
     }).then(function (output) {
       if (output && state.voiceSessionId === sessionId) state.voiceLifecycle = output.session.state;
     }).catch(function (error) {
+      if (isObsolete(error)) return;
       if (error && (error.status === 401 || error.status === 403)) stopTalkingMode(false);
     });
   }
 
   function cleanupTalkingMode() {
+    state.voiceGeneration += 1;
+    if (state.voiceRequestController) state.voiceRequestController.abort();
+    state.voiceRequestController = null;
     var channel = state.voiceChannel;
     var peer = state.voicePeer;
     var stream = state.voiceStream;
@@ -1173,6 +1366,7 @@ export const COCKPIT_SCRIPT = String.raw`
     state.voiceAudio = null;
     state.voiceLifecycle = 'off';
     state.voiceHandledCalls = {};
+    state.voiceEventQueue = Promise.resolve();
     state.voiceTurnGeneration = 0;
     state.voiceConnecting = false;
     state.voiceConsentGranted = false;
@@ -1184,15 +1378,16 @@ export const COCKPIT_SCRIPT = String.raw`
       audio.srcObject = null;
       audio.remove();
     }
-    id('talking-mode-button').disabled = !state.token;
+    id('talking-mode-button').disabled = !connected() || !hasHumanScope('voice:use');
     setTalkingModeState('Off', 'state-offline', 'Off · WebRTC audio is not retained by LeozOps.');
   }
 
   function stopTalkingMode(reportDisconnect) {
     var sessionId = state.voiceSessionId;
-    if (reportDisconnect && sessionId && state.token) {
+    var epoch = state.sessionEpoch;
+    if (reportDisconnect && sessionId && connected()) {
       directVoiceEvent(sessionId, 'disconnected').then(function () {
-        if (!state.token) return;
+        if (!connected() || epoch !== state.sessionEpoch || state.voiceSessionId || state.voiceConnecting) return;
         state.lastVoiceSessionId = sessionId;
         id('voice-privacy-concern').checked = false;
         setHidden(id('voice-session-feedback'), false);
@@ -1203,6 +1398,7 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   async function submitVoiceReview(rating) {
+    var epoch = state.sessionEpoch;
     var sessionId = state.lastVoiceSessionId;
     if (!sessionId) return;
     var buttons = all('[data-voice-rating]');
@@ -1224,9 +1420,10 @@ export const COCKPIT_SCRIPT = String.raw`
       renderJarvisV1();
       announce('Voice session review recorded without audio, transcript, or device metadata.');
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('ask-error'), friendlyError(error));
     } finally {
-      buttons.forEach(function (button) { button.disabled = false; });
+      if (epoch === state.sessionEpoch) buttons.forEach(function (button) { button.disabled = false; });
     }
   }
 
@@ -1242,6 +1439,7 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   async function executeVoiceAdvisorTool(item) {
+    var epoch = state.sessionEpoch;
     var channel = state.voiceChannel;
     var sessionId = state.voiceSessionId;
     var turnGeneration = state.voiceTurnGeneration;
@@ -1275,6 +1473,8 @@ export const COCKPIT_SCRIPT = String.raw`
     appendUserMessage(question);
     try {
       await state.voiceEventQueue;
+      assertCurrent(epoch);
+      if (sessionId !== state.voiceSessionId || turnGeneration !== state.voiceTurnGeneration) return;
       var result = await ask(question, sessionId);
       if (sessionId !== state.voiceSessionId || turnGeneration !== state.voiceTurnGeneration) {
         voiceToolResult(channel, callId, {
@@ -1305,6 +1505,7 @@ export const COCKPIT_SCRIPT = String.raw`
       });
       announce('Grounded voice answer ready with ' + result.citations.length + ' citation(s).');
     } catch (error) {
+      if (isObsolete(error)) return;
       queueVoiceEvent('advisor_grounding_failed');
       voiceToolResult(channel, callId, {
         status: 'unavailable',
@@ -1388,6 +1589,7 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   async function startTalkingMode() {
+    if (!connected() || !hasHumanScope('voice:use')) return;
     if (state.voiceSessionId || state.voiceConnecting) {
       stopTalkingMode(true);
       return;
@@ -1405,6 +1607,12 @@ export const COCKPIT_SCRIPT = String.raw`
       return;
     }
     state.voiceConnecting = true;
+    var epoch = state.sessionEpoch;
+    var generation = ++state.voiceGeneration;
+    function assertVoiceCurrent() {
+      assertCurrent(epoch);
+      if (generation !== state.voiceGeneration) throw obsoleteRequest();
+    }
     state.lastVoiceSessionId = null;
     setHidden(id('voice-session-feedback'), true);
     id('talking-mode-button').disabled = true;
@@ -1416,6 +1624,8 @@ export const COCKPIT_SCRIPT = String.raw`
         audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
         video: false
       });
+      assertVoiceCurrent();
+      state.voiceStream = micStream;
       var issued = await api('/v1/tenants/' + encodeURIComponent(state.tenant) + '/jarvis/voice/sessions', {
         method: 'POST',
         headers: { 'Idempotency-Key': idempotencyKey() },
@@ -1427,6 +1637,7 @@ export const COCKPIT_SCRIPT = String.raw`
           capability_profile: 'webrtc_audio_barge_in_v1'
         })
       });
+      assertVoiceCurrent();
       if (!issued.client_secret || typeof issued.client_secret.value !== 'string'
         || typeof issued.client_secret.expires_at !== 'number'
         || issued.webrtc_url !== 'https://api.openai.com/v1/realtime/calls') {
@@ -1445,9 +1656,12 @@ export const COCKPIT_SCRIPT = String.raw`
       state.voicePeer = peer;
       state.voiceChannel = channel;
       state.voiceAudio = audio;
-      peer.ontrack = function (event) { audio.srcObject = event.streams[0]; };
+      peer.ontrack = function (event) {
+        if (epoch === state.sessionEpoch && generation === state.voiceGeneration) audio.srcObject = event.streams[0];
+      };
       micStream.getAudioTracks().forEach(function (track) { peer.addTrack(track, micStream); });
       channel.addEventListener('open', function () {
+        if (epoch !== state.sessionEpoch || generation !== state.voiceGeneration) return;
         configureVoiceChannel(channel);
         state.voiceLifecycle = 'listening';
         queueVoiceEvent('connected');
@@ -1455,6 +1669,7 @@ export const COCKPIT_SCRIPT = String.raw`
         announce('Talking Mode is live. Speak naturally; business answers use the grounded Advisor.');
       });
       channel.addEventListener('message', function (message) {
+        if (epoch !== state.sessionEpoch || generation !== state.voiceGeneration) return;
         try { handleRealtimeEvent(JSON.parse(message.data)); } catch { /* malformed provider event is ignored */ }
       });
       peer.addEventListener('connectionstatechange', function () {
@@ -1465,40 +1680,66 @@ export const COCKPIT_SCRIPT = String.raw`
         }
       });
       var offer = await peer.createOffer();
+      assertVoiceCurrent();
       await peer.setLocalDescription(offer);
+      assertVoiceCurrent();
       var controller = new AbortController();
+      state.voiceRequestController = controller;
       var timer = window.setTimeout(function () { controller.abort(); }, 15000);
       var ephemeralKey = issued.client_secret.value;
-      var response;
+      issued.client_secret.value = '';
+      var rejectHandshake;
+      var cancelled = new Promise(function (_, reject) { rejectHandshake = reject; });
+      var onAbort = function () {
+        var error = new Error('Realtime handshake interrupted');
+        error.code = 'voice_webrtc_failed';
+        rejectHandshake(error);
+      };
+      controller.signal.addEventListener('abort', onAbort, { once: true });
+      var answerSdp;
       try {
-        response = await fetch(issued.webrtc_url, {
-          method: 'POST',
-          body: offer.sdp,
-          headers: { Authorization: 'Bearer ' + ephemeralKey, 'Content-Type': 'application/sdp' },
-          credentials: 'omit',
-          redirect: 'error',
-          referrerPolicy: 'no-referrer',
-          signal: controller.signal
-        });
+        var handshake = (async function () {
+          var response = await fetch(issued.webrtc_url, {
+            method: 'POST',
+            body: offer.sdp,
+            headers: { Authorization: 'Bearer ' + ephemeralKey, 'Content-Type': 'application/sdp' },
+            credentials: 'omit',
+            redirect: 'error',
+            referrerPolicy: 'no-referrer',
+            signal: controller.signal
+          });
+          assertVoiceCurrent();
+          if (!response.ok) {
+            var error = new Error('Realtime WebRTC rejected');
+            error.code = 'voice_webrtc_failed';
+            throw error;
+          }
+          var sdp = await response.text();
+          assertVoiceCurrent();
+          if (!sdp || sdp.length > 512 * 1024) throw new Error('Invalid Realtime SDP response');
+          return sdp;
+        })();
+        answerSdp = await Promise.race([handshake, cancelled]);
       } finally {
         ephemeralKey = '';
         window.clearTimeout(timer);
+        controller.signal.removeEventListener('abort', onAbort);
+        if (state.voiceRequestController === controller) state.voiceRequestController = null;
       }
-      if (!response.ok) {
-        var webrtcError = new Error('Realtime WebRTC rejected');
-        webrtcError.code = 'voice_webrtc_failed';
-        throw webrtcError;
-      }
-      var answerSdp = await response.text();
-      if (!answerSdp || answerSdp.length > 512 * 1024) throw new Error('Invalid Realtime SDP response');
+      assertVoiceCurrent();
       await peer.setRemoteDescription({ type: 'answer', sdp: answerSdp });
+      assertVoiceCurrent();
       state.voiceConnecting = false;
       id('talking-mode-button').disabled = false;
       if (channel.readyState !== 'open') {
         setTalkingModeState('Connecting', 'state-stale', 'Secure media negotiated · waiting for the voice channel.');
       }
     } catch (error) {
-      if (sessionId && state.token) {
+      if (isObsolete(error) || epoch !== state.sessionEpoch || generation !== state.voiceGeneration) {
+        if (micStream) micStream.getTracks().forEach(function (track) { track.stop(); });
+        return;
+      }
+      if (sessionId && connected()) {
         directVoiceEvent(sessionId, 'connection_failed').catch(function () { /* evidence best effort */ });
       }
       if (!state.voiceSessionId && micStream) micStream.getTracks().forEach(function (track) { track.stop(); });
@@ -1508,6 +1749,10 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   async function sendQuestion(question) {
+    if (!connected() || state.questionPending) return;
+    if (!hasHumanScope('advisory:write')) { setError(id('ask-error'), 'This workspace sign-in allows reading evidence only.'); return; }
+    var epoch = state.sessionEpoch;
+    state.questionPending = true;
     var questionField = id('advisor-question');
     setError(id('ask-error'), '');
     appendUserMessage(question);
@@ -1517,14 +1762,17 @@ export const COCKPIT_SCRIPT = String.raw`
     announce('LeozOps is validating an evidence-grounded answer.');
     try {
       var output = await ask(question);
+      assertCurrent(epoch);
       appendAdvisorMessage(output);
       announce('Validated advisor answer ready with ' + output.citations.length + ' citation(s).');
     } catch (error) {
+      if (isObsolete(error)) return;
       questionField.value = question;
       setError(id('ask-error'), friendlyError(error));
       if (error.status === 401 || error.status === 403) resetWorkspace(friendlyError(error));
     } finally {
-      if (state.token) {
+      if (epoch === state.sessionEpoch && connected()) {
+        state.questionPending = false;
         id('ask-button').disabled = false;
         id('voice-input-button').disabled = !(window.SpeechRecognition || window.webkitSpeechRecognition);
       }
@@ -1532,6 +1780,7 @@ export const COCKPIT_SCRIPT = String.raw`
   }
 
   function startVoiceInput() {
+    if (!connected()) return;
     var Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Recognition) {
       setError(id('ask-error'), 'Push-to-talk is unavailable in this browser. You can still type your question.');
@@ -1542,6 +1791,7 @@ export const COCKPIT_SCRIPT = String.raw`
       return;
     }
     var recognition = new Recognition();
+    var epoch = state.sessionEpoch;
     state.recognition = recognition;
     recognition.lang = state.preferences && state.preferences.locale === 'vi' ? 'vi-VN' : 'en-US';
     recognition.continuous = false;
@@ -1551,6 +1801,7 @@ export const COCKPIT_SCRIPT = String.raw`
     id('voice-input-button').setAttribute('aria-label', 'Stop voice input');
     announce('Listening. Speech will fill the question field only.');
     recognition.onresult = function (event) {
+      if (epoch !== state.sessionEpoch || state.recognition !== recognition) return;
       var transcript = event.results && event.results[0] && event.results[0][0]
         ? String(event.results[0][0].transcript || '').trim() : '';
       if (!transcript) return;
@@ -1561,9 +1812,11 @@ export const COCKPIT_SCRIPT = String.raw`
       announce('Voice transcript added. Review it before sending.');
     };
     recognition.onerror = function () {
+      if (epoch !== state.sessionEpoch || state.recognition !== recognition) return;
       setError(id('ask-error'), 'Voice input ended without a transcript. No question was sent.');
     };
     recognition.onend = function () {
+      if (epoch !== state.sessionEpoch || state.recognition !== recognition) return;
       state.recognition = null;
       id('voice-input-button').classList.remove('voice-listening');
       id('voice-input-button').setAttribute('aria-label', 'Start push-to-talk voice input');
@@ -1586,32 +1839,61 @@ export const COCKPIT_SCRIPT = String.raw`
       id('read-token').focus();
       return;
     }
+    resetWorkspace();
+    var epoch = state.sessionEpoch;
     state.tenant = tenant;
     state.token = token;
+    state.humanSession = null;
     id('read-token').value = '';
     setBusy(id('connect-button'), true, 'Opening verified realm…', 'Open read-only cockpit');
     try {
       await loadCockpit();
     } catch (error) {
+      if (isObsolete(error)) return;
       resetWorkspace(friendlyError(error));
     } finally {
-      setBusy(id('connect-button'), false, 'Opening verified realm…', 'Open read-only cockpit');
+      if (epoch === state.sessionEpoch || !connected()) setBusy(id('connect-button'), false, 'Opening verified realm…', 'Open read-only cockpit');
     }
   });
 
   id('refresh-button').addEventListener('click', async function () {
+    var epoch = state.sessionEpoch;
     id('refresh-button').disabled = true;
     try {
       await loadCockpit();
     } catch (error) {
+      if (isObsolete(error)) return;
       if (error.status === 401 || error.status === 403) resetWorkspace(friendlyError(error));
       else announce(friendlyError(error));
     } finally {
-      if (state.token) id('refresh-button').disabled = false;
+      if (epoch === state.sessionEpoch && connected()) id('refresh-button').disabled = false;
     }
   });
 
-  id('disconnect-button').addEventListener('click', function () { resetWorkspace('Credential cleared from page memory.'); });
+  id('human-signin-button').addEventListener('click', async function () {
+    id('human-signin-button').disabled = true;
+    setError(id('connection-error'), '');
+    try {
+      var request = await humanRequest('start', { method: 'POST', headers: { 'X-Leozops-Login': '1' }, body: '{}' });
+      window.location.assign(request.authorizeUrl);
+    } catch (error) {
+      if (isObsolete(error)) return;
+      setError(id('connection-error'), error.code === 'human_sso_not_configured' ? 'Workspace sign-in is not configured.' : 'Secure sign-in could not start. Retry shortly.');
+      id('human-signin-button').disabled = false;
+    }
+  });
+
+  id('disconnect-button').addEventListener('click', async function () {
+    var epoch = state.sessionEpoch;
+    var human = Boolean(state.humanSession);
+    stopTalkingMode(true);
+    if (state.humanSession) {
+      try { await humanRequest('logout', { method: 'POST', headers: { 'X-Leozops-CSRF': state.csrf } }); }
+      catch (error) { if (!isObsolete(error)) announce('Sign-out could not be confirmed. Retry while connected.'); return; }
+    }
+    if (epoch !== state.sessionEpoch) return;
+    resetWorkspace(human ? 'Signed out. The server session has been revoked.' : 'Service credential cleared from page memory.');
+  });
 
   all('[data-view]').forEach(function (button) {
     button.addEventListener('click', function () { showView(button.dataset.view, true); });
@@ -1666,6 +1948,8 @@ export const COCKPIT_SCRIPT = String.raw`
 
   id('preference-form').addEventListener('submit', async function (event) {
     event.preventDefault();
+    if (!connected() || id('preference-save').disabled) return;
+    var epoch = state.sessionEpoch;
     setError(id('preference-error'), '');
     setBusy(id('preference-save'), true, 'Saving…', 'Save preferences');
     try {
@@ -1677,9 +1961,10 @@ export const COCKPIT_SCRIPT = String.raw`
       renderPreferences(output.view);
       announce(output.replayed ? 'Preferences already matched this revision.' : 'Ambient preferences saved as a new immutable revision.');
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('preference-error'), friendlyError(error));
     } finally {
-      if (state.token) setBusy(id('preference-save'), false, 'Saving…', 'Save preferences');
+      if (epoch === state.sessionEpoch && connected()) setBusy(id('preference-save'), false, 'Saving…', 'Save preferences');
     }
   });
 
@@ -1689,6 +1974,8 @@ export const COCKPIT_SCRIPT = String.raw`
   });
   id('data-request-form').addEventListener('submit', async function (event) {
     event.preventDefault();
+    if (!connected() || id('data-request-submit').disabled) return;
+    var epoch = state.sessionEpoch;
     setError(id('data-request-error'), '');
     var kind = id('data-request-kind').value;
     var confirmation = id('data-request-confirmation').value.trim();
@@ -1711,9 +1998,10 @@ export const COCKPIT_SCRIPT = String.raw`
         ? 'Delete request recorded. No data was deleted; policy and operator review remain required.'
         : 'Sanitized export request is ready to download.');
     } catch (error) {
+      if (isObsolete(error)) return;
       setError(id('data-request-error'), friendlyError(error));
     } finally {
-      if (state.token) setBusy(id('data-request-submit'), false, 'Recording…', 'Create request');
+      if (epoch === state.sessionEpoch && connected()) setBusy(id('data-request-submit'), false, 'Recording…', 'Create request');
     }
   });
 
@@ -1748,7 +2036,7 @@ export const COCKPIT_SCRIPT = String.raw`
     id('install-button').hidden = true;
   });
   document.addEventListener('keydown', function (event) {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && state.token) {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k' && connected()) {
       event.preventDefault();
       showView('ask', false);
       id('advisor-question').focus();
@@ -1760,7 +2048,7 @@ export const COCKPIT_SCRIPT = String.raw`
     announce('Network connection lost. Existing evidence remains visible.');
   });
   window.addEventListener('online', function () {
-    if (state.token) setConnectionChip('Connected', 'state-fresh');
+    if (connected()) setConnectionChip('Connected', 'state-fresh');
     restorePresenceState();
     announce('Network connection restored. Refresh when ready.');
   });
@@ -1772,10 +2060,9 @@ export const COCKPIT_SCRIPT = String.raw`
     });
   }
   window.addEventListener('pagehide', function () {
-    stopTalkingMode(true);
-    state.token = '';
-    if (state.recognition) state.recognition.abort();
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    resetWorkspace();
   });
+  window.addEventListener('pageshow', function (event) { if (event.persisted) restoreHumanSession(); });
+  restoreHumanSession();
 })();
 `;

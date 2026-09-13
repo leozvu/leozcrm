@@ -34,6 +34,7 @@ import type { AdvisorServiceLimits } from '../services/advisorConversationServic
 import type { NotificationDeliveryRegistry } from '../integrations/notifications/notificationDeliveryRegistry';
 import type { StructuredLogger } from '../observability/structuredLogger';
 import type { VoiceClientSecretProvider } from '../integrations/voice/realtimeClientSecretProvider';
+import type { HumanSessionConfig } from '../domain/humanSession';
 
 export type RuntimeProfile = 'legacy' | 'egoric-readonly';
 
@@ -85,6 +86,8 @@ export interface CreateAppOptions {
   /** Short-lived Realtime credential boundary. Defaults to a disabled fail-closed provider. */
   voiceClientSecretProvider?: VoiceClientSecretProvider;
   voiceClock?: () => Date;
+  humanSession?: HumanSessionConfig | null;
+  humanSessionClock?: () => Date;
 }
 
 /** Detect raw DB constraint violations (SQLite + Postgres) as a 500 backstop. */
@@ -117,6 +120,8 @@ export function createApp(options: CreateAppOptions = {}) {
       supervisedHandClock: options.supervisedHandClock,
       voiceClientSecretProvider: options.voiceClientSecretProvider,
       voiceClock: options.voiceClock,
+      humanSession: options.humanSession,
+      humanSessionClock: options.humanSessionClock,
     });
   }
   const app = express();

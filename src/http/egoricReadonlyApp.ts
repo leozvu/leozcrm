@@ -52,6 +52,9 @@ import {
 import { VoiceSessionRepository } from '../repositories/voiceSessionRepository';
 import { VoiceSessionService } from '../services/voiceSessionService';
 import { createVoiceSessionRouter } from './routes/voiceSessions';
+import { HumanSessionConfig, HumanSessionError, resolveHumanSessionConfig } from '../domain/humanSession';
+import { HumanSessionRepository } from '../repositories/humanSessionRepository';
+import { authenticateHumanSession, createHumanSessionRouter } from './humanSessionAuth';
 
 export interface EgoricReadonlyAppOptions {
   knex?: Knex;
@@ -69,6 +72,8 @@ export interface EgoricReadonlyAppOptions {
   supervisedHandClock?: () => Date;
   voiceClientSecretProvider?: VoiceClientSecretProvider;
   voiceClock?: () => Date;
+  humanSession?: HumanSessionConfig | null;
+  humanSessionClock?: () => Date;
 }
 
 /** Read-only-to-Egoric runtime: health, cockpit, brief, and tenant-scoped Advisor memory. */
@@ -141,6 +146,7 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
         ...Object.values(AMBIENT_JARVIS_TABLES),
         ...Object.values(JARVIS_V1_TABLES),
         ...Object.values(VOICE_SESSION_TABLES),
+        ...(humanConfig ? ['human_login_challenges', 'human_sessions'] : []),
       ];
       const present = await Promise.all(requiredTables.map((table) => knex.schema.hasTable(table)));
       const [, pending] = await knex.migrate.list();
@@ -214,15 +220,18 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
     clock,
   );
   const auth = resolveIntegrationReadAuthConfig(options.integrationReadAuth);
+  const humanConfig = resolveHumanSessionConfig(options.humanSession);
+  const humanSessions = new HumanSessionRepository(knex, options.humanSessionClock);
   // The public shell contains no tenant data or credential. Every cockpit data
   // request still crosses the separately authenticated /v1 boundary below.
   app.use('/cockpit', createCockpitExperienceRouter());
+  app.use('/auth/human', createHumanSessionRouter(humanSessions, humanConfig));
   app.use('/internal/operations', createOperationalHealthRouter(
     new OperationalHealthRepository(knex, clock),
     options.observabilityCredentialFingerprint,
     options.maxFreshnessSeconds ?? 900,
   ));
-  app.use('/v1', authenticateIntegrationRead(auth));
+  app.use('/v1', authenticateHumanSession(humanSessions, humanConfig), authenticateIntegrationRead(auth));
   app.use('/v1/tenants', createEgoricBriefRouter(brief));
   app.use('/v1/tenants', createCockpitApiRouter(cockpit));
   app.use('/v1/tenants', createAdvisorConversationRouter(advisor, voiceSessions));
@@ -234,6 +243,11 @@ export function createEgoricReadonlyApp(options: EgoricReadonlyAppOptions = {}) 
   app.use('/v1/tenants', createVoiceSessionRouter(voiceSessions));
 
   app.use((error: Error & { type?: string }, _req: Request, res: Response, _next: NextFunction) => {
+    if (error instanceof HumanSessionError) {
+      res.setHeader('Cache-Control', 'no-store');
+      res.status(error.status).json({ error: 'Human session request was rejected.', code: error.code });
+      return;
+    }
     if (error.type === 'entity.too.large') {
       res.status(413).json({ error: 'request body exceeds 32 KiB', code: 'request_too_large' });
       return;

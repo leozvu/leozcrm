@@ -1,0 +1,41 @@
+{
+  "evidence": "Chromium with intercepted fixture APIs; no live SSO/provider",
+  "results": [
+    {
+      "profile": "desktop",
+      "scenario": "Connect, ask, and inspect actual dialog",
+      "status": "PASS"
+    },
+    {
+      "profile": "desktop",
+      "scenario": "Disconnect pending answer and reconnect without old content",
+      "status": "PASS"
+    },
+    {
+      "profile": "desktop",
+      "scenario": "Expired credential clears rendered workspace",
+      "status": "PASS"
+    },
+    {
+      "profile": "mobile",
+      "scenario": "Connect, ask, and inspect actual dialog",
+      "status": "PASS"
+    },
+    {
+      "profile": "mobile",
+      "scenario": "Disconnect pending answer and reconnect without old content",
+      "status": "PASS"
+    },
+    {
+      "profile": "mobile",
+      "scenario": "Expired credential clears rendered workspace",
+      "status": "PASS"
+    },
+    {
+      "profile": "desktop",
+      "scenario": "Pending automatic sign-in cannot replace manual tenant",
+      "status": "PASS"
+    }
+  ],
+  "browserErrors": []
+}
